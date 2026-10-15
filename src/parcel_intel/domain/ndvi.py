@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from datetime import date
 
@@ -5,6 +6,9 @@ from parcel_intel.domain.geometry import BBox
 from parcel_intel.domain.provenance import Provenance
 
 Grid = tuple[tuple[float, ...], ...]
+"""Valores NDVI en `[-1, 1]`, o `float('nan')` en una celda cuya banda roja
+o NIR era `nodata` en la escena de origen — nunca `0.0`, que es un valor
+NDVI válido (y distinto de "sin dato")."""
 ChangeGrid = tuple[tuple[bool, ...], ...]
 
 
@@ -53,8 +57,16 @@ def compute_change_mask(before: NdviGrid, after: NdviGrid, threshold: float) -> 
             f"Los dos NdviGrid tienen formas distintas: "
             f"{_shape(before.values)} != {_shape(after.values)}"
         )
+    # Una celda `nan` (sin dato en alguna de las dos bandas de origen) nunca
+    # se marca como cambiada, con independencia del umbral: no hay base para
+    # afirmar un cambio sin dato en al menos una de las dos fechas. Explícito
+    # aquí en vez de confiar en que una comparación con `nan` da `False` por
+    # semántica IEEE 754 (correcto, pero no obvio para quien lea el código).
     changed = tuple(
-        tuple(abs(a - b) > threshold for a, b in zip(row_after, row_before, strict=True))
+        tuple(
+            False if (math.isnan(a) or math.isnan(b)) else abs(a - b) > threshold
+            for a, b in zip(row_after, row_before, strict=True)
+        )
         for row_after, row_before in zip(after.values, before.values, strict=True)
     )
     return ChangeMask(

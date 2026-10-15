@@ -1,3 +1,4 @@
+import math
 from datetime import UTC, date
 from datetime import datetime as _datetime
 
@@ -75,11 +76,14 @@ def _reflectance(dn: int, band: BandInfo) -> float | None:
 
 
 def _ndvi(red_refl: float | None, nir_refl: float | None) -> float:
+    """`nan` si cualquiera de las dos bandas es `nodata` en ese píxel (ADR
+    0007: las celdas sin dato deben excluirse del resultado, no confundirse
+    con un NDVI real de 0.0 — `Grid` lo documenta explícitamente)."""
     if red_refl is None or nir_refl is None:
-        return 0.0
+        return math.nan
     denom = nir_refl + red_refl
     if denom == 0:
-        return 0.0
+        return math.nan
     return (nir_refl - red_refl) / denom
 
 
@@ -193,5 +197,8 @@ class Sentinel2Adapter:
         min_col, max_col = min(cols), max(cols)
         min_row, max_row = min(rows), max(rows)
         tiff = open_band(band["href"], self._ranged_get, self._content_length)
-        window = read_pixel_window(tiff, min_col, min_row, max_col, max_row)
-        return window, (min_col, min_row)
+        # El origen que devuelve read_pixel_window puede no coincidir con
+        # (min_col, min_row) si la ventana pedida cae parcial o totalmente
+        # fuera del raster nativo: usar siempre el origen que devuelve la
+        # función, nunca recalcularlo aquí (bug real corregido en revisión).
+        return read_pixel_window(tiff, min_col, min_row, max_col, max_row)

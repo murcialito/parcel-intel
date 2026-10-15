@@ -66,3 +66,15 @@ def test_grids_de_distinta_forma_lanzan_error() -> None:
 
     with pytest.raises(MismatchedNdviGridError):
         compute_change_mask(before, after, threshold=0.1)
+
+
+def test_celdas_nan_nunca_se_marcan_como_cambiadas() -> None:
+    # nan representa "sin dato" (nodata en alguna banda de origen), no un
+    # NDVI real -- no hay base para afirmar un cambio sin dato en al menos
+    # una de las dos fechas, con independencia del umbral.
+    before = _grid(((float("nan"), 0.2),))
+    after = _grid(((0.9, float("nan")),))
+
+    mask = compute_change_mask(before, after, threshold=0.01)
+
+    assert mask.changed == ((False, False),)

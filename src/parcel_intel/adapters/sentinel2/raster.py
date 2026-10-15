@@ -51,10 +51,18 @@ def read_pixel_window(
     min_row: int,
     max_col: int,
     max_row: int,
-) -> np.ndarray:
+) -> tuple[np.ndarray, tuple[int, int]]:
     """Lee solo los tiles que cubren `[min_col,max_col] x [min_row,max_row]`
-    (inclusive) y devuelve un array 2D recortado exactamente a esa ventana,
-    sin leer el resto de la imagen."""
+    (inclusive) y devuelve `(ventana, origen)`, donde `origen` es
+    `(min_col, min_row)` **ya acotado** a los límites reales de la imagen.
+
+    Devolver el origen acotado desde aquí (en vez de que quien llama lo
+    recalcule) es deliberado: si `min_col`/`min_row` caen fuera del raster
+    (p. ej. una celda de salida que reproyecta a un punto fuera de la escena
+    nativa, en el borde de un huso UTM), el origen cambia respecto al pedido
+    y cualquier indexado posterior debe usar este valor, no el original —
+    bug real encontrado en revisión: `_read_window` del adapter devolvía el
+    origen sin acotar, desalineado con la ventana realmente leída."""
     page = tiff.pages[0]
     assert isinstance(page, tifffile.TiffPage)
     tile_w, tile_h = page.tilewidth, page.tilelength
@@ -97,4 +105,4 @@ def read_pixel_window(
                 ov_row0 - tile_row0 : ov_row1 - tile_row0,
                 ov_col0 - tile_col0 : ov_col1 - tile_col0,
             ]
-    return window
+    return window, (min_col, min_row)
