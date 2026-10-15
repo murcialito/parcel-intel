@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+from typing import TypedDict
 
 from parcel_intel.domain.geometry import Geometry, Ring
 from parcel_intel.ports.errors import ParcelNotFoundError
@@ -6,6 +7,19 @@ from parcel_intel.ports.errors import ParcelNotFoundError
 _CATASTRO_NS = "http://www.catastro.meh.es/"
 _GML_NS = "http://www.opengis.net/gml/3.2"
 _CRS_25830 = 25830
+
+
+class RawParcel(TypedDict):
+    reference: str
+    area_m2: float
+    rings: tuple[Ring, ...]
+
+
+class RawBuilding(TypedDict):
+    reference: str
+    area_m2: float
+    construction_year: int | None
+    rings: tuple[Ring, ...]
 
 
 def _local_name(tag: str) -> str:
@@ -42,10 +56,10 @@ def _rings_from_feature(feature: ET.Element) -> tuple[Ring, ...]:
     return tuple(rings)
 
 
-def parse_wfs_parcels(xml_bytes: bytes) -> list[dict[str, object]]:
+def parse_wfs_parcels(xml_bytes: bytes) -> list[RawParcel]:
     """Parsea un `GetFeature` de `cp:CadastralParcel` a una lista de dicts planos."""
     root = ET.fromstring(xml_bytes)
-    parcels: list[dict[str, object]] = []
+    parcels: list[RawParcel] = []
     for feature in root.iter():
         if _local_name(feature.tag) != "CadastralParcel":
             continue
@@ -73,10 +87,10 @@ def parse_wfs_parcels(xml_bytes: bytes) -> list[dict[str, object]]:
     return parcels
 
 
-def parse_wfs_buildings(xml_bytes: bytes) -> list[dict[str, object]]:
+def parse_wfs_buildings(xml_bytes: bytes) -> list[RawBuilding]:
     """Parsea un `GetFeature` de edificios (`bu-ext2d:Building`) a una lista de dicts planos."""
     root = ET.fromstring(xml_bytes)
-    buildings: list[dict[str, object]] = []
+    buildings: list[RawBuilding] = []
     for feature in root.iter():
         if _local_name(feature.tag) != "Building":
             continue

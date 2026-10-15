@@ -27,3 +27,13 @@ def point_in_ring(point: Point, ring: Ring) -> bool:
             if x < x_intersect:
                 inside = not inside
     return inside
+
+
+def point_in_any_ring(point: Point, rings: tuple[Ring, ...]) -> bool:
+    """Punto dentro de cualquiera de los anillos de una geometría multi-parte.
+
+    Necesario porque tanto parcelas como edificios reales de Catastro pueden
+    tener más de un anillo (cuerpos separados bajo la misma referencia) —
+    comprobar solo `rings[0]` descarta en silencio los que caen en otro.
+    """
+    return any(point_in_ring(point, ring) for ring in rings)

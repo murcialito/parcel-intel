@@ -15,7 +15,7 @@ class ParcelGeometryPort(Protocol):
 
 
 class BuildingGeometryPort(Protocol):
-    """Capacidad: dada una referencia catastral o una parcela, devolver sus edificios.
+    """Capacidad: dada una referencia catastral, devolver los edificios de esa parcela.
 
     Separado de `ParcelGeometryPort` (ver ADR 0002) porque un futuro adapter
     de detección de imagen solo tiene autoridad sobre edificios, nunca sobre

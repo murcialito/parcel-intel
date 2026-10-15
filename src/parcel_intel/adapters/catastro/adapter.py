@@ -8,7 +8,7 @@ from parcel_intel.adapters.catastro.client import (
     HttpGetter,
     default_http_getter,
 )
-from parcel_intel.adapters.catastro.geometry_ops import point_in_ring, ring_centroid
+from parcel_intel.adapters.catastro.geometry_ops import point_in_any_ring, ring_centroid
 from parcel_intel.adapters.catastro.parsing import (
     geometry_from_rings,
     parse_cpmrc_centroid,
@@ -64,8 +64,8 @@ class CatastroAdapter:
                 return Parcel(
                     cadastral_reference=compact,
                     municipality=self._municipio,
-                    geometry=geometry_from_rings(parcel["rings"]),  # type: ignore[arg-type]
-                    area_m2=parcel["area_m2"],  # type: ignore[arg-type]
+                    geometry=geometry_from_rings(parcel["rings"]),
+                    area_m2=parcel["area_m2"],
                     provenance=Provenance(
                         source="catastro",
                         url=f"{WFS_PARCEL_URL}?{self._params_to_query(params)}",
@@ -78,7 +78,6 @@ class CatastroAdapter:
         compact = to_compact_reference(cadastral_reference)
         x, y = self._centroid(compact)
         parcel = self._parcel_at(compact, x, y)
-        parcel_ring = parcel.geometry.rings[0]
 
         bbox = self._bbox(x, y)
         params = self._wfs_params("bu:Building", bbox)
@@ -89,15 +88,20 @@ class CatastroAdapter:
             rings = raw_building["rings"]
             if not rings:
                 continue
-            centroid = ring_centroid(rings[0])  # type: ignore[index]
-            if not point_in_ring(centroid, parcel_ring):
+            # Un edificio puede tener varios cuerpos (anillos); basta con que
+            # el centroide de alguno caiga en alguno de los anillos de la
+            # parcela para considerarlo asociado a ella.
+            belongs_to_parcel = any(
+                point_in_any_ring(ring_centroid(ring), parcel.geometry.rings) for ring in rings
+            )
+            if not belongs_to_parcel:
                 continue
             buildings.append(
                 Building(
-                    cadastral_reference=raw_building["reference"],  # type: ignore[arg-type]
-                    geometry=geometry_from_rings(rings),  # type: ignore[arg-type]
-                    area_m2=raw_building["area_m2"],  # type: ignore[arg-type]
-                    construction_year=raw_building["construction_year"],  # type: ignore[arg-type]
+                    cadastral_reference=raw_building["reference"],
+                    geometry=geometry_from_rings(rings),
+                    area_m2=raw_building["area_m2"],
+                    construction_year=raw_building["construction_year"],
                     origin="catastro",
                     provenance=Provenance(
                         source="catastro",
