@@ -1,0 +1,18 @@
+Results for FeatureType 'UsoDelSuelo:VPLA_V_CLASIFICACION_REF_25':
+--------------------------------------------
+CDID = 117369
+CD_UNI = RF_170_365_CLA_0000017
+CD_MUNICIPIO = 170
+DS_MUNICIPIO = VILLACONEJOS
+FC_REF = 2025-06-29Z
+DS_CLASIF_DET = Suelo Urbano
+DS_CLASIF_GEN = Suelo Urbano Consolidado
+CD_SIGLAS = SUC
+DS_NOTAS = null
+DS_ADJUNTO = null
+NM_LONGITUD = 4842.00002514748
+NM_AREA = 781320.799418545
+CD_REUR = 365
+GEOMETRY1 = [GEOMETRY (Polygon) with 373 points]
+DS_NOTAS_REF = null
+--------------------------------------------

@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="utf-8" ?><rss version="2.0" xml:base="https://www.bocm.es/listado-de-boletines" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:og="http://ogp.me/ns#" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:sioc="http://rdfs.org/sioc/ns#" xmlns:sioct="http://rdfs.org/sioc/types#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <channel>
+    <title>Listado de boletines</title>
+    <link>https://www.bocm.es/listado-de-boletines</link>
+    <description>Listado de los últimos veinte boletines oficiales de la Comunidad de Madrid</description>
+    <language>es</language>
+     <atom:link href="https://www.bocm.es/boletines.rss" rel="self" type="application/rss+xml" />
+      <item>
+    <title>BOCM - Nº 246</title>
+    <link>https://www.bocm.es/boletin/bocm-20261015-246</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20261015/246&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/15/BOCM-20261015246.PDF&quot; type=&quot;application/pdf; length=269204&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/15/24600.PDF&quot; type=&quot;application/pdf; length=6389223&quot;&gt;24600.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-10-15T00:00:00+02:00&quot;&gt;Jueves 15 de Octubre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;246&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Wed, 14 Oct 2026 11:54:50 +0000</pubDate>
+ <dc:creator>bocm-carga</dc:creator>
+ <guid isPermaLink="false">965320 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 245</title>
+    <link>https://www.bocm.es/boletin/bocm-20261014-245</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20261014/245&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/14/BOCM-20261014245.PDF&quot; type=&quot;application/pdf; length=288714&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/14/24500.PDF&quot; type=&quot;application/pdf; length=5985324&quot;&gt;24500.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-10-14T00:00:00+02:00&quot;&gt;Miércoles 14 de Octubre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;245&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Tue, 13 Oct 2026 12:07:26 +0000</pubDate>
+ <dc:creator>ESM153</dc:creator>
+ <guid isPermaLink="false">965230 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 244</title>
+    <link>https://www.bocm.es/boletin/bocm-20261013-244</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20261013/244&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/13/BOCM-20261013244.PDF&quot; type=&quot;application/pdf; length=279530&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/13/24400.PDF&quot; type=&quot;application/pdf; length=7386440&quot;&gt;24400.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-10-13T00:00:00+02:00&quot;&gt;Martes 13 de Octubre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;244&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Fri, 09 Oct 2026 13:46:01 +0000</pubDate>
+ <dc:creator>ESM153</dc:creator>
+ <guid isPermaLink="false">965101 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 243</title>
+    <link>https://www.bocm.es/boletin/bocm-20261012-243</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20261012/243&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/12/BOCM-20261012243.PDF&quot; type=&quot;application/pdf; length=202358&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/12/24300.PDF&quot; type=&quot;application/pdf; length=6054748&quot;&gt;24300.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-10-12T00:00:00+02:00&quot;&gt;Lunes 12 de Octubre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;243&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Fri, 09 Oct 2026 11:31:56 +0000</pubDate>
+ <dc:creator>ESM153</dc:creator>
+ <guid isPermaLink="false">965078 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 242</title>
+    <link>https://www.bocm.es/boletin/bocm-20261010-242</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20261010/242&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/10/BOCM-20261010242.PDF&quot; type=&quot;application/pdf; length=202723&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/10/24200.PDF&quot; type=&quot;application/pdf; length=2621117&quot;&gt;24200.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-10-10T00:00:00+02:00&quot;&gt;Sábado 10 de Octubre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;242&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Fri, 09 Oct 2026 14:48:17 +0000</pubDate>
+ <dc:creator>ESM153</dc:creator>
+ <guid isPermaLink="false">965201 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 241</title>
+    <link>https://www.bocm.es/boletin/bocm-20261009-241</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20261009/241&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/09/BOCM-20261009241.PDF&quot; type=&quot;application/pdf; length=302275&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/09/24100.PDF&quot; type=&quot;application/pdf; length=5753339&quot;&gt;24100.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-10-09T00:00:00+02:00&quot;&gt;Viernes 09 de Octubre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;241&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Thu, 08 Oct 2026 12:42:28 +0000</pubDate>
+ <dc:creator>bocm-carga</dc:creator>
+ <guid isPermaLink="false">964854 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 240</title>
+    <link>https://www.bocm.es/boletin/bocm-20261008-240</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20261008/240&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/08/BOCM-20261008240.PDF&quot; type=&quot;application/pdf; length=268055&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/08/24000.PDF&quot; type=&quot;application/pdf; length=4936701&quot;&gt;24000.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-10-08T00:00:00+02:00&quot;&gt;Jueves 08 de Octubre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;240&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Wed, 07 Oct 2026 13:26:02 +0000</pubDate>
+ <dc:creator>cms-sys-altia</dc:creator>
+ <guid isPermaLink="false">964764 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 239</title>
+    <link>https://www.bocm.es/boletin/bocm-20261007-239</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20261007/239&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/07/BOCM-20261007239.PDF&quot; type=&quot;application/pdf; length=250317&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/07/23900.PDF&quot; type=&quot;application/pdf; length=2728722&quot;&gt;23900.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-10-07T00:00:00+02:00&quot;&gt;Miércoles 07 de Octubre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;239&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Tue, 06 Oct 2026 11:56:46 +0000</pubDate>
+ <dc:creator>ESM153</dc:creator>
+ <guid isPermaLink="false">964652 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 238</title>
+    <link>https://www.bocm.es/boletin/bocm-20261006-238</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20261006/238&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/06/BOCM-20261006238.PDF&quot; type=&quot;application/pdf; length=239628&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/06/23800.PDF&quot; type=&quot;application/pdf; length=2741577&quot;&gt;23800.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-10-06T00:00:00+02:00&quot;&gt;Martes 06 de Octubre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;238&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Mon, 05 Oct 2026 11:35:28 +0000</pubDate>
+ <dc:creator>bocm-carga</dc:creator>
+ <guid isPermaLink="false">964587 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 237</title>
+    <link>https://www.bocm.es/boletin/bocm-20261005-237</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20261005/237&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/05/BOCM-20261005237.PDF&quot; type=&quot;application/pdf; length=269367&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/05/23700.PDF&quot; type=&quot;application/pdf; length=2963521&quot;&gt;23700.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-10-05T00:00:00+02:00&quot;&gt;Lunes 05 de Octubre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;237&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Fri, 02 Oct 2026 11:40:26 +0000</pubDate>
+ <dc:creator>bocm-carga</dc:creator>
+ <guid isPermaLink="false">964503 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 236</title>
+    <link>https://www.bocm.es/boletin/bocm-20261003-236</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20261003/236&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/03/BOCM-20261003236.PDF&quot; type=&quot;application/pdf; length=201763&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/03/23600.PDF&quot; type=&quot;application/pdf; length=3186735&quot;&gt;23600.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-10-03T00:00:00+02:00&quot;&gt;Sábado 03 de Octubre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;236&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Fri, 02 Oct 2026 06:50:38 +0000</pubDate>
+ <dc:creator>ESM153</dc:creator>
+ <guid isPermaLink="false">964482 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 235</title>
+    <link>https://www.bocm.es/boletin/bocm-20261002-235</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20261002/235&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/02/BOCM-20261002235.PDF&quot; type=&quot;application/pdf; length=280146&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/02/23500.PDF&quot; type=&quot;application/pdf; length=3584010&quot;&gt;23500.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-10-02T00:00:00+02:00&quot;&gt;Viernes 02 de Octubre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;235&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Thu, 01 Oct 2026 11:31:40 +0000</pubDate>
+ <dc:creator>bocm-carga</dc:creator>
+ <guid isPermaLink="false">964399 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 234</title>
+    <link>https://www.bocm.es/boletin/bocm-20261001-234</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20261001/234&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/01/BOCM-20261001234.PDF&quot; type=&quot;application/pdf; length=251855&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/10/01/23400.PDF&quot; type=&quot;application/pdf; length=3366574&quot;&gt;23400.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-10-01T00:00:00+02:00&quot;&gt;Jueves 01 de Octubre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;234&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Wed, 30 Sep 2026 13:20:59 +0000</pubDate>
+ <dc:creator>ESM153</dc:creator>
+ <guid isPermaLink="false">964138 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 233</title>
+    <link>https://www.bocm.es/boletin/bocm-20260930-233</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20260930/233&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/30/BOCM-20260930233.PDF&quot; type=&quot;application/pdf; length=289781&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/30/23300.PDF&quot; type=&quot;application/pdf; length=3692514&quot;&gt;23300.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-09-30T00:00:00+02:00&quot;&gt;Miércoles 30 de Septiembre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;233&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Tue, 29 Sep 2026 13:25:42 +0000</pubDate>
+ <dc:creator>bocm-carga</dc:creator>
+ <guid isPermaLink="false">964036 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 232</title>
+    <link>https://www.bocm.es/boletin/bocm-20260929-232</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20260929/232&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/29/BOCM-20260929232.PDF&quot; type=&quot;application/pdf; length=239111&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/29/23200.PDF&quot; type=&quot;application/pdf; length=5413455&quot;&gt;23200.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-09-29T00:00:00+02:00&quot;&gt;Martes 29 de Septiembre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;232&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Mon, 28 Sep 2026 11:43:29 +0000</pubDate>
+ <dc:creator>bocm-carga</dc:creator>
+ <guid isPermaLink="false">963975 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 231</title>
+    <link>https://www.bocm.es/boletin/bocm-20260928-231</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20260928/231&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/28/BOCM-20260928231.PDF&quot; type=&quot;application/pdf; length=270052&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/28/23100.PDF&quot; type=&quot;application/pdf; length=7555335&quot;&gt;23100.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-09-28T00:00:00+02:00&quot;&gt;Lunes 28 de Septiembre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;231&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Fri, 25 Sep 2026 12:43:20 +0000</pubDate>
+ <dc:creator>cms-sys-altia</dc:creator>
+ <guid isPermaLink="false">963889 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 230</title>
+    <link>https://www.bocm.es/boletin/bocm-20260926-230</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20260926/230&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/26/BOCM-20260926230.PDF&quot; type=&quot;application/pdf; length=203803&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/26/23000.PDF&quot; type=&quot;application/pdf; length=3728465&quot;&gt;23000.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-09-26T00:00:00+02:00&quot;&gt;Sábado 26 de Septiembre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;230&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Fri, 25 Sep 2026 07:38:22 +0000</pubDate>
+ <dc:creator>ESM153</dc:creator>
+ <guid isPermaLink="false">963869 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 229</title>
+    <link>https://www.bocm.es/boletin/bocm-20260925-229</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20260925/229&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/25/BOCM-20260925229.PDF&quot; type=&quot;application/pdf; length=269630&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/25/22900.PDF&quot; type=&quot;application/pdf; length=6457592&quot;&gt;22900.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-09-25T00:00:00+02:00&quot;&gt;Viernes 25 de Septiembre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;229&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Fri, 25 Sep 2026 06:11:19 +0000</pubDate>
+ <dc:creator>cms-sys-altia</dc:creator>
+ <guid isPermaLink="false">963774 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 228</title>
+    <link>https://www.bocm.es/boletin/bocm-20260924-228</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20260924/228&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/24/BOCM-20260924228.PDF&quot; type=&quot;application/pdf; length=258791&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/24/22800.PDF&quot; type=&quot;application/pdf; length=3314339&quot;&gt;22800.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-09-24T00:00:00+02:00&quot;&gt;Jueves 24 de Septiembre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;228&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Thu, 24 Sep 2026 07:04:56 +0000</pubDate>
+ <dc:creator>cms-sys-altia</dc:creator>
+ <guid isPermaLink="false">963416 at https://www.bocm.es</guid>
+  </item>
+  <item>
+    <title>BOCM - Nº 227</title>
+    <link>https://www.bocm.es/boletin/bocm-20260923-227</link>
+    <description>&lt;div class=&quot;field field-name-field-content-name field-type-text field-label-hidden field-name-node-link&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;a href=&quot;/boletin-completo/BOCM-20260923/227&quot;&gt;Ver&lt;/a&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-summary-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/23/BOCM-20260923227.PDF&quot; type=&quot;application/pdf; length=303586&quot;&gt;Descargar&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-pdf-file field-type-file field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;file&quot;&gt;&lt;img class=&quot;file-icon&quot; alt=&quot;Icono PDF&quot; title=&quot;application/pdf&quot; src=&quot;/modules/file/icons/application-pdf.png&quot; /&gt; &lt;a href=&quot;https://www.bocm.es/boletin/CM_Boletin_BOCM/2026/09/23/22700.PDF&quot; type=&quot;application/pdf; length=3871385&quot;&gt;22700.PDF&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-date field-type-date field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;&lt;span class=&quot;date-display-single&quot; property=&quot;dc:date&quot; datatype=&quot;xsd:dateTime&quot; content=&quot;2026-09-23T00:00:00+02:00&quot;&gt;Miércoles 23 de Septiembre de 2026&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;field field-name-field-bocm-number field-type-number-decimal field-label-hidden&quot;&gt;
+    &lt;div class=&quot;field-items&quot;&gt;
+          &lt;div class=&quot;field-item even&quot;&gt;227&lt;/div&gt;
+      &lt;/div&gt;
+&lt;/div&gt;
+  </description>
+     <pubDate>Wed, 23 Sep 2026 07:08:03 +0000</pubDate>
+ <dc:creator>cms-sys-altia</dc:creator>
+ <guid isPermaLink="false">963297 at https://www.bocm.es</guid>
+  </item>
+  </channel>
+</rss>

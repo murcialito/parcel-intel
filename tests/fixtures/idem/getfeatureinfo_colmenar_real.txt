@@ -1,0 +1,18 @@
+Results for FeatureType 'UsoDelSuelo:VPLA_V_CLASIFICACION_REF_25':
+--------------------------------------------
+CDID = 116412
+CD_UNI = RF_043_58_CLA_0000013
+CD_MUNICIPIO = 043
+DS_MUNICIPIO = COLMENAR DE OREJA
+FC_REF = 2025-06-29Z
+DS_CLASIF_DET = null
+DS_CLASIF_GEN = Suelo Urbano
+CD_SIGLAS = SU
+DS_NOTAS = null
+DS_ADJUNTO = null
+NM_LONGITUD = 6734.30006292754
+NM_AREA = 978358.107171786
+CD_REUR = 58
+GEOMETRY1 = [GEOMETRY (Polygon) with 490 points]
+DS_NOTAS_REF = null
+--------------------------------------------

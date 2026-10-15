@@ -1,0 +1,2291 @@
+<?xml version="1.0" encoding="UTF-8"?><WMS_Capabilities xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" version="1.3.0" updateSequence="13415" xmlns="http://www.opengis.net/wms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wms https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms http://inspire.ec.europa.eu/schemas/inspire_vs/1.0 https://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd">
+  <Service>
+    <Name>WMS</Name>
+    <Title>WMS de Usos del Suelo IDE de la Comunidad de Madrid</Title>
+    <Abstract>Servicio WMS de visualización de las capas de información geográfica correspondientes al tema INSPIRE "Uso del suelo" del anexo III.&#13;
+Caracterización del territorio, de acuerdo con su dimensión funcional o su dedicación socioeconómica actual o futura planificadas (por ejemplo, residencial, industrial, comercial, agrario, forestal, recreativo).</Abstract>
+    <KeywordList>
+      <Keyword>WMS</Keyword>
+      <Keyword>GEOIDEM</Keyword>
+      <Keyword>INSPIRE</Keyword>
+      <Keyword>Comunidad de Madrid</Keyword>
+      <Keyword>Uso del suelo</Keyword>
+      <Keyword>Planeamiento</Keyword>
+      <Keyword>urbanismo</Keyword>
+    </KeywordList>
+    <OnlineResource xlink:type="simple" xlink:href="http://geoserver.org"/>
+    <ContactInformation>
+      <ContactPersonPrimary>
+        <ContactPerson/>
+        <ContactOrganization/>
+      </ContactPersonPrimary>
+      <ContactPosition/>
+      <ContactAddress>
+        <AddressType/>
+        <Address/>
+        <City/>
+        <StateOrProvince/>
+        <PostCode/>
+        <Country/>
+      </ContactAddress>
+      <ContactVoiceTelephone/>
+      <ContactFacsimileTelephone/>
+      <ContactElectronicMailAddress/>
+    </ContactInformation>
+    <Fees>NONE</Fees>
+    <AccessConstraints>CC BY 4.0 Comunidad de Madrid</AccessConstraints>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCapabilities>
+        <Format>text/xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetCapabilities>
+      <GetMap>
+        <Format>image/png</Format>
+        <Format>application/atom+xml</Format>
+        <Format>application/geopackage+sqlite3</Format>
+        <Format>application/json;type=geojson</Format>
+        <Format>application/json;type=topojson</Format>
+        <Format>application/json;type=utfgrid</Format>
+        <Format>application/pdf</Format>
+        <Format>application/rss+xml</Format>
+        <Format>application/vnd.google-earth.kml+xml</Format>
+        <Format>application/vnd.google-earth.kml+xml;mode=networklink</Format>
+        <Format>application/vnd.google-earth.kmz</Format>
+        <Format>application/vnd.mapbox-vector-tile</Format>
+        <Format>application/x-sqlite3</Format>
+        <Format>image/geotiff</Format>
+        <Format>image/geotiff8</Format>
+        <Format>image/gif</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/png; mode=8bit</Format>
+        <Format>image/svg+xml</Format>
+        <Format>image/tiff</Format>
+        <Format>image/tiff8</Format>
+        <Format>image/vnd.jpeg-png</Format>
+        <Format>image/vnd.jpeg-png8</Format>
+        <Format>text/html</Format>
+        <Format>text/html; subtype=openlayers</Format>
+        <Format>text/html; subtype=openlayers2</Format>
+        <Format>text/html; subtype=openlayers3</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetMap>
+      <GetFeatureInfo>
+        <Format>text/plain</Format>
+        <Format>text/html</Format>
+        <Format>application/json</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetFeatureInfo>
+    </Request>
+    <Exception>
+      <Format>XML</Format>
+      <Format>INIMAGE</Format>
+      <Format>BLANK</Format>
+      <Format>JSON</Format>
+    </Exception>
+    <inspire_vs:ExtendedCapabilities>
+      <inspire_common:MetadataUrl>
+        <inspire_common:URL>https://idem.comunidad.madrid/catalogocartografia/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spacm_wms_lu</inspire_common:URL>
+        <inspire_common:MediaType>application/vnd.ogc.csw.GetRecordByIdResponse_xml</inspire_common:MediaType>
+      </inspire_common:MetadataUrl>
+      <inspire_common:SupportedLanguages>
+        <inspire_common:DefaultLanguage>
+          <inspire_common:Language>spa</inspire_common:Language>
+        </inspire_common:DefaultLanguage>
+      </inspire_common:SupportedLanguages>
+      <inspire_common:ResponseLanguage>
+        <inspire_common:Language>spa</inspire_common:Language>
+      </inspire_common:ResponseLanguage>
+    </inspire_vs:ExtendedCapabilities>
+    <Layer>
+      <Title>WMS de Usos del Suelo IDE de la Comunidad de Madrid</Title>
+      <Abstract>Servicio WMS de visualización de las capas de información geográfica correspondientes al tema INSPIRE "Uso del suelo" del anexo III.&#13;
+Caracterización del territorio, de acuerdo con su dimensión funcional o su dedicación socioeconómica actual o futura planificadas (por ejemplo, residencial, industrial, comercial, agrario, forestal, recreativo).</Abstract>
+      <!--Limited list of EPSG projections:-->
+      <CRS>EPSG:4258</CRS>
+      <CRS>EPSG:23030</CRS>
+      <CRS>EPSG:25830</CRS>
+      <CRS>EPSG:4326</CRS>
+      <CRS>EPSG:3857</CRS>
+      <CRS>EPSG:32630</CRS>
+      <CRS>EPSG:3035</CRS>
+      <CRS>CRS:84</CRS>
+      <EX_GeographicBoundingBox>
+        <westBoundLongitude>-4.601730937318062</westBoundLongitude>
+        <eastBoundLongitude>-3.052819181340272</eastBoundLongitude>
+        <southBoundLatitude>39.876860537352044</southBoundLatitude>
+        <northBoundLatitude>41.16711639505206</northBoundLatitude>
+      </EX_GeographicBoundingBox>
+      <BoundingBox CRS="CRS:84" minx="-4.601730937318062" miny="39.876860537352044" maxx="-3.052819181340272" maxy="41.16711639505206"/>
+      <BoundingBox CRS="EPSG:4258" minx="39.87686057815449" miny="-4.601730937318062" maxx="41.16711643672776" maxy="-3.052819181340272"/>
+      <BoundingBox CRS="EPSG:23030" minx="363128.4040160692" miny="4414298.590597878" maxx="495670.40407334873" maxy="4558753.778267619"/>
+      <BoundingBox CRS="EPSG:25830" minx="363028.2394144731" miny="4414091.427658273" maxx="495569.064824271" maxy="4558545.342525837"/>
+      <BoundingBox CRS="EPSG:4326" minx="39.876860537352044" miny="-4.601730937318062" maxx="41.16711639505206" maxy="-3.052819181340272"/>
+      <BoundingBox CRS="EPSG:3857" minx="-512262.3447099001" miny="4848064.090399772" maxx="-339838.2767507374" maxy="5037022.631221824"/>
+      <BoundingBox CRS="EPSG:32630" minx="363028.23933420377" miny="4414091.423243402" maxx="495569.0648214951" maxy="4558545.338014502"/>
+      <BoundingBox CRS="EPSG:3035" minx="1961067.879630972" miny="3073841.68665024" maxx="2125927.2295950376" maxy="3227058.8071965985"/>
+      <Layer queryable="1" opaque="0">
+        <Name>CM_ExistingLandUseDataObject</Name>
+        <Title>Usos del suelo urbano y urbanizable ocupado de la Comunidad de Madrid 2016</Title>
+        <Abstract>Usos del suelo ocupado en terrenos clasificados como urbano, consolidado y no consolidado, y urbanizable sectorizado (clasificación de suelo homogeneizada según Ley 9/2001) y urbanizaciones catalogadas por la Ley 9/1985, de los municipios de la Comunidad de Madrid.</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>CM_ExistingLandUseDataObject</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>Uso del Suelo</Keyword>
+          <Keyword>Suelo ocupado</Keyword>
+          <Keyword>Suelo urbano</Keyword>
+          <Keyword>Suelo urbanizable</Keyword>
+        </KeywordList>
+        <CRS>EPSG:4258</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.56603288650513</westBoundLongitude>
+          <eastBoundLongitude>-3.08829140663147</eastBoundLongitude>
+          <southBoundLatitude>40.018909493397146</southBoundLatitude>
+          <northBoundLatitude>41.13606647655532</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.56603288650513" miny="40.018909493397146" maxx="-3.08829140663147" maxy="41.13606647655532"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.0189094543457" miny="-4.56603288650513" maxx="41.1360664367676" maxy="-3.08829140663147"/>
+        <BoundingBox CRS="EPSG:23030" minx="366458.0531283211" miny="4430067.016687241" maxx="492691.1443115149" maxy="4555252.123735319"/>
+        <BoundingBox CRS="EPSG:25830" minx="366357.86831735383" miny="4429859.719513905" maxx="492589.84852860303" maxy="4555043.721744887"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.018909493397146" miny="-4.56603288650513" maxx="41.13606647655532" maxy="-3.08829140663147"/>
+        <BoundingBox CRS="EPSG:3857" minx="-508288.4558710921" miny="4868690.53615561" maxx="-343787.0268074578" maxy="5032432.20145722"/>
+        <BoundingBox CRS="EPSG:32630" minx="366357.86839446565" miny="4429859.723962156" maxx="492589.8485331332" maxy="4555043.726277433"/>
+        <BoundingBox CRS="EPSG:3035" minx="1977116.1422418728" miny="3079589.0512060886" maxx="2121961.721071007" maxy="3223572.6251606615"/>
+        <AuthorityURL name="Comunidad de Madrid">
+          <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+        </AuthorityURL>
+        <Identifier authority="Comunidad de Madrid">CM_ExistingLandUseDataObject</Identifier>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.des.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_elusocu"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_elucm_object_socu</Name>
+          <Title>S_elucm_object_socu</Title>
+          <LegendURL width="174" height="460">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=CM_ExistingLandUseDataObject"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_CLASES_AGROLOGICAS</Name>
+        <Title>Clases Agrológicas de la Comunidad de Madrid</Title>
+        <Abstract>Capa de la Capacidad Agrológica (uso agrario y resistencia) del suelo de la Comunidad de Madrid. Adecuación de las tierras para producir cultivos, pastos y/o bosques manteniendo su nivel productivo sin que se produzca riesgo de degradación a largo plazo.</Abstract>
+        <KeywordList>
+          <Keyword>IDEM_CLASES_AGROLOGICAS</Keyword>
+          <Keyword>AGROLÓGICO</Keyword>
+          <Keyword>USO DEL SUELO</Keyword>
+          <Keyword>IDEM</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>CULTIVOS</Keyword>
+          <Keyword>bosques</Keyword>
+          <Keyword>pastos</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.601397023691574</westBoundLongitude>
+          <eastBoundLongitude>-3.052819181340272</eastBoundLongitude>
+          <southBoundLatitude>39.876865435891816</southBoundLatitude>
+          <northBoundLatitude>41.16711622601472</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.601397023691574" miny="39.876865435891816" maxx="-3.052819181340272" maxy="41.16711622601472"/>
+        <BoundingBox CRS="EPSG:25830" minx="365635.7185" miny="4415271.9991" maxx="495483.98" maxy="4557310.2102"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.87686539694629" miny="-4.601397023691574" maxx="41.167116186209036" maxy="-3.052819181340272"/>
+        <BoundingBox CRS="EPSG:23030" minx="365735.88746100187" miny="4415479.168731664" maxx="495585.30047205975" maxy="4557518.632225237"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.876865435891816" miny="-4.601397023691574" maxx="41.16711622601472" maxy="-3.052819181340272"/>
+        <BoundingBox CRS="EPSG:3857" minx="-512225.17361503065" miny="4848064.800962474" maxx="-339838.2767507374" maxy="5037022.606225373"/>
+        <BoundingBox CRS="EPSG:32630" minx="365635.7185768039" miny="4415272.003536359" maxx="495483.9800027652" maxy="4557310.2147343885"/>
+        <BoundingBox CRS="EPSG:3035" minx="1962230.458099856" miny="3076409.709229384" maxx="2124708.479782706" maxy="3226974.757989377"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_clasesagro"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_IDEM_AGROLOGICO</Name>
+          <Title>S_IDEM_AGROLOGICO</Title>
+          <LegendURL width="1138" height="1068">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_CLASES_AGROLOGICAS"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_CALIDAD_PAISAJE</Name>
+        <Title>Calidad Visual del Paisaje de la Comunidad de Madrid</Title>
+        <Abstract>[LANG_ES]Calidad del Paisaje según el Proyecto "Cartografía de Paisaje de la Comunidad de Madrid" Aplicación del modelo de calidad visual del paisaje a las 236 unidades y subunidades de paisaje de la Comunidad de Madrid.&#13;
+&#13;
+[LANG_EN]Quality of the Landscape according to the Project "Cartography of Landscape of the Comunidad de Madrid"</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Landscape quality</Keyword>
+          <Keyword> ALLOW_LABELS::1</Keyword>
+          <Keyword> OPACITY::70</Keyword>
+          <Keyword>Calidad visual</Keyword>
+          <Keyword>Paisaje</Keyword>
+          <Keyword>Uso del Suelo</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.601730937318062</westBoundLongitude>
+          <eastBoundLongitude>-3.052819763446812</eastBoundLongitude>
+          <southBoundLatitude>39.876860537352044</southBoundLatitude>
+          <northBoundLatitude>41.167115494289845</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.601730937318062" miny="39.876860537352044" maxx="-3.052819763446812" maxy="41.167115494289845"/>
+        <BoundingBox CRS="EPSG:25830" minx="365607.6897" miny="4415271.9482" maxx="495483.9302" maxy="4557310.129"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.876860498406536" miny="-4.601730937318062" maxx="41.16711545448417" maxy="-3.0528197634468124"/>
+        <BoundingBox CRS="EPSG:23030" minx="365707.8584212778" miny="4415479.117831235" maxx="495585.2506716318" maxy="4557518.551037986"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.876860537352044" miny="-4.601730937318062" maxx="41.167115494289845" maxy="-3.052819763446812"/>
+        <BoundingBox CRS="EPSG:3857" minx="-512262.3447099001" miny="4848064.090399772" maxx="-339838.341550541" maxy="5037022.498021314"/>
+        <BoundingBox CRS="EPSG:32630" minx="365607.6897768199" miny="4415271.952636359" maxx="495483.9302027651" maxy="4557310.133534386"/>
+        <BoundingBox CRS="EPSG:3035" minx="1962230.416514608" miny="3076382.019169259" maxx="2124713.3032400454" maxy="3226974.6959891976"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_calidadpaisaje1998"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_PAISAJE_CALIDAD</Name>
+          <Title>Calidad de paisaje</Title>
+          <Abstract>Calidad de paisaje</Abstract>
+          <LegendURL width="103" height="120">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_CALIDAD_PAISAJE"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_FRAGILIDAD_PAISAJE</Name>
+        <Title>Fragilidad Visual del Paisaje de la Comunidad de Madrid</Title>
+        <Abstract>[LANG_ES]Fragilidad Visual del Paisaje según el "Proyecto de Cartografía de Paisaje de la Comunidad de Madrid"&#13;
+&#13;
+[LANG_EN]Visual fragility of the Landscape according to the "Landscape Cartography Project of the Community of Madrid"</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Fragility of landscape</Keyword>
+          <Keyword> ALLOW_LABELS::1</Keyword>
+          <Keyword> OPACITY::70</Keyword>
+          <Keyword>PFragilidad Visual</Keyword>
+          <Keyword>Paisaje</Keyword>
+          <Keyword>Uso del Suelo</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.601730937318062</westBoundLongitude>
+          <eastBoundLongitude>-3.052819763446812</eastBoundLongitude>
+          <southBoundLatitude>39.876860537352044</southBoundLatitude>
+          <northBoundLatitude>41.167115494289845</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.601730937318062" miny="39.876860537352044" maxx="-3.052819763446812" maxy="41.167115494289845"/>
+        <BoundingBox CRS="EPSG:25830" minx="365607.6897" miny="4415271.9482" maxx="495483.9302" maxy="4557310.129"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.876860498406536" miny="-4.601730937318062" maxx="41.16711545448417" maxy="-3.0528197634468124"/>
+        <BoundingBox CRS="EPSG:23030" minx="365707.8584212778" miny="4415479.117831235" maxx="495585.2506716318" maxy="4557518.551037986"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.876860537352044" miny="-4.601730937318062" maxx="41.167115494289845" maxy="-3.052819763446812"/>
+        <BoundingBox CRS="EPSG:3857" minx="-512262.3447099001" miny="4848064.090399772" maxx="-339838.341550541" maxy="5037022.498021314"/>
+        <BoundingBox CRS="EPSG:32630" minx="365607.6897768199" miny="4415271.952636359" maxx="495483.9302027651" maxy="4557310.133534386"/>
+        <BoundingBox CRS="EPSG:3035" minx="1962230.416514608" miny="3076382.019169259" maxx="2124713.3032400454" maxy="3226974.6959891976"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_fragilidadpaisaje1998"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_PAISAJE_FRAGILIDAD</Name>
+          <Title>Fragilidad de paisaje</Title>
+          <Abstract>Fragilidad de paisaje</Abstract>
+          <LegendURL width="103" height="120">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_FRAGILIDAD_PAISAJE"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_PARQUE_FOREST_PERI</Name>
+        <Title>Parques Forestales Periurbanos de la Comunidad de Madrid</Title>
+        <Abstract>[LANG_ES]La Red de Parques Forestales Periurbanos tiene como principal objetivo la regeneración del medio físico y la implantación de equipamientos de ocio y tiempo libre para facilitar a los ciudadanos de los municipios limítrofes el contacto con la naturaleza y mejorar su calidad de vida.&#13;
+&#13;
+[LANG_EN]The Network of Periurban Forest Parks main objective is the regeneration of the physical environment and the implementation of leisure facilities to facilitate the citizens of neighboring municipalities the contact with nature and improve their quality of life.</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Peri-urban forest parks</Keyword>
+          <Keyword> ALLOW_LABELS::1</Keyword>
+          <Keyword> OPACITY::70</Keyword>
+          <Keyword>Parques Forestales</Keyword>
+          <Keyword>Uso del Suelo</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-3.8060776239608223</westBoundLongitude>
+          <eastBoundLongitude>-3.605787102982429</eastBoundLongitude>
+          <southBoundLatitude>40.26446447601434</southBoundLatitude>
+          <northBoundLatitude>40.401604863728</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-3.8060776239608223" miny="40.26446447601434" maxx="-3.605787102982429" maxy="40.401604863728"/>
+        <BoundingBox CRS="EPSG:25830" minx="431596.6468" miny="4457421.2346" maxx="448490.9938" maxy="4472509.8245"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.26446443678624" miny="-3.8060776239608223" maxx="40.401604824404835" maxy="-3.605787102982429"/>
+        <BoundingBox CRS="EPSG:23030" minx="431697.40046368947" miny="4457628.783624351" maxx="448591.8969567327" maxy="4472717.508686745"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.26446447601434" miny="-3.8060776239608223" maxx="40.401604863728" maxy="-3.605787102982429"/>
+        <BoundingBox CRS="EPSG:3857" minx="-423690.62301899126" miny="4904448.290246955" maxx="-401394.38421295705" maxy="4924475.184389193"/>
+        <BoundingBox CRS="EPSG:32630" minx="431596.6468399807" miny="4457421.239068448" maxx="448490.99383032694" maxy="4472509.828979262"/>
+        <BoundingBox CRS="EPSG:3035" minx="2011843.4038981716" miny="3148163.780682559" maxx="2029634.5909870411" maxy="3167219.4062384535"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pfp"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_PARQUE_FOREST_PERI</Name>
+          <Title>Parques forestales periurbanos</Title>
+          <Abstract>Parques forestales periurbanos</Abstract>
+          <LegendURL width="224" height="100">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PARQUE_FOREST_PERI"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_UNIDADES_PAISAJE</Name>
+        <Title>Unidades de Paisaje de la Comunidad de Madrid</Title>
+        <Abstract>[LANG_ES]Cartografía del paisaje elaborada en el marco del Proyecto de Cartografía de Paisaje de la Comunidad de Madrid&#13;
+&#13;
+[LANG_EN]Cartography of the landscape elaborated within the framework of the Landscape Cartography Project of the Comunidad de Madrid</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Landscape units</Keyword>
+          <Keyword> ALLOW_LABELS::1</Keyword>
+          <Keyword> OPACITY::70</Keyword>
+          <Keyword>Unidade de Paisaje</Keyword>
+          <Keyword>Uso del Suelo</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.601730937318062</westBoundLongitude>
+          <eastBoundLongitude>-3.052819763446812</eastBoundLongitude>
+          <southBoundLatitude>39.876860537352044</southBoundLatitude>
+          <northBoundLatitude>41.167115494289845</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.601730937318062" miny="39.876860537352044" maxx="-3.052819763446812" maxy="41.167115494289845"/>
+        <BoundingBox CRS="EPSG:25830" minx="365607.6897" miny="4415271.9482" maxx="495483.9302" maxy="4557310.129"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.876860498406536" miny="-4.601730937318062" maxx="41.16711545448417" maxy="-3.0528197634468124"/>
+        <BoundingBox CRS="EPSG:23030" minx="365707.8584212778" miny="4415479.117831235" maxx="495585.2506716318" maxy="4557518.551037986"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.876860537352044" miny="-4.601730937318062" maxx="41.167115494289845" maxy="-3.052819763446812"/>
+        <BoundingBox CRS="EPSG:3857" minx="-512262.3447099001" miny="4848064.090399772" maxx="-339838.341550541" maxy="5037022.498021314"/>
+        <BoundingBox CRS="EPSG:32630" minx="365607.6897768199" miny="4415271.952636359" maxx="495483.9302027651" maxy="4557310.133534386"/>
+        <BoundingBox CRS="EPSG:3035" minx="1962230.416514608" miny="3076382.019169259" maxx="2124713.3032400454" maxy="3226974.6959891976"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_udpaisaje1998"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_PAISAJE_UNIDADES</Name>
+          <Title>Unidades de paisaje</Title>
+          <Abstract>Unidades de paisaje</Abstract>
+          <LegendURL width="177" height="340">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_UNIDADES_PAISAJE"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_VEGETACION</Name>
+        <Title>Mapa Digital Continuo de Vegetación de la Comunidad de Madrid (2006)</Title>
+        <Abstract>[LANG_ES]Recoge tanto superficies ocupadas por vegetación, como superficies artificiales ocupadaspor infraestructuras lineales, zonas urbanas, industriales, etc.&#13;
+&#13;
+[LANG_EN]It collects both areas occupied by vegetation, and artificial surfaces occupied by linear infrastructures, urban, industrial, etc.</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Vegetation and uses, scale 1:50.000</Keyword>
+          <Keyword> OPACITY::70</Keyword>
+          <Keyword>Vegetación</Keyword>
+          <Keyword>fisonomía</Keyword>
+          <Keyword>Uso del Suelo</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.601730937318062</westBoundLongitude>
+          <eastBoundLongitude>-3.052819763448888</eastBoundLongitude>
+          <southBoundLatitude>39.876860540054025</southBoundLatitude>
+          <northBoundLatitude>41.167115494289845</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.601730937318062" miny="39.876860540054025" maxx="-3.052819763448888" maxy="41.167115494289845"/>
+        <BoundingBox CRS="EPSG:25830" minx="365607.6897" miny="4415271.9485" maxx="495483.9302" maxy="4557310.129"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.87686050110851" miny="-4.601730937318062" maxx="41.16711545448417" maxy="-3.052819763448887"/>
+        <BoundingBox CRS="EPSG:23030" minx="365707.85842127795" miny="4415479.118131237" maxx="495585.2506716318" maxy="4557518.551037986"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.876860540054025" miny="-4.601730937318062" maxx="41.167115494289845" maxy="-3.052819763448888"/>
+        <BoundingBox CRS="EPSG:3857" minx="-512262.3447099001" miny="4848064.0907917125" maxx="-339838.3415507721" maxy="5037022.498021314"/>
+        <BoundingBox CRS="EPSG:32630" minx="365607.6897768199" miny="4415271.95293636" maxx="495483.9302027651" maxy="4557310.133534386"/>
+        <BoundingBox CRS="EPSG:3035" minx="1962230.4168100648" miny="3076382.0192161696" maxx="2124713.3032400454" maxy="3226974.6959891976"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_veg2006"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_VEGETACION</Name>
+          <Title>Vegetación 2006</Title>
+          <Abstract>Vegetación 2006</Abstract>
+          <LegendURL width="235" height="1748">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_VEGETACION"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_VEGETACION_1982</Name>
+        <Title>Cartografía y caracterización de los usos del suelo y de la vegetación natural de Madrid (1982)</Title>
+        <Abstract>[LANG_ES]Las unidades tipo representadas en este trabajo se definen según la fisonomía, estructura y especies dominantes de las mismas&#13;
+&#13;
+[LANG_EN]The type units represented in this work are defined according to the physiognomy, structure and dominant species</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Vegetation and uses (1982)</Keyword>
+          <Keyword> OPACITY::70</Keyword>
+          <Keyword>Vegetación</Keyword>
+          <Keyword>fisonomía</Keyword>
+          <Keyword>Uso del Suelo</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.601730937318062</westBoundLongitude>
+          <eastBoundLongitude>-3.052819763448888</eastBoundLongitude>
+          <southBoundLatitude>39.876860540054025</southBoundLatitude>
+          <northBoundLatitude>41.167115494289845</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.601730937318062" miny="39.876860540054025" maxx="-3.052819763448888" maxy="41.167115494289845"/>
+        <BoundingBox CRS="EPSG:25830" minx="365607.6897" miny="4415271.9485" maxx="495483.9302" maxy="4557310.129"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.87686050110851" miny="-4.601730937318062" maxx="41.16711545448417" maxy="-3.052819763448887"/>
+        <BoundingBox CRS="EPSG:23030" minx="365707.85842127795" miny="4415479.118131237" maxx="495585.2506716318" maxy="4557518.551037986"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.876860540054025" miny="-4.601730937318062" maxx="41.167115494289845" maxy="-3.052819763448888"/>
+        <BoundingBox CRS="EPSG:3857" minx="-512262.3447099001" miny="4848064.0907917125" maxx="-339838.3415507721" maxy="5037022.498021314"/>
+        <BoundingBox CRS="EPSG:32630" minx="365607.6897768199" miny="4415271.95293636" maxx="495483.9302027651" maxy="4557310.133534386"/>
+        <BoundingBox CRS="EPSG:3035" minx="1962230.4168100648" miny="3076382.0192161696" maxx="2124713.3032400454" maxy="3226974.6959891976"/>
+        <AuthorityURL name="Comunidad de Madrid">
+          <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+        </AuthorityURL>
+        <Identifier authority="Comunidad de Madrid">IDEM_MA_VEGETACION_1982</Identifier>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_veg1982"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_VEGETACION_1982</Name>
+          <Title>Vegetación 1982</Title>
+          <Abstract>Vegetación 1982</Abstract>
+          <LegendURL width="238" height="276">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_VEGETACION_1982"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_VEGETACION_1998</Name>
+        <Title>Mapa de Vegetación y Usos del Suelo de la Comunidad de Madrid (1998)</Title>
+        <Abstract>[LANG_ES]Clasificación de la vegetación y usos de suelo existentes en la Comunidad de Madrid en &#147;tipos o unidades&#148; basadas en la fisonomía, la estructura y las especies dominantes&#13;
+[LANG_EN]Classification of vegetation and land uses existing in the Comunidad de Madrid in "types or units" based on the physiognomy, structure and dominant specie</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Vegetation and uses (1998)</Keyword>
+          <Keyword> OPACITY::70</Keyword>
+          <Keyword>Vegetación</Keyword>
+          <Keyword>fisonomía</Keyword>
+          <Keyword>Uso del Suelo</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.601730937318062</westBoundLongitude>
+          <eastBoundLongitude>-3.052819763446812</eastBoundLongitude>
+          <southBoundLatitude>39.876860537352044</southBoundLatitude>
+          <northBoundLatitude>41.167115494289845</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.601730937318062" miny="39.876860537352044" maxx="-3.052819763446812" maxy="41.167115494289845"/>
+        <BoundingBox CRS="EPSG:25830" minx="365607.6897" miny="4415271.9482" maxx="495483.9302" maxy="4557310.129"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.876860498406536" miny="-4.601730937318062" maxx="41.16711545448417" maxy="-3.0528197634468124"/>
+        <BoundingBox CRS="EPSG:23030" minx="365707.8584212778" miny="4415479.117831235" maxx="495585.2506716318" maxy="4557518.551037986"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.876860537352044" miny="-4.601730937318062" maxx="41.167115494289845" maxy="-3.052819763446812"/>
+        <BoundingBox CRS="EPSG:3857" minx="-512262.3447099001" miny="4848064.090399772" maxx="-339838.341550541" maxy="5037022.498021314"/>
+        <BoundingBox CRS="EPSG:32630" minx="365607.6897768199" miny="4415271.952636359" maxx="495483.9302027651" maxy="4557310.133534386"/>
+        <BoundingBox CRS="EPSG:3035" minx="1962230.416514608" miny="3076382.019169259" maxx="2124713.3032400454" maxy="3226974.6959891976"/>
+        <AuthorityURL name="Comunidad de Madrid">
+          <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+        </AuthorityURL>
+        <Identifier authority="Comunidad de Madrid">IDEM_MA_VEGETACION_1998</Identifier>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_veg1998"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_VEGETACION_1998</Name>
+          <Title>Vegetación 1998</Title>
+          <Abstract>Vegetación 1998</Abstract>
+          <LegendURL width="231" height="318">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_VEGETACION_1998"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_URB_SIOSE_POLIGONOS_05</Name>
+        <Title>SIOSE 2005</Title>
+        <Abstract>[LANG_ES]Sistema de Información de Ocupación del Suelo en España (Comunidad Autónoma de Madrid) a escala 1:25.000 del año 2005.&#13;
+[LANG_EN]Land Occupation Information System of Spain 2005</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>SIOSE</Keyword>
+          <Keyword>Ocupación del Suelo</Keyword>
+          <Keyword>Usos del Suelo</Keyword>
+          <Keyword>Existing Land Use</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.601397486911812</westBoundLongitude>
+          <eastBoundLongitude>-3.052820549843502</eastBoundLongitude>
+          <southBoundLatitude>39.8769401780383</southBoundLatitude>
+          <northBoundLatitude>41.16711293567841</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.601397486911812" miny="39.8769401780383" maxx="-3.052820549843502" maxy="41.16711293567841"/>
+        <BoundingBox CRS="EPSG:25830" minx="365635.6729" miny="4415280.2985" maxx="495483.8679" maxy="4557309.845"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.87694013909273" miny="-4.601397486911812" maxx="41.167112895872734" maxy="-3.052820549843501"/>
+        <BoundingBox CRS="EPSG:23030" minx="365735.8418657881" miny="4415487.468203916" maxx="495585.18837106676" maxy="4557518.267022256"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.8769401780383" miny="-4.601397486911812" maxx="41.16711293567841" maxy="-3.052820549843502"/>
+        <BoundingBox CRS="EPSG:3857" minx="-512225.2251804716" miny="4848075.642767325" maxx="-339838.42909182" maxy="5037022.119665804"/>
+        <BoundingBox CRS="EPSG:32630" minx="365635.67297680443" miny="4415280.302936366" maxx="495483.86790276534" maxy="4557309.849534386"/>
+        <BoundingBox CRS="EPSG:3035" minx="1962238.6511125078" miny="3076410.9619396767" maxx="2124708.127679157" maxy="3226974.589661896"/>
+        <AuthorityURL name="Comunidad de Madrid">
+          <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+        </AuthorityURL>
+        <Identifier authority="Comunidad de Madrid">IDEM_URB_SIOSE_POLIGONOS_05</Identifier>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_siose2005"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_SIOSE_POLIGONOS</Name>
+          <Title>SIOSE</Title>
+          <Abstract>SIOSE</Abstract>
+          <LegendURL width="238" height="440">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_URB_SIOSE_POLIGONOS_05"/>
+          </LegendURL>
+        </Style>
+        <MaxScaleDenominator>100000.0</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_URB_SIOSE_POLIGONOS_09</Name>
+        <Title>SIOSE 2009</Title>
+        <Abstract>[LANG_ES]Sistema de Información de Ocupación del Suelo en España (Comunidad Autónoma de Madrid) a escala 1:25.000 del año 2009.&#13;
+[LANG_EN]Land Occupation Information System of Spain 2009</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::SIOSE_2009</Keyword>
+          <Keyword>SIOSE</Keyword>
+          <Keyword>Uso del Suelo</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+          <Keyword>Existing Land Use</Keyword>
+          <Keyword>Ocupación del suelo</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.601397153924209</westBoundLongitude>
+          <eastBoundLongitude>-3.0528198952151153</eastBoundLongitude>
+          <southBoundLatitude>39.876940632740016</southBoundLatitude>
+          <northBoundLatitude>41.16711276483893</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.601397153924209" miny="39.876940632740016" maxx="-3.0528198952151153" maxy="41.16711276483893"/>
+        <BoundingBox CRS="EPSG:25830" minx="365635.7005" miny="4415280.3485" maxx="495483.9239" maxy="4557309.826"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.87694059379443" miny="-4.601397153924209" maxx="41.16711272503325" maxy="-3.0528198952151153"/>
+        <BoundingBox CRS="EPSG:23030" minx="365735.8694660552" miny="4415487.518204337" maxx="495585.2443715301" maxy="4557518.248022087"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.876940632740016" miny="-4.601397153924209" maxx="41.16711276483893" maxy="-3.0528198952151153"/>
+        <BoundingBox CRS="EPSG:3857" minx="-512225.1881124612" miny="4848075.708724622" maxx="-339838.3562189214" maxy="5037022.094402861"/>
+        <BoundingBox CRS="EPSG:32630" minx="365635.70057680435" miny="4415280.3529363675" maxx="495483.92390276515" maxy="4557309.830534387"/>
+        <BoundingBox CRS="EPSG:3035" minx="1962238.6907476315" miny="3076410.9970166017" maxx="2124708.1041169832" maxy="3226974.6419867566"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_siose2009"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_SIOSE_POLIGONOS</Name>
+          <Title>SIOSE</Title>
+          <Abstract>SIOSE</Abstract>
+          <LegendURL width="238" height="440">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_URB_SIOSE_POLIGONOS_09"/>
+          </LegendURL>
+        </Style>
+        <MaxScaleDenominator>100000.0</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_URB_SIOSE_POLIGONOS_11</Name>
+        <Title>SIOSE 2011</Title>
+        <Abstract>[LANG_ES]Sistema de Información de Ocupación del Suelo en España en la Comunidad de Madrid, basado en imágenes SPOT5 y PNOA a escala 1:25.000 del año 2011.&#13;
+&#13;
+[LANG_EN]Land Occupation Information System of Spain 2011</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::SIOSE_2011</Keyword>
+          <Keyword>OPACITY::70</Keyword>
+          <Keyword>SIOSE</Keyword>
+          <Keyword>Uso del Suelo</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+          <Keyword>Ocupación del suelo</Keyword>
+          <Keyword>Existing Land Use</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.6013971539310425</westBoundLongitude>
+          <eastBoundLongitude>-3.0528198940527242</eastBoundLongitude>
+          <southBoundLatitude>39.87694059285163</southBoundLatitude>
+          <northBoundLatitude>41.16711272408439</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.6013971539310425" miny="39.87694059285163" maxx="-3.0528198940527242" maxy="41.16711272408439"/>
+        <BoundingBox CRS="EPSG:25830" minx="-495483.923999383" miny="4415280.34849842" maxx="365635.700499397" maxy="4557309.8259984"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.31140342886003" miny="-14.747243224011688" maxx="41.155992153041915" maxy="-4.571242823517331"/>
+        <BoundingBox CRS="EPSG:23030" minx="-495390.6155806931" miny="4415487.57797873" maxx="365735.94779654196" maxy="4557519.545293218"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.31140346735709" miny="-14.747243224011692" maxx="41.155992192841175" maxy="-4.57124282351733"/>
+        <BoundingBox CRS="EPSG:3857" minx="-1641655.6063015356" miny="4766376.116558054" maxx="-508868.42340635526" maxy="5035377.775709553"/>
+        <BoundingBox CRS="EPSG:32630" minx="-495483.8517877378" miny="4415280.332413628" maxx="365635.7005815159" maxy="4557309.830532146"/>
+        <BoundingBox CRS="EPSG:3035" minx="1984721.9705403806" miny="2234211.8734115115" maxx="2282620.282912952" maxy="3098790.7930599246"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_siose2011"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_SIOSE_POLIGONOS</Name>
+          <Title>SIOSE</Title>
+          <Abstract>SIOSE</Abstract>
+          <LegendURL width="238" height="440">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_URB_SIOSE_POLIGONOS_11"/>
+          </LegendURL>
+        </Style>
+        <MaxScaleDenominator>100000.0</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_URB_SIOSE_POLIGONOS_14</Name>
+        <Title>SIOSE 2014</Title>
+        <Abstract>[LANG_ES]Sistema de Información de Ocupación del Suelo en España (Comunidad Autónoma de Madrid) a escala 1:25.000 del año 2014.&#13;
+&#13;
+[LANG_EN]Land Occupation Information System of Spain 2014</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::SIOSE 2014</Keyword>
+          <Keyword>SIOSE</Keyword>
+          <Keyword>OCUPACIÓN DEL SUELO</Keyword>
+          <Keyword>COMUNIDAD DE MADRID</Keyword>
+          <Keyword>IDEM</Keyword>
+          <Keyword>Existing Land Use</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.6013972003882975</westBoundLongitude>
+          <eastBoundLongitude>-3.0528198942446565</eastBoundLongitude>
+          <southBoundLatitude>39.87694089151232</southBoundLatitude>
+          <northBoundLatitude>41.16711276483948</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.6013972003882975" miny="39.87694089151232" maxx="-3.0528198942446565" maxy="41.16711276483948"/>
+        <BoundingBox CRS="EPSG:25830" minx="365635.6966" miny="4415280.3773" maxx="495483.924" maxy="4557309.826"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.87694085256674" miny="-4.6013972003882975" maxx="41.16711272503381" maxy="-3.0528198942446565"/>
+        <BoundingBox CRS="EPSG:23030" minx="365735.86556604016" miny="4415487.547004586" maxx="495585.2444715309" maxy="4557518.248022088"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.87694089151232" miny="-4.6013972003882975" maxx="41.16711276483948" maxy="-3.0528198942446565"/>
+        <BoundingBox CRS="EPSG:3857" minx="-512225.1932848199" miny="4848075.74626114" maxx="-339838.3561108904" maxy="5037022.094402941"/>
+        <BoundingBox CRS="EPSG:32630" minx="365635.6966768044" miny="4415280.381736366" maxx="495483.9240027652" maxy="4557309.830534386"/>
+        <BoundingBox CRS="EPSG:3035" minx="1962238.7190945542" miny="3076410.997668194" maxx="2124708.10479927" maxy="3226974.642085543"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_siose2014"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_SIOSE_POLIGONOS</Name>
+          <Title>SIOSE</Title>
+          <Abstract>SIOSE</Abstract>
+          <LegendURL width="238" height="440">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_URB_SIOSE_POLIGONOS_14"/>
+          </LegendURL>
+        </Style>
+        <MaxScaleDenominator>100000.0</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>elucm_ExistingLandUseDataObject</Name>
+        <Title>Suelo Vacante y Ocupado de la Comunidad de Madrid 2016</Title>
+        <Abstract>Localización del suelo vacante y ocupado en terrenos clasificados como urbano, consolidado y no consolidado, y urbanizable sectorizado (clasificación de suelo homogeneizada según Ley 9/2001) y urbanizaciones catalogadas por la Ley 9/1985, de los municipios de la Comunidad de Madrid. Las escalas empleadas para la fotointerpretación son: 1/1000 para zonas desarrolladas con urbanización y 1/3000 para zonas no desarrolladas.</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>elucm_ExistingLandUseDataObject</Keyword>
+          <Keyword>Uso del Suelo</Keyword>
+          <Keyword>Vacante</Keyword>
+          <Keyword>Ocupado</Keyword>
+          <Keyword>Planeamiento urbanístico</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>Uso del Suelo</Keyword>
+          <Keyword>Suelo urbano</Keyword>
+          <Keyword>Suelo urbanizable</Keyword>
+        </KeywordList>
+        <CRS>EPSG:4258</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.56775426864624</westBoundLongitude>
+          <eastBoundLongitude>-3.08829140663147</eastBoundLongitude>
+          <southBoundLatitude>40.01884078886563</southBoundLatitude>
+          <northBoundLatitude>41.13606643583273</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.56775426864624" miny="40.01884078886563" maxx="-3.08829140663147" maxy="41.13606643583273"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.0188407897949" miny="-4.56775426864624" maxx="41.1360664367676" maxy="-3.08829140663147"/>
+        <BoundingBox CRS="EPSG:23030" minx="366311.0119913483" miny="4430059.39550123" maxx="492691.1443115149" maxy="4555254.723748097"/>
+        <BoundingBox CRS="EPSG:25830" minx="366210.8284351515" miny="4429852.09839391" maxx="492589.84852860303" maxy="4555046.321667786"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.0188408288463" miny="-4.56775426864624" maxx="41.13606647655532" maxy="-3.08829140663147"/>
+        <BoundingBox CRS="EPSG:3857" minx="-508480.0792545012" miny="4868680.55525067" maxx="-343787.0268074578" maxy="5032432.20145722"/>
+        <BoundingBox CRS="EPSG:32630" minx="366210.8285123479" miny="4429852.102842154" maxx="492589.8485331332" maxy="4555046.3262003325"/>
+        <BoundingBox CRS="EPSG:3035" minx="1977108.6370566338" miny="3079443.0606632" maxx="2121989.551312177" maxy="3223572.6251606615"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.des.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_elusvacsocu"/>
+        </MetadataURL>
+        <Style>
+          <Name>elu_svacsocu_tramas</Name>
+          <Title>elu_svacsocu_tramas</Title>
+          <LegendURL width="112" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=elucm_ExistingLandUseDataObject"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>5000.0</MinScaleDenominator>
+        <MaxScaleDenominator>2000000.0</MaxScaleDenominator>
+      </Layer>
+      <Layer>
+        <Name>EIEL Encuesta de Infraestructuras y Equipamientos</Name>
+        <Title>EIEL Encuesta de Infraestructuras y Equipamientos</Title>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_EIEL_SUELO_RURAL_23</Name>
+          <Title>EIEL_23 Suelo Rural</Title>
+          <Abstract>Figura de planeamiento rural que regula la actividad urbanística de los municipios.&#13;
+Encuesta de Infraestructuras y Equipamientos Locales (EIEL) - Fase 2023.</Abstract>
+          <KeywordList>
+            <Keyword>Suelo Rural</Keyword>
+            <Keyword>Figura de planeamiento</Keyword>
+            <Keyword>Encuesta de Infraestructuras y Equipamientos Locales</Keyword>
+            <Keyword>EIEL</Keyword>
+            <Keyword>IDEM</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.589327266180358</westBoundLongitude>
+            <eastBoundLongitude>-3.0793326503495786</eastBoundLongitude>
+            <southBoundLatitude>40.03429166445763</southBoundLatitude>
+            <northBoundLatitude>41.1064087102336</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.589327266180358" miny="40.03429166445763" maxx="-3.0793326503495786" maxy="41.1064087102336"/>
+          <BoundingBox CRS="EPSG:25830" minx="366525.8451" miny="4432735.5492" maxx="493232.6186" maxy="4550572.6724"/>
+          <BoundingBox CRS="EPSG:4258" minx="40.034291625394886" miny="-4.589327266180358" maxx="41.10640867046317" maxy="-3.079332650349579"/>
+          <BoundingBox CRS="EPSG:23030" minx="366626.03237165156" miny="4432942.871053592" maxx="493333.9191710546" maxy="4550781.038554247"/>
+          <BoundingBox CRS="EPSG:4326" minx="40.03429166445763" miny="-4.589327266180358" maxx="41.1064087102336" maxy="-3.0793326503495786"/>
+          <BoundingBox CRS="EPSG:3857" minx="-510881.5743548837" miny="4870926.702726993" maxx="-342789.7426200166" maxy="5028049.616410948"/>
+          <BoundingBox CRS="EPSG:32630" minx="366525.84517695627" miny="4432735.553649701" maxx="493232.6186041312" maxy="4550572.676930348"/>
+          <BoundingBox CRS="EPSG:3035" minx="1979817.0264674912" miny="3080021.9955078047" maxx="2117909.787833135" maxy="3223688.578202109"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_EIEL_SUELO_RURAL_23</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_eiel_suelorural2023"/>
+          </MetadataURL>
+          <Style>
+            <Name>E_EIEL_SUELO_RURAL</Name>
+            <Title>E_EIEL_SUELO_RURAL</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_EIEL_SUELO_RURAL_23"/>
+            </LegendURL>
+          </Style>
+          <MaxScaleDenominator>600000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_EIEL_SUELO_RURAL_PRESERVADO_23</Name>
+          <Title>EIEL_23 Suelo Rural Preservado</Title>
+          <Abstract>Figura de planeamiento rural preservado que regula la actividad urbanística de los municipios.&#13;
+Encuesta de Infraestructuras y Equipamientos Locales (EIEL) - Fase 2023.</Abstract>
+          <KeywordList>
+            <Keyword>Suelo Rural</Keyword>
+            <Keyword>Preservado</Keyword>
+            <Keyword>Figura de Planeamiento</Keyword>
+            <Keyword>Encuesta de Infraestructuras y Equipamientos Locales</Keyword>
+            <Keyword>EIEL</Keyword>
+            <Keyword>IDEM</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.6013972934918455</westBoundLongitude>
+            <eastBoundLongitude>-3.052933321022905</eastBoundLongitude>
+            <southBoundLatitude>40.02414050779671</southBoundLatitude>
+            <northBoundLatitude>41.16711639505206</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.6013972934918455" miny="40.02414050779671" maxx="-3.052933321022905" maxy="41.16711639505206"/>
+          <BoundingBox CRS="EPSG:25830" minx="365635.6962" miny="4431624.1278" maxx="495483.9239" maxy="4557310.229"/>
+          <BoundingBox CRS="EPSG:4258" minx="40.02414046874141" miny="-4.601397293491846" maxx="41.167116355246385" maxy="-3.052933321022905"/>
+          <BoundingBox CRS="EPSG:23030" minx="365735.8752238868" miny="4431831.439390309" maxx="495585.2443715955" maxy="4557518.651025401"/>
+          <BoundingBox CRS="EPSG:4326" minx="40.02414050779671" miny="-4.6013972934918455" maxx="41.16711639505206" maxy="-3.052933321022905"/>
+          <BoundingBox CRS="EPSG:3857" minx="-512225.2036490594" miny="4869450.932669897" maxx="-339850.9827220874" maxy="5037022.631221824"/>
+          <BoundingBox CRS="EPSG:32630" minx="365635.69627742376" miny="4431624.132248852" maxx="495483.9239027652" maxy="4557310.233534386"/>
+          <BoundingBox CRS="EPSG:3035" minx="1978335.8422985114" miny="3078968.88323876" maxx="2124708.502220469" maxy="3226974.705534192"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_EIEL_SUELO_RURAL_PRESERVADO_23</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_eiel_sueloruralpreser2023"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_EIEL_SUELO_RURAL_PRESERVADO</Name>
+            <Title>S_EIEL_SUELO_RURAL_PRESERVADO</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_EIEL_SUELO_RURAL_PRESERVADO_23"/>
+            </LegendURL>
+          </Style>
+          <MaxScaleDenominator>600000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_EIEL_SUELO_URBANO_23</Name>
+          <Title>EIEL_23 Suelo Urbano</Title>
+          <Abstract>Figura de planeamiento urbano que regula la actividad urbanística de los municipios. &#13;
+Encuesta de Infraestructuras y Equipamientos Locales (EIEL) - Fase 2023.</Abstract>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>IDEM_EIEL_SUELO_URBANO_23</Keyword>
+            <Keyword>Suelo Urbano</Keyword>
+            <Keyword>Figura Planeamiento</Keyword>
+            <Keyword>Uso del Suelo</Keyword>
+            <Keyword>Encuesta de Infraestructuras y Equipamientos Locales</Keyword>
+            <Keyword>EIEL</Keyword>
+            <Keyword>IDEM</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.5146822669928435</westBoundLongitude>
+            <eastBoundLongitude>-3.101791403130279</eastBoundLongitude>
+            <southBoundLatitude>40.04866915502197</southBoundLatitude>
+            <northBoundLatitude>41.137487547176825</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.5146822669928435" miny="40.04866915502197" maxx="-3.101791403130279" maxy="41.137487547176825"/>
+          <BoundingBox CRS="EPSG:25830" minx="372856.8157" miny="4434223.2809" maxx="491318.4985" maxy="4554024.8176"/>
+          <BoundingBox CRS="EPSG:4258" minx="40.048669115948684" miny="-4.514682266992843" maxx="41.13748750738828" maxy="-3.101791403130279"/>
+          <BoundingBox CRS="EPSG:23030" minx="372957.05773422215" miny="4434430.616178936" maxx="491419.7837161184" maxy="4554233.20918828"/>
+          <BoundingBox CRS="EPSG:4326" minx="40.04866915502197" miny="-4.5146822669928435" maxx="41.137487547176825" maxy="-3.101791403130279"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502572.13105506526" miny="4873017.271018319" maxx="-345289.83954341616" maxy="5032642.245524575"/>
+          <BoundingBox CRS="EPSG:32630" minx="372856.81577338284" miny="4434223.285350903" maxx="491318.4985053079" maxy="4554024.822132424"/>
+          <BoundingBox CRS="EPSG:3035" minx="1981611.1080953917" miny="3086507.0040955115" maxx="2120206.462235089" maxy="3222341.7901450694"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_EIEL_SUELO_URBANO_23</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_eiel_suelourbano2023"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_EIEL_SUELO_URBANO</Name>
+            <Title>S_EIEL_SUELO_URBANO</Title>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_EIEL_SUELO_URBANO_23"/>
+            </LegendURL>
+          </Style>
+          <MaxScaleDenominator>600000.0</MaxScaleDenominator>
+        </Layer>
+      </Layer>
+      <Layer>
+        <Name>Agricultura y Ganadería</Name>
+        <Title>Agricultura y Ganadería</Title>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_MA_IMIDRA_CULT_PAC</Name>
+          <Title>Cultivos de la PAC 2022</Title>
+          <Abstract>Recoge los cultivos declarados en la PAC para la campaña 2022 según el tipo de cultivo: leñoso, extensivo, hortícola y otros (forestales y aromáticas). Además se puede consultar el tipo de producto cultivado, su variedad, el sistema de explotación y si se encuentran en producción ecológica.</Abstract>
+          <KeywordList>
+            <Keyword>PAC</Keyword>
+            <Keyword>CULTIVOS</Keyword>
+            <Keyword>IDEM</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.5875234026204215</westBoundLongitude>
+            <eastBoundLongitude>-3.0551350691997223</eastBoundLongitude>
+            <southBoundLatitude>39.88349000802163</southBoundLatitude>
+            <northBoundLatitude>41.111575209042705</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.5875234026204215" miny="39.88349000802163" maxx="-3.0551350691997223" maxy="41.111575209042705"/>
+          <BoundingBox CRS="EPSG:25830" minx="366687.81155026" miny="4415989.08917367" maxx="495286.414925733" maxy="4551144.60274194"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.883489969071114" miny="-4.5875234026204215" maxx="41.11157516926926" maxy="-3.0551350691997228"/>
+          <BoundingBox CRS="EPSG:23030" minx="366787.9899540582" miny="4416196.265103521" maxx="495387.7327298059" maxy="4551352.973529007"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.88349000802163" miny="-4.5875234026204215" maxx="41.111575209042705" maxy="-3.0551350691997223"/>
+          <BoundingBox CRS="EPSG:3857" minx="-510680.76918193104" miny="4849025.781502618" maxx="-340096.0802079857" maxy="5028812.937427306"/>
+          <BoundingBox CRS="EPSG:32630" minx="366687.81162649405" miny="4415989.093610599" maxx="495286.4149286112" maxy="4551144.607272633"/>
+          <BoundingBox CRS="EPSG:3035" minx="1962970.593467324" miny="3077560.922496033" maxx="2118445.352198805" maxy="3225807.6845440436"/>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_cultivospac"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_MA_IMIDRA_CULT_PAC</Name>
+            <Title>S_MA_IMIDRA_CULT_PAC</Title>
+            <LegendURL width="175" height="80">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_IMIDRA_CULT_PAC"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_MA_IMIDRA_GANADERIA</Name>
+          <Title>Cabezas de ganado de la PAC 2022</Title>
+          <Abstract>Recoge el total de cabezas de ganado por municipio, visualizando aquellas que corresponden al ganado bovino, ovino y caprino y el número total de cabezas.</Abstract>
+          <KeywordList>
+            <Keyword>Agricultura</Keyword>
+            <Keyword>Medio Rural</Keyword>
+            <Keyword>Ganadería</Keyword>
+            <Keyword>PAC</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.601397294022548</westBoundLongitude>
+            <eastBoundLongitude>-3.052819836806753</eastBoundLongitude>
+            <southBoundLatitude>39.87686479727913</southBoundLatitude>
+            <northBoundLatitude>41.16711639173217</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.601397294022548" miny="39.87686479727913" maxx="-3.052819836806753" maxy="41.16711639173217"/>
+          <BoundingBox CRS="EPSG:25830" minx="365635.696148674" miny="4415271.92858811" maxx="495483.923916156" maxy="4557310.22863144"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.8768647583336" miny="-4.601397294022548" maxx="41.16711635192649" maxy="-3.052819836806754"/>
+          <BoundingBox CRS="EPSG:23030" minx="365735.8651094407" miny="4415479.098219174" maxx="495585.2443877515" maxy="4557518.650656837"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.87686479727913" miny="-4.601397294022548" maxx="41.16711639173217" maxy="-3.052819836806753"/>
+          <BoundingBox CRS="EPSG:3857" minx="-512225.203708137" miny="4848064.708327856" maxx="-339838.34971693234" maxy="5037022.630730895"/>
+          <BoundingBox CRS="EPSG:32630" minx="365635.6962254779" miny="4415271.93302447" maxx="495483.9239189212" maxy="4557310.233165828"/>
+          <BoundingBox CRS="EPSG:3035" minx="1962230.3982777037" miny="3076409.6761288494" maxx="2124708.5018660515" maxy="3226974.705492035"/>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ganadopac"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_MA_IMIDRA_CABEZAS_GANADO</Name>
+            <Title>S_MA_IMIDRA_CABEZAS_GANADO</Title>
+            <LegendURL width="242" height="100">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_IMIDRA_GANADERIA"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+      </Layer>
+      <Layer>
+        <Name>Áreas Protegidas</Name>
+        <Title>Áreas Protegidas</Title>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_MA_MTFOREST_MADRID</Name>
+          <Title>Mapa de Terreno Forestal de la Comunidad de Madrid</Title>
+          <Abstract>El propósito de esta cartografía es reflejar de la forma más aproximada posible el estado actual de la superficie forestal en la Comunidad de Madrid, partiendo de la Foto fija del 2021 (Ministerio para la Transición Ecológica y el Reto Demográfico), PNOA-LiDAR 2024 (Instituto Geográfico Nacional) y capas oficiales del Sistema de Información Territorial de la D.G. de Urbanismo de la Comunidad de Madrid.&#13;
+Esta información no tiene ninguna vinculación legal.</Abstract>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>IDEM_MA_MTFOREST_MADRID</Keyword>
+            <Keyword>Terreno forestal</Keyword>
+            <Keyword>Medio Ambiente</Keyword>
+            <Keyword>IDEM</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>Frondosas</Keyword>
+            <Keyword>Coníferas</Keyword>
+            <Keyword>Areas protegidas</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.601397294595552</westBoundLongitude>
+            <eastBoundLongitude>-3.052819835963096</eastBoundLongitude>
+            <southBoundLatitude>39.87686497570919</southBoundLatitude>
+            <northBoundLatitude>41.167116391449426</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.601397294595552" miny="39.87686497570919" maxx="-3.052819835963096" maxy="41.167116391449426"/>
+          <BoundingBox CRS="EPSG:25830" minx="365635.6961" miny="4415271.9484" maxx="495483.924000001" maxy="4557310.2286"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.87686493676365" miny="-4.601397294595552" maxx="41.167116351643756" maxy="-3.0528198359630956"/>
+          <BoundingBox CRS="EPSG:23030" minx="365735.8650607787" miny="4415479.118031239" maxx="495585.24447159725" maxy="4557518.650625397"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.87686497570919" miny="-4.601397294595552" maxx="41.167116391449426" maxy="-3.052819835963096"/>
+          <BoundingBox CRS="EPSG:3857" minx="-512225.2037719235" miny="4848064.734210211" maxx="-339838.34962301684" maxy="5037022.6306890845"/>
+          <BoundingBox CRS="EPSG:32630" minx="365635.696176804" miny="4415271.952836362" maxx="495483.9240027662" maxy="4557310.233134387"/>
+          <BoundingBox CRS="EPSG:3035" minx="1962230.4177753304" miny="3076409.679178688" maxx="2124708.501843571" maxy="3226974.7055699066"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_MA_MTFOREST_MADRID</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_mtf"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_MA_MTFOREST_MADRID</Name>
+            <Title>Terrenos forestales</Title>
+            <Abstract>Terrenos forestales</Abstract>
+            <LegendURL width="298" height="120">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_MTFOREST_MADRID"/>
+            </LegendURL>
+          </Style>
+          <MaxScaleDenominator>70000.0</MaxScaleDenominator>
+        </Layer>
+      </Layer>
+      <Layer>
+        <Name>Planeamiento Urbanístico</Name>
+        <Title>Planeamiento Urbanístico</Title>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_URB_PARCELAS_LEY_3_2024</Name>
+          <Title>Parcelas de aplicación Ley 3/2024</Title>
+          <Abstract>Datos georreferenciados de parcelas de los municipios de la Comunidad de Madrid a las que resulta de aplicación la Ley 3/2024, de 28 de junio, de medidas urbanísticas para promoción de vivienda protegida. &#13;
+Parcelas potenciales en revisión.&#13;
+Datos agregados de las parcelas a nivel municipal.</Abstract>
+          <KeywordList>
+            <Keyword>Urbanismo</Keyword>
+            <Keyword>Planeamiento</Keyword>
+            <Keyword>Ley 3/2024</Keyword>
+            <Keyword>Parcelas</Keyword>
+            <Keyword>Uso del Suelo</Keyword>
+            <Keyword>IDEM</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.423791621252544</westBoundLongitude>
+            <eastBoundLongitude>-3.152632280926485</eastBoundLongitude>
+            <southBoundLatitude>40.0131080036926</southBoundLatitude>
+            <northBoundLatitude>41.137275347096804</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.423791621252544" miny="40.0131080036926" maxx="-3.152632280926485" maxy="41.137275347096804"/>
+          <BoundingBox CRS="EPSG:25830" minx="380488.267949289" miny="4430151.20300508" maxx="486975.432814128" maxy="4554007.70932553"/>
+          <BoundingBox CRS="EPSG:4258" minx="40.013107964645435" miny="-4.423791621252545" maxx="41.137275307308386" maxy="-3.152632280926484"/>
+          <BoundingBox CRS="EPSG:23030" minx="380588.5726497168" miny="4430358.504338895" maxx="487076.681847585" maxy="4554216.097299615"/>
+          <BoundingBox CRS="EPSG:4326" minx="40.0131080036926" miny="-4.423791621252544" maxx="41.137275347096804" maxy="-3.152632280926485"/>
+          <BoundingBox CRS="EPSG:3857" minx="-492454.2306533833" miny="4867847.281748506" maxx="-350949.4201711729" maxy="5032610.880595948"/>
+          <BoundingBox CRS="EPSG:32630" minx="380488.2680181528" miny="4430151.207453006" maxx="486975.4328220911" maxy="4554007.713857941"/>
+          <BoundingBox CRS="EPSG:3035" minx="1978346.2864599207" miny="3093406.527428072" maxx="2118856.3453634013" maxy="3218048.8318363843"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_URB_PARCELAS_LEY_3_2024</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_parcelasl3_2024"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_IDEM_URB_PARCELA3</Name>
+            <Title>S_IDEM_URB_PARCELA3</Title>
+            <LegendURL width="208" height="80">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_URB_PARCELAS_LEY_3_2024"/>
+            </LegendURL>
+          </Style>
+          <MaxScaleDenominator>250000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_VPLA_SVAC_SOCU_26</Name>
+          <Title>Suelo Vacante y Ocupado de la Comunidad de Madrid 2026</Title>
+          <Abstract>Localización del suelo vacante y ocupado en terrenos clasificados como urbano, consolidado y no consolidado, y urbanizable sectorizado y urbanizaciones catalogadas por la Ley 9/1985, de los municipios de la Comunidad de Madrid.</Abstract>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>IDEM_VPLA_SVAC_SOCU_26</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.514682739843475</westBoundLongitude>
+            <eastBoundLongitude>-3.068410957004025</eastBoundLongitude>
+            <southBoundLatitude>39.90137455531016</southBoundLatitude>
+            <northBoundLatitude>41.13753348616159</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.514682739843475" miny="39.90137455531016" maxx="-3.068410957004025" maxy="41.13753348616159"/>
+          <BoundingBox CRS="EPSG:25830" minx="372856.8157" miny="4417869.5573" maxx="494152.8777" maxy="4554027.1005"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.90137451634618" miny="-4.514682739843475" maxx="41.13753344637302" maxy="-3.068410957004025"/>
+          <BoundingBox CRS="EPSG:23030" minx="372957.04800948536" miny="4418076.749922251" maxx="494254.186537778" maxy="4554235.492107081"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.90137455531016" miny="-4.514682739843475" maxx="41.13753348616159" maxy="-3.068410957004025"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502572.18369255686" miny="4851620.632016796" maxx="-341573.9452781893" maxy="5032649.035700214"/>
+          <BoundingBox CRS="EPSG:32630" minx="372856.8157727966" miny="4417869.561738464" maxx="494152.87770357495" maxy="4554027.105032427"/>
+          <BoundingBox CRS="EPSG:3035" minx="1965017.1345878034" miny="3083947.899745543" maxx="2120208.713070101" maxy="3225142.1636316297"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_VPLA_SVAC_SOCU_26</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_socu2026"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_IDEM_SVAC_SOCU_26</Name>
+            <Title>Estilo para suelo vacante y ocupado</Title>
+            <LegendURL width="119" height="60">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_VPLA_SVAC_SOCU_26"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>5000.0</MinScaleDenominator>
+          <MaxScaleDenominator>2000000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_AMBITO</Name>
+          <Title>Ámbitos y Sectores de gestión urbanística en Planeamiento General</Title>
+          <Abstract>[LANG_ES]Información de los Ámbitos y Sectores de gestión de Planes Urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid, incluyendo el planeamiento incorporado.Fecha de actualización: junio 2021&#13;
+&#13;
+[LANG_EN] Information on the Areas and Sectors of management of Urban Plans in force in each municipality approved in the Community of Madrid, including the incorporated planning. Date of update: June 2021</Abstract>
+          <KeywordList>
+            <Keyword>Planeamiento General</Keyword>
+            <Keyword>Ambitos</Keyword>
+            <Keyword>Sectores</Keyword>
+            <Keyword>Usos del suelo</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.513666583120909</westBoundLongitude>
+            <eastBoundLongitude>-3.0898607440993135</eastBoundLongitude>
+            <southBoundLatitude>39.94219055483615</southBoundLatitude>
+            <northBoundLatitude>41.1369591390261</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.513666583120909" miny="39.94219055483615" maxx="-3.0898607440993135" maxy="41.1369591390261"/>
+          <BoundingBox CRS="EPSG:25830" minx="372941.0621" miny="4422399.7992" maxx="492324.1112" maxy="4553965.0326"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.94219051584158" miny="-4.513666583120909" maxx="41.136959099237856" maxy="-3.0898607440993135"/>
+          <BoundingBox CRS="EPSG:23030" minx="373041.2978500422" miny="4422607.031725281" maxx="492425.40478549514" maxy="4554173.423656787"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.94219055483615" miny="-4.513666583120909" maxx="41.1369591390261" maxy="-3.0898607440993135"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502459.06564363453" miny="4857545.121163454" maxx="-343961.724655261" maxy="5032564.142613475"/>
+          <BoundingBox CRS="EPSG:32630" minx="372941.062172911" miny="4422399.803641943" maxx="492324.11120469286" maxy="4553965.03713239"/>
+          <BoundingBox CRS="EPSG:3035" minx="1969792.872724077" miny="3084739.562663093" maxx="2120132.7919647186" maxy="3223325.776206854"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_AMBITO</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ambitos"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_AMBITOS_USO_PRED</Name>
+            <Title>Ámbitos de Planeamiento según uso predominante</Title>
+            <Abstract>Información de los Ámbitos y Sectores de gestión de Planes Urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="191" height="320">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_AMBITO"/>
+            </LegendURL>
+          </Style>
+          <Style>
+            <Name>S_VPLA_AMBITOS_LIMITE</Name>
+            <Title>Ámbitos de Planeamiento según su delimitación</Title>
+            <Abstract>Información de los Ámbitos y Sectores de gestión de Planes Urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="108" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_AMBITO&amp;style=S_VPLA_AMBITOS_LIMITE"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_AMBITO_MODIF</Name>
+          <Title>Ámbitos y Sectores de gestión urbanística en Planeamiento de Desarrollo</Title>
+          <Abstract>[LANG_ES]Información de los ámbitos y sectores de gestión urbanística del planeamiento de desarrollo vigente en cada municipio aprobados en la Comunidad de Madrid ordenados por fecha de aprobación del acuerdo. Fecha de actualización: junio 2021&#13;
+&#13;
+[LANG_EN] Information on the areas and sectors of urban development planning management in force in each municipality approved in the Community of Madrid ordered by date of approval of the agreement. Date of update: June 2021</Abstract>
+          <KeywordList>
+            <Keyword>Planeamiento de desarrollo</Keyword>
+            <Keyword>Ambitos</Keyword>
+            <Keyword>Sectores</Keyword>
+            <Keyword>Usos del suelo</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.510918393126148</westBoundLongitude>
+            <eastBoundLongitude>-3.0880215708157817</eastBoundLongitude>
+            <southBoundLatitude>40.01031040638384</southBoundLatitude>
+            <northBoundLatitude>41.108273487257044</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.510918393126148" miny="40.01031040638384" maxx="-3.0880215708157817" maxy="41.108273487257044"/>
+          <BoundingBox CRS="EPSG:25830" minx="373116.5918" miny="4429960.0307" maxx="492488.6767" maxy="4550780.4103"/>
+          <BoundingBox CRS="EPSG:4258" minx="40.01031036733871" miny="-4.510918393126148" maxx="41.10827344748553" maxy="-3.0880215708157817"/>
+          <BoundingBox CRS="EPSG:23030" minx="373216.8335390378" miny="4430167.3287355155" maxx="492589.97110137466" maxy="4550988.77503418"/>
+          <BoundingBox CRS="EPSG:4326" minx="40.01031040638384" miny="-4.510918393126148" maxx="41.108273487257044" maxy="-3.0880215708157817"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502153.13853281457" miny="4867440.672797149" maxx="-343756.9888218576" maxy="5028325.119755969"/>
+          <BoundingBox CRS="EPSG:32630" minx="373116.5918730814" miny="4429960.035147696" maxx="492488.6767045857" maxy="4550780.414830472"/>
+          <BoundingBox CRS="EPSG:3035" minx="1977210.97376065" miny="3086095.9861347945" maxx="2116962.2480538404" maxy="3222986.3717178027"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_AMBITO_MODIF</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ambitosmodif"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_AMBITOS_USO_PRED</Name>
+            <Title>Ámbitos de Planeamiento según uso predominante</Title>
+            <Abstract>Información de los Ámbitos y Sectores de gestión de Planes Urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="191" height="320">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_AMBITO_MODIF"/>
+            </LegendURL>
+          </Style>
+          <Style>
+            <Name>S_VPLA_AMBITOS_LIMITE</Name>
+            <Title>Ámbitos de Planeamiento según su delimitación</Title>
+            <Abstract>Información de los Ámbitos y Sectores de gestión de Planes Urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="108" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_AMBITO_MODIF&amp;style=S_VPLA_AMBITOS_LIMITE"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_AMBITO_REF_19</Name>
+          <Title>Ámbitos y sectores de gestión del planeamiento urbanístico refundido 2019</Title>
+          <Abstract>Información sobre los ámbitos de actuación y sectores de gestión del planeamiento urbanístico refundido del Sistema de Información Territorial de la Comunidad de Madrid. Fecha de referencia de los datos a 30 de junio de 2019.</Abstract>
+          <KeywordList>
+            <Keyword>VPLA_V_AMBITO_REF_19</Keyword>
+            <Keyword>Planeamiento</Keyword>
+            <Keyword>Refundido</Keyword>
+            <Keyword>Ambitos</Keyword>
+            <Keyword>Sectores</Keyword>
+            <Keyword>Uso del suelo</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.513666583120909</westBoundLongitude>
+            <eastBoundLongitude>-3.0879341969510774</eastBoundLongitude>
+            <southBoundLatitude>39.94219055483615</southBoundLatitude>
+            <northBoundLatitude>41.136960679041685</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.513666583120909" miny="39.94219055483615" maxx="-3.0879341969510774" maxy="41.136960679041685"/>
+          <BoundingBox CRS="EPSG:25830" minx="372941.0621" miny="4422399.7992" maxx="492488.6767" maxy="4553965.0326"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.94219051584158" miny="-4.513666583120909" maxx="41.136960639253445" maxy="-3.0879341969510774"/>
+          <BoundingBox CRS="EPSG:23030" minx="373041.2978500422" miny="4422607.0316761425" maxx="492589.97165693046" maxy="4554173.423656787"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.94219055483615" miny="-4.513666583120909" maxx="41.136960679041685" maxy="-3.0879341969510774"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502459.06564363453" miny="4857545.121163454" maxx="-343747.26240773004" maxy="5032564.370239064"/>
+          <BoundingBox CRS="EPSG:32630" minx="372941.062172911" miny="4422399.803641943" maxx="492488.67670459225" maxy="4553965.03713239"/>
+          <BoundingBox CRS="EPSG:3035" minx="1969764.6207827996" miny="3084739.562663093" maxx="2120132.7919647186" maxy="3223488.345998861"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_AMBITO_REF_19</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ambitosref2019"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_AMBITOS_USO_PRED</Name>
+            <Title>Ámbitos de Planeamiento según uso predominante</Title>
+            <Abstract>Información de los Ámbitos y Sectores de gestión de Planes Urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="191" height="320">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_AMBITO_REF_19"/>
+            </LegendURL>
+          </Style>
+          <Style>
+            <Name>S_VPLA_AMBITOS_LIMITE</Name>
+            <Title>Ámbitos de Planeamiento según su delimitación</Title>
+            <Abstract>Información de los Ámbitos y Sectores de gestión de Planes Urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="108" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_AMBITO_REF_19&amp;style=S_VPLA_AMBITOS_LIMITE"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_AMBITO_REF_23</Name>
+          <Title>Ámbitos y sectores de gestión del planeamiento urbanístico refundido 2023</Title>
+          <Abstract>Información sobre los ámbitos de actuación y sectores de gestión del planeamiento urbanístico refundido del Sistema de Información Territorial de la Comunidad de Madrid. Fecha de referencia de los datos a 30 de junio de 2023.</Abstract>
+          <KeywordList>
+            <Keyword>VPLA_V_AMBITO_REF_23</Keyword>
+            <Keyword>Planeamiento</Keyword>
+            <Keyword>Refundido</Keyword>
+            <Keyword>Ambitos</Keyword>
+            <Keyword>Sectores</Keyword>
+            <Keyword>Uso del suelo</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.513666583120909</westBoundLongitude>
+            <eastBoundLongitude>-3.0879341969510774</eastBoundLongitude>
+            <southBoundLatitude>39.94219055483615</southBoundLatitude>
+            <northBoundLatitude>41.136960679041685</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.513666583120909" miny="39.94219055483615" maxx="-3.0879341969510774" maxy="41.136960679041685"/>
+          <BoundingBox CRS="EPSG:25830" minx="372941.0621" miny="4422399.7992" maxx="492488.6767" maxy="4553965.0326"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.94219051584158" miny="-4.513666583120909" maxx="41.136960639253445" maxy="-3.0879341969510774"/>
+          <BoundingBox CRS="EPSG:23030" minx="373041.2978500422" miny="4422607.0316761425" maxx="492589.97165693046" maxy="4554173.423656787"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.94219055483615" miny="-4.513666583120909" maxx="41.136960679041685" maxy="-3.0879341969510774"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502459.06564363453" miny="4857545.121163454" maxx="-343747.26240773004" maxy="5032564.370239064"/>
+          <BoundingBox CRS="EPSG:32630" minx="372941.062172911" miny="4422399.803641943" maxx="492488.67670459225" maxy="4553965.03713239"/>
+          <BoundingBox CRS="EPSG:3035" minx="1969764.6207827996" miny="3084739.562663093" maxx="2120132.7919647186" maxy="3223488.345998861"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_AMBITO_REF_23</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ambitosref2023"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_AMBITOS_USO_PRED</Name>
+            <Title>Ámbitos de Planeamiento según uso predominante</Title>
+            <Abstract>Información de los Ámbitos y Sectores de gestión de Planes Urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="191" height="320">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_AMBITO_REF_23"/>
+            </LegendURL>
+          </Style>
+          <Style>
+            <Name>S_VPLA_AMBITOS_LIMITE</Name>
+            <Title>Ámbitos de Planeamiento según su delimitación</Title>
+            <Abstract>Información de los Ámbitos y Sectores de gestión de Planes Urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="108" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_AMBITO_REF_23&amp;style=S_VPLA_AMBITOS_LIMITE"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_AMBITO_REF_25</Name>
+          <Title>Ámbitos y sectores de gestión del planeamiento urbanístico refundido 2025</Title>
+          <Abstract>Información sobre los ámbitos de actuación y sectores de gestión del planeamiento urbanístico refundido del Sistema de Información Territorial de la Comunidad de Madrid. Fecha de referencia de los datos a 31 de diciembre de 2025.</Abstract>
+          <KeywordList>
+            <Keyword>Planeamiento</Keyword>
+            <Keyword>Refundido</Keyword>
+            <Keyword>Ámbitos</Keyword>
+            <Keyword>Sectores</Keyword>
+            <Keyword>Uso del suelo</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.513666583120909</westBoundLongitude>
+            <eastBoundLongitude>-3.0879341969510774</eastBoundLongitude>
+            <southBoundLatitude>39.94219055483615</southBoundLatitude>
+            <northBoundLatitude>41.136960679041685</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.513666583120909" miny="39.94219055483615" maxx="-3.0879341969510774" maxy="41.136960679041685"/>
+          <BoundingBox CRS="EPSG:25830" minx="372941.0621" miny="4422399.7992" maxx="492488.6767" maxy="4553965.0326"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.94219051584158" miny="-4.513666583120909" maxx="41.136960639253445" maxy="-3.0879341969510774"/>
+          <BoundingBox CRS="EPSG:23030" minx="373041.2978500422" miny="4422607.0316761425" maxx="492589.97165693046" maxy="4554173.423656787"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.94219055483615" miny="-4.513666583120909" maxx="41.136960679041685" maxy="-3.0879341969510774"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502459.06564363453" miny="4857545.121163454" maxx="-343747.26240773004" maxy="5032564.370239064"/>
+          <BoundingBox CRS="EPSG:32630" minx="372941.062172911" miny="4422399.803641943" maxx="492488.67670459225" maxy="4553965.03713239"/>
+          <BoundingBox CRS="EPSG:3035" minx="1969764.6207827996" miny="3084739.562663093" maxx="2120132.7919647186" maxy="3223488.345998861"/>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ambitosref2025"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_AMBITOS_USO_PRED</Name>
+            <Title>Ámbitos de Planeamiento según uso predominante</Title>
+            <Abstract>Información de los Ámbitos y Sectores de gestión de Planes Urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="191" height="320">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_AMBITO_REF_25"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>250.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_CLASIFICACION</Name>
+          <Title>Clases de suelo en Planeamiento General</Title>
+          <Abstract>[LANG_ES]Información de la clasificación del suelo de los planes urbanísticos generales vigentes de cada municipio aprobados en la Comunidad de Madrid, incluyendo el planeamiento incorporado. Fecha de actualización: junio de 2021&#13;
+&#13;
+[LANG_EN] Information on the land classification of the general urban plans coming from each municipality approved in the Community of Madrid, including the incorporated planning. Date of update: June 2021</Abstract>
+          <KeywordList>
+            <Keyword>Clasificación</Keyword>
+            <Keyword>Clases suelo</Keyword>
+            <Keyword>Planeamiento</Keyword>
+            <Keyword>Usos del suelo</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.6013972934918455</westBoundLongitude>
+            <eastBoundLongitude>-3.052819837134086</eastBoundLongitude>
+            <southBoundLatitude>39.876864977526324</southBoundLatitude>
+            <northBoundLatitude>41.16711639505206</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.6013972934918455" miny="39.876864977526324" maxx="-3.052819837134086" maxy="41.16711639505206"/>
+          <BoundingBox CRS="EPSG:25830" minx="365635.6962" miny="4415271.9486" maxx="495483.9239" maxy="4557310.229"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.8768649385808" miny="-4.601397293491846" maxx="41.167116355246385" maxy="-3.052819837134085"/>
+          <BoundingBox CRS="EPSG:23030" minx="365735.8651607797" miny="4415479.118231238" maxx="495585.2443715955" maxy="4557518.651025401"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.876864977526324" miny="-4.6013972934918455" maxx="41.16711639505206" maxy="-3.052819837134086"/>
+          <BoundingBox CRS="EPSG:3857" minx="-512225.2036490594" miny="4848064.734473794" maxx="-339838.3497533708" maxy="5037022.631221824"/>
+          <BoundingBox CRS="EPSG:32630" minx="365635.69627680397" miny="4415271.953036359" maxx="495483.9239027652" maxy="4557310.233534386"/>
+          <BoundingBox CRS="EPSG:3035" minx="1962230.4179894584" miny="3076409.6793087237" maxx="2124708.502220469" maxy="3226974.705534192"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_CLASIFICACION</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_clasificacion"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_CLASIFICACION_24</Name>
+            <Title>Clasificación de Planeamiento</Title>
+            <Abstract>Información de la clasificación del suelo de los planes urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="238" height="160">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_CLASIFICACION"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>2000.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_CLASIFICACION_MODIF</Name>
+          <Title>Clases de suelo en Planeamiento de Desarrollo</Title>
+          <Abstract>[LANG_ES]Información de la clasificación del suelo del planeamiento de desarrollo vigente de cada municipio aprobados en la Comunidad de Madrid, ordenados por fecha de aprobación del acuerdo. Fecha de actualización: Junio de 2021&#13;
+&#13;
+[LANG_EN] Information on the land classification of the current development planning of each municipality approved in the Community of Madrid, ordered by date of approval of the agreement. Date of update: June 2021</Abstract>
+          <KeywordList>
+            <Keyword>Clasificación</Keyword>
+            <Keyword>Clases suelo</Keyword>
+            <Keyword>Planeamiento desarrollo</Keyword>
+            <Keyword>Usos del suelo</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.516587895047384</westBoundLongitude>
+            <eastBoundLongitude>-3.0880130337009115</eastBoundLongitude>
+            <southBoundLatitude>40.00360396054681</southBoundLatitude>
+            <northBoundLatitude>41.136671846996045</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.516587895047384" miny="40.00360396054681" maxx="-3.0880130337009115" maxy="41.136671846996045"/>
+          <BoundingBox CRS="EPSG:25830" minx="372695.2033" miny="4429222.4699" maxx="492488.6767" maxy="4553932.9687"/>
+          <BoundingBox CRS="EPSG:4258" minx="40.003603921506645" miny="-4.516587895047384" maxx="41.13667180720798" maxy="-3.088013033700912"/>
+          <BoundingBox CRS="EPSG:23030" minx="372795.4410116337" miny="4429429.761546019" maxx="492589.97165138513" maxy="4554141.359606937"/>
+          <BoundingBox CRS="EPSG:4326" minx="40.00360396054681" miny="-4.516587895047384" maxx="41.136671846996045" maxy="-3.0880130337009115"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502784.26459973806" miny="4866466.011049849" maxx="-343756.0384745774" maxy="5032521.6788393315"/>
+          <BoundingBox CRS="EPSG:32630" minx="372695.2033732962" miny="4429222.474347131" maxx="492488.67670459225" maxy="4553932.97323237"/>
+          <BoundingBox CRS="EPSG:3035" minx="1976484.5086227648" miny="3085564.361750258" maxx="2120144.1512715216" maxy="3223483.291053009"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_CLASIFICACION_MODIF</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_clasificacionmodif"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_CLASIFICACION_24</Name>
+            <Title>Clasificación de Planeamiento</Title>
+            <Abstract>Información de la clasificación del suelo de los planes urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="238" height="160">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_CLASIFICACION_MODIF"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>2000.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_CLASIFICACION_REF_19</Name>
+          <Title>Clasificación del suelo en Planeamiento Urbanístico Refundido  2019</Title>
+          <Abstract>Información sobre la clasificación del suelo del planeamiento urbanístico refundido del Sistema de Información Territorial de la Comunidad de Madrid.&#13;
+Fecha de referencia de los datos a 30 de junio de 2019.</Abstract>
+          <KeywordList>
+            <Keyword>VPLA_V_CLASIFICACION_REF_19</Keyword>
+            <Keyword>Clasificación</Keyword>
+            <Keyword>Refundido</Keyword>
+            <Keyword>Planeamiento Urbanístico</Keyword>
+            <Keyword>Uso del suelo</Keyword>
+            <Keyword>IDEM</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.6013972934918455</westBoundLongitude>
+            <eastBoundLongitude>-3.052819837134086</eastBoundLongitude>
+            <southBoundLatitude>39.876864977526324</southBoundLatitude>
+            <northBoundLatitude>41.16711639505206</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.6013972934918455" miny="39.876864977526324" maxx="-3.052819837134086" maxy="41.16711639505206"/>
+          <BoundingBox CRS="EPSG:25830" minx="365635.6962" miny="4415271.9486" maxx="495483.9239" maxy="4557310.229"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.8768649385808" miny="-4.601397293491846" maxx="41.167116355246385" maxy="-3.052819837134085"/>
+          <BoundingBox CRS="EPSG:23030" minx="365735.8651607797" miny="4415479.118231238" maxx="495585.2443715955" maxy="4557518.651025401"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.876864977526324" miny="-4.6013972934918455" maxx="41.16711639505206" maxy="-3.052819837134086"/>
+          <BoundingBox CRS="EPSG:3857" minx="-512225.2036490594" miny="4848064.734473794" maxx="-339838.3497533708" maxy="5037022.631221824"/>
+          <BoundingBox CRS="EPSG:32630" minx="365635.69627680397" miny="4415271.953036359" maxx="495483.9239027652" maxy="4557310.233534386"/>
+          <BoundingBox CRS="EPSG:3035" minx="1962230.4179894584" miny="3076409.6793087237" maxx="2124708.502220469" maxy="3226974.705534192"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_CLASIFICACION_REF_19</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_clasificacionref2019"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_CLASIFICACION_24</Name>
+            <Title>Clasificación de Planeamiento</Title>
+            <Abstract>Información de la clasificación del suelo de los planes urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="238" height="160">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_CLASIFICACION_REF_19"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>2000.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_CLASIFICACION_REF_23</Name>
+          <Title>Clasificación del suelo en Planeamiento Urbanístico Refundido 2023</Title>
+          <Abstract>Información sobre la clasificación del suelo del planeamiento urbanístico refundido del Sistema de Información Territorial de la Comunidad de Madrid.&#13;
+Fecha de referencia de los datos a Septiembre de 2023.</Abstract>
+          <KeywordList>
+            <Keyword>VPLA_V_CLASIFICACION_REF_23</Keyword>
+            <Keyword>Planeamiento</Keyword>
+            <Keyword>Urbanístico</Keyword>
+            <Keyword>Clasificación</Keyword>
+            <Keyword>Uso del suelo</Keyword>
+            <Keyword>IDEM</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.6013972934918455</westBoundLongitude>
+            <eastBoundLongitude>-3.052819837134086</eastBoundLongitude>
+            <southBoundLatitude>39.876864977526324</southBoundLatitude>
+            <northBoundLatitude>41.16711639505206</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.6013972934918455" miny="39.876864977526324" maxx="-3.052819837134086" maxy="41.16711639505206"/>
+          <BoundingBox CRS="EPSG:25830" minx="365635.6962" miny="4415271.9486" maxx="495483.9239" maxy="4557310.229"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.8768649385808" miny="-4.601397293491846" maxx="41.167116355246385" maxy="-3.052819837134085"/>
+          <BoundingBox CRS="EPSG:23030" minx="365735.8651607797" miny="4415479.118231238" maxx="495585.2443715955" maxy="4557518.651025401"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.876864977526324" miny="-4.6013972934918455" maxx="41.16711639505206" maxy="-3.052819837134086"/>
+          <BoundingBox CRS="EPSG:3857" minx="-512225.2036490594" miny="4848064.734473794" maxx="-339838.3497533708" maxy="5037022.631221824"/>
+          <BoundingBox CRS="EPSG:32630" minx="365635.69627680397" miny="4415271.953036359" maxx="495483.9239027652" maxy="4557310.233534386"/>
+          <BoundingBox CRS="EPSG:3035" minx="1962230.4179894584" miny="3076409.6793087237" maxx="2124708.502220469" maxy="3226974.705534192"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_CLASIFICACION_REF_23</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_clasificacionref2023"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_CLASIFICACION_24</Name>
+            <Title>Clasificación de Planeamiento</Title>
+            <Abstract>Información de la clasificación del suelo de los planes urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="238" height="160">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_CLASIFICACION_REF_23"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>2000.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_CLASIFICACION_REF_25</Name>
+          <Title>Clasificación del suelo en Planeamiento Urbanístico Refundido 2025</Title>
+          <Abstract>Información sobre la clasificación del suelo del planeamiento urbanístico refundido del Sistema de Información Territorial de la Comunidad de Madrid.&#13;
+Fecha de referencia de los datos a 31 de diciembre de 2025.</Abstract>
+          <KeywordList>
+            <Keyword>Planeamiento</Keyword>
+            <Keyword>Urbanístico</Keyword>
+            <Keyword>Clasificación</Keyword>
+            <Keyword>Uso del suelo</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.6013972934918455</westBoundLongitude>
+            <eastBoundLongitude>-3.052819837134086</eastBoundLongitude>
+            <southBoundLatitude>39.876864977526324</southBoundLatitude>
+            <northBoundLatitude>41.16711639505206</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.6013972934918455" miny="39.876864977526324" maxx="-3.052819837134086" maxy="41.16711639505206"/>
+          <BoundingBox CRS="EPSG:25830" minx="365635.6962" miny="4415271.9486" maxx="495483.9239" maxy="4557310.229"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.8768649385808" miny="-4.601397293491846" maxx="41.167116355246385" maxy="-3.052819837134085"/>
+          <BoundingBox CRS="EPSG:23030" minx="365735.8651607797" miny="4415479.118231238" maxx="495585.2443715955" maxy="4557518.651025401"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.876864977526324" miny="-4.6013972934918455" maxx="41.16711639505206" maxy="-3.052819837134086"/>
+          <BoundingBox CRS="EPSG:3857" minx="-512225.2036490594" miny="4848064.734473794" maxx="-339838.3497533708" maxy="5037022.631221824"/>
+          <BoundingBox CRS="EPSG:32630" minx="365635.69627680397" miny="4415271.953036359" maxx="495483.9239027652" maxy="4557310.233534386"/>
+          <BoundingBox CRS="EPSG:3035" minx="1962230.4179894584" miny="3076409.6793087237" maxx="2124708.502220469" maxy="3226974.705534192"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_ORDENANZA_REF_25</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_clasificacionref2025"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_CLASIFICACION_24</Name>
+            <Title>Clasificación de Planeamiento</Title>
+            <Abstract>Información de la clasificación del suelo de los planes urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="238" height="160">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_CLASIFICACION_REF_25"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>2000.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_ORDENANZA</Name>
+          <Title>Ordenanzas en Planeamiento General</Title>
+          <Abstract>[LANG_ES]Información de las ordenanzas de los planes urbanísticos generales vigentes de cada municipio aprobados en la Comunidad de Madrid en, incluyendo el planeamiento incorporado. Fecha de actualización: 30 junio 2019&#13;
+&#13;
+[LANG_EN] Information of the ordinances of the current general urban plans of each municipality approved in the Community of Madrid, including the incorporated planning. Date of update: June 2019</Abstract>
+          <KeywordList>
+            <Keyword>Ordenanzas</Keyword>
+            <Keyword>Planes urbanísticos</Keyword>
+            <Keyword>Planeamiento General</Keyword>
+            <Keyword>Usos del suelo</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.5146822669928435</westBoundLongitude>
+            <eastBoundLongitude>-3.1006030275935417</eastBoundLongitude>
+            <southBoundLatitude>40.010909819948495</southBoundLatitude>
+            <northBoundLatitude>41.137488575133474</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.5146822669928435" miny="40.010909819948495" maxx="-3.1006030275935417" maxy="41.137488575133474"/>
+          <BoundingBox CRS="EPSG:25830" minx="372856.8157" miny="4430030.9214" maxx="491415.1163" maxy="4554024.8176"/>
+          <BoundingBox CRS="EPSG:4258" minx="40.01090978090295" miny="-4.514682266992843" maxx="41.13748853534493" maxy="-3.1006030275935417"/>
+          <BoundingBox CRS="EPSG:23030" minx="372957.0552670231" miny="4430238.220363554" maxx="491516.40232118923" maxy="4554233.20918828"/>
+          <BoundingBox CRS="EPSG:4326" minx="40.010909819948495" miny="-4.5146822669928435" maxx="41.137488575133474" maxy="-3.1006030275935417"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502572.13105506526" miny="4867527.791481285" maxx="-345157.5501837954" maxy="5032642.397465325"/>
+          <BoundingBox CRS="EPSG:32630" minx="372856.8157732327" miny="4430030.925847745" maxx="491415.11630524875" maxy="4554024.8221324235"/>
+          <BoundingBox CRS="EPSG:3035" minx="1977465.1465563274" miny="3085850.5299229836" maxx="2120206.462235089" maxy="3222437.2352505038"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_ORDENANZA</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ordenanzas"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_ORDENANZAS</Name>
+            <Title>Ordenanzas de Planeamiento</Title>
+            <Abstract>Información de las ordenanzas de los planes urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="191" height="320">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_ORDENANZA"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>250.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_ORDENANZA_MODIF</Name>
+          <Title>Ordenanzas en Planeamiento de Desarrollo</Title>
+          <Abstract>[LANG_ES]Información de las ordenanzas del planeamiento de desarrollo vigentes de cada municipio aprobados en la Comunidad de Madrid, ordenadas por fecha de aprobación del acuerdo. Fecha de actualización: junio 2021&#13;
+&#13;
+[LANG_EN] Information of the ordinances of the current development planning of each municipality approved in the Community of Madrid, ordered by date of approval of the agreement. Date of update: June 2021</Abstract>
+          <KeywordList>
+            <Keyword>Ordenanzas</Keyword>
+            <Keyword>Planes urbanísticos</Keyword>
+            <Keyword>Planeamiento Desarrollo</Keyword>
+            <Keyword>Usos del suelo</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.513871844639175</westBoundLongitude>
+            <eastBoundLongitude>-3.0880223915104543</eastBoundLongitude>
+            <southBoundLatitude>40.01091982487333</southBoundLatitude>
+            <northBoundLatitude>41.136671846996045</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.513871844639175" miny="40.01091982487333" maxx="-3.0880223915104543" maxy="41.136671846996045"/>
+          <BoundingBox CRS="EPSG:25830" minx="372923.2691" miny="4430030.9214" maxx="492488.6767" maxy="4553932.9687"/>
+          <BoundingBox CRS="EPSG:4258" minx="40.010919785827774" miny="-4.513871844639175" maxx="41.13667180720798" maxy="-3.0880223915104543"/>
+          <BoundingBox CRS="EPSG:23030" minx="373023.5092333398" miny="4430238.220049569" maxx="492589.97165138513" maxy="4554141.359500974"/>
+          <BoundingBox CRS="EPSG:4326" minx="40.01091982487333" miny="-4.513871844639175" maxx="41.136671846996045" maxy="-3.0880223915104543"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502481.9152513274" miny="4867529.245602164" maxx="-343757.08018117066" maxy="5032521.6788393315"/>
+          <BoundingBox CRS="EPSG:32630" minx="372923.26917319477" miny="4430030.9258477455" maxx="492488.67670459225" maxy="4553932.97323237"/>
+          <BoundingBox CRS="EPSG:3035" minx="1977280.7981605113" miny="3085916.1590207852" maxx="2120104.288377673" maxy="3223483.291053009"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_ORDENANZA_MODIF</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ordenanzasmodif"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_ORDENANZAS</Name>
+            <Title>Ordenanzas de Planeamiento</Title>
+            <Abstract>Información de las ordenanzas de los planes urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="191" height="320">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_ORDENANZA_MODIF"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>250.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_ORDENANZA_REF_19</Name>
+          <Title>Ordenanzas del planeamiento urbanístico refundido 2019</Title>
+          <Abstract>Información sobre las ordenanzas del planeamiento urbanístico refundido del Sistema de Información Territorial de la Comunidad de Madrid. &#13;
+Fecha de referencia de los datos a 30 de junio de 2019.</Abstract>
+          <KeywordList>
+            <Keyword>VPLA_V_ORDENANZA_REF_19</Keyword>
+            <Keyword>Planeamiento</Keyword>
+            <Keyword>Ordenanzas</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>Uso del suelo</Keyword>
+            <Keyword>IDEM</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.5146822669928435</westBoundLongitude>
+            <eastBoundLongitude>-3.0880223915104543</eastBoundLongitude>
+            <southBoundLatitude>40.010909819948495</southBoundLatitude>
+            <northBoundLatitude>41.13749922309288</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.5146822669928435" miny="40.010909819948495" maxx="-3.0880223915104543" maxy="41.13749922309288"/>
+          <BoundingBox CRS="EPSG:25830" minx="372856.8157" miny="4430030.9214" maxx="492488.6767" maxy="4554024.8176"/>
+          <BoundingBox CRS="EPSG:4258" minx="40.01090978090295" miny="-4.514682266992843" maxx="41.137499183304335" maxy="-3.0880223915104543"/>
+          <BoundingBox CRS="EPSG:23030" minx="372957.0552670231" miny="4430238.220049569" maxx="492589.9716672675" maxy="4554233.20918828"/>
+          <BoundingBox CRS="EPSG:4326" minx="40.010909819948495" miny="-4.5146822669928435" maxx="41.13749922309288" maxy="-3.0880223915104543"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502572.13105506526" miny="4867527.791481285" maxx="-343757.08018117066" maxy="5032643.971324577"/>
+          <BoundingBox CRS="EPSG:32630" minx="372856.8157732327" miny="4430030.925847745" maxx="492488.67670459236" maxy="4554024.822132425"/>
+          <BoundingBox CRS="EPSG:3035" minx="1977280.7981605113" miny="3085850.5299229836" maxx="2120206.462235089" maxy="3223497.7712868312"/>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ordenanzasref2019"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_ORDENANZAS</Name>
+            <Title>Ordenanzas de Planeamiento</Title>
+            <Abstract>Información de las ordenanzas de los planes urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="191" height="320">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_ORDENANZA_REF_19"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>250.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_ORDENANZA_REF_23</Name>
+          <Title>Ordenanzas del planeamiento urbanístico refundido 2023</Title>
+          <Abstract>Información sobre las ordenanzas del planeamiento urbanístico refundido del Sistema de Información Territorial de la Comunidad de Madrid.&#13;
+Fecha de los datos a septiembre de 2023.</Abstract>
+          <KeywordList>
+            <Keyword>VPLA_V_ORDENANZA_REF_23</Keyword>
+            <Keyword>Ordenanzas</Keyword>
+            <Keyword>Planeamiento</Keyword>
+            <Keyword>Refundido</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>Uso del suelo</Keyword>
+            <Keyword>IDEM</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.5146822669928435</westBoundLongitude>
+            <eastBoundLongitude>-3.0880223915104543</eastBoundLongitude>
+            <southBoundLatitude>40.010909819948495</southBoundLatitude>
+            <northBoundLatitude>41.13749922309288</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.5146822669928435" miny="40.010909819948495" maxx="-3.0880223915104543" maxy="41.13749922309288"/>
+          <BoundingBox CRS="EPSG:25830" minx="372856.8157" miny="4430030.9214" maxx="492488.6767" maxy="4554024.8176"/>
+          <BoundingBox CRS="EPSG:4258" minx="40.01090978090295" miny="-4.514682266992843" maxx="41.137499183304335" maxy="-3.0880223915104543"/>
+          <BoundingBox CRS="EPSG:23030" minx="372957.0552670231" miny="4430238.220049569" maxx="492589.9716672675" maxy="4554233.20918828"/>
+          <BoundingBox CRS="EPSG:4326" minx="40.010909819948495" miny="-4.5146822669928435" maxx="41.13749922309288" maxy="-3.0880223915104543"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502572.13105506526" miny="4867527.791481285" maxx="-343757.08018117066" maxy="5032643.971324577"/>
+          <BoundingBox CRS="EPSG:32630" minx="372856.8157732327" miny="4430030.925847745" maxx="492488.67670459236" maxy="4554024.822132425"/>
+          <BoundingBox CRS="EPSG:3035" minx="1977280.7981605113" miny="3085850.5299229836" maxx="2120206.462235089" maxy="3223497.7712868312"/>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ordenanzasref2023"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_ORDENANZAS</Name>
+            <Title>Ordenanzas de Planeamiento</Title>
+            <Abstract>Información de las ordenanzas de los planes urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="191" height="320">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_ORDENANZA_REF_23"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>250.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_ORDENANZA_REF_25</Name>
+          <Title>Ordenanzas del planeamiento urbanístico refundido 2025</Title>
+          <Abstract>Información sobre las ordenanzas del planeamiento urbanístico refundido del Sistema de Información Territorial de la Comunidad de Madrid.&#13;
+Fecha de los datos a 31 de diciembre de 2025.</Abstract>
+          <KeywordList>
+            <Keyword>Planeamiento</Keyword>
+            <Keyword>Urbanístico</Keyword>
+            <Keyword>Ordenanzas</Keyword>
+            <Keyword>Refundido</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>Uso del suelo</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.5146822669928435</westBoundLongitude>
+            <eastBoundLongitude>-3.0880223915104543</eastBoundLongitude>
+            <southBoundLatitude>40.010909819948495</southBoundLatitude>
+            <northBoundLatitude>41.13749922309288</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.5146822669928435" miny="40.010909819948495" maxx="-3.0880223915104543" maxy="41.13749922309288"/>
+          <BoundingBox CRS="EPSG:25830" minx="372856.8157" miny="4430030.9214" maxx="492488.6767" maxy="4554024.8176"/>
+          <BoundingBox CRS="EPSG:4258" minx="40.01090978090295" miny="-4.514682266992843" maxx="41.137499183304335" maxy="-3.0880223915104543"/>
+          <BoundingBox CRS="EPSG:23030" minx="372957.0552670231" miny="4430238.220049569" maxx="492589.9716672675" maxy="4554233.20918828"/>
+          <BoundingBox CRS="EPSG:4326" minx="40.010909819948495" miny="-4.5146822669928435" maxx="41.13749922309288" maxy="-3.0880223915104543"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502572.13105506526" miny="4867527.791481285" maxx="-343757.08018117066" maxy="5032643.971324577"/>
+          <BoundingBox CRS="EPSG:32630" minx="372856.8157732327" miny="4430030.925847745" maxx="492488.67670459236" maxy="4554024.822132425"/>
+          <BoundingBox CRS="EPSG:3035" minx="1977280.7981605113" miny="3085850.5299229836" maxx="2120206.462235089" maxy="3223497.7712868312"/>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ordenanzasref2025"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_ORDENANZAS</Name>
+            <Title>Ordenanzas de Planeamiento</Title>
+            <Abstract>Información de las ordenanzas de los planes urbanísticos vigentes de cada municipio aprobados en la Comunidad de Madrid</Abstract>
+            <LegendURL width="191" height="320">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_ORDENANZA_REF_25"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>250.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_RED</Name>
+          <Title>Sistemas y Redes Públicas en Planeamiento General</Title>
+          <Abstract>[LANG_ES]Información sobre los sistemas y las redes públicas correspondientes al planeamiento urbanístico general original vigente de cada municipio de la Comunidad de Madrid, incluyendo el planeamiento incorporado.Fecha de actualización: junio de 2021&#13;
+&#13;
+[LANG_EN] Information on the systems and networks of the current general urban plans of each municipality approved in the Community of Madrid, including the incorporated planning. Date of update: June 2021</Abstract>
+          <KeywordList>
+            <Keyword>Planeamiento General</Keyword>
+            <Keyword>Sistemas</Keyword>
+            <Keyword>Redes</Keyword>
+            <Keyword>Usos del suelo</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.5145962717124775</westBoundLongitude>
+            <eastBoundLongitude>-3.068410774802731</eastBoundLongitude>
+            <southBoundLatitude>39.901656959578595</southBoundLatitude>
+            <northBoundLatitude>41.13751292204473</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.5145962717124775" miny="39.901656959578595" maxx="-3.068410774802731" maxy="41.13751292204473"/>
+          <BoundingBox CRS="EPSG:25830" minx="372864.0366" miny="4417900.7912" maxx="494152.9172" maxy="4554024.8176"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.901656920614386" miny="-4.5145962717124775" maxx="41.13751288225616" maxy="-3.0684107748027305"/>
+          <BoundingBox CRS="EPSG:23030" minx="372964.26899007254" miny="4418107.984093789" maxx="494254.22603772196" maxy="4554233.209184928"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.901656959578595" miny="-4.5145962717124775" maxx="41.13751292204473" maxy="-3.068410774802731"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502562.5581042443" miny="4851661.611191479" maxx="-341573.92499563406" maxy="5032645.996146922"/>
+          <BoundingBox CRS="EPSG:32630" minx="372864.0366727937" miny="4417900.795638487" maxx="494152.9172035749" maxy="4554024.822132427"/>
+          <BoundingBox CRS="EPSG:3035" minx="1965047.889574962" miny="3083959.91513629" maxx="2120205.2001236756" maxy="3225141.8427783605"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_RED</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_redes"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_REDES_USOS</Name>
+            <Title>Redes de Planeamiento según sus usos</Title>
+            <Abstract>Información sobre sistemas y redes públicas del planeamiento urbanístico vigente de cada municipio de la Comunidad de Madrid</Abstract>
+            <LegendURL width="244" height="128">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_RED"/>
+            </LegendURL>
+          </Style>
+          <Style>
+            <Name>S_VPLA_REDES_TIPO</Name>
+            <Title>Redes de Planeamiento según tipología</Title>
+            <Abstract>Información sobre sistemas y redes públicas del planeamiento urbanístico vigente de cada municipio de la Comunidad de Madrid</Abstract>
+            <LegendURL width="217" height="60">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_RED&amp;style=S_VPLA_REDES_TIPO"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>250.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_RED_MODIF</Name>
+          <Title>Sistemas y Redes Públicas en Planeamiento de Desarrollo</Title>
+          <Abstract>[LANG_ES]Información de los sistemas y las redes del planeamiento de desarrollo vigentes de cada municipio aprobados en la Comunidad de Madrid, ordenados por fecha de aprobación del acuerdo. Fecha de actualización: junio de 2021&#13;
+&#13;
+[LANG_EN] Information on the current development planning systems and networks of each municipality approved in the Community of Madrid, ordered by date of approval of the agreement.Date of update: June 2021</Abstract>
+          <KeywordList>
+            <Keyword>Planeamiento Desarrollo</Keyword>
+            <Keyword>Usos del suelo</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>IDEM</Keyword>
+            <Keyword>Redes</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.511022074002157</westBoundLongitude>
+            <eastBoundLongitude>-3.0880239421620934</eastBoundLongitude>
+            <southBoundLatitude>40.01216214889395</southBoundLatitude>
+            <northBoundLatitude>41.136671846996045</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.511022074002157" miny="40.01216214889395" maxx="-3.0880239421620934" maxy="41.136671846996045"/>
+          <BoundingBox CRS="EPSG:25830" minx="373162.5629" miny="4430164.8588" maxx="492488.6767" maxy="4553932.9687"/>
+          <BoundingBox CRS="EPSG:4258" minx="40.01216210984747" miny="-4.511022074002157" maxx="41.13667180720798" maxy="-3.088023942162094"/>
+          <BoundingBox CRS="EPSG:23030" minx="373262.8051516362" miny="4430372.158609697" maxx="492589.97165138513" maxy="4554141.359389931"/>
+          <BoundingBox CRS="EPSG:4326" minx="40.01216214889395" miny="-4.511022074002157" maxx="41.136671846996045" maxy="-3.0880239421620934"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502164.68023513694" miny="4867709.807265072" maxx="-343757.25279892155" maxy="5032521.6788393315"/>
+          <BoundingBox CRS="EPSG:32630" minx="373162.5629730626" miny="4430164.863247849" maxx="492488.67670459225" maxy="4553932.97323237"/>
+          <BoundingBox CRS="EPSG:3035" minx="1977412.721022097" miny="3086173.453077659" maxx="2120062.4641705067" maxy="3223483.291053009"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_RED_MODIF</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_redesmodif"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_REDES_USOS</Name>
+            <Title>Redes de Planeamiento según sus usos</Title>
+            <Abstract>Información sobre sistemas y redes públicas del planeamiento urbanístico vigente de cada municipio de la Comunidad de Madrid</Abstract>
+            <LegendURL width="244" height="128">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_RED_MODIF"/>
+            </LegendURL>
+          </Style>
+          <Style>
+            <Name>S_VPLA_REDES_TIPO</Name>
+            <Title>Redes de Planeamiento según tipología</Title>
+            <Abstract>Información sobre sistemas y redes públicas del planeamiento urbanístico vigente de cada municipio de la Comunidad de Madrid</Abstract>
+            <LegendURL width="217" height="60">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_RED_MODIF&amp;style=S_VPLA_REDES_TIPO"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>250.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_RED_REF_19</Name>
+          <Title>Sistemas y Redes Públicas en el Planeamiento Urbanístico Refundido 2019</Title>
+          <Abstract>Información sobre sistemas y redes del planeamiento urbanístico refundido 2019 de la Comunidad de Madrid. &#13;
+Fecha de referencia de los datos a 30 de junio de 2019.</Abstract>
+          <KeywordList>
+            <Keyword>VPLA_V_RED_REF_19</Keyword>
+            <Keyword>Sistemas</Keyword>
+            <Keyword>Redes</Keyword>
+            <Keyword>Planeamiento</Keyword>
+            <Keyword>Refundido</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>Uso del suelo</Keyword>
+            <Keyword>IDEM</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.5145962717124775</westBoundLongitude>
+            <eastBoundLongitude>-3.068410774802731</eastBoundLongitude>
+            <southBoundLatitude>39.901656959578595</southBoundLatitude>
+            <northBoundLatitude>41.13751292204473</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.5145962717124775" miny="39.901656959578595" maxx="-3.068410774802731" maxy="41.13751292204473"/>
+          <BoundingBox CRS="EPSG:25830" minx="372864.0366" miny="4417900.7912" maxx="494152.9172" maxy="4554024.8176"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.901656920614386" miny="-4.5145962717124775" maxx="41.13751288225616" maxy="-3.0684107748027305"/>
+          <BoundingBox CRS="EPSG:23030" minx="372964.26899007254" miny="4418107.984093789" maxx="494254.22603772196" maxy="4554233.209184928"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.901656959578595" miny="-4.5145962717124775" maxx="41.13751292204473" maxy="-3.068410774802731"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502562.5581042443" miny="4851661.611191479" maxx="-341573.92499563406" maxy="5032645.996146922"/>
+          <BoundingBox CRS="EPSG:32630" minx="372864.0366727937" miny="4417900.795638487" maxx="494152.9172035749" maxy="4554024.822132427"/>
+          <BoundingBox CRS="EPSG:3035" minx="1965047.889574962" miny="3083959.91513629" maxx="2120205.2001236756" maxy="3225141.8427783605"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_RED_REF_19</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_redesref2019"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_REDES_USOS</Name>
+            <Title>Redes de Planeamiento según sus usos</Title>
+            <Abstract>Información sobre sistemas y redes públicas del planeamiento urbanístico vigente de cada municipio de la Comunidad de Madrid</Abstract>
+            <LegendURL width="244" height="128">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_RED_REF_19"/>
+            </LegendURL>
+          </Style>
+          <Style>
+            <Name>S_VPLA_REDES_TIPO</Name>
+            <Title>Redes de Planeamiento según tipología</Title>
+            <Abstract>Información sobre sistemas y redes públicas del planeamiento urbanístico vigente de cada municipio de la Comunidad de Madrid</Abstract>
+            <LegendURL width="217" height="60">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_RED_REF_19&amp;style=S_VPLA_REDES_TIPO"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>250.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_RED_REF_23</Name>
+          <Title>Sistemas y Redes Rúblicas en el Planeamiento Urbanístico Refundido 2023</Title>
+          <Abstract>Información de sistemas y Redes de planeamiento urbanístico refundido 2023 de la Comunidad de Madrid. &#13;
+Fecha de referencia de los datos a septiembre de 2023.</Abstract>
+          <KeywordList>
+            <Keyword>VPLA_V_RED_REF_23</Keyword>
+            <Keyword>Planeamiento</Keyword>
+            <Keyword>Refundido</Keyword>
+            <Keyword>Sistemas</Keyword>
+            <Keyword>Redes</Keyword>
+            <Keyword>Uso del suelo</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>IDEM</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.5145962717124775</westBoundLongitude>
+            <eastBoundLongitude>-3.068410774802731</eastBoundLongitude>
+            <southBoundLatitude>39.901656959578595</southBoundLatitude>
+            <northBoundLatitude>41.13751292204473</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.5145962717124775" miny="39.901656959578595" maxx="-3.068410774802731" maxy="41.13751292204473"/>
+          <BoundingBox CRS="EPSG:25830" minx="372864.0366" miny="4417900.7912" maxx="494152.9172" maxy="4554024.8176"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.901656920614386" miny="-4.5145962717124775" maxx="41.13751288225616" maxy="-3.0684107748027305"/>
+          <BoundingBox CRS="EPSG:23030" minx="372964.26899007254" miny="4418107.984093789" maxx="494254.22603772196" maxy="4554233.209184928"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.901656959578595" miny="-4.5145962717124775" maxx="41.13751292204473" maxy="-3.068410774802731"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502562.5581042443" miny="4851661.611191479" maxx="-341573.92499563406" maxy="5032645.996146922"/>
+          <BoundingBox CRS="EPSG:32630" minx="372864.0366727937" miny="4417900.795638487" maxx="494152.9172035749" maxy="4554024.822132427"/>
+          <BoundingBox CRS="EPSG:3035" minx="1965047.889574962" miny="3083959.91513629" maxx="2120205.2001236756" maxy="3225141.8427783605"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">VPLA_V_RED_REF_23</Identifier>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_redesref2023"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_REDES_USOS</Name>
+            <Title>Redes de Planeamiento según sus usos</Title>
+            <Abstract>Información sobre sistemas y redes públicas del planeamiento urbanístico vigente de cada municipio de la Comunidad de Madrid</Abstract>
+            <LegendURL width="244" height="128">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_RED_REF_23"/>
+            </LegendURL>
+          </Style>
+          <Style>
+            <Name>S_VPLA_REDES_TIPO</Name>
+            <Title>Redes de Planeamiento según tipología</Title>
+            <Abstract>Información sobre sistemas y redes públicas del planeamiento urbanístico vigente de cada municipio de la Comunidad de Madrid</Abstract>
+            <LegendURL width="217" height="60">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_RED_REF_23&amp;style=S_VPLA_REDES_TIPO"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>250.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>VPLA_V_RED_REF_25</Name>
+          <Title>Sistemas y Redes Rúblicas en el Planeamiento Urbanístico Refundido 2025</Title>
+          <Abstract>Información de sistemas y Redes de planeamiento urbanístico refundido 2023 de la Comunidad de Madrid. &#13;
+Fecha de referencia de los datos a 31 de diciembre de 2025.</Abstract>
+          <KeywordList>
+            <Keyword>Planeamiento</Keyword>
+            <Keyword>Urbanístico</Keyword>
+            <Keyword>Refundido</Keyword>
+            <Keyword>Redes</Keyword>
+            <Keyword>Uso del suelo</Keyword>
+            <Keyword>Sistema de Información Territorial</Keyword>
+            <Keyword>Comunidad de Madrid</Keyword>
+            <Keyword>IDEM</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.5145962717124775</westBoundLongitude>
+            <eastBoundLongitude>-3.068410774802731</eastBoundLongitude>
+            <southBoundLatitude>39.901656959578595</southBoundLatitude>
+            <northBoundLatitude>41.13751292204473</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.5145962717124775" miny="39.901656959578595" maxx="-3.068410774802731" maxy="41.13751292204473"/>
+          <BoundingBox CRS="EPSG:25830" minx="372864.0366" miny="4417900.7912" maxx="494152.9172" maxy="4554024.8176"/>
+          <BoundingBox CRS="EPSG:4258" minx="39.901656920614386" miny="-4.5145962717124775" maxx="41.13751288225616" maxy="-3.0684107748027305"/>
+          <BoundingBox CRS="EPSG:23030" minx="372964.26899007254" miny="4418107.984093789" maxx="494254.22603772196" maxy="4554233.209184928"/>
+          <BoundingBox CRS="EPSG:4326" minx="39.901656959578595" miny="-4.5145962717124775" maxx="41.13751292204473" maxy="-3.068410774802731"/>
+          <BoundingBox CRS="EPSG:3857" minx="-502562.5581042443" miny="4851661.611191479" maxx="-341573.92499563406" maxy="5032645.996146922"/>
+          <BoundingBox CRS="EPSG:32630" minx="372864.0366727937" miny="4417900.795638487" maxx="494152.9172035749" maxy="4554024.822132427"/>
+          <BoundingBox CRS="EPSG:3035" minx="1965047.889574962" miny="3083959.91513629" maxx="2120205.2001236756" maxy="3225141.8427783605"/>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_redesref2025"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_VPLA_REDES_USOS</Name>
+            <Title>Redes de Planeamiento según sus usos</Title>
+            <Abstract>Información sobre sistemas y redes públicas del planeamiento urbanístico vigente de cada municipio de la Comunidad de Madrid</Abstract>
+            <LegendURL width="244" height="128">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_RED_REF_25"/>
+            </LegendURL>
+          </Style>
+          <Style>
+            <Name>S_VPLA_REDES_TIPO</Name>
+            <Title>Redes de Planeamiento según tipología</Title>
+            <Abstract>Información sobre sistemas y redes públicas del planeamiento urbanístico vigente de cada municipio de la Comunidad de Madrid</Abstract>
+            <LegendURL width="217" height="60">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=VPLA_V_RED_REF_25&amp;style=S_VPLA_REDES_TIPO"/>
+            </LegendURL>
+          </Style>
+          <MinScaleDenominator>250.0</MinScaleDenominator>
+          <MaxScaleDenominator>200000.0</MaxScaleDenominator>
+        </Layer>
+      </Layer>
+      <Layer>
+        <Name>Portal del suelo</Name>
+        <Title>Portal del suelo</Title>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_V_SUELO_PARCELA</Name>
+          <Title>Parcelas del Portal del Suelo</Title>
+          <Abstract>Parcelas disponibles para venta o concesión administrativa, propiedad de la Comunidad de Madrid y de Ayuntamientos adheridos al Portal.</Abstract>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword>IDEM_V_SUELO_PARCELA</Keyword>
+          </KeywordList>
+          <CRS>EPSG:25830</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-4.213089642620624</westBoundLongitude>
+            <eastBoundLongitude>-3.2178801881417183</eastBoundLongitude>
+            <southBoundLatitude>40.22075484248176</southBoundLatitude>
+            <northBoundLatitude>40.990012291536395</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+          <BoundingBox CRS="CRS:84" minx="-4.213089642620624" miny="40.22075484248176" maxx="-3.2178801881417183" maxy="40.990012291536395"/>
+          <BoundingBox CRS="EPSG:25830" minx="397951.308" miny="4452949.0685" maxx="481463.472" maxy="4537671.7105"/>
+          <BoundingBox CRS="EPSG:4258" minx="40.22075480328452" miny="-4.2130896426206235" maxx="40.99001225183502" maxy="-3.217880188141719"/>
+          <BoundingBox CRS="EPSG:23030" minx="398051.7735733136" miny="4453156.5681237215" maxx="481564.6717506689" maxy="4537879.955780209"/>
+          <BoundingBox CRS="EPSG:4326" minx="40.22075484248176" miny="-4.213089642620624" maxx="40.990012291536395" maxy="-3.2178801881417183"/>
+          <BoundingBox CRS="EPSG:3857" minx="-468998.9936829429" miny="4898073.8192775175" maxx="-358212.78397769947" maxy="5010868.590728262"/>
+          <BoundingBox CRS="EPSG:32630" minx="397951.3080594879" miny="4452949.072964997" maxx="481463.4720112499" maxy="4537671.7150224475"/>
+          <BoundingBox CRS="EPSG:3035" minx="2001751.1899853398" miny="3114225.094777629" maxx="2099705.118114216" maxy="3210029.5314183733"/>
+          <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_parcelaspsuelo"/>
+          </MetadataURL>
+          <Style>
+            <Name>S_IDEM_SUELO_PARCELA</Name>
+            <Title>Parcelas de suelo según escala</Title>
+            <Abstract>suelo</Abstract>
+            <LegendURL width="96" height="300">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/UsoDelSuelo/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_V_SUELO_PARCELA"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+      </Layer>
+    </Layer>
+  </Capability>
+</WMS_Capabilities>
