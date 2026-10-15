@@ -40,6 +40,10 @@ Esta historia no reabre la 0003: reutiliza `parcel`/`building` tal cual están, 
 - Cambios en `cli/` (composition root paralela a `api/`, ADR 0003): esta historia solo toca el flujo de `GET /reports/...`.
 - Métricas de coste de LLM/TTS: no aplica, esta historia no toca ningún proveedor de LLM.
 
+## Nota de cierre: excepción al criterio "ningún cambio de esquema"
+
+El AC original decía explícitamente que esta historia no tocaría el esquema de la historia 0003. El code-reviewer encontró un riesgo real de corrupción de datos (duplicación permanente de `building` bajo escritura concurrente, ver `docs/lessons/LESSONS.md`) que solo se puede corregir correctamente con una restricción de unicidad en base de datos — se añadió la migración `0003_building_unique_reference` como excepción justificada a ese criterio: una corrección de integridad de datos encontrada en revisión prevalece sobre un alcance ya cerrado por escrito. No es una migración planeada de antemano ni alcance añadido por conveniencia.
+
 ## Preguntas abiertas
 
 - ¿Se crea ya `ParcelRepositoryPort` (u otro nombre por capacidad) en `ports/`, con `PostgisParcelRepository` implementándolo y `GenerateParcelReportUseCase` recibiéndolo por inyección — dado que `CLAUDE.md` exige que `application/` "solo importe ports y domain, jamás un adapter" y esta es exactamente el caso de uso real que el ADR 0004 esperaba para crear el port — o se sigue instanciando la clase concreta directamente desde `api/main.py`, dejando `application/` sin tocar y la lógica de "leer caché, si falla ir a Catastro y guardar" en la capa de composición? Decisión del arquitecto; puede requerir ADR nuevo que amplíe o sustituya al ADR 0004 en ese punto.
