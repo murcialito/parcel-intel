@@ -122,6 +122,27 @@ def test_save_report_y_get_report_round_trip_con_multianillo(
     assert len(report_leido.buildings[0].geometry.rings) == 2
 
 
+def test_save_report_dos_veces_no_duplica_edificios(
+    repository: PostgisParcelRepository,
+) -> None:
+    # Reproduce el riesgo encontrado en revisión: dos peticiones concurrentes
+    # a la misma referencia nueva ejecutarían save_report dos veces (ambas
+    # cache-miss). Sin UNIQUE(parcel_reference, cadastral_reference) +
+    # ON CONFLICT en building, la segunda duplicaría la fila del edificio
+    # en vez de actualizarla -- y como el caché es permanente, nunca se
+    # autocorregiría.
+    parcel = make_parcel(cadastral_reference="REFCAT-RETIRADA")
+    building = make_building(cadastral_reference="REFCAT-RETIRADA", area_m2=152.0)
+    report = ParcelReport(parcel=parcel, buildings=(building,))
+
+    repository.save_report(report)
+    repository.save_report(report)
+
+    edificios = repository.get_buildings_for_parcel("REFCAT-RETIRADA")
+    assert len(edificios) == 1
+    assert edificios[0].area_m2 == 152.0
+
+
 def test_save_report_es_atomico_edificio_huerfano_no_dura_la_parcela(
     repository: PostgisParcelRepository,
 ) -> None:

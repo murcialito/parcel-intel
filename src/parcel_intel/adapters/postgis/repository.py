@@ -35,6 +35,15 @@ _INSERT_BUILDING_SQL = """
         construction_year, origin, provenance_source, provenance_url,
         provenance_retrieved_at, provenance_license
     ) VALUES (%s, %s, ST_GeomFromEWKT(%s), %s, %s, %s, %s, %s, %s, %s)
+    ON CONFLICT (parcel_reference, cadastral_reference) DO UPDATE SET
+        geometry = EXCLUDED.geometry,
+        area_m2 = EXCLUDED.area_m2,
+        construction_year = EXCLUDED.construction_year,
+        origin = EXCLUDED.origin,
+        provenance_source = EXCLUDED.provenance_source,
+        provenance_url = EXCLUDED.provenance_url,
+        provenance_retrieved_at = EXCLUDED.provenance_retrieved_at,
+        provenance_license = EXCLUDED.provenance_license
 """
 
 
