@@ -29,3 +29,11 @@ class ParcelNotCachedError(Exception):
             f"No hay ningún informe cacheado para la referencia catastral: {reference!r}"
         )
         self.reference = reference
+
+
+class InvalidHistoricalVintageError(Exception):
+    """El año o vuelo histórico pedido no está entre los confirmados en REGISTRY.md."""
+
+    def __init__(self, vintage: object) -> None:
+        super().__init__(f"Año o vuelo histórico no reconocido: {vintage!r}")
+        self.vintage = vintage
