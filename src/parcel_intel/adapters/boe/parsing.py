@@ -44,10 +44,13 @@ class ParsedNotice(TypedDict):
 
 
 def parse_daily_summary(response: dict[str, object]) -> list[ParsedNotice]:
-    """Recorre las cuatro variantes reales confirmadas de anidamiento
-    (`departamento.item`, `departamento.texto.item`, `departamento.epigrafe[].item`,
-    `departamento.epigrafe[].texto.item`) sin asumir nunca que un campo
-    repetible viene como lista."""
+    """Recorre las variantes de anidamiento conocidas, sin asumir nunca que
+    un campo repetible viene como lista: `departamento.item`,
+    `departamento.texto.item` y `departamento.epigrafe[].item` están
+    confirmadas con datos reales del `20261015` (ver REGISTRY.md).
+    `departamento.epigrafe[].texto.item` se cubre por la misma reutilización
+    simétrica de `_items_from_container`, pero no tiene evidencia real
+    todavía en ninguna fixture — cobertura defensiva, no un caso confirmado."""
     data = response["data"]
     assert isinstance(data, dict)
     sumario = data["sumario"]
