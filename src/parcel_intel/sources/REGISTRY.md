@@ -83,20 +83,54 @@ Municipios de referencia usados para verificar: Colmenar de Oreja (código Catas
 
 ## BOE
 
+Re-verificado el 2026-10-15 **en detalle** para la historia 0008 (ingesta diaria con filtro por texto) — la pasada original de la historia 0001 solo confirmó que el endpoint responde; esta pasada inspecciona el esquema exacto del JSON (necesario antes de fijar cualquier `TypedDict` de parsing, siguiendo la lección registrada tras la historia 0001) y hace peticiones reales nuevas para los casos de error.
+
 - **Protocolo:** REST/JSON (API de datos abiertos, sumario diario).
-- **Autenticación:** ninguna (al menos para esta consulta puntual).
-- **Formato de respuesta:** JSON.
+- **Autenticación:** ninguna.
+- **Cabecera obligatoria:** `Accept: application/json`. **Hallazgo nuevo:** sin esta cabecera (p. ej. con el `Accept: */*` por defecto de `curl`), el servicio responde `400 Bad Request` con cuerpo XML (`"No soportado ningún mime type de la cabecera Accept."`) **incluso para un día con sumario real** — no es un detalle opcional de negociación de contenido, es un requisito duro para obtener JSON en absoluto. No documentado en ningún `GetCapabilities` ni autodescripción; solo se descubrió con la petición real.
+- **Formato de respuesta:** JSON en el caso de éxito (`200`, con la cabecera anterior). **XML en todos los casos de error** (`400`, `404`), igual con `Accept: application/json` puesto — el servicio ignora el `Accept` pedido al fallar y siempre devuelve XML de error. Un cliente que solo intente `json.loads` en cualquier respuesta sin mirar antes el código de estado HTTP fallaría al parsear el cuerpo de un día sin sumario.
 - **CRS:** no aplica (fuente no geoespacial).
 - **Licencia:** no verificada explícitamente en esta pasada (`asumido`).
-- **Estado:** `confirmado` para la obtención del sumario diario; `asumido` para el filtrado por municipio.
+- **Estado:** `confirmado` para la obtención del sumario diario (esquema exacto incluido) y para los códigos de error de "sin sumario"/"fecha inválida"; `asumido` para el filtrado por municipio (sigue sin existir ningún parámetro server-side).
 
-**Endpoint verificado:**
+**Endpoint y casos de estado, todos verificados con petición real (2026-10-15):**
 
-| Endpoint | URL | Verificación |
+| Caso | Petición | Resultado real |
 | --- | --- | --- |
-| Sumario diario | `https://boe.es/datosabiertos/api/boe/sumario/{AAAAMMDD}` | `confirmado`. Petición real para `20261015` → fixture `sumario_hoy.json` (JSON completo, 247 KB, incluye secciones, enlaces a PDF de cada disposición). |
+| Día con sumario | `GET /datosabiertos/api/boe/sumario/20261015` con `Accept: application/json` | `200 OK`, `Content-Type: application/json`, cuerpo JSON completo → fixture ya existente `sumario_hoy.json` (247 KB). |
+| Día sin sumario (fin de semana: domingo 2026-10-11) | igual, con `Accept: application/json` | `404 Not Found`, `Content-Type: application/xml`, cuerpo `<response><status><code>404</code><text>La información solicitada no existe</text></status><data/></response>`. |
+| Día futuro sin sumario publicado todavía (2027-12-31) | igual | `404 Not Found`, mismo cuerpo XML que el caso anterior — el servicio no distingue "fin de semana/festivo" de "fecha futura": ambos son el mismo código y el mismo mensaje. Un solo tipo de error basta para los dos. |
+| Fecha con formato de calendario inválido (`20261332`, día/mes fuera de rango) enviada tal cual al servidor | igual | `400 Bad Request`, `Content-Type: application/xml`, cuerpo `<response><status><code>400</code><text>El parámetro fecha no cumple el formato.</text></status><data/></response>` — confirma que el servidor también valida, pero el AC de la historia exige que el cliente nunca llegue a mandar esta petición (validación de formato antes de red). |
 
-**Filtrado por municipio:** no se encontró ningún parámetro server-side de búsqueda por municipio o texto libre en esta pasada — `asumido` que hace falta descargar el sumario diario completo y filtrar client-side sobre el texto de cada entrada (título o, si no basta, el PDF de la disposición). Pendiente revisar si `https://www.boe.es/datosabiertos` documenta un endpoint de búsqueda aparte del sumario diario.
+**Esquema exacto del sumario (confirmado inspeccionando `sumario_hoy.json` campo a campo, no solo "se abre y tiene secciones"):**
+
+```
+data.sumario.metadatos.publicacion        = "BOE"
+data.sumario.metadatos.fecha_publicacion  = "20261015"
+data.sumario.diario[0].numero             = "256"
+data.sumario.diario[0].sumario_diario.identificador     = "BOE-S-2026-256"
+data.sumario.diario[0].sumario_diario.url_pdf.texto     = URL del PDF del sumario completo
+data.sumario.diario[0].seccion            = lista de 7 secciones el 2026-10-15 (p. ej. "1"/"I. Disposiciones generales", "3"/"III. Otras disposiciones", "5A"/"V. Anuncios. - A. Contratación del Sector Público"...)
+  seccion[i].codigo, seccion[i].nombre
+  seccion[i].departamento                 = lista de departamentos... o UN SOLO DICCIONARIO si solo hay un departamento esa sección ese día (confirmado real: la sección "5C" del 2026-10-15 trae `departamento` como dict, no como lista de 1 elemento)
+    departamento[j].codigo, departamento[j].nombre
+    departamento[j].epigrafe              = lista de epígrafes, O un solo dict si hay uno solo, O AUSENTE del todo
+    departamento[j].item                  = disposiciones directamente bajo el departamento, SIN epígrafe intermedio — confirmado real en la mayoría de ministerios el 2026-10-15 (18 de los casos reales de la fixture no tienen "epigrafe", solo "item" directo bajo "departamento")
+      epigrafe[k].nombre
+      epigrafe[k].item                    = lista de disposiciones, O un solo dict si hay una sola (confirmado real: epígrafe "Autos" trae varias; otros epígrafes de un solo ítem traen dict)
+        item.identificador   = p. ej. "BOE-A-2026-21445" (disposiciones) o "BOE-B-..." (anuncios, confirmado en secciones de Anuncios)
+        item.titulo          = título completo de la disposición
+        item.control          = presente en algunos ítems, ausente en otros (confirmado: 80 con, 84 sin, sobre 164 ítems reales del día) — campo opcional, no fiable como requerido
+        item.url_pdf.texto   = URL del PDF de la disposición individual
+        item.url_html        = URL de la versión HTML
+        item.url_xml         = URL de la versión XML
+```
+
+**Hallazgo crítico para el parsing (no un detalle menor):** el JSON de BOE viene de una conversión XML→JSON que colapsa cualquier elemento repetible a un `dict` suelto (no a una lista de un elemento) cuando solo aparece una vez ese día, en al menos tres niveles distintos de anidamiento (`departamento`, `epigrafe`, `item`) — y además `epigrafe` puede estar completamente ausente cuando las disposiciones cuelgan directamente de `departamento`. Cualquier parsing que asuma siempre `list` en estos campos fallará con `AttributeError`/`TypeError` en un día real cualquiera, no solo en un caso de borde teórico: el propio día de verificación (`20261015`) ya ejercita las tres variantes a la vez. Un recuento ingenuo que solo mire `epigrafe[].item` sin también mirar `departamento.item` directo pierde 84 de 164 disposiciones reales (más de la mitad) sin ningún error visible — la lista resultante simplemente queda incompleta en silencio.
+
+**Verificación real del filtro por texto sobre el sumario del `20261015` (164 disposiciones reales en total, tras recorrer las tres variantes de anidamiento anteriores):** búsqueda insensible a mayúsculas/tildes de `"colmenar"` → **0 coincidencias**; `"villaconejos"` → **0 coincidencias** (ninguna disposición de ese día menciona ninguno de los dos municipios del MVP en el título, resultado real, no forzado); `"madrid"` → **14 coincidencias** (término genérico real que sí aparece, útil como caso de prueba "sí hay coincidencias" sin depender de que los municipios del MVP aparezcan por casualidad).
+
+**Filtrado por municipio:** sigue sin existir ningún parámetro server-side de búsqueda por municipio o texto libre (confirmado, no solo asumido: no hay ningún parámetro de query documentado ni descubierto en esta pasada) — hace falta descargar el sumario diario completo y filtrar client-side sobre el título de cada disposición. Mirar el PDF del cuerpo cuando el título no basta queda fuera de alcance de la historia 0008 (ver ADR 0008): es una decisión a tomar solo si aparece evidencia real de falso negativo, no por adelantado.
 
 ---
 
