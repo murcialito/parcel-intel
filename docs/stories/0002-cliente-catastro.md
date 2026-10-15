@@ -18,16 +18,13 @@ Si la investigación agota los candidatos conocidos sin encontrar un método fia
 
 ## Criterios de aceptación
 
-### Bloque 1 — Resolver el método refcat → geometría (previo e inexcusable)
+### Bloque 1 — Resolver el método refcat → geometría (previo e inexcusable) — CERRADO 2026-10-15
 
-- [ ] `REGISTRY.md` incorpora una nueva sección "Hallazgo pendiente — RESUELTO en la historia 0002" (o se actualiza la existente) que documenta, para cada uno de los tres candidatos anotados en la historia 0001, si funcionó o no, con la petición real y la respuesta real (o el error real) como evidencia:
-  - (a) `GetFeature` con `resourceId=ES.SDGC.CP.<localId>` usando el `gml:id` / `inspireId.localId` INSPIRE de 14 caracteres, incluyendo el mapeo explícito probado entre la referencia rústica de 20 caracteres y ese `localId` de 14.
-  - (b) `Filter` OGC estándar (XML) enviado por POST, en vez de `CQL_FILTER` por GET.
-  - (c) Combinar el resultado de `Consulta_DNPPP` (polígono/parcela, superficie, paraje) con una búsqueda espacial aproximada sobre el WFS.
-- [ ] Existe al menos un método confirmado (no asumido) que, dada una referencia catastral rústica de 20 caracteres de Colmenar de Oreja o Villaconejos, devuelve una única geometría de parcela en el CRS correcto (`EPSG:25830` o reproyectable a él de forma determinista), verificado con al menos dos referencias catastrales rústicas distintas de los dos municipios del MVP.
-- [ ] El mismo método (o uno adicional si el formato urbano de 14 caracteres requiere una vía distinta) queda confirmado también para al menos una referencia catastral **urbana** de uno de los dos municipios.
-- [ ] Las peticiones y respuestas reales de este bloque quedan grabadas como ficheros nuevos en `tests/fixtures/catastro/` (no solo descritas en markdown), reutilizables sin llamar a la red.
-- [ ] Si, tras agotar los tres candidatos y cualquier variante razonable de cada uno, ninguno resuelve el caso rústico de forma fiable, el resto de los criterios de este bloque se sustituye por: `REGISTRY.md` documenta el intento de cada candidato con su fallo concreto, y la historia se cierra como bloqueada, sin avanzar al Bloque 2 ni al 3 en lo que dependa de la referencia rústica. En ese caso, la pregunta "¿cómo resolver refcat rústica → geometría?" pasa a "Preguntas abiertas" para decisión del arquitecto o el fundador.
+- [x] `REGISTRY.md` documenta los tres candidatos con evidencia real: (a) `resourceId` con `localId` de 14 caracteres — no funciona, ignorado sin bbox; (b) `Filter` OGC por POST — no funciona, el servicio ignora el cuerpo POST por completo; (c), en su variante real, combina `Consulta_CPMRC` (centroide por refcat de 14 caracteres) con `GetFeature` de bbox pequeño — **sí funciona** y es mejor que la búsqueda espacial aproximada originalmente prevista.
+- [x] Método confirmado: normalizar la referencia a 14 caracteres (`pc1+pc2`) → `Consulta_CPMRC` para el centroide → `GetFeature` con bbox ±100-200 m centrado en ese punto → match por `nationalCadastralReference`. Verificado con dos referencias rústicas distintas: Colmenar de Oreja `REFCAT-RETIRADA` (área 901 m²) y Villaconejos `REFCAT-RETIRADA`.
+- [x] El mismo método confirmado también para una referencia adicional del núcleo "urbano" de Colmenar de Oreja (`REFCAT-RETIRADA` — nota: en este municipio, incluso las parcelas del núcleo urbano usan el formato de numeración por polígono, no el formato alfanumérico de manzana que se ve en ciudades grandes; la distinción urbano/rústico la da el atributo `cn` de `Consulta_DNPPP` o `DS_CLASIF_GEN` de IDEM, no el patrón de la referencia).
+- [x] Peticiones y respuestas reales grabadas en `tests/fixtures/catastro/`: `cpmrc_colmenar_14char.xml`, `cpmrc_villaconejos_14char.xml`, `cpmrc_colmenar_urbano_14char.xml`, `wfsCP_colmenar_rustica_por_centroide.xml`, `wfsCP_villaconejos_rustica_por_centroide.xml`, más la evidencia de los candidatos fallidos (`wfsCP_getfeature_by_resourceid.xml`, `wfsCP_getfeature_post_filter2.xml`, `wfsCP_colmenar_sin_filtro.xml`, `wfsCP_colmenar_bbox_cql_narrow.xml`).
+- [x] No aplica la cláusula de bloqueo — el Bloque 1 tuvo éxito.
 
 ### Bloque 2 — Puertos y dominio (solo si el Bloque 1 tiene éxito, al menos para un tipo de referencia)
 
