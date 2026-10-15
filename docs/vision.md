@@ -128,7 +128,10 @@ El mayor riesgo no es técnico sino de confianza: un falso positivo puede tumbar
 - [ ] Responsabilidad legal y seguro antes de cobrar el primer informe real (ver tabla de riesgos).
 - [ ] Cómo acotar el cuello de botella de boletines/planeamiento al escalar más allá de los dos municipios del MVP.
 
-## Instrucciones para Claude Code
+**Ideas futuras (apuntadas, no priorizadas ni diseñadas — no implementar sin pasar antes por business-analyst/architect):**
+
+- **Open Data del Colegio de Registradores**: evaluar si sus conjuntos de datos abiertos (transacciones, precios) se pueden descargar y estructurar en la base de datos del proyecto. Encajaría como una fuente nueva de precio/mercado, hoy ausente del modelo de datos (los módulos actuales cubren situación física/legal, no precio histórico de la zona) — sigue el mismo patrón de verificación que el resto de fuentes de `REGISTRY.md`: confirmar endpoint, licencia y esquema real antes de diseñar nada.
+- **Serie animada de ortofotos históricas junto a evolución de precio**: mostrar en el informe (o en una vista de zona más amplia) un time-lapse de las ortofotos de PNOA ya disponibles por año (historia 0006, cliente aislado de PNOA — confirmado 1956-2024) superpuesto o junto a la evolución del precio de la zona (depende de la idea anterior, precio histórico). Relevante para el módulo "Entorno y futuro" y como gancho visual del informe, más allá del "indicio a verificar" puramente legal.
 
 **Estructura del repositorio:**
 
