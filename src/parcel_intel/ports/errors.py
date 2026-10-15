@@ -58,3 +58,23 @@ class NoScenesAfterCloudFilterError(Exception):
         self.start = start
         self.end = end
         self.max_cloud_cover_percent = max_cloud_cover_percent
+
+
+class InvalidBulletinDayError(Exception):
+    """El día pedido no tiene formato AAAAMMDD válido (longitud, no numérico,
+    o fecha de calendario inexistente). Se lanza antes de cualquier petición
+    de red."""
+
+    def __init__(self, day: str) -> None:
+        super().__init__(f"Día de boletín con formato no reconocido: {day!r}")
+        self.day = day
+
+
+class BulletinNotPublishedError(Exception):
+    """No hay sumario publicado para el día pedido (fin de semana, festivo, o
+    fecha futura todavía sin publicar) — el proveedor no distingue estos
+    casos (confirmado real en REGISTRY.md), así que tampoco este cliente."""
+
+    def __init__(self, day: str) -> None:
+        super().__init__(f"No hay sumario de boletín publicado para el día: {day!r}")
+        self.day = day
