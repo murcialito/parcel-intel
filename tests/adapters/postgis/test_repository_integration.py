@@ -80,3 +80,19 @@ def test_sin_edificios_devuelve_lista_vacia(repository: PostgisParcelRepository)
     repository.save_parcel(parcel)
 
     assert repository.get_buildings_for_parcel("REFCAT-RETIRADA") == []
+
+
+def test_la_conexion_se_recupera_tras_un_fallo_sql(repository: PostgisParcelRepository) -> None:
+    # Reproduce el bug encontrado en revisión: sin rollback explícito tras un
+    # error, psycopg deja la conexión en estado "aborted" y cualquier
+    # operación posterior falla con InFailedSqlTransaction, un error que no
+    # tiene nada que ver con la causa real. El uso del gestor de contexto de
+    # la conexión (`with self._connection:`) debe hacer rollback automático.
+    with pytest.raises(psycopg.errors.ForeignKeyViolation):
+        repository.save_buildings("28043A00999999", [make_building()])
+
+    parcel = make_parcel(cadastral_reference="REFCAT-RETIRADA")
+    repository.save_parcel(parcel)
+    parcel_leida = repository.get_parcel("REFCAT-RETIRADA")
+
+    assert parcel_leida.cadastral_reference == "REFCAT-RETIRADA"

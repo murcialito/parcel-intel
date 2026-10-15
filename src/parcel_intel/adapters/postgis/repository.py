@@ -38,48 +38,57 @@ class PostgisParcelRepository:
 
     def save_parcel(self, parcel: Parcel) -> None:
         ewkt = geometry_to_ewkt(parcel.geometry)
-        with self._connection.cursor() as cur:
-            cur.execute(
-                """
-                INSERT INTO parcel (
-                    cadastral_reference, municipality, geometry, area_m2,
-                    provenance_source, provenance_url, provenance_retrieved_at,
-                    provenance_license
-                ) VALUES (%s, %s, ST_GeomFromEWKT(%s), %s, %s, %s, %s, %s)
-                ON CONFLICT (cadastral_reference) DO UPDATE SET
-                    municipality = EXCLUDED.municipality,
-                    geometry = EXCLUDED.geometry,
-                    area_m2 = EXCLUDED.area_m2,
-                    provenance_source = EXCLUDED.provenance_source,
-                    provenance_url = EXCLUDED.provenance_url,
-                    provenance_retrieved_at = EXCLUDED.provenance_retrieved_at,
-                    provenance_license = EXCLUDED.provenance_license
-                """,
-                (
-                    parcel.cadastral_reference,
-                    parcel.municipality,
-                    ewkt,
-                    parcel.area_m2,
-                    parcel.provenance.source,
-                    parcel.provenance.url,
-                    parcel.provenance.retrieved_at,
-                    parcel.provenance.license,
-                ),
-            )
-        self._connection.commit()
+        try:
+            with self._connection.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO parcel (
+                        cadastral_reference, municipality, geometry, area_m2,
+                        provenance_source, provenance_url, provenance_retrieved_at,
+                        provenance_license
+                    ) VALUES (%s, %s, ST_GeomFromEWKT(%s), %s, %s, %s, %s, %s)
+                    ON CONFLICT (cadastral_reference) DO UPDATE SET
+                        municipality = EXCLUDED.municipality,
+                        geometry = EXCLUDED.geometry,
+                        area_m2 = EXCLUDED.area_m2,
+                        provenance_source = EXCLUDED.provenance_source,
+                        provenance_url = EXCLUDED.provenance_url,
+                        provenance_retrieved_at = EXCLUDED.provenance_retrieved_at,
+                        provenance_license = EXCLUDED.provenance_license
+                    """,
+                    (
+                        parcel.cadastral_reference,
+                        parcel.municipality,
+                        ewkt,
+                        parcel.area_m2,
+                        parcel.provenance.source,
+                        parcel.provenance.url,
+                        parcel.provenance.retrieved_at,
+                        parcel.provenance.license,
+                    ),
+                )
+            self._connection.commit()
+        except Exception:
+            self._connection.rollback()
+            raise
 
     def get_parcel(self, cadastral_reference: str) -> Parcel:
-        with self._connection.cursor() as cur:
-            cur.execute(
-                """
-                SELECT cadastral_reference, municipality, ST_AsText(geometry),
-                       ST_SRID(geometry), area_m2, provenance_source, provenance_url,
-                       provenance_retrieved_at, provenance_license
-                FROM parcel WHERE cadastral_reference = %s
-                """,
-                (cadastral_reference,),
-            )
-            row: _ParcelRow | None = cur.fetchone()
+        try:
+            with self._connection.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT cadastral_reference, municipality, ST_AsText(geometry),
+                           ST_SRID(geometry), area_m2, provenance_source, provenance_url,
+                           provenance_retrieved_at, provenance_license
+                    FROM parcel WHERE cadastral_reference = %s
+                    """,
+                    (cadastral_reference,),
+                )
+                row: _ParcelRow | None = cur.fetchone()
+            self._connection.commit()
+        except Exception:
+            self._connection.rollback()
+            raise
         if row is None:
             raise ParcelNotFoundInRepositoryError(cadastral_reference)
         ref, municipality, wkt, srid, area_m2, p_source, p_url, p_retrieved_at, p_license = row
@@ -94,45 +103,54 @@ class PostgisParcelRepository:
         )
 
     def save_buildings(self, parcel_reference: str, buildings: list[Building]) -> None:
-        with self._connection.cursor() as cur:
-            for building in buildings:
-                ewkt = geometry_to_ewkt(building.geometry)
-                cur.execute(
-                    """
-                    INSERT INTO building (
-                        parcel_reference, cadastral_reference, geometry, area_m2,
-                        construction_year, origin, provenance_source, provenance_url,
-                        provenance_retrieved_at, provenance_license
-                    ) VALUES (%s, %s, ST_GeomFromEWKT(%s), %s, %s, %s, %s, %s, %s, %s)
-                    """,
-                    (
-                        parcel_reference,
-                        building.cadastral_reference,
-                        ewkt,
-                        building.area_m2,
-                        building.construction_year,
-                        building.origin,
-                        building.provenance.source,
-                        building.provenance.url,
-                        building.provenance.retrieved_at,
-                        building.provenance.license,
-                    ),
-                )
-        self._connection.commit()
+        try:
+            with self._connection.cursor() as cur:
+                for building in buildings:
+                    ewkt = geometry_to_ewkt(building.geometry)
+                    cur.execute(
+                        """
+                        INSERT INTO building (
+                            parcel_reference, cadastral_reference, geometry, area_m2,
+                            construction_year, origin, provenance_source, provenance_url,
+                            provenance_retrieved_at, provenance_license
+                        ) VALUES (%s, %s, ST_GeomFromEWKT(%s), %s, %s, %s, %s, %s, %s, %s)
+                        """,
+                        (
+                            parcel_reference,
+                            building.cadastral_reference,
+                            ewkt,
+                            building.area_m2,
+                            building.construction_year,
+                            building.origin,
+                            building.provenance.source,
+                            building.provenance.url,
+                            building.provenance.retrieved_at,
+                            building.provenance.license,
+                        ),
+                    )
+            self._connection.commit()
+        except Exception:
+            self._connection.rollback()
+            raise
 
     def get_buildings_for_parcel(self, parcel_reference: str) -> list[Building]:
-        with self._connection.cursor() as cur:
-            cur.execute(
-                """
-                SELECT cadastral_reference, ST_AsText(geometry), ST_SRID(geometry), area_m2,
-                       construction_year, origin, provenance_source, provenance_url,
-                       provenance_retrieved_at, provenance_license
-                FROM building WHERE parcel_reference = %s
-                ORDER BY id
-                """,
-                (parcel_reference,),
-            )
-            rows: list[_BuildingRow] = cur.fetchall()
+        try:
+            with self._connection.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT cadastral_reference, ST_AsText(geometry), ST_SRID(geometry), area_m2,
+                           construction_year, origin, provenance_source, provenance_url,
+                           provenance_retrieved_at, provenance_license
+                    FROM building WHERE parcel_reference = %s
+                    ORDER BY id
+                    """,
+                    (parcel_reference,),
+                )
+                rows: list[_BuildingRow] = cur.fetchall()
+            self._connection.commit()
+        except Exception:
+            self._connection.rollback()
+            raise
         buildings = []
         for row in rows:
             ref, wkt, srid, area_m2, year, origin, p_source, p_url, p_retrieved_at, p_license = row
