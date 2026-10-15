@@ -43,6 +43,12 @@ uv run pytest           # tests
 uv run mypy             # tipado estricto
 uv run ruff check .     # lint
 uv run lint-imports     # verificar capas hexagonales
+
+docker compose -f infra/docker-compose.yml up -d    # levantar PostGIS local
+uv run python -m parcel_intel.adapters.postgis.migrate up      # aplicar migraciones
+uv run python -m parcel_intel.adapters.postgis.migrate down    # revertir la última
+uv run python -m parcel_intel.adapters.postgis.migrate status  # ver estado
+uv run pytest -m integration    # tests que requieren PostGIS local levantado
 ```
 
 ## Contexto de negocio (resumen)

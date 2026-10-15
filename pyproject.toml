@@ -7,6 +7,7 @@ dependencies = [
     "requests>=2.31",
     "fastapi>=0.115",
     "uvicorn>=0.30",
+    "psycopg[binary]>=3.1",
 ]
 
 [project.optional-dependencies]
@@ -30,7 +31,7 @@ packages = ["src/parcel_intel"]
 pythonpath = ["src"]
 testpaths = ["tests"]
 markers = [
-    "integration: tests que llaman a red real (excluidos por defecto)",
+    "integration: tests que llaman a red real o a una base de datos PostGIS local (excluidos por defecto)",
 ]
 addopts = "-m 'not integration'"
 
@@ -72,6 +73,8 @@ forbidden_modules = [
     "parcel_intel.application",
     "parcel_intel.adapters",
     "parcel_intel.cli",
+    "parcel_intel.api",
     "requests",
     "pydantic",
+    "psycopg",
 ]

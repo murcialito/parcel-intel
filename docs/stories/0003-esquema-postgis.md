@@ -16,30 +16,31 @@ Varias decisiones técnicas no tienen ADR previo y deben decidirlas el arquitect
 
 ## Criterios de aceptación
 
-### Bloque 1 — Entorno local de base de datos
+### Bloque 1 — Entorno local de base de datos — CERRADO 2026-10-15
 
-- [ ] `infra/docker-compose.yml` define un servicio con una imagen de PostgreSQL con extensión PostGIS instalada, con puerto, usuario, contraseña y nombre de base de datos configurables por variables de entorno (con valores por defecto para desarrollo local).
-- [ ] Levantar el servicio (`docker compose -f infra/docker-compose.yml up -d`, comando documentado literalmente donde corresponda — `CLAUDE.md` o un `infra/README.md`) deja una base de datos accesible en la que `SELECT postgis_version();` devuelve una versión sin error.
-- [ ] El esquema se crea sobre una base de datos con nombre propio (no la `postgres` por defecto), nombre también configurable por variable de entorno.
-- [ ] Parar y eliminar el entorno (`docker compose -f infra/docker-compose.yml down -v`) y volver a levantarlo deja la base de datos en el mismo estado inicial (sin datos residuales de una ejecución anterior) — verificable ejecutando ambos pasos en secuencia como parte del cierre de la historia.
+- [x] `infra/docker-compose.yml` define el servicio `db` (`postgis/postgis:16-3.4`), con `POSTGRES_DB`/`POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_PORT` configurables por variable de entorno con valores por defecto (`parcel_intel`/`parcel_intel`/`parcel_intel`/`5432`).
+- [x] `docker compose -f infra/docker-compose.yml up -d` deja una base de datos en la que `SELECT postgis_version();` devuelve `3.4 USE_GEOS=1 USE_PROJ=1 USE_STATS=1` sin error — verificado contra Docker real, no simulado.
+- [x] El esquema se crea sobre `parcel_intel` (no `postgres`), nombre configurable por `POSTGRES_DB`.
+- [x] `down -v` + `up` + aplicar migraciones deja el mismo estado inicial — verificado en esta sesión (ciclo completo real, no supuesto).
+- **Hallazgo no previsto, documentado en `infra/README.md`:** con un volumen nuevo, la imagen `postgis/postgis` reinicia el servidor una vez mientras crea las extensiones; `pg_isready` puede devolver éxito *durante* ese reinicio, antes de que `postgis_version()` exista todavía. El primer intento de este cierre de historia falló por este motivo exacto (confirmado en los logs del contenedor). La comprobación de disponibilidad correcta debe esperar a que `SELECT postgis_version();` funcione, no solo a `pg_isready`.
 
-### Bloque 2 — Migraciones versionadas
+### Bloque 2 — Migraciones versionadas — CERRADO 2026-10-15
 
-- [ ] Existe un mecanismo de migraciones versionado (herramienta concreta a decisión del arquitecto; ver "Preguntas abiertas") con al menos dos migraciones secuenciales: una que crea la tabla `parcel`, otra que crea la tabla `building`.
-- [ ] El comando para aplicar las migraciones desde cero queda documentado en `CLAUDE.md` (ampliando la sección "Comandos") y se ejecuta literalmente, tal como está escrito, sin argumentos adicionales — conforme a la lección registrada en `docs/lessons/LESSONS.md` sobre comandos documentados que deben funcionar tal cual.
-- [ ] Aplicar las migraciones contra la base de datos vacía del Bloque 1 crea la tabla `parcel` con, como mínimo, estas columnas y restricciones: `cadastral_reference` (texto, clave primaria), `municipality` (texto, no nulo), `geometry` (columna PostGIS con SRID 25830, tipo concreto — `Polygon` o `MultiPolygon` — a decisión del arquitecto conforme a que `Geometry.rings` admite multi-parte), `area_m2` (numérico, no nulo), `provenance_source` (texto, no nulo), `provenance_url` (texto, no nulo), `provenance_retrieved_at` (fecha, no nulo), `provenance_license` (texto, nulo permitido).
-- [ ] Aplicar las migraciones crea la tabla `building` con, como mínimo: una clave primaria propia (sintética, p. ej. autogenerada), `cadastral_reference` (texto, no nulo, clave foránea a `parcel.cadastral_reference`), `geometry` (columna PostGIS con SRID 25830, mismo criterio de tipo que `parcel`), `area_m2` (numérico, no nulo), `construction_year` (entero, nulo permitido), `origin` (texto o enumerado, restringido a los valores `catastro` y `detected` de `domain/building.py`), más las cuatro columnas de procedencia equivalentes a las de `parcel`.
-- [ ] Revertir la última migración (`down`/equivalente según la herramienta elegida) elimina la tabla `building` sin afectar a `parcel`, verificable comprobando que la tabla desaparece de `information_schema.tables` y que `parcel` sigue existiendo.
-- [ ] Aplicar las migraciones dos veces consecutivas sobre la misma base de datos no falla ni duplica tablas (el mecanismo de migraciones registra qué se aplicó).
+- [x] Runner propio en SQL plano (`adapters/postgis/migrate.py` + `adapters/postgis/migrations/*.{up,down}.sql`), conforme al [ADR 0004](../adr/0004-persistencia-postgis-sql-plano-sin-repository-port.md). Dos migraciones: `0001_create_parcel`, `0002_create_building`.
+- [x] `uv run python -m parcel_intel.adapters.postgis.migrate up` documentado literalmente en `CLAUDE.md` y ejecutado tal cual en esta sesión.
+- [x] `parcel`: `cadastral_reference` (PK), `municipality`, `geometry(MultiPolygon, 25830)`, `area_m2`, 4 columnas `provenance_*`.
+- [x] `building`: `id BIGSERIAL` (PK sintética), `parcel_reference` (FK a `parcel.cadastral_reference`), `cadastral_reference` (texto, no nulo — la referencia **del edificio**, no de la parcela), `geometry(MultiPolygon, 25830)`, `area_m2`, `construction_year`, `origin` (`CHECK IN ('catastro','detected')`), 4 columnas `provenance_*`. **Aclaración frente al texto original de este criterio:** se usan dos columnas (`parcel_reference` y `cadastral_reference`), no una sola haciendo ambas cosas — `domain/building.py` no garantiza que la referencia de un edificio coincida con la de su parcela (en rústico casi nunca coincide; en el núcleo urbano de Colmenar de Oreja, por convención local, sí — ver historia 0002), así que una sola columna FK+identidad habría sido incorrecta.
+- [x] `down` revierte `building` sin afectar `parcel` — verificado: tras `down`, `\dt` muestra `parcel` pero no `building`.
+- [x] Aplicar `up` dos veces seguidas no falla ni duplica (verificado: la segunda ejecución no imprime nada, `schema_migrations` ya las tenía registradas).
 
-### Bloque 3 — Verificación con datos reales del dominio
+### Bloque 3 — Verificación con datos reales del dominio — CERRADO 2026-10-15
 
-- [ ] Un test de integración (marcado explícitamente como tal, sin red salvo la conexión a la base de datos local — conforme a la convención de `CLAUDE.md` de fixtures sin red y tests de integración aparte) levanta el esquema contra una base de datos PostGIS real (el servicio del Bloque 1 o un contenedor efímero equivalente), inserta una `Parcel` y al menos dos `Building` asociados a ella, y lee de vuelta los datos comprobando que `cadastral_reference`, `area_m2`, `origin`, `provenance` y el SRID de la geometría coinciden con los valores insertados.
-- [ ] Ese mismo test cubre explícitamente el caso no trivial de geometría multi-parte: al menos una de las `Parcel` o `Building` insertadas tiene una `Geometry` con 2 o más `rings` (no solo el caso de un único anillo), y la lectura de vuelta conserva el número de anillos y sus coordenadas — conforme a la lección ya registrada en `docs/lessons/LESSONS.md` sobre no dar por cubierto el caso multi-parte con fixtures de un único anillo.
-- [ ] El mismo test verifica que insertar un `Building` con `cadastral_reference` que no existe en `parcel` falla por la restricción de clave foránea (no se acepta un edificio huérfano).
-- [ ] `uv run pytest` (ejecutado literalmente, tal como lo documenta `CLAUDE.md`) distingue claramente los tests de integración de este bloque del resto de la suite (marcador o ruta separada), de forma que el resto de tests sigue pasando sin que la base de datos esté levantada.
-- [ ] `uv run mypy` y `uv run ruff check .` (ejecutados literalmente) pasan en verde sobre el código nuevo.
-- [ ] `uv run lint-imports` sigue en verde: el código de acceso a PostGIS (SQL, driver, mapeo dominio↔fila) vive en `adapters/`, no en `domain/` ni `application/`.
+- [x] Test de integración (`tests/adapters/postgis/test_repository_integration.py`, `pytestmark = pytest.mark.integration`) contra el PostGIS real del Bloque 1: inserta una `Parcel` y dos `Building`, lee de vuelta y compara `cadastral_reference`, `area_m2`, `origin`, `provenance` y SRID.
+- [x] Cubre explícitamente el caso multi-parte: uno de los `Building` insertados tiene `Geometry` con 2 anillos (cuerpo principal + anexo, mismo patrón real que el edificio `REFCAT-RETIRADA` de la historia 0002); la lectura conserva ambos anillos.
+- [x] Insertar un `Building` con `parcel_reference` inexistente lanza `psycopg.errors.ForeignKeyViolation` — verificado con una llamada real a la base de datos, no simulado.
+- [x] `uv run pytest` (sin argumentos) excluye los tests de integración por defecto (`addopts = "-m 'not integration'"`); `uv run pytest -m integration` los ejecuta aparte. Verificado: 27 passed / 4 deselected en el primer caso, 4 passed / 27 deselected en el segundo.
+- [x] `uv run mypy` y `uv run ruff check .` en verde sobre el código nuevo.
+- [x] `uv run lint-imports` en verde: todo el SQL, el driver `psycopg` y el mapeo WKT↔`Geometry` viven en `adapters/postgis/`.
 
 ## Fuera de alcance
 

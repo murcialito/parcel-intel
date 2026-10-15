@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-parcel_intel}
+      POSTGRES_USER: ${POSTGRES_USER:-parcel_intel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-parcel_intel}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - parcel_intel_db_data:/var/lib/postgresql/data
+
+volumes:
+  parcel_intel_db_data:
