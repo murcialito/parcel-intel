@@ -1,4 +1,6 @@
-from parcel_intel.domain.geometry import Geometry, bbox_with_margin
+import pytest
+
+from parcel_intel.domain.geometry import EmptyGeometryError, Geometry, bbox_with_margin
 
 _SQUARE = ((0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0), (0.0, 0.0))
 
@@ -37,3 +39,10 @@ def test_bbox_multianillo_cubre_todos_los_anillos() -> None:
     bbox = bbox_with_margin(geometry, margin_m=0.0)
 
     assert bbox == (0.0, 0.0, 30.0, 30.0)
+
+
+def test_geometria_sin_anillos_lanza_error_explicito() -> None:
+    geometry = Geometry(rings=(), srid=25830)
+
+    with pytest.raises(EmptyGeometryError):
+        bbox_with_margin(geometry, margin_m=10.0)

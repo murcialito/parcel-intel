@@ -44,16 +44,20 @@ def test_get_current_orthophoto_real() -> None:
 
 
 def test_get_historical_orthophoto_year_real() -> None:
-    http_get = SequenceHttpGetter([FIXTURES_DIR / "getmap_parcela_real_bbox_pnoa2010.jpg"])
+    # PNOA2010 y PNOA2016 devuelven, para este bbox exacto, un placeholder en
+    # blanco real (verificado contra la red: 1819 bytes, sin contenido visual
+    # útil) -- PNOA2020 sí tiene cobertura real (45 KB) y sirve de evidencia
+    # no trivial de que el vuelo histórico pedido es el que de verdad llega.
+    http_get = SequenceHttpGetter([FIXTURES_DIR / "getmap_parcela_real_bbox_pnoa2020.jpg"])
     adapter = PnoaAdapter(http_get=http_get)
     geometry = _parcela_real_7262205()
 
-    orthophoto = adapter.get_historical_orthophoto(geometry, DEFAULT_MARGIN_M, 2010)
+    orthophoto = adapter.get_historical_orthophoto(geometry, DEFAULT_MARGIN_M, 2020)
 
-    assert orthophoto.vintage == 2010
+    assert orthophoto.vintage == 2020
     assert orthophoto.image.startswith(b"\xff\xd8")
     assert orthophoto.provenance.source == "pnoa-historico"
-    assert "PNOA2010" in orthophoto.provenance.url
+    assert "PNOA2020" in orthophoto.provenance.url
 
 
 def test_get_historical_orthophoto_vuelo_nombrado_real() -> None:
@@ -98,7 +102,7 @@ def test_vintage_no_confirmado_lanza_error_antes_de_la_red(vintage: object) -> N
 
 @pytest.mark.parametrize("year", [2004, 2024])
 def test_limites_del_rango_de_anios_confirmados_son_validos(year: int) -> None:
-    http_get = SequenceHttpGetter([FIXTURES_DIR / "getmap_parcela_real_bbox_pnoa2010.jpg"])
+    http_get = SequenceHttpGetter([FIXTURES_DIR / "getmap_parcela_real_bbox_pnoa2020.jpg"])
     adapter = PnoaAdapter(http_get=http_get)
     geometry = _parcela_real_7262205()
 
