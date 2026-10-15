@@ -64,7 +64,7 @@ class BocmAdapter:
                     pdf_url=entry["pdf_url"],
                     provenance=Provenance(
                         source="bocm",
-                        url=xml_url,
+                        url=SUMARIOS_RSS_URL,
                         retrieved_at=_today(),
                         license=None,
                     ),

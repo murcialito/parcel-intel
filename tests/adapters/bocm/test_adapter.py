@@ -13,9 +13,11 @@ DISPOSICIONES_DIR = FIXTURES_DIR / "disposiciones"
 
 # XML mínimo válido para cualquier disposición de la que no se capturó una
 # fixture real -- permite ejercitar el pipeline completo (81 peticiones: 1
-# RSS + 80 XML) sin almacenar 80 ficheros reales en el repo. Las tres
-# disposiciones que sí importan para los asserts (1, 2 y 32 -- esta última
-# la coincidencia real de "Colmenar de Oreja") usan la fixture real.
+# RSS + 80 XML) sin almacenar 80 ficheros reales en el repo. Las cuatro
+# disposiciones que sí importan para los asserts (1, 2, 3 y 32 -- la 32 es
+# la coincidencia real de "Colmenar de Oreja" y la 3 la de "madrid" como
+# término genérico, independiente de los municipios del MVP) usan la
+# fixture real.
 _GENERIC_XML = b"""<documento>
   <metadatos>
     <identificador>BOCM-GENERICA</identificador>
@@ -41,7 +43,7 @@ class _FakeUrlGetter:
 
 def _real_xml_url_map() -> dict[str, Path]:
     mapping = {}
-    for n in (1, 2, 32):
+    for n in (1, 2, 3, 32):
         pdf_url = f"https://www.bocm.es/boletin/CM_Orden_BOCM/2026/10/15/BOCM-20261015-{n}.PDF"
         mapping[derive_xml_url(pdf_url)] = DISPOSICIONES_DIR / f"BOCM-20261015-{n}.xml"
     return mapping
@@ -89,6 +91,33 @@ def test_bulletin_del_dia_real_con_80_disposiciones_y_coincidencia_real_colmenar
 
     assert filter_by_title(notices, "Villaconejos") == []
     assert all(n.provenance.source == "bocm" for n in notices)
+    assert all(n.provenance.url == SUMARIOS_RSS_URL for n in notices)
+
+
+def test_filtro_por_termino_generico_madrid_no_depende_de_colmenar_o_villaconejos() -> None:
+    """Criterio de aceptación (`docs/stories/0009-ingesta-bocm.md:30`): el
+    filtro debe probarse con un término genérico que aparece en el título
+    de alguna disposición real, sin depender de que "Colmenar de Oreja" o
+    "Villaconejos" aparezcan por casualidad.
+
+    Verificación real (ver `REGISTRY.md` / ADR 0009): sobre las 80
+    disposiciones reales del 20261015, "madrid" aparece en 38 títulos,
+    entre ellas la Nº 3 ("Convocatoria proceso selectivo..."), que no
+    menciona ningún municipio del MVP -- confirma que el filtro funciona
+    de forma independiente de la coincidencia de Colmenar."""
+    getter = _FakeUrlGetter(_real_xml_url_map())
+    adapter = BocmAdapter(get_url=getter)
+
+    notices = adapter.get_daily_bulletin("20261015")
+
+    madrid_by_id = {n.identifier: n for n in filter_by_title(notices, "madrid")}
+
+    assert "BOCM-20261015-3" in madrid_by_id
+    assert "BOCM-20261015-32" in madrid_by_id
+    # La Nº 3 es la prueba de independencia: coincide con "madrid" sin
+    # mencionar Colmenar de Oreja ni Villaconejos en su título real.
+    assert "colmenar" not in madrid_by_id["BOCM-20261015-3"].title.lower()
+    assert "villaconejos" not in madrid_by_id["BOCM-20261015-3"].title.lower()
 
 
 def test_dia_fuera_de_la_ventana_de_20_boletines_lanza_error() -> None:
