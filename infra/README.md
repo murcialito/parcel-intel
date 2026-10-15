@@ -11,6 +11,8 @@ uv run python -m parcel_intel.adapters.postgis.migrate up
 until docker compose -f infra/docker-compose.yml exec -T db psql -U parcel_intel -d parcel_intel -c "SELECT postgis_version();" >/dev/null 2>&1; do sleep 1; done
 ```
 
+Incluso tras esa espera, se ha observado al menos un corte de conexión adicional, muy breve, justo después (confirmado en la historia 0005): si `uv run python -m parcel_intel.adapters.postgis.migrate up` falla con `OperationalError: server closed the connection unexpectedly` inmediatamente después de un volumen nuevo, repetir el comando una vez basta.
+
 Variables de entorno (valores por defecto entre paréntesis): `POSTGRES_DB` (`parcel_intel`), `POSTGRES_USER` (`parcel_intel`), `POSTGRES_PASSWORD` (`parcel_intel`), `POSTGRES_PORT` (`5432`), `POSTGRES_HOST` (`localhost`, usado por el cliente Python, no por Compose).
 
 Parar y borrar todo (incluidos los datos):

@@ -1,10 +1,9 @@
 import psycopg
 import pytest
 
-from parcel_intel.adapters.postgis.repository import (
-    ParcelNotFoundInRepositoryError,
-    PostgisParcelRepository,
-)
+from parcel_intel.adapters.postgis.repository import PostgisParcelRepository
+from parcel_intel.domain.report import ParcelReport
+from parcel_intel.ports.errors import ParcelNotCachedError
 from tests.factories import make_building, make_parcel
 
 pytestmark = pytest.mark.integration
@@ -71,7 +70,7 @@ def test_guardar_edificio_de_parcela_inexistente_falla_por_clave_foranea(
 def test_leer_parcela_inexistente_lanza_error_explicito(
     repository: PostgisParcelRepository,
 ) -> None:
-    with pytest.raises(ParcelNotFoundInRepositoryError):
+    with pytest.raises(ParcelNotCachedError):
         repository.get_parcel("28043A00999999")
 
 
@@ -96,3 +95,48 @@ def test_la_conexion_se_recupera_tras_un_fallo_sql(repository: PostgisParcelRepo
     parcel_leida = repository.get_parcel("REFCAT-RETIRADA")
 
     assert parcel_leida.cadastral_reference == "REFCAT-RETIRADA"
+
+
+def test_get_report_sin_cache_lanza_not_cached(repository: PostgisParcelRepository) -> None:
+    with pytest.raises(ParcelNotCachedError):
+        repository.get_report("28043A00999999")
+
+
+def test_save_report_y_get_report_round_trip_con_multianillo(
+    repository: PostgisParcelRepository,
+) -> None:
+    parcel = make_parcel(cadastral_reference="REFCAT-RETIRADA", area_m2=901.0)
+    edificio_multianillo = make_building(
+        cadastral_reference="REFCAT-RETIRADA",
+        rings=(_CUERPO_PRINCIPAL, _ANEXO),
+        area_m2=152.0,
+        construction_year=1980,
+    )
+    report = ParcelReport(parcel=parcel, buildings=(edificio_multianillo,))
+
+    repository.save_report(report)
+    report_leido = repository.get_report("REFCAT-RETIRADA")
+
+    assert report_leido.parcel.cadastral_reference == "REFCAT-RETIRADA"
+    assert len(report_leido.buildings) == 1
+    assert len(report_leido.buildings[0].geometry.rings) == 2
+
+
+def test_save_report_es_atomico_edificio_huerfano_no_dura_la_parcela(
+    repository: PostgisParcelRepository,
+) -> None:
+    # save_report guarda parcela + edificios en una sola transacción. Si el
+    # segundo edificio de la lista fuera inválido, la parcela tampoco debe
+    # quedar persistida -- de lo contrario habría una parcela cacheada con
+    # cero edificios, indistinguible de una parcela rústica real sin ellos.
+    parcel = make_parcel(cadastral_reference="REFCAT-RETIRADA")
+    edificio_valido = make_building(cadastral_reference="REFCAT-RETIRADA")
+    edificio_con_origin_invalido = make_building(cadastral_reference="REFCAT-RETIRADA")
+    object.__setattr__(edificio_con_origin_invalido, "origin", "no-es-un-origin-valido")
+    report = ParcelReport(parcel=parcel, buildings=(edificio_valido, edificio_con_origin_invalido))
+
+    with pytest.raises(psycopg.errors.CheckViolation):
+        repository.save_report(report)
+
+    with pytest.raises(ParcelNotCachedError):
+        repository.get_report("REFCAT-RETIRADA")
