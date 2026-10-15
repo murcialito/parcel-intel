@@ -1,8 +1,14 @@
+import math
 from datetime import date
 
 import pytest
 
-from parcel_intel.domain.ndvi import MismatchedNdviGridError, NdviGrid, compute_change_mask
+from parcel_intel.domain.ndvi import (
+    MismatchedNdviGridError,
+    NdviGrid,
+    compute_change_mask,
+    summarize_ndvi_grid,
+)
 from parcel_intel.domain.provenance import Provenance
 
 _BBOX = (0.0, 0.0, 20.0, 20.0)
@@ -78,3 +84,22 @@ def test_celdas_nan_nunca_se_marcan_como_cambiadas() -> None:
     mask = compute_change_mask(before, after, threshold=0.01)
 
     assert mask.changed == ((False, False),)
+
+
+def test_summarize_ndvi_grid_calcula_la_media_ignorando_nan() -> None:
+    grid = _grid(((0.2, 0.4), (0.6, float("nan"))), scene_date=date(2026, 9, 1))
+
+    summary = summarize_ndvi_grid(grid)
+
+    assert summary.mean == pytest.approx((0.2 + 0.4 + 0.6) / 3)
+    assert summary.scene_date == date(2026, 9, 1)
+    assert summary.cloud_cover_percent == 1.0
+    assert summary.provenance == _PROVENANCE
+
+
+def test_summarize_ndvi_grid_con_todas_las_celdas_nan_devuelve_nan() -> None:
+    grid = _grid(((float("nan"), float("nan")),))
+
+    summary = summarize_ndvi_grid(grid)
+
+    assert math.isnan(summary.mean)

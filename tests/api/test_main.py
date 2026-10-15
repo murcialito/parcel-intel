@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from datetime import date
 from types import TracebackType
 
 import psycopg
@@ -7,7 +8,12 @@ from fastapi.testclient import TestClient
 
 from parcel_intel.api import main
 from parcel_intel.domain.building import Building
+from parcel_intel.domain.bulletin import BulletinNotice
+from parcel_intel.domain.geometry import Geometry
+from parcel_intel.domain.ndvi import NdviGrid
+from parcel_intel.domain.orthophoto import HistoricalVintage, Orthophoto
 from parcel_intel.domain.parcel import Parcel
+from parcel_intel.domain.provenance import Provenance
 from parcel_intel.domain.report import ParcelReport
 from parcel_intel.ports.errors import (
     InvalidCadastralReferenceError,
@@ -15,6 +21,10 @@ from parcel_intel.ports.errors import (
     ParcelNotFoundError,
 )
 from tests.factories import make_building, make_parcel
+
+
+def _provenance(source: str) -> Provenance:
+    return Provenance(source=source, url="https://example.invalid", retrieved_at=date(2026, 10, 15))
 
 
 class _FakeCatastroAdapter:
@@ -46,6 +56,7 @@ class _FakeRepository:
     test configure `cached_report`. No toca ninguna base de datos."""
 
     cached_report: ParcelReport | None = None
+    saved_reports: list[ParcelReport] = []
 
     def __init__(self, connection: object) -> None:
         pass
@@ -56,7 +67,7 @@ class _FakeRepository:
         return _FakeRepository.cached_report
 
     def save_report(self, report: ParcelReport) -> None:
-        pass
+        _FakeRepository.saved_reports.append(report)
 
 
 class _FakeConnection:
@@ -75,12 +86,96 @@ class _FakeConnection:
         return None
 
 
+class _FakePnoaAdapter:
+    """Doble de `PnoaAdapter`: evita red real en los tests del endpoint.
+    Historia 0010 — las cuatro fuentes nuevas deben poder fallar sin
+    tumbar el resto del informe, verificado a continuación una por una."""
+
+    behavior: str = "ok"
+
+    def __init__(self) -> None:
+        pass
+
+    def get_current_orthophoto(self, geometry: Geometry, margin_m: float) -> Orthophoto:
+        if self.behavior == "fails":
+            raise RuntimeError("PNOA no disponible (simulado)")
+        return Orthophoto(image=b"fake-jpeg", vintage="actual", provenance=_provenance("pnoa"))
+
+    def get_historical_orthophoto(
+        self, geometry: Geometry, margin_m: float, vintage: HistoricalVintage
+    ) -> Orthophoto:
+        raise NotImplementedError
+
+
+class _FakeSentinel2Adapter:
+    """Doble de `Sentinel2Adapter`: evita red real en los tests del endpoint."""
+
+    behavior: str = "ok"
+
+    def __init__(self) -> None:
+        pass
+
+    def get_ndvi_series(
+        self,
+        geometry: Geometry,
+        margin_m: float,
+        start: date,
+        end: date,
+        max_cloud_cover_percent: float,
+    ) -> list[NdviGrid]:
+        if self.behavior == "fails":
+            raise RuntimeError("Sentinel-2 no disponible (simulado)")
+        return [
+            NdviGrid(
+                values=((0.3, 0.5),),
+                bbox=(0.0, 0.0, 10.0, 10.0),
+                srid=25830,
+                scene_date=date(2026, 9, 1),
+                cloud_cover_percent=10.0,
+                provenance=_provenance("sentinel2"),
+            )
+        ]
+
+
+class _FakeBoeAdapter:
+    """Doble de `BoeAdapter`: evita red real en los tests del endpoint."""
+
+    behavior: str = "ok"
+
+    def __init__(self) -> None:
+        pass
+
+    def get_daily_bulletin(self, day: str) -> list[BulletinNotice]:
+        if self.behavior == "fails":
+            raise RuntimeError("BOE no disponible (simulado)")
+        return []
+
+
+class _FakeBocmAdapter:
+    """Doble de `BocmAdapter`: evita red real en los tests del endpoint."""
+
+    behavior: str = "ok"
+
+    def __init__(self) -> None:
+        pass
+
+    def get_daily_bulletin(self, day: str) -> list[BulletinNotice]:
+        if self.behavior == "fails":
+            raise RuntimeError("BOCM no disponible (simulado)")
+        return []
+
+
 @pytest.fixture(autouse=True)
 def _reset_fake_behavior() -> Iterator[None]:
     _FakeCatastroAdapter.behavior = "ok"
     _FakeCatastroAdapter.parcel = make_parcel()
     _FakeCatastroAdapter.buildings = [make_building()]
     _FakeRepository.cached_report = None
+    _FakeRepository.saved_reports = []
+    _FakePnoaAdapter.behavior = "ok"
+    _FakeSentinel2Adapter.behavior = "ok"
+    _FakeBoeAdapter.behavior = "ok"
+    _FakeBocmAdapter.behavior = "ok"
     yield
 
 
@@ -89,6 +184,10 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setattr(main, "CatastroAdapter", _FakeCatastroAdapter)
     monkeypatch.setattr(main, "PostgisParcelRepository", _FakeRepository)
     monkeypatch.setattr(main, "get_connection", lambda: _FakeConnection())
+    monkeypatch.setattr(main, "PnoaAdapter", _FakePnoaAdapter)
+    monkeypatch.setattr(main, "Sentinel2Adapter", _FakeSentinel2Adapter)
+    monkeypatch.setattr(main, "BoeAdapter", _FakeBoeAdapter)
+    monkeypatch.setattr(main, "BocmAdapter", _FakeBocmAdapter)
     return TestClient(main.app)
 
 
@@ -152,3 +251,60 @@ def test_postgis_no_disponible_devuelve_503(
     response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
 
     assert response.status_code == 503
+
+
+def test_informe_incluye_evidencia_de_las_cuatro_fuentes_nuevas(client: TestClient) -> None:
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert "data:image/jpeg;base64," in response.text  # PNOA
+    assert "NDVI medio" in response.text  # Sentinel-2
+    assert "BOE" in response.text
+    assert "BOCM" in response.text
+
+    # Ninguna de las cuatro fuentes nuevas se persiste en PostGIS: lo único
+    # que llega a save_report es el ParcelReport de Catastro ya existente
+    # (historia 0005), nunca el EnrichedParcelReport que compone esta
+    # historia -- verificado por tipo, no solo por ausencia de llamada.
+    assert len(_FakeRepository.saved_reports) == 1
+    assert isinstance(_FakeRepository.saved_reports[0], ParcelReport)
+
+
+def test_fallo_de_pnoa_no_tumba_el_informe(client: TestClient) -> None:
+    _FakePnoaAdapter.behavior = "fails"
+
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert "Ortofoto actual (PNOA) no disponible." in response.text
+    assert "REFCAT-RETIRADA" in response.text
+
+
+def test_fallo_de_sentinel2_no_tumba_el_informe(client: TestClient) -> None:
+    _FakeSentinel2Adapter.behavior = "fails"
+
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert "Resumen NDVI (Sentinel-2) no disponible." in response.text
+    assert "REFCAT-RETIRADA" in response.text
+
+
+def test_fallo_de_boe_no_tumba_el_informe(client: TestClient) -> None:
+    _FakeBoeAdapter.behavior = "fails"
+
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert "BOE no disponible." in response.text
+    assert "REFCAT-RETIRADA" in response.text
+
+
+def test_fallo_de_bocm_no_tumba_el_informe(client: TestClient) -> None:
+    _FakeBocmAdapter.behavior = "fails"
+
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert "BOCM no disponible." in response.text
+    assert "REFCAT-RETIRADA" in response.text

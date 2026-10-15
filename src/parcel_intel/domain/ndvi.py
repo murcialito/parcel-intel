@@ -37,6 +37,32 @@ class ChangeMask:
     threshold: float
 
 
+@dataclass(frozen=True)
+class NdviSummary:
+    """Resumen de un `NdviGrid` a un único punto en el tiempo (historia
+    0010, ADR 0010 decisión 6): la media de NDVI de la rejilla, ignorando
+    celdas `nan` (nodata), junto con la fecha y nubosidad de la escena
+    usada. `mean` es `nan` si *todas* las celdas de la rejilla eran nodata."""
+
+    mean: float
+    scene_date: date
+    cloud_cover_percent: float
+    provenance: Provenance
+
+
+def summarize_ndvi_grid(grid: NdviGrid) -> NdviSummary:
+    """Aritmética pura sobre un `NdviGrid` ya obtenido, sin E/S — mismo
+    patrón que `compute_change_mask` (ADR 0007)."""
+    values = [value for row in grid.values for value in row if not math.isnan(value)]
+    mean = sum(values) / len(values) if values else math.nan
+    return NdviSummary(
+        mean=mean,
+        scene_date=grid.scene_date,
+        cloud_cover_percent=grid.cloud_cover_percent,
+        provenance=grid.provenance,
+    )
+
+
 def _shape(grid: Grid) -> tuple[int, int]:
     return (len(grid), len(grid[0]) if grid else 0)
 

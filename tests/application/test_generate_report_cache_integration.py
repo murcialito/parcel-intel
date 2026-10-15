@@ -4,6 +4,7 @@ from parcel_intel.adapters.catastro.adapter import CatastroAdapter
 from parcel_intel.adapters.postgis.repository import PostgisParcelRepository
 from parcel_intel.adapters.reports.html import render_parcel_report_html
 from parcel_intel.application.generate_report import GenerateParcelReportUseCase
+from parcel_intel.domain.report import EnrichedParcelReport
 from tests.adapters.catastro.helpers import FIXTURES_DIR, SequenceHttpGetter
 
 pytestmark = pytest.mark.integration
@@ -41,7 +42,23 @@ def test_segunda_peticion_no_llama_a_catastro_y_sirve_el_mismo_html(
     segundo_informe = use_case.execute("REFCAT-RETIRADA")
     assert len(http_get.calls) == 5
 
-    assert render_parcel_report_html(primer_informe) == render_parcel_report_html(segundo_informe)
+    enriched_primero = EnrichedParcelReport(
+        report=primer_informe,
+        orthophoto=None,
+        ndvi_summary=None,
+        boe_notices=None,
+        bocm_notices=None,
+    )
+    enriched_segundo = EnrichedParcelReport(
+        report=segundo_informe,
+        orthophoto=None,
+        ndvi_summary=None,
+        boe_notices=None,
+        bocm_notices=None,
+    )
+    assert render_parcel_report_html(enriched_primero) == render_parcel_report_html(
+        enriched_segundo
+    )
 
 
 def test_referencias_distintas_no_comparten_cache(
