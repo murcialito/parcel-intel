@@ -30,27 +30,27 @@ Si la investigación agota los candidatos conocidos sin encontrar un método fia
 
 Conforme al [ADR 0002](../adr/0002-dos-ports-de-geometria-y-provenance-como-value-object.md):
 
-- [ ] Existe `src/parcel_intel/ports/` con **dos** `Protocol` separados, sin ningún tipo de SDK, cliente HTTP ni pydantic en este módulo:
-  - `ParcelGeometryPort`: recibe una referencia catastral (string) y devuelve una `Parcel`.
-  - `BuildingGeometryPort`: recibe una referencia catastral o una `Parcel` y devuelve `list[Building]`.
-- [ ] Ninguno de los dos ports menciona "Catastro" ni ningún proveedor concreto en su nombre ni en su interfaz pública (se nombran por la capacidad que ofrecen, no por el proveedor), conforme al ADR 0001. El corte en dos ports (no uno combinado) existe para que un futuro adapter de detección de imagen pueda implementar solo `BuildingGeometryPort` sin simular autoridad sobre geometría de parcela.
-- [ ] Existe `src/parcel_intel/domain/provenance.py` con una dataclass `frozen=True` `Provenance` (`source: str`, `url: str`, `retrieved_at: date`, `license: str | None`), y las entidades `Parcel` y `Building` (en `domain/parcel.py` / `domain/building.py`) incluyen un campo `provenance: Provenance` por composición.
-- [ ] Las entidades de dominio (`Parcel`, `Building`, `Provenance`) son dataclasses congeladas (`frozen=True`), sin imports de pydantic, requests, geopandas/shapely ni ningún paquete de terceros — solo stdlib.
-- [ ] Existe `pyproject.toml` con el contrato de `import-linter` para las cinco capas (`domain`, `ports`, `application`, `adapters`, `cli`/`api`) y configuración mínima de `mypy` y `ruff`, ya que no existen todavía en el repo y son condición previa para que los criterios de verificación del Bloque 3 sean comprobables.
-- [ ] `uv run lint-imports` pasa en verde tras añadir estos módulos.
+- [x] Existe `src/parcel_intel/ports/geometry.py` con **dos** `Protocol` separados, sin SDK, cliente HTTP ni pydantic:
+  - `ParcelGeometryPort.get_parcel(cadastral_reference: str) -> Parcel`.
+  - `BuildingGeometryPort.get_buildings(cadastral_reference: str) -> list[Building]`. Nota: implementado solo con `str`, no `str | Parcel` como sugería el ejemplo del ADR 0002 — simplificación válida porque ningún caller actual llega a tener ya una `Parcel` sin su referencia; si surge ese caso, se amplía la firma entonces.
+- [x] Ninguno de los dos ports menciona "Catastro" en su nombre ni interfaz. `CatastroAdapter` implementa ambos compartiendo cliente HTTP.
+- [x] `src/parcel_intel/domain/provenance.py` (`Provenance`), `domain/geometry.py` (`Geometry`, tipo adicional no previsto explícitamente en el ADR pero necesario para representar geometría en stdlib puro — rings de tuplas `(x, y)`, sin shapely), `domain/parcel.py`, `domain/building.py`: todas dataclasses `frozen=True`, solo stdlib.
+- [x] Sin imports de terceros en `domain/` — verificado por el segundo contrato de `import-linter`.
+- [x] `pyproject.toml` creado con contrato de 5 capas (`cli`, `adapters`, `application`, `ports`, `domain`) y configuración de `mypy` (strict) y `ruff`.
+- [x] `uv run lint-imports` → `Contracts: 2 kept, 0 broken`.
 
-### Bloque 3 — Adapter de Catastro (solo si el Bloque 1 tiene éxito)
+### Bloque 3 — Adapter de Catastro (solo si el Bloque 1 tiene éxito) — CERRADO 2026-10-15
 
-- [ ] Existe `src/parcel_intel/adapters/catastro/` que implementa los dos ports del Bloque 2 (puede compartir un único cliente HTTP internamente, dado que el WFS de Catastro resuelve parcela y edificios en la misma llamada), usando el o los métodos confirmados en el Bloque 1.
-- [ ] Dado el método confirmado para referencia rústica, el adapter devuelve para al menos dos referencias rústicas distintas de Colmenar de Oreja o Villaconejos: la geometría de la parcela en `EPSG:25830` y, si Catastro tiene edificios asociados a esa parcela, la geometría de cada edificio también en `EPSG:25830`, con superficie y, si está disponible en la respuesta de Catastro, año de construcción.
-- [ ] Dado el método confirmado para referencia urbana, el adapter devuelve el mismo tipo de resultado para al menos una referencia urbana de uno de los dos municipios.
-- [ ] Dada una referencia catastral que no existe o está mal formada, el adapter señala el error de forma explícita (no devuelve una geometría vacía silenciosa ni lanza una excepción genérica sin contexto) — verificable con un caso de prueba concreto.
-- [ ] Cada parcela y cada edificio devueltos llevan procedencia: fuente (`catastro`), URL exacta de la petición realizada y fecha de la consulta, conforme a la convención de `CLAUDE.md` ("todo dato lleva procedencia").
-- [ ] La validación de la respuesta cruda de Catastro (XML/GML) con pydantic, si se usa, vive únicamente dentro de `adapters/catastro/` — no se filtran modelos pydantic hacia `ports/` ni `domain/`.
-- [ ] Los tests del adapter (`tests/`) no hacen ninguna llamada de red real: usan como fixtures los ficheros ya grabados en `tests/fixtures/catastro/` de la historia 0001 más los nuevos del Bloque 1 de esta historia. Se verifica ejecutando `uv run pytest` con la red deshabilitada (o comprobando que ningún test está marcado como `integration`/de red) y que la suite pasa igual.
-- [ ] `uv run mypy` pasa en verde sobre los módulos nuevos.
-- [ ] `uv run ruff check .` pasa en verde.
-- [ ] `uv run lint-imports` sigue en verde tras añadir el adapter.
+- [x] `src/parcel_intel/adapters/catastro/` implementa ambos ports (`adapter.py`), con módulos de apoyo `client.py` (HTTP, seam inyectable para tests), `parsing.py` (XML con `xml.etree.ElementTree`, stdlib — no hizo falta pydantic en absoluto: las respuestas son XML, no JSON, y la validación manual con errores explícitos fue más natural), `reference.py` (normalización 20→14 car.) y `geometry_ops.py` (point-in-ring para asociar edificios a su parcela, ray casting puro, sin shapely).
+- [x] Verificado con dos rústicas reales: Colmenar de Oreja `REFCAT-RETIRADA` (901 m², sin edificios — parcela agrícola) y Villaconejos `REFCAT-RETIRADA` (29069 m²). Edificios: cuando existen, se asocian a la parcela comprobando que el centroide del edificio cae dentro del anillo exterior de la parcela (no basta con "estar en el mismo bbox" — bboxes pequeños pueden rozar la parcela vecina).
+- [x] Verificado con una referencia del núcleo urbano de Colmenar de Oreja (`REFCAT-RETIRADA`, 239854 m² — nota: incluso el núcleo urbano de este municipio usa numeración por polígono, no el formato alfanumérico de manzana).
+- [x] Referencia inexistente (formato válido, sin resultado en Catastro) → `ParcelNotFoundError` explícito, con la referencia en el mensaje. Referencia con longitud inválida → `InvalidCadastralReferenceError`, lanzado antes de tocar la red.
+- [x] Toda `Parcel`/`Building` lleva `provenance` con `source="catastro"`, la URL exacta (incluye bbox y parámetros usados) y `retrieved_at`.
+- [x] No se usó pydantic (ver nota arriba) — no aplica el criterio de aislarlo en el adapter porque no hay modelos pydantic en ningún punto del código.
+- [x] `uv run pytest` → 11 passed, cero llamadas de red (fixtures de `tests/fixtures/catastro/`, incluida una fixture sintética explícitamente marcada como tal para el caso "no encontrada", ya que no se capturó ese error real contra la red en esta pasada).
+- [x] `uv run mypy src tests` → `Success: no issues found in 23 source files`.
+- [x] `uv run ruff check .` → `All checks passed!`.
+- [x] `uv run lint-imports` → en verde (ver Bloque 2).
 
 ## Fuera de alcance
 
