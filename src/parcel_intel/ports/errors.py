@@ -37,3 +37,24 @@ class InvalidHistoricalVintageError(Exception):
     def __init__(self, vintage: object) -> None:
         super().__init__(f"Año o vuelo histórico no reconocido: {vintage!r}")
         self.vintage = vintage
+
+
+class NoScenesAfterCloudFilterError(Exception):
+    """Ninguna escena de Sentinel-2 encontrada para el bbox/rango de fechas
+    pedidos pasa el umbral de nubosidad."""
+
+    def __init__(
+        self,
+        bbox: tuple[float, float, float, float],
+        start: object,
+        end: object,
+        max_cloud_cover_percent: float,
+    ) -> None:
+        super().__init__(
+            f"Ninguna escena Sentinel-2 por debajo de {max_cloud_cover_percent}% de nubes "
+            f"para bbox={bbox}, rango {start}..{end}"
+        )
+        self.bbox = bbox
+        self.start = start
+        self.end = end
+        self.max_cloud_cover_percent = max_cloud_cover_percent

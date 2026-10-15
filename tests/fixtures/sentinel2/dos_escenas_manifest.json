@@ -1,0 +1,38 @@
+{
+  "content_length": {
+    "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B04.tif": 246070427,
+    "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B08.tif": 245763296,
+    "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B04.tif": 246484109,
+    "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B08.tif": 245704361
+  },
+  "ranges": {
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B04.tif\", \"start\": 0, \"length\": 4}": "55b76169c50a97a3.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B04.tif\", \"start\": 4, \"length\": 4}": "4790bbdc917f6fdf.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B04.tif\", \"start\": 8, \"length\": 2}": "041cc9da5f135084.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B04.tif\", \"start\": 10, \"length\": 228}": "f2e07f609b7381ae.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B04.tif\", \"start\": 726, \"length\": 484}": "2a1cebd08eac71f7.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B04.tif\", \"start\": 242, \"length\": 484}": "9dbc72aebb470e42.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B04.tif\", \"start\": 174041397, \"length\": 1597301}": "af0b70f0a661b315.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B08.tif\", \"start\": 0, \"length\": 4}": "f42394fd77736133.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B08.tif\", \"start\": 4, \"length\": 4}": "4ef68041311923c5.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B08.tif\", \"start\": 8, \"length\": 2}": "f1b22f13850679a3.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B08.tif\", \"start\": 10, \"length\": 228}": "beb79f630b76baed.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B08.tif\", \"start\": 726, \"length\": 484}": "db110a86d72aa42d.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B08.tif\", \"start\": 242, \"length\": 484}": "df39a7f204787ea7.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2C_30TVK_20261009_0_L2A/B08.tif\", \"start\": 174379516, \"length\": 1605401}": "6f550fc3795413e9.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B04.tif\", \"start\": 0, \"length\": 4}": "70bb9993830c0039.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B04.tif\", \"start\": 4, \"length\": 4}": "0dc0917fe2a255be.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B04.tif\", \"start\": 8, \"length\": 2}": "25b8fbb8829c8302.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B04.tif\", \"start\": 10, \"length\": 228}": "965fece30c4bd030.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B04.tif\", \"start\": 726, \"length\": 484}": "3d18c48c5e202537.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B04.tif\", \"start\": 242, \"length\": 484}": "f98559439d5625fb.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B04.tif\", \"start\": 174153762, \"length\": 1594474}": "b873756d30db5abc.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B08.tif\", \"start\": 0, \"length\": 4}": "53fef8dadfeb3d3a.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B08.tif\", \"start\": 4, \"length\": 4}": "31af8064acfd7b0a.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B08.tif\", \"start\": 8, \"length\": 2}": "0c30bc57d45105ab.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B08.tif\", \"start\": 10, \"length\": 228}": "3afa8c88e15bfad5.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B08.tif\", \"start\": 726, \"length\": 484}": "49aa65003b011bc1.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B08.tif\", \"start\": 242, \"length\": 484}": "158f9b6a58caefd4.bin",
+    "{\"url\": \"https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/30/T/VK/2026/10/S2B_30TVK_20261014_0_L2A/B08.tif\", \"start\": 174154152, \"length\": 1599792}": "8d8637347a6c5fc5.bin"
+  }
+}
