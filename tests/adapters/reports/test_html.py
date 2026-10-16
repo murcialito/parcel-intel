@@ -18,9 +18,10 @@ from parcel_intel.domain.rule import (
     AttributeCondition,
     Evidence,
     Finding,
+    OverlapsCondition,
     Rule,
     RuleScope,
-    SpatialCondition,
+    WithinDistanceCondition,
 )
 from parcel_intel.domain.watercourse import Watercourse
 from tests.factories import make_building, make_parcel
@@ -382,7 +383,9 @@ def _finding() -> Finding:
     rule = Rule(
         identifier="madrid-colmenar-distancia-cauce",
         scope=RuleScope(region="madrid", soil_classes=("no_urbanizable",)),
-        spatial=SpatialCondition(operation="within_distance", layer="dph_cauce", meters=100.0),
+        spatial=WithinDistanceCondition(
+            operation="within_distance", layer="dph_cauce", meters=100.0
+        ),
         attributes=AttributeCondition(building_origin=("catastro", "detected")),
         outcome="requires_authorization",
         authority="Confederación Hidrográfica del Tajo",
@@ -425,3 +428,58 @@ def test_hallazgo_real_muestra_outcome_autoridad_cita_y_evidencia() -> None:
     assert "Barranco del Montero" in html
     assert "8.54 m" in html
     assert "Sin hallazgos de las reglas evaluadas." not in html
+
+
+def _overlap_finding_sin_magnitud() -> Finding:
+    # Historia 0018: un hallazgo de solape contra una entidad sin ningún
+    # campo numérico reutilizable (ProtectedArea) tiene measured_value/
+    # unit en None -- el render debe mostrarlo sin número, no romper con
+    # un TypeError de formato.
+    rule = Rule(
+        identifier="madrid-solape-red-natura",
+        scope=RuleScope(region="madrid", soil_classes=()),
+        spatial=OverlapsCondition(operation="overlaps", layer="red_natura_plan"),
+        attributes=AttributeCondition(building_origin=("catastro", "detected")),
+        outcome="requires_environmental_assessment",
+        authority="Comunidad de Madrid — Dirección General de Biodiversidad y Recursos Naturales",
+        citation=Provision(
+            norm=Norm(
+                title=(
+                    "Ley 42/2007, de 13 de diciembre, del Patrimonio Natural "
+                    "y de la Biodiversidad"
+                ),
+                url="https://www.boe.es/buscar/act.php?id=BOE-A-2007-21490",
+            ),
+            article="art. 45 — evaluación de planes y proyectos",
+            in_force_since=date(2007, 12, 14),
+        ),
+        status="approved",
+    )
+    evidence = Evidence(
+        description="Solape con plan de gestión Red Natura 2000",
+        source_name="Plan SE (X — Espacio previamente ordenado)",
+    )
+    return Finding(rule=rule, severity="actionable", confidence=0.9, evidence=(evidence,))
+
+
+def test_hallazgo_de_solape_sin_magnitud_se_renderiza_sin_numero() -> None:
+    report = ParcelReport(parcel=make_parcel(), buildings=())
+
+    html = render_parcel_report_html(_enrich(report), findings=(_overlap_finding_sin_magnitud(),))
+
+    assert "requires_environmental_assessment" in html
+    assert "Plan SE (X — Espacio previamente ordenado)" in html
+
+
+def test_dos_hallazgos_simultaneos_no_se_mezclan() -> None:
+    report = ParcelReport(parcel=make_parcel(), buildings=())
+
+    html = render_parcel_report_html(
+        _enrich(report), findings=(_finding(), _overlap_finding_sin_magnitud())
+    )
+
+    assert "requires_authorization" in html
+    assert "requires_environmental_assessment" in html
+    assert "Barranco del Montero" in html
+    assert "Plan SE (X — Espacio previamente ordenado)" in html
+    assert html.count("<li><strong>") == 2

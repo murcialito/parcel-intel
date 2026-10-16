@@ -24,9 +24,10 @@ from parcel_intel.application.generate_report import GenerateParcelReportUseCase
 from parcel_intel.domain.norm import Norm, Provision
 from parcel_intel.domain.rule import (
     AttributeCondition,
+    OverlapsCondition,
     Rule,
     RuleScope,
-    SpatialCondition,
+    WithinDistanceCondition,
     evaluate_rules,
 )
 from parcel_intel.ports.errors import InvalidCadastralReferenceError, ParcelNotFoundError
@@ -39,13 +40,18 @@ _MUNICIPIOS = {
     "villaconejos": "VILLACONEJOS",
 }
 
-# Única regla aprobada del MVP (historia 0017) -- primer ejemplo real antes
-# de que exista un flujo de autoría asistida por LLM (ver docs/vision.md).
+# Reglas aprobadas del MVP -- escritas a mano antes de que exista un flujo
+# de autoría asistida por LLM (ver docs/vision.md). Cauce: historia 0017.
+# Vía pecuaria / Red Natura 2000: historia 0018 (ADR 0018) -- primer
+# ejemplo del tipo de condición "overlaps" (solape polígono↔polígono),
+# distinto del "within_distance" de la regla de cauces.
 _APPROVED_RULES = (
     Rule(
         identifier="madrid-colmenar-distancia-cauce",
         scope=RuleScope(region="madrid", soil_classes=("no_urbanizable",)),
-        spatial=SpatialCondition(operation="within_distance", layer="dph_cauce", meters=100.0),
+        spatial=WithinDistanceCondition(
+            operation="within_distance", layer="dph_cauce", meters=100.0
+        ),
         attributes=AttributeCondition(building_origin=("catastro", "detected")),
         outcome="requires_authorization",
         authority="Confederación Hidrográfica del Tajo",
@@ -59,6 +65,46 @@ _APPROVED_RULES = (
             ),
             article="art. 9 — zona de policía",
             in_force_since=date(1986, 4, 30),
+        ),
+        status="approved",
+    ),
+    Rule(
+        identifier="madrid-solape-via-pecuaria",
+        scope=RuleScope(region="madrid", soil_classes=()),
+        spatial=OverlapsCondition(operation="overlaps", layer="via_pecuaria"),
+        attributes=AttributeCondition(building_origin=("catastro", "detected")),
+        outcome="requires_authorization",
+        authority="Comunidad de Madrid — Consejería de Medio Ambiente, Agricultura e Interior",
+        citation=Provision(
+            norm=Norm(
+                title="Ley 8/1998, de 15 de junio, de Vías Pecuarias de la Comunidad de Madrid",
+                url="https://www.bocm.es/boletin/CM_Orden_BOCM/1998/06/24/1998062400.pdf",
+            ),
+            article="art. 17 — régimen de autorizaciones de uso y ocupación",
+            in_force_since=date(1998, 6, 25),
+        ),
+        status="approved",
+    ),
+    Rule(
+        identifier="madrid-solape-red-natura",
+        scope=RuleScope(region="madrid", soil_classes=()),
+        spatial=OverlapsCondition(operation="overlaps", layer="red_natura_plan"),
+        attributes=AttributeCondition(building_origin=("catastro", "detected")),
+        outcome="requires_environmental_assessment",
+        authority="Comunidad de Madrid — Dirección General de Biodiversidad y Recursos Naturales",
+        citation=Provision(
+            norm=Norm(
+                title=(
+                    "Ley 42/2007, de 13 de diciembre, del Patrimonio Natural "
+                    "y de la Biodiversidad"
+                ),
+                url="https://www.boe.es/buscar/act.php?id=BOE-A-2007-21490",
+            ),
+            article=(
+                "art. 45 — evaluación de planes y proyectos con posible "
+                "afección a la Red Natura 2000"
+            ),
+            in_force_since=date(2007, 12, 14),
         ),
         status="approved",
     ),

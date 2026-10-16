@@ -8,7 +8,7 @@ from parcel_intel.adapters.catastro.client import (
     HttpGetter,
     default_http_getter,
 )
-from parcel_intel.adapters.catastro.geometry_ops import point_in_any_ring, ring_centroid
+from parcel_intel.adapters.catastro.geometry_ops import ring_centroid
 from parcel_intel.adapters.catastro.parsing import (
     geometry_from_rings,
     parse_cpmrc_centroid,
@@ -17,6 +17,7 @@ from parcel_intel.adapters.catastro.parsing import (
 )
 from parcel_intel.adapters.catastro.reference import to_compact_reference
 from parcel_intel.domain.building import Building
+from parcel_intel.domain.geometry import point_in_any_ring
 from parcel_intel.domain.parcel import Parcel
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.ports.errors import ParcelNotFoundError

@@ -194,10 +194,15 @@ def _render_findings_section(findings: tuple[Finding, ...]) -> str:
 
 
 def _render_evidence_item(evidence: Evidence) -> str:
+    # measured_value/unit son opcionales desde la historia 0018: un
+    # solape contra una entidad sin ningún campo numérico reutilizable
+    # (p. ej. ProtectedArea) no tiene magnitud real que citar.
+    if evidence.measured_value is None:
+        return f"<li>{escape(evidence.description)}: {escape(evidence.source_name)}</li>"
     return (
         f"<li>{escape(evidence.description)}: "
         f"{escape(evidence.source_name)} — "
-        f"{evidence.measured_value:.2f} {escape(evidence.unit)}</li>"
+        f"{evidence.measured_value:.2f} {escape(evidence.unit or '')}</li>"
     )
 
 

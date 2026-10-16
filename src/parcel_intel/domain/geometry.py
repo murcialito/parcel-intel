@@ -134,6 +134,86 @@ def _segment_distance(p1: Point, p2: Point, p3: Point, p4: Point) -> float:
     )
 
 
+def point_in_ring(point: Point, ring: Ring) -> bool:
+    """Ray casting estándar: punto dentro del anillo (polígono simple).
+
+    Movida desde `adapters/catastro/geometry_ops.py` (historia 0018, ADR
+    0018): es geometría pura (sin SDKs, sin HTTP) que nunca debió depender
+    de pertenecer a un adapter concreto — vivía ahí solo porque la
+    historia 0002 (emparejar edificio↔parcela) la necesitó antes de que
+    `domain/geometry.py` tuviera ninguna función de punto-en-polígono."""
+    x, y = point
+    inside = False
+    n = len(ring)
+    for i in range(n):
+        x1, y1 = ring[i]
+        x2, y2 = ring[(i + 1) % n]
+        crosses = (y1 > y) != (y2 > y)
+        if crosses:
+            x_intersect = x1 + (y - y1) * (x2 - x1) / (y2 - y1)
+            if x < x_intersect:
+                inside = not inside
+    return inside
+
+
+def point_in_any_ring(point: Point, rings: tuple[Ring, ...]) -> bool:
+    """Punto dentro de cualquiera de los anillos de una geometría multi-parte.
+
+    Necesario porque tanto parcelas como edificios reales de Catastro pueden
+    tener más de un anillo (cuerpos separados bajo la misma referencia) —
+    comprobar solo `rings[0]` descarta en silencio los que caen en otro.
+    """
+    return any(point_in_ring(point, ring) for ring in rings)
+
+
+def _ring_bbox(ring: Ring) -> BBox:
+    xs = [x for x, _ in ring]
+    ys = [y for _, y in ring]
+    return (min(xs), min(ys), max(xs), max(ys))
+
+
+def _bboxes_overlap(a: BBox, b: BBox) -> bool:
+    a_minx, a_miny, a_maxx, a_maxy = a
+    b_minx, b_miny, b_maxx, b_maxy = b
+    return a_minx <= b_maxx and b_minx <= a_maxx and a_miny <= b_maxy and b_miny <= a_maxy
+
+
+def _ring_overlaps_ring(ring_a: Ring, ring_b: Ring) -> bool:
+    if not _bboxes_overlap(_ring_bbox(ring_a), _ring_bbox(ring_b)):
+        return False
+    n_a, n_b = len(ring_a), len(ring_b)
+    for i in range(n_a):
+        a1, a2 = ring_a[i], ring_a[(i + 1) % n_a]
+        for j in range(n_b):
+            b1, b2 = ring_b[j], ring_b[(j + 1) % n_b]
+            if _segments_intersect(a1, a2, b1, b2):
+                return True
+    # Ningún borde se cruza: o son disjuntos, o uno contiene al otro por
+    # completo (caso real y obligatorio para Red Natura 2000, ADR 0018 —
+    # una zona puede cubrir un término municipal entero sin que ningún
+    # borde toque la parcela). Basta un único vértice de cada lado: sin
+    # cruce de bordes, todos los vértices de un anillo comparten el mismo
+    # resultado dentro/fuera respecto al otro.
+    return point_in_ring(ring_a[0], ring_b) or point_in_ring(ring_b[0], ring_a)
+
+
+def geometries_overlap(a: Geometry, b: Geometry) -> bool:
+    """Solape real (intersección de bordes, o contención total de un
+    anillo en otro sin ningún cruce) entre dos geometrías de superficie,
+    multi-parte — historia 0018, ADR 0018.
+
+    Incluye poda por *bounding box* por anillo: medida real contra la
+    geometría más grande de esta historia (zona Red Natura 2000, 5
+    anillos, 36727 puntos), la poda reduce el tiempo de 2.35 s a 1.15 s
+    (4 de los 5 anillos se descartan sin recorrerlos). A diferencia de
+    `distance_polygon_to_line` (ADR 0017, donde se rechazó la poda por
+    falta de evidencia de que hiciera falta), aquí sí hay medición real
+    que la justifica."""
+    if not a.rings or not b.rings:
+        raise EmptyGeometryError
+    return any(_ring_overlaps_ring(ring_a, ring_b) for ring_a in a.rings for ring_b in b.rings)
+
+
 def distance_polygon_to_line(geometry: Geometry, line: LineGeometry) -> float:
     """Distancia mínima real, en las mismas unidades/CRS de entrada (sin
     reproyectar), entre el polígono `geometry` (uno o más anillos,
