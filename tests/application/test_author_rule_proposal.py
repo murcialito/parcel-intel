@@ -3,7 +3,7 @@ from datetime import date, datetime
 import pytest
 
 from parcel_intel.application.author_rule_proposal import AuthorRuleProposalUseCase
-from parcel_intel.domain.rule import LlmUsage, ProposedRule, RuleLayer, RuleProposalDraft
+from parcel_intel.domain.rule import LlmUsage, ProposedRule, Rule, RuleLayer, RuleProposalDraft
 from parcel_intel.ports.errors import InvalidRuleLayerError
 
 _USAGE = LlmUsage(model="deepseek-chat", prompt_tokens=100, completion_tokens=50, cost_usd=0.001)
@@ -44,6 +44,9 @@ class FakeRuleRepository:
 
     def list_proposed(self) -> list[ProposedRule]:
         return list(self.saved)
+
+    def list_approved(self) -> list[Rule]:
+        raise NotImplementedError
 
     def approve(self, identifier: str) -> None:
         raise NotImplementedError

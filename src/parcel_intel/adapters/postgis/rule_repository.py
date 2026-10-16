@@ -40,6 +40,15 @@ _SELECT_PROPOSED_SQL = """
     ORDER BY created_at
 """
 
+_SELECT_APPROVED_SQL = """
+    SELECT identifier, region, soil_classes, spatial_operation, spatial_layer,
+           spatial_meters, building_origins, outcome, authority, norm_title,
+           norm_url, provision_article, provision_in_force_since, provision_url,
+           status
+    FROM rule WHERE status = 'approved'
+    ORDER BY created_at
+"""
+
 _ProposalRow = tuple[
     str,
     str,
@@ -63,6 +72,73 @@ _ProposalRow = tuple[
     float,
     datetime,
 ]
+
+_RuleRow = tuple[
+    str,
+    str,
+    list[str],
+    str,
+    str,
+    float | None,
+    list[str],
+    str,
+    str,
+    str,
+    str,
+    str,
+    date,
+    str | None,
+    str,
+]
+
+
+def _row_to_rule(row: _RuleRow) -> Rule:
+    (
+        identifier,
+        region,
+        soil_classes,
+        spatial_operation,
+        spatial_layer,
+        spatial_meters,
+        building_origins,
+        outcome,
+        authority,
+        norm_title,
+        norm_url,
+        provision_article,
+        provision_in_force_since,
+        provision_url,
+        status,
+    ) = row
+    spatial: WithinDistanceCondition | OverlapsCondition
+    if spatial_operation == "within_distance":
+        assert spatial_meters is not None
+        spatial = WithinDistanceCondition(
+            operation="within_distance",
+            layer=cast(WatercourseLayer, spatial_layer),
+            meters=float(spatial_meters),
+        )
+    else:
+        spatial = OverlapsCondition(operation="overlaps", layer=cast(OverlapLayer, spatial_layer))
+    return Rule(
+        identifier=identifier,
+        scope=RuleScope(
+            region=region, soil_classes=cast(tuple[SoilClass, ...], tuple(soil_classes))
+        ),
+        spatial=spatial,
+        attributes=AttributeCondition(
+            building_origin=cast(tuple[BuildingOrigin, ...], tuple(building_origins))
+        ),
+        outcome=outcome,
+        authority=authority,
+        citation=Provision(
+            norm=Norm(title=norm_title, url=norm_url),
+            article=provision_article,
+            in_force_since=provision_in_force_since,
+            url=provision_url,
+        ),
+        status=cast(RuleStatus, status),
+    )
 
 
 def _row_to_proposed_rule(row: _ProposalRow) -> ProposedRule:
@@ -89,34 +165,24 @@ def _row_to_proposed_rule(row: _ProposalRow) -> ProposedRule:
         llm_cost_usd,
         created_at,
     ) = row
-    spatial: WithinDistanceCondition | OverlapsCondition
-    if spatial_operation == "within_distance":
-        assert spatial_meters is not None
-        spatial = WithinDistanceCondition(
-            operation="within_distance",
-            layer=cast(WatercourseLayer, spatial_layer),
-            meters=float(spatial_meters),
+    rule = _row_to_rule(
+        (
+            identifier,
+            region,
+            soil_classes,
+            spatial_operation,
+            spatial_layer,
+            spatial_meters,
+            building_origins,
+            outcome,
+            authority,
+            norm_title,
+            norm_url,
+            provision_article,
+            provision_in_force_since,
+            provision_url,
+            status,
         )
-    else:
-        spatial = OverlapsCondition(operation="overlaps", layer=cast(OverlapLayer, spatial_layer))
-    rule = Rule(
-        identifier=identifier,
-        scope=RuleScope(
-            region=region, soil_classes=cast(tuple[SoilClass, ...], tuple(soil_classes))
-        ),
-        spatial=spatial,
-        attributes=AttributeCondition(
-            building_origin=cast(tuple[BuildingOrigin, ...], tuple(building_origins))
-        ),
-        outcome=outcome,
-        authority=authority,
-        citation=Provision(
-            norm=Norm(title=norm_title, url=norm_url),
-            article=provision_article,
-            in_force_since=provision_in_force_since,
-            url=provision_url,
-        ),
-        status=cast(RuleStatus, status),
     )
     usage = LlmUsage(
         model=llm_model,
@@ -186,6 +252,17 @@ class PostgisRuleRepository:
             self._connection.rollback()
             raise
         return [_row_to_proposed_rule(row) for row in rows]
+
+    def list_approved(self) -> list[Rule]:
+        try:
+            with self._connection.cursor() as cur:
+                cur.execute(_SELECT_APPROVED_SQL)
+                rows: list[_RuleRow] = cur.fetchall()
+            self._connection.commit()
+        except Exception:
+            self._connection.rollback()
+            raise
+        return [_row_to_rule(row) for row in rows]
 
     def _update_status(self, identifier: str, new_status: str) -> None:
         try:

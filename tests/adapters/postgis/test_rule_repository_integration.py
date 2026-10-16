@@ -174,3 +174,47 @@ def test_persistencia_sobrevive_a_una_conexion_nueva(
 
     assert len(pendientes) == 1
     assert pendientes[0].rule.identifier == proposal.rule.identifier
+
+
+# --- list_approved -- historia 0020 ---
+
+
+def test_list_approved_vacio_sin_filas_aprobadas(rule_repository: PostgisRuleRepository) -> None:
+    assert rule_repository.list_approved() == []
+
+
+def test_list_approved_no_incluye_proposed_ni_rejected(
+    rule_repository: PostgisRuleRepository,
+) -> None:
+    propuesta_pendiente = _within_distance_proposal("madrid-proposed-dph_cauce-pend0001")
+    propuesta_rechazada = _overlaps_proposal("madrid-proposed-via_pecuaria-rej00001")
+    rule_repository.save_proposal(propuesta_pendiente)
+    rule_repository.save_proposal(propuesta_rechazada)
+    rule_repository.reject(propuesta_rechazada.rule.identifier)
+
+    assert rule_repository.list_approved() == []
+
+
+def test_list_approved_devuelve_rule_sin_explanation_ni_usage(
+    rule_repository: PostgisRuleRepository,
+) -> None:
+    proposal = _within_distance_proposal("madrid-proposed-dph_cauce-appr0001")
+    rule_repository.save_proposal(proposal)
+    rule_repository.approve(proposal.rule.identifier)
+
+    approved = rule_repository.list_approved()
+
+    assert len(approved) == 1
+    rule = approved[0]
+    assert rule.identifier == proposal.rule.identifier
+    assert rule.status == "approved"
+    assert rule.spatial == proposal.rule.spatial
+    assert rule.scope == proposal.rule.scope
+    assert rule.attributes == proposal.rule.attributes
+    assert rule.outcome == proposal.rule.outcome
+    assert rule.citation == proposal.rule.citation
+    # list_approved devuelve Rule, no ProposedRule: sin explanation/usage,
+    # que no tienen consumidor en el camino de generación del informe
+    # (ADR 0020, decisión 2).
+    assert not hasattr(rule, "explanation")
+    assert not hasattr(rule, "usage")

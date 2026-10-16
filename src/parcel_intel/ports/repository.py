@@ -1,7 +1,7 @@
 from typing import Protocol
 
 from parcel_intel.domain.report import ParcelReport
-from parcel_intel.domain.rule import ProposedRule
+from parcel_intel.domain.rule import ProposedRule, Rule
 
 
 class ParcelRepositoryPort(Protocol):
@@ -29,6 +29,8 @@ class RuleRepositoryPort(Protocol):
     def save_proposal(self, proposal: ProposedRule) -> None: ...
 
     def list_proposed(self) -> list[ProposedRule]: ...
+
+    def list_approved(self) -> list[Rule]: ...
 
     def approve(self, identifier: str) -> None: ...
 

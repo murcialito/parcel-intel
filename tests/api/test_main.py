@@ -14,11 +14,13 @@ from parcel_intel.domain.geometry import Geometry, LineGeometry
 from parcel_intel.domain.land_classification import LandClassification
 from parcel_intel.domain.livestock_trail import LivestockTrail
 from parcel_intel.domain.ndvi import NdviGrid
+from parcel_intel.domain.norm import Norm, Provision
 from parcel_intel.domain.orthophoto import HistoricalVintage, Orthophoto
 from parcel_intel.domain.parcel import Parcel
 from parcel_intel.domain.protected_area import ProtectedArea
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.domain.report import ParcelReport
+from parcel_intel.domain.rule import AttributeCondition, Rule, RuleScope, WithinDistanceCondition
 from parcel_intel.domain.watercourse import Watercourse
 from parcel_intel.ports.errors import (
     InvalidCadastralReferenceError,
@@ -73,6 +75,24 @@ class _FakeRepository:
 
     def save_report(self, report: ParcelReport) -> None:
         _FakeRepository.saved_reports.append(report)
+
+
+class _FakeRuleRepository:
+    """Doble de `PostgisRuleRepository`: sin reglas `approved` salvo que el
+    test configure `approved_rules`, o lanza `raises` si se configura (para
+    simular el fallo parcial de la historia 0020). No toca ninguna base de
+    datos."""
+
+    approved_rules: list[Rule] = []
+    raises: Exception | None = None
+
+    def __init__(self, connection: object) -> None:
+        pass
+
+    def list_approved(self) -> list[Rule]:
+        if _FakeRuleRepository.raises is not None:
+            raise _FakeRuleRepository.raises
+        return list(_FakeRuleRepository.approved_rules)
 
 
 class _FakeConnection:
@@ -322,6 +342,8 @@ def _reset_fake_behavior() -> Iterator[None]:
     _FakeFloodHazardAdapter.behavior = "ok"
     _FakeLivestockTrailAdapter.behavior = "ok"
     _FakeProtectedAreaAdapter.behavior = "ok"
+    _FakeRuleRepository.approved_rules = []
+    _FakeRuleRepository.raises = None
     yield
 
 
@@ -329,6 +351,7 @@ def _reset_fake_behavior() -> Iterator[None]:
 def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setattr(main, "CatastroAdapter", _FakeCatastroAdapter)
     monkeypatch.setattr(main, "PostgisParcelRepository", _FakeRepository)
+    monkeypatch.setattr(main, "PostgisRuleRepository", _FakeRuleRepository)
     monkeypatch.setattr(main, "get_connection", lambda: _FakeConnection())
     monkeypatch.setattr(main, "PnoaAdapter", _FakePnoaAdapter)
     monkeypatch.setattr(main, "Sentinel2Adapter", _FakeSentinel2Adapter)
@@ -514,3 +537,104 @@ def test_fallo_de_red_natura_no_tumba_el_informe(client: TestClient) -> None:
     assert response.status_code == 200
     assert "Espacios protegidos Red Natura 2000 (IDEM) no disponible." in response.text
     assert "REFCAT-RETIRADA" in response.text
+
+
+# --- Historia 0020: reglas aprobadas desde la tabla `rule` ---
+
+_CAUCE_CITATION = Provision(
+    norm=Norm(title="Norma de prueba", url="https://example.org/norma"),
+    article="art. 1",
+    in_force_since=date(2020, 1, 1),
+)
+
+
+def _regla_equivalente_a_la_hardcoded_de_cauces(identifier: str) -> Rule:
+    # Mismos spatial/scope/attributes/outcome que
+    # "madrid-colmenar-distancia-cauce" (api/main.py) -- caso real de
+    # duplicación ya verificado con una propuesta real de DeepSeek
+    # (ADR 0020). Solo cambian identifier/authority/citation, igual que
+    # el caso real.
+    return Rule(
+        identifier=identifier,
+        scope=RuleScope(region="madrid", soil_classes=("no_urbanizable",)),
+        spatial=WithinDistanceCondition(
+            operation="within_distance", layer="dph_cauce", meters=100.0
+        ),
+        attributes=AttributeCondition(building_origin=("catastro", "detected")),
+        outcome="requires_authorization",
+        authority="organismo de cuenca",
+        citation=_CAUCE_CITATION,
+        status="approved",
+    )
+
+
+def test_regla_aprobada_duplicada_de_la_tabla_no_produce_dos_hallazgos(
+    client: TestClient,
+) -> None:
+    # El informe por defecto (Barranco del Montero a distancia 0 del
+    # cuadrado por defecto, suelo "Suelo No Urbanizable Común") ya
+    # produce 1 Finding real con la regla hardcoded de cauces -- añadir
+    # una regla aprobada por el flujo de autoría con la misma condición
+    # real no debe duplicarlo. Desactiva vías pecuarias/Red Natura (que
+    # por defecto también solapan y añaden su propio
+    # "requires_authorization") para que el recuento del hallazgo de
+    # cauces no se confunda con el de otra regla hardcoded distinta.
+    _FakeLivestockTrailAdapter.behavior = "fails"
+    _FakeProtectedAreaAdapter.behavior = "fails"
+    _FakeRuleRepository.approved_rules = [
+        _regla_equivalente_a_la_hardcoded_de_cauces("madrid-proposed-dph_cauce-test1234")
+    ]
+
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert response.text.count("Distancia a curso de agua") == 1
+    assert response.text.count("requires_authorization") == 1
+    # La regla a mano gana el desempate (ADR 0020, decisión 4): se ve su
+    # autoridad real, no la genérica de la propuesta LLM equivalente.
+    assert "Confederación Hidrográfica del Tajo" in response.text
+    assert "organismo de cuenca" not in response.text
+
+
+def test_regla_aprobada_distinta_no_se_deduplica(client: TestClient) -> None:
+    distinta = Rule(
+        identifier="madrid-proposed-dph_cauce-test5678",
+        scope=RuleScope(region="madrid", soil_classes=("no_urbanizable",)),
+        spatial=WithinDistanceCondition(
+            operation="within_distance", layer="dph_cauce", meters=100.0
+        ),
+        attributes=AttributeCondition(building_origin=("catastro", "detected")),
+        outcome="requires_environmental_assessment",  # outcome distinto -> no es "la misma cosa"
+        authority="Otra autoridad",
+        citation=_CAUCE_CITATION,
+        status="approved",
+    )
+    _FakeRuleRepository.approved_rules = [distinta]
+
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert "requires_authorization" in response.text
+    assert "requires_environmental_assessment" in response.text
+
+
+def test_sin_reglas_aprobadas_en_bd_no_hay_aviso_ni_diferencia(client: TestClient) -> None:
+    _FakeRuleRepository.approved_rules = []
+
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert "Catálogo de reglas de autoría no disponible" not in response.text
+
+
+def test_fallo_al_leer_tabla_rule_muestra_aviso_visible_y_no_tumba_el_informe(
+    client: TestClient,
+) -> None:
+    _FakeRuleRepository.raises = psycopg.errors.UndefinedTable("relation rule does not exist")
+
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert "Catálogo de reglas de autoría no disponible" in response.text
+    # Las reglas a mano se siguen evaluando igual pese al fallo parcial.
+    assert "requires_authorization" in response.text

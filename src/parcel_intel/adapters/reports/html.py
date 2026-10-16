@@ -174,13 +174,18 @@ def _render_protected_area_section(areas: tuple[ProtectedArea, ...] | None) -> s
     return f"<ul>{items}</ul>"
 
 
-def _render_findings_section(findings: tuple[Finding, ...]) -> str:
+def _render_findings_section(
+    findings: tuple[Finding, ...], rule_catalog_warning: str | None = None
+) -> str:
     # Sin hallazgo posible por fallo de red aquí (es cómputo puro sobre
     # datos ya obtenidos) -- la lista vacía es un resultado válido en sí
     # mismo, no un "no disponible": frase distinta a propósito (historia
     # 0017).
+    warning_html = (
+        f"<p><em>{escape(rule_catalog_warning)}</em></p>" if rule_catalog_warning else ""
+    )
     if not findings:
-        return "<p><em>Sin hallazgos de las reglas evaluadas.</em></p>"
+        return warning_html + "<p><em>Sin hallazgos de las reglas evaluadas.</em></p>"
     items = "\n".join(
         f"<li><strong>{escape(f.rule.outcome)}</strong> "
         f"(severidad: {escape(f.severity)}, confianza: {f.confidence:.2f})<br>"
@@ -190,7 +195,7 @@ def _render_findings_section(findings: tuple[Finding, ...]) -> str:
         f"<ul>{''.join(_render_evidence_item(e) for e in f.evidence)}</ul></li>"
         for f in findings
     )
-    return f"<ul>{items}</ul>"
+    return warning_html + f"<ul>{items}</ul>"
 
 
 def _render_evidence_item(evidence: Evidence) -> str:
@@ -207,7 +212,9 @@ def _render_evidence_item(evidence: Evidence) -> str:
 
 
 def render_parcel_report_html(
-    report: EnrichedParcelReport, findings: tuple[Finding, ...] = ()
+    report: EnrichedParcelReport,
+    findings: tuple[Finding, ...] = (),
+    rule_catalog_warning: str | None = None,
 ) -> str:
     """Renderiza el informe de una parcela como una página HTML autocontenida.
 
@@ -296,7 +303,7 @@ def render_parcel_report_html(
   <div class="sources">
     <div>
       <h2>Hallazgos</h2>
-      {_render_findings_section(findings)}
+      {_render_findings_section(findings, rule_catalog_warning)}
     </div>
     <div>
       <h2>Ortofoto actual (PNOA)</h2>

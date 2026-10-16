@@ -14,6 +14,7 @@ from parcel_intel.adapters.livestock_trails.adapter import LivestockTrailAdapter
 from parcel_intel.adapters.pnoa.adapter import PnoaAdapter
 from parcel_intel.adapters.postgis.connection import get_connection
 from parcel_intel.adapters.postgis.repository import PostgisParcelRepository
+from parcel_intel.adapters.postgis.rule_repository import PostgisRuleRepository
 from parcel_intel.adapters.protected_areas.adapter import ProtectedAreaAdapter
 from parcel_intel.adapters.reports.html import render_parcel_report_html
 from parcel_intel.adapters.sentinel2.adapter import Sentinel2Adapter
@@ -111,6 +112,36 @@ _APPROVED_RULES = (
 )
 
 
+def _deduplicate_approved_rules(rules: tuple[Rule, ...]) -> tuple[Rule, ...]:
+    """Dos `Rule` `approved` que comparten la misma condición espacial
+    exacta (`spatial`, incluye `meters` cuando aplica), el mismo filtro de
+    suelo (`scope.soil_classes`) y de edificios (`attributes`), y la misma
+    consecuencia (`outcome`), describen -- a efectos de lo que ve el
+    usuario -- el mismo hallazgo real sobre la misma evidencia real:
+    evaluarlas por separado produciría dos Finding casi idénticos sin
+    ninguna señal de que son la misma cosa (verificado con un caso real,
+    ADR 0020). `outcome` SÍ entra en la clave de identidad -- si dos reglas
+    exigen la misma condición espacial pero imponen consecuencias legales
+    distintas, no son "la misma cosa" y ambas deben llegar al usuario sin
+    fundirse.
+
+    Se conserva solo la primera aparición de cada combinación, en el orden
+    en que `rules` llega -- las reglas escritas a mano van primero por
+    construcción (ver más abajo), así que ganan el desempate sobre
+    cualquier regla equivalente aprobada por el flujo de autoría. Entre dos
+    reglas aprobadas por el flujo de autoría que coincidan entre sí, gana
+    la más antigua (`list_approved` ya ordena por `created_at`)."""
+    seen: set[tuple[object, ...]] = set()
+    deduplicated: list[Rule] = []
+    for rule in rules:
+        key = (rule.spatial, rule.scope.soil_classes, rule.attributes, rule.outcome)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduplicated.append(rule)
+    return tuple(deduplicated)
+
+
 @app.get("/reports/{municipio}/{referencia}", response_class=HTMLResponse)
 def get_parcel_report(municipio: str, referencia: str) -> str:
     nombre_municipio = _MUNICIPIOS.get(municipio)
@@ -127,6 +158,7 @@ def get_parcel_report(municipio: str, referencia: str) -> str:
     try:
         with get_connection() as conn:
             repository = PostgisParcelRepository(conn)
+            rule_repository = PostgisRuleRepository(conn)
             base_use_case = GenerateParcelReportUseCase(
                 parcel_port=adapter, building_port=adapter, repository=repository
             )
@@ -143,7 +175,17 @@ def get_parcel_report(municipio: str, referencia: str) -> str:
                 protected_area_port=ProtectedAreaAdapter(),
             )
             report = enriched_use_case.execute(referencia)
-            findings = evaluate_rules(report, _APPROVED_RULES)
+            try:
+                db_approved_rules: tuple[Rule, ...] = tuple(rule_repository.list_approved())
+                rule_catalog_warning = None
+            except (psycopg.errors.UndefinedTable, psycopg.errors.UndefinedColumn):
+                db_approved_rules = ()
+                rule_catalog_warning = (
+                    "Catálogo de reglas de autoría no disponible en esta generación "
+                    "del informe; se muestran solo las reglas revisadas a mano."
+                )
+            all_approved_rules = _deduplicate_approved_rules(_APPROVED_RULES + db_approved_rules)
+            findings = evaluate_rules(report, all_approved_rules)
     except psycopg.OperationalError as error:
         raise HTTPException(
             status_code=503,
@@ -154,4 +196,4 @@ def get_parcel_report(municipio: str, referencia: str) -> str:
     except ParcelNotFoundError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
 
-    return render_parcel_report_html(report, findings)
+    return render_parcel_report_html(report, findings, rule_catalog_warning)
