@@ -48,6 +48,9 @@ def test_segunda_peticion_no_llama_a_catastro_y_sirve_el_mismo_html(
         ndvi_summary=None,
         boe_notices=None,
         bocm_notices=None,
+        land_classifications=None,
+        watercourses=None,
+        flood_hazard=None,
     )
     enriched_segundo = EnrichedParcelReport(
         report=segundo_informe,
@@ -55,6 +58,9 @@ def test_segunda_peticion_no_llama_a_catastro_y_sirve_el_mismo_html(
         ndvi_summary=None,
         boe_notices=None,
         bocm_notices=None,
+        land_classifications=None,
+        watercourses=None,
+        flood_hazard=None,
     )
     assert render_parcel_report_html(enriched_primero) == render_parcel_report_html(
         enriched_segundo

@@ -4,11 +4,14 @@ import pytest
 
 from parcel_intel.adapters.reports.html import EmptyGeometryError, render_parcel_report_html
 from parcel_intel.domain.bulletin import BulletinNotice
-from parcel_intel.domain.geometry import Geometry
+from parcel_intel.domain.flood_hazard import FloodHazardSample
+from parcel_intel.domain.geometry import Geometry, LineGeometry
+from parcel_intel.domain.land_classification import LandClassification
 from parcel_intel.domain.ndvi import NdviSummary
 from parcel_intel.domain.orthophoto import Orthophoto
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.domain.report import EnrichedParcelReport, ParcelReport
+from parcel_intel.domain.watercourse import Watercourse
 from tests.factories import make_building, make_parcel
 
 
@@ -19,6 +22,9 @@ def _enrich(
     ndvi_summary: NdviSummary | None = None,
     boe_notices: tuple[BulletinNotice, ...] | None = None,
     bocm_notices: tuple[BulletinNotice, ...] | None = None,
+    land_classifications: tuple[LandClassification, ...] | None = None,
+    watercourses: tuple[Watercourse, ...] | None = None,
+    flood_hazard: tuple[FloodHazardSample, ...] | None = None,
 ) -> EnrichedParcelReport:
     return EnrichedParcelReport(
         report=report,
@@ -26,6 +32,9 @@ def _enrich(
         ndvi_summary=ndvi_summary,
         boe_notices=boe_notices,
         bocm_notices=bocm_notices,
+        land_classifications=land_classifications,
+        watercourses=watercourses,
+        flood_hazard=flood_hazard,
     )
 
 
@@ -121,6 +130,9 @@ def test_fuentes_sin_evidencia_se_muestran_como_no_disponible() -> None:
     assert "Resumen NDVI (Sentinel-2) no disponible." in html
     assert "BOE no disponible." in html
     assert "BOCM no disponible." in html
+    assert "Clasificación de suelo (IDEM) no disponible." in html
+    assert "Cursos de agua (hidrografía) no disponible." in html
+    assert "Peligrosidad por inundación no disponible." in html
 
 
 def test_ortofoto_disponible_se_embebe_como_base64() -> None:
@@ -175,3 +187,99 @@ def test_boletin_con_disposiciones_las_lista_con_enlace_al_pdf() -> None:
 
     assert "Convenio con el Ayuntamiento de Colmenar de Oreja" in html
     assert 'href="https://example.org/boe-a-2026-1.pdf"' in html
+
+
+def _land_classification(general_category: str, municipality_name: str) -> LandClassification:
+    return LandClassification(
+        general_category=general_category,
+        detailed_category=general_category.lower(),
+        short_code="SUBNS",
+        reference_date=date(2025, 6, 29),
+        municipality_code="170",
+        municipality_name=municipality_name,
+        area_m2=1000.0,
+        geometry=Geometry(rings=(((0.0, 0.0), (1.0, 0.0), (1.0, 1.0)),), srid=25830),
+        provenance=Provenance(
+            source="idem", url="https://example.org", retrieved_at=date(2026, 10, 15)
+        ),
+    )
+
+
+def test_clasificacion_de_suelo_con_solape_muestra_cada_municipio() -> None:
+    report = ParcelReport(parcel=make_parcel(), buildings=())
+    classifications = (
+        _land_classification("Suelo No Urbanizable Común", "VILLACONEJOS"),
+        _land_classification("Suelo No Urbanizable Protegido", "VILLACONEJOS"),
+        _land_classification("Suelo No Urbanizable Común", "CHINCHÓN"),
+    )
+
+    html = render_parcel_report_html(_enrich(report, land_classifications=classifications))
+
+    assert html.count("Suelo No Urbanizable Común") >= 2
+    assert "Suelo No Urbanizable Protegido" in html
+    assert "VILLACONEJOS" in html
+    assert "CHINCHÓN" in html
+
+
+def _watercourse(name: str | None) -> Watercourse:
+    return Watercourse(
+        name=name,
+        hydrographic_demarcation_code="ES030",
+        hydrographic_demarcation_name="Tajo",
+        course_type="Curso natural",
+        persistence="Estacional",
+        min_width_m=1.0,
+        max_width_m=5.0,
+        length_m=2058.58,
+        geometry=LineGeometry(points=((0.0, 0.0), (1.0, 1.0)), srid=25830),
+        provenance=Provenance(
+            source="idee-watercourse", url="https://example.org", retrieved_at=date(2026, 10, 15)
+        ),
+    )
+
+
+def test_cauces_con_tupla_vacia_se_distingue_de_no_disponible() -> None:
+    report = ParcelReport(parcel=make_parcel(), buildings=())
+
+    html = render_parcel_report_html(_enrich(report, watercourses=()))
+
+    assert "Sin cursos de agua cercanos." in html
+    assert "Cursos de agua (hidrografía) no disponible." not in html
+
+
+def test_cauce_real_se_lista_con_nombre_y_demarcacion() -> None:
+    report = ParcelReport(parcel=make_parcel(), buildings=())
+
+    html = render_parcel_report_html(
+        _enrich(report, watercourses=(_watercourse("Barranco del Montero"),))
+    )
+
+    assert "Barranco del Montero" in html
+    assert "Tajo" in html
+
+
+def _flood_sample(kind: str, return_period: int, depth: float | None) -> FloodHazardSample:
+    return FloodHazardSample(
+        kind=kind,  # type: ignore[arg-type]
+        return_period_years=return_period,
+        water_depth_m=depth,
+        provenance=Provenance(
+            source="idee-flood-hazard", url="https://example.org", retrieved_at=date(2026, 10, 15)
+        ),
+    )
+
+
+def test_peligrosidad_inundacion_muestra_las_cinco_combinaciones_con_no_data() -> None:
+    report = ParcelReport(parcel=make_parcel(), buildings=())
+    samples = (
+        _flood_sample("fluvial", 10, None),
+        _flood_sample("fluvial", 100, 1.25),
+        _flood_sample("fluvial", 500, None),
+        _flood_sample("marina", 100, None),
+        _flood_sample("marina", 500, None),
+    )
+
+    html = render_parcel_report_html(_enrich(report, flood_hazard=samples))
+
+    assert html.count("NO DATA") == 4
+    assert "1.25 m" in html

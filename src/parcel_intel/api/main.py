@@ -5,6 +5,9 @@ from fastapi.responses import HTMLResponse
 from parcel_intel.adapters.bocm.adapter import BocmAdapter
 from parcel_intel.adapters.boe.adapter import BoeAdapter
 from parcel_intel.adapters.catastro.adapter import CatastroAdapter
+from parcel_intel.adapters.flood_hazard.adapter import FloodHazardAdapter
+from parcel_intel.adapters.hydrography.adapter import HydrographyAdapter
+from parcel_intel.adapters.idem.adapter import IdemAdapter
 from parcel_intel.adapters.pnoa.adapter import PnoaAdapter
 from parcel_intel.adapters.postgis.connection import get_connection
 from parcel_intel.adapters.postgis.repository import PostgisParcelRepository
@@ -32,8 +35,7 @@ def get_parcel_report(municipio: str, referencia: str) -> str:
         raise HTTPException(
             status_code=404,
             detail=(
-                f"Municipio no soportado en el MVP: {municipio!r}. "
-                f"Usa uno de {list(_MUNICIPIOS)}."
+                f"Municipio no soportado en el MVP: {municipio!r}. Usa uno de {list(_MUNICIPIOS)}."
             ),
         )
 
@@ -51,6 +53,9 @@ def get_parcel_report(municipio: str, referencia: str) -> str:
                 ndvi_port=Sentinel2Adapter(),
                 boe_port=BoeAdapter(),
                 bocm_port=BocmAdapter(),
+                land_classification_port=IdemAdapter(),
+                watercourse_port=HydrographyAdapter(),
+                flood_hazard_port=FloodHazardAdapter(),
             )
             report = enriched_use_case.execute(referencia)
     except psycopg.OperationalError as error:

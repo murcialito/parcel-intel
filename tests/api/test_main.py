@@ -9,12 +9,15 @@ from fastapi.testclient import TestClient
 from parcel_intel.api import main
 from parcel_intel.domain.building import Building
 from parcel_intel.domain.bulletin import BulletinNotice
-from parcel_intel.domain.geometry import Geometry
+from parcel_intel.domain.flood_hazard import FloodHazardSample
+from parcel_intel.domain.geometry import Geometry, LineGeometry
+from parcel_intel.domain.land_classification import LandClassification
 from parcel_intel.domain.ndvi import NdviGrid
 from parcel_intel.domain.orthophoto import HistoricalVintage, Orthophoto
 from parcel_intel.domain.parcel import Parcel
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.domain.report import ParcelReport
+from parcel_intel.domain.watercourse import Watercourse
 from parcel_intel.ports.errors import (
     InvalidCadastralReferenceError,
     ParcelNotCachedError,
@@ -165,6 +168,89 @@ class _FakeBocmAdapter:
         return []
 
 
+class _FakeIdemAdapter:
+    """Doble de `IdemAdapter`: evita red real en los tests del endpoint."""
+
+    behavior: str = "ok"
+
+    def __init__(self) -> None:
+        pass
+
+    def get_land_classifications(
+        self, geometry: Geometry, margin_m: float
+    ) -> list[LandClassification]:
+        if self.behavior == "fails":
+            raise RuntimeError("IDEM no disponible (simulado)")
+        return [
+            LandClassification(
+                general_category="Suelo No Urbanizable Común",
+                detailed_category="suelo no urbanizable común",
+                short_code="SUBNS",
+                reference_date=date(2025, 6, 29),
+                municipality_code="043",
+                municipality_name="COLMENAR DE OREJA",
+                area_m2=1000.0,
+                geometry=Geometry(rings=(((0.0, 0.0), (1.0, 0.0), (1.0, 1.0)),), srid=25830),
+                provenance=_provenance("idem"),
+            )
+        ]
+
+
+class _FakeHydrographyAdapter:
+    """Doble de `HydrographyAdapter`: evita red real en los tests del endpoint."""
+
+    behavior: str = "ok"
+
+    def __init__(self) -> None:
+        pass
+
+    def get_nearby_watercourses(self, geometry: Geometry, margin_m: float) -> list[Watercourse]:
+        if self.behavior == "fails":
+            raise RuntimeError("Hidrografía no disponible (simulado)")
+        return [
+            Watercourse(
+                name="Barranco del Montero",
+                hydrographic_demarcation_code="ES030",
+                hydrographic_demarcation_name="Tajo",
+                course_type="Curso natural",
+                persistence="Estacional",
+                min_width_m=1.0,
+                max_width_m=5.0,
+                length_m=2058.58,
+                geometry=LineGeometry(points=((0.0, 0.0), (1.0, 1.0)), srid=25830),
+                provenance=_provenance("idee-watercourse"),
+            )
+        ]
+
+
+class _FakeFloodHazardAdapter:
+    """Doble de `FloodHazardAdapter`: evita red real en los tests del endpoint."""
+
+    behavior: str = "ok"
+
+    def __init__(self) -> None:
+        pass
+
+    def get_flood_hazard(self, geometry: Geometry, margin_m: float) -> list[FloodHazardSample]:
+        if self.behavior == "fails":
+            raise RuntimeError("Peligrosidad por inundación no disponible (simulado)")
+        return [
+            FloodHazardSample(
+                kind=kind,  # type: ignore[arg-type]
+                return_period_years=period,
+                water_depth_m=None,
+                provenance=_provenance("idee-flood-hazard"),
+            )
+            for kind, period in (
+                ("fluvial", 10),
+                ("fluvial", 100),
+                ("fluvial", 500),
+                ("marina", 100),
+                ("marina", 500),
+            )
+        ]
+
+
 @pytest.fixture(autouse=True)
 def _reset_fake_behavior() -> Iterator[None]:
     _FakeCatastroAdapter.behavior = "ok"
@@ -176,6 +262,9 @@ def _reset_fake_behavior() -> Iterator[None]:
     _FakeSentinel2Adapter.behavior = "ok"
     _FakeBoeAdapter.behavior = "ok"
     _FakeBocmAdapter.behavior = "ok"
+    _FakeIdemAdapter.behavior = "ok"
+    _FakeHydrographyAdapter.behavior = "ok"
+    _FakeFloodHazardAdapter.behavior = "ok"
     yield
 
 
@@ -188,6 +277,9 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setattr(main, "Sentinel2Adapter", _FakeSentinel2Adapter)
     monkeypatch.setattr(main, "BoeAdapter", _FakeBoeAdapter)
     monkeypatch.setattr(main, "BocmAdapter", _FakeBocmAdapter)
+    monkeypatch.setattr(main, "IdemAdapter", _FakeIdemAdapter)
+    monkeypatch.setattr(main, "HydrographyAdapter", _FakeHydrographyAdapter)
+    monkeypatch.setattr(main, "FloodHazardAdapter", _FakeFloodHazardAdapter)
     return TestClient(main.app)
 
 
@@ -253,7 +345,7 @@ def test_postgis_no_disponible_devuelve_503(
     assert response.status_code == 503
 
 
-def test_informe_incluye_evidencia_de_las_cuatro_fuentes_nuevas(client: TestClient) -> None:
+def test_informe_incluye_evidencia_de_las_siete_fuentes_nuevas(client: TestClient) -> None:
     response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
 
     assert response.status_code == 200
@@ -261,6 +353,9 @@ def test_informe_incluye_evidencia_de_las_cuatro_fuentes_nuevas(client: TestClie
     assert "NDVI medio" in response.text  # Sentinel-2
     assert "BOE" in response.text
     assert "BOCM" in response.text
+    assert "Suelo No Urbanizable Común" in response.text  # IDEM
+    assert "Barranco del Montero" in response.text  # hidrografía
+    assert "NO DATA" in response.text  # peligrosidad por inundación
 
     # Ninguna de las cuatro fuentes nuevas se persiste en PostGIS: lo único
     # que llega a save_report es el ParcelReport de Catastro ya existente
@@ -307,4 +402,34 @@ def test_fallo_de_bocm_no_tumba_el_informe(client: TestClient) -> None:
 
     assert response.status_code == 200
     assert "BOCM no disponible." in response.text
+    assert "REFCAT-RETIRADA" in response.text
+
+
+def test_fallo_de_idem_no_tumba_el_informe(client: TestClient) -> None:
+    _FakeIdemAdapter.behavior = "fails"
+
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert "Clasificación de suelo (IDEM) no disponible." in response.text
+    assert "REFCAT-RETIRADA" in response.text
+
+
+def test_fallo_de_hidrografia_no_tumba_el_informe(client: TestClient) -> None:
+    _FakeHydrographyAdapter.behavior = "fails"
+
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert "Cursos de agua (hidrografía) no disponible." in response.text
+    assert "REFCAT-RETIRADA" in response.text
+
+
+def test_fallo_de_peligrosidad_inundacion_no_tumba_el_informe(client: TestClient) -> None:
+    _FakeFloodHazardAdapter.behavior = "fails"
+
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert "Peligrosidad por inundación no disponible." in response.text
     assert "REFCAT-RETIRADA" in response.text

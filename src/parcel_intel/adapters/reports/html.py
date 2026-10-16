@@ -2,8 +2,11 @@ import base64
 from html import escape
 
 from parcel_intel.domain.bulletin import BulletinNotice
+from parcel_intel.domain.flood_hazard import FloodHazardSample
 from parcel_intel.domain.geometry import Geometry
+from parcel_intel.domain.land_classification import LandClassification
 from parcel_intel.domain.report import EnrichedParcelReport
+from parcel_intel.domain.watercourse import Watercourse
 
 _VIEWBOX_SIZE = 560.0
 _PADDING = 20.0
@@ -19,9 +22,7 @@ class EmptyGeometryError(Exception):
     """
 
     def __init__(self, cadastral_reference: str) -> None:
-        super().__init__(
-            f"La parcela {cadastral_reference!r} no tiene geometría que renderizar"
-        )
+        super().__init__(f"La parcela {cadastral_reference!r} no tiene geometría que renderizar")
 
 
 def _all_points(geometries: list[Geometry]) -> list[tuple[float, float]]:
@@ -86,12 +87,53 @@ def _render_bulletin_section(notices: tuple[BulletinNotice, ...] | None, label: 
         return f"<p><em>{escape(label)} no disponible.</em></p>"
     if not notices:
         return (
-            f"<p><em>Sin disposiciones de {escape(label)} "
-            "que mencionen el municipio hoy.</em></p>"
+            f"<p><em>Sin disposiciones de {escape(label)} que mencionen el municipio hoy.</em></p>"
         )
     items = "\n".join(
         f'<li><a href="{escape(notice.pdf_url)}">{escape(notice.title)}</a></li>'
         for notice in notices
+    )
+    return f"<ul>{items}</ul>"
+
+
+def _render_land_classification_section(
+    classifications: tuple[LandClassification, ...] | None,
+) -> str:
+    # El port nunca devuelve una tupla vacía como resultado válido (ADR
+    # 0011): `None` es el único estado de "no disponible" para esta fuente.
+    if classifications is None:
+        return "<p><em>Clasificación de suelo (IDEM) no disponible.</em></p>"
+    items = "\n".join(
+        f"<li>{escape(c.general_category)} ({escape(c.detailed_category)}) "
+        f"— {escape(c.municipality_name)}</li>"
+        for c in classifications
+    )
+    return f"<ul>{items}</ul>"
+
+
+def _render_watercourse_section(watercourses: tuple[Watercourse, ...] | None) -> str:
+    if watercourses is None:
+        return "<p><em>Cursos de agua (hidrografía) no disponible.</em></p>"
+    if not watercourses:
+        return "<p><em>Sin cursos de agua cercanos.</em></p>"
+    items = "\n".join(
+        f"<li>{escape(w.name) if w.name else 'sin nombre'} "
+        f"— demarcación de {escape(w.hydrographic_demarcation_name)}</li>"
+        for w in watercourses
+    )
+    return f"<ul>{items}</ul>"
+
+
+def _render_flood_hazard_section(samples: tuple[FloodHazardSample, ...] | None) -> str:
+    # El fallo es atómico (las 5 peticiones a la vez, ADR 0012/0013): no
+    # existe un estado parcial, así que `None` es una única frase, nunca
+    # una fila por combinación.
+    if samples is None:
+        return "<p><em>Peligrosidad por inundación no disponible.</em></p>"
+    items = "\n".join(
+        f"<li>{escape(s.kind)} T{s.return_period_years}: "
+        f"{f'{s.water_depth_m:.2f} m' if s.water_depth_m is not None else 'NO DATA'}</li>"
+        for s in samples
     )
     return f"<ul>{items}</ul>"
 
@@ -105,12 +147,11 @@ def render_parcel_report_html(report: EnrichedParcelReport) -> str:
     reglas que mostrar). Desde la historia 0010 recibe un
     `EnrichedParcelReport` (parcela/edificios de Catastro más evidencia de
     PNOA/Sentinel-2/BOE/BOCM, cada una opcional si la fuente falló — ver
-    ADR 0010).
+    ADR 0010), extendido en la historia 0013 con IDEM/cauces/peligrosidad
+    por inundación (ADR 0013).
     """
     parcel_report = report.report
-    geometries = [parcel_report.parcel.geometry] + [
-        b.geometry for b in parcel_report.buildings
-    ]
+    geometries = [parcel_report.parcel.geometry] + [b.geometry for b in parcel_report.buildings]
     points = _all_points(geometries)
     if not points:
         raise EmptyGeometryError(parcel_report.parcel.cadastral_reference)
@@ -118,8 +159,7 @@ def render_parcel_report_html(report: EnrichedParcelReport) -> str:
 
     parcel_svg = _geometry_to_svg_paths(parcel_report.parcel.geometry, transform, "parcel")
     buildings_svg = "\n".join(
-        _geometry_to_svg_paths(b.geometry, transform, "building")
-        for b in parcel_report.buildings
+        _geometry_to_svg_paths(b.geometry, transform, "building") for b in parcel_report.buildings
     )
 
     buildings_rows = (
@@ -129,7 +169,7 @@ def render_parcel_report_html(report: EnrichedParcelReport) -> str:
             f"<td>{b.construction_year if b.construction_year is not None else '—'}</td></tr>"
             for b in parcel_report.buildings
         )
-        or "<tr><td colspan=\"3\"><em>Sin edificios registrados en Catastro.</em></td></tr>"
+        or '<tr><td colspan="3"><em>Sin edificios registrados en Catastro.</em></td></tr>'
     )
 
     parcel = parcel_report.parcel
@@ -198,6 +238,18 @@ def render_parcel_report_html(report: EnrichedParcelReport) -> str:
     <div>
       <h2>BOCM — hoy</h2>
       {_render_bulletin_section(report.bocm_notices, "BOCM")}
+    </div>
+    <div>
+      <h2>Clasificación de suelo (IDEM)</h2>
+      {_render_land_classification_section(report.land_classifications)}
+    </div>
+    <div>
+      <h2>Cursos de agua cercanos</h2>
+      {_render_watercourse_section(report.watercourses)}
+    </div>
+    <div>
+      <h2>Peligrosidad por inundación</h2>
+      {_render_flood_hazard_section(report.flood_hazard)}
     </div>
   </div>
 </body>

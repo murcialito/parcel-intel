@@ -7,11 +7,18 @@ from parcel_intel.application.generate_enriched_report import (
 )
 from parcel_intel.application.generate_report import GenerateParcelReportUseCase
 from parcel_intel.domain.bulletin import BulletinNotice
-from parcel_intel.domain.geometry import Geometry
+from parcel_intel.domain.flood_hazard import FloodHazardSample
+from parcel_intel.domain.geometry import Geometry, LineGeometry
+from parcel_intel.domain.land_classification import LandClassification
 from parcel_intel.domain.ndvi import Grid, NdviGrid
 from parcel_intel.domain.orthophoto import Orthophoto
 from parcel_intel.domain.report import ParcelReport
-from parcel_intel.ports.errors import BulletinNotPublishedError, NoScenesAfterCloudFilterError
+from parcel_intel.domain.watercourse import Watercourse
+from parcel_intel.ports.errors import (
+    BulletinNotPublishedError,
+    NoLandClassificationFoundError,
+    NoScenesAfterCloudFilterError,
+)
 from tests.factories import make_parcel, make_provenance
 
 
@@ -88,6 +95,55 @@ class FakeBulletinPort:
         return self._notices
 
 
+class FakeLandClassificationPort:
+    def __init__(
+        self,
+        classifications: list[LandClassification] | None = None,
+        raises: Exception | None = None,
+    ) -> None:
+        self._classifications = classifications if classifications is not None else []
+        self._raises = raises
+        self.calls: list[tuple[Geometry, float]] = []
+
+    def get_land_classifications(
+        self, geometry: Geometry, margin_m: float
+    ) -> list[LandClassification]:
+        self.calls.append((geometry, margin_m))
+        if self._raises is not None:
+            raise self._raises
+        return self._classifications
+
+
+class FakeWatercoursePort:
+    def __init__(
+        self, watercourses: list[Watercourse] | None = None, raises: Exception | None = None
+    ) -> None:
+        self._watercourses = watercourses if watercourses is not None else []
+        self._raises = raises
+        self.calls: list[tuple[Geometry, float]] = []
+
+    def get_nearby_watercourses(self, geometry: Geometry, margin_m: float) -> list[Watercourse]:
+        self.calls.append((geometry, margin_m))
+        if self._raises is not None:
+            raise self._raises
+        return self._watercourses
+
+
+class FakeFloodHazardPort:
+    def __init__(
+        self, samples: list[FloodHazardSample] | None = None, raises: Exception | None = None
+    ) -> None:
+        self._samples = samples if samples is not None else []
+        self._raises = raises
+        self.calls: list[tuple[Geometry, float]] = []
+
+    def get_flood_hazard(self, geometry: Geometry, margin_m: float) -> list[FloodHazardSample]:
+        self.calls.append((geometry, margin_m))
+        if self._raises is not None:
+            raise self._raises
+        return self._samples
+
+
 class _UnusedPort:
     """Ni `parcel_port` ni `building_port` deberían llamarse: el repositorio
     ya tiene un informe cacheado, así que `GenerateParcelReportUseCase`
@@ -141,6 +197,55 @@ def _notice(title: str = "Convenio con el Ayuntamiento de Colmenar de Oreja") ->
     )
 
 
+def _land_classification() -> LandClassification:
+    return LandClassification(
+        general_category="Suelo No Urbanizable Común",
+        detailed_category="suelo no urbanizable común",
+        short_code="SUBNS",
+        reference_date=date(2025, 6, 29),
+        municipality_code="043",
+        municipality_name="COLMENAR DE OREJA",
+        area_m2=1000.0,
+        geometry=Geometry(rings=(((0.0, 0.0), (1.0, 0.0), (1.0, 1.0)),), srid=25830),
+        provenance=make_provenance("idem"),
+    )
+
+
+def _watercourse() -> Watercourse:
+    return Watercourse(
+        name="Barranco del Montero",
+        hydrographic_demarcation_code="ES030",
+        hydrographic_demarcation_name="Tajo",
+        course_type="Curso natural",
+        persistence="Estacional",
+        min_width_m=1.0,
+        max_width_m=5.0,
+        length_m=2058.58,
+        geometry=LineGeometry(points=((0.0, 0.0), (1.0, 1.0)), srid=25830),
+        provenance=make_provenance("idee-watercourse"),
+    )
+
+
+def _flood_hazard_samples() -> list[FloodHazardSample]:
+    return [
+        FloodHazardSample(
+            kind="fluvial",
+            return_period_years=period,
+            water_depth_m=None,
+            provenance=make_provenance("idee-flood-hazard"),
+        )
+        for period in (10, 100, 500)
+    ] + [
+        FloodHazardSample(
+            kind="marina",
+            return_period_years=period,
+            water_depth_m=None,
+            provenance=make_provenance("idee-flood-hazard"),
+        )
+        for period in (100, 500)
+    ]
+
+
 def test_todas_las_fuentes_disponibles_componen_el_informe_enriquecido() -> None:
     orthophoto_port = FakeOrthophotoPort(orthophoto=_orthophoto())
     ndvi_port = FakeNdviSeriesPort(grids=[_ndvi_grid()])
@@ -152,6 +257,11 @@ def test_todas_las_fuentes_disponibles_componen_el_informe_enriquecido() -> None
         ndvi_port=ndvi_port,
         boe_port=boe_port,
         bocm_port=bocm_port,
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
         today=_fixed_today,
     )
 
@@ -164,6 +274,96 @@ def test_todas_las_fuentes_disponibles_componen_el_informe_enriquecido() -> None
     assert enriched.bocm_notices == (_notice(),)
     assert boe_port.calls == ["20261015"]
     assert bocm_port.calls == ["20261015"]
+    assert enriched.land_classifications == (_land_classification(),)
+    assert enriched.watercourses == (_watercourse(),)
+    assert enriched.flood_hazard == tuple(_flood_hazard_samples())
+
+
+def test_fallo_de_idem_no_impide_el_resto_del_informe() -> None:
+    use_case = GenerateEnrichedParcelReportUseCase(
+        base_use_case=_base_use_case(),
+        orthophoto_port=FakeOrthophotoPort(orthophoto=_orthophoto()),
+        ndvi_port=FakeNdviSeriesPort(grids=[_ndvi_grid()]),
+        boe_port=FakeBulletinPort(notices=[_notice()]),
+        bocm_port=FakeBulletinPort(notices=[_notice()]),
+        land_classification_port=FakeLandClassificationPort(
+            raises=NoLandClassificationFoundError((0.0, 0.0, 1.0, 1.0))
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        today=_fixed_today,
+    )
+
+    enriched = use_case.execute("REFCAT-RETIRADA")
+
+    assert enriched.land_classifications is None
+    assert enriched.orthophoto is not None
+    assert enriched.watercourses == (_watercourse(),)
+    assert enriched.flood_hazard == tuple(_flood_hazard_samples())
+
+
+def test_fallo_de_hidrografia_no_impide_el_resto_del_informe() -> None:
+    use_case = GenerateEnrichedParcelReportUseCase(
+        base_use_case=_base_use_case(),
+        orthophoto_port=FakeOrthophotoPort(orthophoto=_orthophoto()),
+        ndvi_port=FakeNdviSeriesPort(grids=[_ndvi_grid()]),
+        boe_port=FakeBulletinPort(notices=[_notice()]),
+        bocm_port=FakeBulletinPort(notices=[_notice()]),
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(raises=RuntimeError("timeout")),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        today=_fixed_today,
+    )
+
+    enriched = use_case.execute("REFCAT-RETIRADA")
+
+    assert enriched.watercourses is None
+    assert enriched.land_classifications == (_land_classification(),)
+    assert enriched.flood_hazard == tuple(_flood_hazard_samples())
+
+
+def test_sin_cauces_cercanos_devuelve_tupla_vacia_no_none() -> None:
+    use_case = GenerateEnrichedParcelReportUseCase(
+        base_use_case=_base_use_case(),
+        orthophoto_port=FakeOrthophotoPort(orthophoto=_orthophoto()),
+        ndvi_port=FakeNdviSeriesPort(grids=[_ndvi_grid()]),
+        boe_port=FakeBulletinPort(notices=[_notice()]),
+        bocm_port=FakeBulletinPort(notices=[_notice()]),
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[]),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        today=_fixed_today,
+    )
+
+    enriched = use_case.execute("REFCAT-RETIRADA")
+
+    assert enriched.watercourses == ()
+
+
+def test_fallo_de_peligrosidad_inundacion_no_impide_el_resto_del_informe() -> None:
+    use_case = GenerateEnrichedParcelReportUseCase(
+        base_use_case=_base_use_case(),
+        orthophoto_port=FakeOrthophotoPort(orthophoto=_orthophoto()),
+        ndvi_port=FakeNdviSeriesPort(grids=[_ndvi_grid()]),
+        boe_port=FakeBulletinPort(notices=[_notice()]),
+        bocm_port=FakeBulletinPort(notices=[_notice()]),
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
+        flood_hazard_port=FakeFloodHazardPort(raises=RuntimeError("timeout en una de las 5 capas")),
+        today=_fixed_today,
+    )
+
+    enriched = use_case.execute("REFCAT-RETIRADA")
+
+    assert enriched.flood_hazard is None
+    assert enriched.land_classifications == (_land_classification(),)
+    assert enriched.watercourses == (_watercourse(),)
 
 
 def test_fallo_de_pnoa_no_impide_el_resto_del_informe() -> None:
@@ -173,6 +373,11 @@ def test_fallo_de_pnoa_no_impide_el_resto_del_informe() -> None:
         ndvi_port=FakeNdviSeriesPort(grids=[_ndvi_grid()]),
         boe_port=FakeBulletinPort(notices=[_notice()]),
         bocm_port=FakeBulletinPort(notices=[_notice()]),
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
         today=_fixed_today,
     )
 
@@ -196,6 +401,11 @@ def test_fallo_de_sentinel2_no_impide_el_resto_del_informe() -> None:
         ),
         boe_port=FakeBulletinPort(notices=[_notice()]),
         bocm_port=FakeBulletinPort(notices=[_notice()]),
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
         today=_fixed_today,
     )
 
@@ -214,6 +424,11 @@ def test_fallo_de_boe_no_impide_el_resto_del_informe() -> None:
         ndvi_port=FakeNdviSeriesPort(grids=[_ndvi_grid()]),
         boe_port=FakeBulletinPort(raises=BulletinNotPublishedError("20261015")),
         bocm_port=FakeBulletinPort(notices=[_notice()]),
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
         today=_fixed_today,
     )
 
@@ -232,6 +447,11 @@ def test_fallo_de_bocm_no_impide_el_resto_del_informe() -> None:
         ndvi_port=FakeNdviSeriesPort(grids=[_ndvi_grid()]),
         boe_port=FakeBulletinPort(notices=[_notice()]),
         bocm_port=FakeBulletinPort(raises=BulletinNotPublishedError("20261015")),
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
         today=_fixed_today,
     )
 
@@ -250,6 +470,11 @@ def test_boletin_sin_coincidencias_devuelve_tupla_vacia_no_none() -> None:
         ndvi_port=FakeNdviSeriesPort(grids=[_ndvi_grid()]),
         boe_port=FakeBulletinPort(notices=[_notice("Disposición sin relación con el municipio")]),
         bocm_port=FakeBulletinPort(notices=[]),
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
         today=_fixed_today,
     )
 
@@ -268,6 +493,11 @@ def test_dia_consultado_es_el_today_inyectado_no_la_fecha_real() -> None:
         ndvi_port=FakeNdviSeriesPort(grids=[_ndvi_grid()]),
         boe_port=boe_port,
         bocm_port=bocm_port,
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
         today=lambda: date(2020, 1, 1),
     )
 
