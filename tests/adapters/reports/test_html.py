@@ -9,10 +9,19 @@ from parcel_intel.domain.geometry import Geometry, LineGeometry
 from parcel_intel.domain.land_classification import LandClassification
 from parcel_intel.domain.livestock_trail import LivestockTrail
 from parcel_intel.domain.ndvi import NdviSummary
+from parcel_intel.domain.norm import Norm, Provision
 from parcel_intel.domain.orthophoto import Orthophoto
 from parcel_intel.domain.protected_area import ProtectedArea
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.domain.report import EnrichedParcelReport, ParcelReport
+from parcel_intel.domain.rule import (
+    AttributeCondition,
+    Evidence,
+    Finding,
+    Rule,
+    RuleScope,
+    SpatialCondition,
+)
 from parcel_intel.domain.watercourse import Watercourse
 from tests.factories import make_building, make_parcel
 
@@ -141,6 +150,7 @@ def test_fuentes_sin_evidencia_se_muestran_como_no_disponible() -> None:
     assert "Peligrosidad por inundación no disponible." in html
     assert "Vías pecuarias (IDEM) no disponible." in html
     assert "Espacios protegidos Red Natura 2000 (IDEM) no disponible." in html
+    assert "Sin hallazgos de las reglas evaluadas." in html
 
 
 def test_ortofoto_disponible_se_embebe_como_base64() -> None:
@@ -366,3 +376,52 @@ def test_espacio_protegido_real_se_lista_con_codigos_y_nombres() -> None:
     assert "Espacio previamente ordenado" in html
     # Sin "Plan Plan" duplicado pese a que plan_name real empieza por "Plan de gestión..."
     assert "Plan Plan" not in html
+
+
+def _finding() -> Finding:
+    rule = Rule(
+        identifier="madrid-colmenar-distancia-cauce",
+        scope=RuleScope(region="madrid", soil_classes=("no_urbanizable",)),
+        spatial=SpatialCondition(operation="within_distance", layer="dph_cauce", meters=100.0),
+        attributes=AttributeCondition(building_origin=("catastro", "detected")),
+        outcome="requires_authorization",
+        authority="Confederación Hidrográfica del Tajo",
+        citation=Provision(
+            norm=Norm(
+                title="Reglamento del Dominio Público Hidráulico (Real Decreto 849/1986)",
+                url="https://www.boe.es/buscar/act.php?id=BOE-A-1986-10638",
+            ),
+            article="art. 9 — zona de policía",
+            in_force_since=date(1986, 4, 30),
+        ),
+        status="approved",
+    )
+    evidence = Evidence(
+        description="Distancia a curso de agua",
+        source_name="Barranco del Montero",
+        measured_value=8.535301066249467,
+        unit="m",
+    )
+    return Finding(rule=rule, severity="actionable", confidence=0.9, evidence=(evidence,))
+
+
+def test_sin_hallazgos_muestra_frase_distinta_de_no_disponible() -> None:
+    report = ParcelReport(parcel=make_parcel(), buildings=())
+
+    html = render_parcel_report_html(_enrich(report), findings=())
+
+    assert "Sin hallazgos de las reglas evaluadas." in html
+
+
+def test_hallazgo_real_muestra_outcome_autoridad_cita_y_evidencia() -> None:
+    report = ParcelReport(parcel=make_parcel(), buildings=())
+
+    html = render_parcel_report_html(_enrich(report), findings=(_finding(),))
+
+    assert "requires_authorization" in html
+    assert "Confederación Hidrográfica del Tajo" in html
+    assert "art. 9 — zona de policía" in html
+    assert 'href="https://www.boe.es/buscar/act.php?id=BOE-A-1986-10638"' in html
+    assert "Barranco del Montero" in html
+    assert "8.54 m" in html
+    assert "Sin hallazgos de las reglas evaluadas." not in html

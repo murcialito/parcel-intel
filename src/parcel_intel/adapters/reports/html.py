@@ -6,8 +6,10 @@ from parcel_intel.domain.flood_hazard import FloodHazardSample
 from parcel_intel.domain.geometry import Geometry
 from parcel_intel.domain.land_classification import LandClassification
 from parcel_intel.domain.livestock_trail import LivestockTrail
+from parcel_intel.domain.norm import effective_url
 from parcel_intel.domain.protected_area import ProtectedArea
 from parcel_intel.domain.report import EnrichedParcelReport
+from parcel_intel.domain.rule import Evidence, Finding
 from parcel_intel.domain.watercourse import Watercourse
 
 _VIEWBOX_SIZE = 560.0
@@ -172,7 +174,36 @@ def _render_protected_area_section(areas: tuple[ProtectedArea, ...] | None) -> s
     return f"<ul>{items}</ul>"
 
 
-def render_parcel_report_html(report: EnrichedParcelReport) -> str:
+def _render_findings_section(findings: tuple[Finding, ...]) -> str:
+    # Sin hallazgo posible por fallo de red aquí (es cómputo puro sobre
+    # datos ya obtenidos) -- la lista vacía es un resultado válido en sí
+    # mismo, no un "no disponible": frase distinta a propósito (historia
+    # 0017).
+    if not findings:
+        return "<p><em>Sin hallazgos de las reglas evaluadas.</em></p>"
+    items = "\n".join(
+        f"<li><strong>{escape(f.rule.outcome)}</strong> "
+        f"(severidad: {escape(f.severity)}, confianza: {f.confidence:.2f})<br>"
+        f"Autoridad: {escape(f.rule.authority)}<br>"
+        f'Normativa: <a href="{escape(effective_url(f.rule.citation))}">'
+        f"{escape(f.rule.citation.norm.title)} — {escape(f.rule.citation.article)}</a>"
+        f"<ul>{''.join(_render_evidence_item(e) for e in f.evidence)}</ul></li>"
+        for f in findings
+    )
+    return f"<ul>{items}</ul>"
+
+
+def _render_evidence_item(evidence: Evidence) -> str:
+    return (
+        f"<li>{escape(evidence.description)}: "
+        f"{escape(evidence.source_name)} — "
+        f"{evidence.measured_value:.2f} {escape(evidence.unit)}</li>"
+    )
+
+
+def render_parcel_report_html(
+    report: EnrichedParcelReport, findings: tuple[Finding, ...] = ()
+) -> str:
     """Renderiza el informe de una parcela como una página HTML autocontenida.
 
     Es deliberadamente simple (sin plantillas de terceros, solo f-strings):
@@ -258,6 +289,10 @@ def render_parcel_report_html(report: EnrichedParcelReport) -> str:
   </div>
 
   <div class="sources">
+    <div>
+      <h2>Hallazgos</h2>
+      {_render_findings_section(findings)}
+    </div>
     <div>
       <h2>Ortofoto actual (PNOA)</h2>
       {_render_orthophoto_section(report)}

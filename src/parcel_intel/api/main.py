@@ -1,3 +1,5 @@
+from datetime import date
+
 import psycopg
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
@@ -19,6 +21,14 @@ from parcel_intel.application.generate_enriched_report import (
     GenerateEnrichedParcelReportUseCase,
 )
 from parcel_intel.application.generate_report import GenerateParcelReportUseCase
+from parcel_intel.domain.norm import Norm, Provision
+from parcel_intel.domain.rule import (
+    AttributeCondition,
+    Rule,
+    RuleScope,
+    SpatialCondition,
+    evaluate_rules,
+)
 from parcel_intel.ports.errors import InvalidCadastralReferenceError, ParcelNotFoundError
 
 app = FastAPI(title="Parcel Intel")
@@ -28,6 +38,31 @@ _MUNICIPIOS = {
     "colmenar-de-oreja": "COLMENAR DE OREJA",
     "villaconejos": "VILLACONEJOS",
 }
+
+# Única regla aprobada del MVP (historia 0017) -- primer ejemplo real antes
+# de que exista un flujo de autoría asistida por LLM (ver docs/vision.md).
+_APPROVED_RULES = (
+    Rule(
+        identifier="madrid-colmenar-distancia-cauce",
+        scope=RuleScope(region="madrid", soil_classes=("no_urbanizable",)),
+        spatial=SpatialCondition(operation="within_distance", layer="dph_cauce", meters=100.0),
+        attributes=AttributeCondition(building_origin=("catastro", "detected")),
+        outcome="requires_authorization",
+        authority="Confederación Hidrográfica del Tajo",
+        citation=Provision(
+            norm=Norm(
+                title=(
+                    "Reglamento del Dominio Público Hidráulico "
+                    "(Real Decreto 849/1986, de 11 de abril)"
+                ),
+                url="https://www.boe.es/buscar/act.php?id=BOE-A-1986-10638",
+            ),
+            article="art. 9 — zona de policía",
+            in_force_since=date(1986, 4, 30),
+        ),
+        status="approved",
+    ),
+)
 
 
 @app.get("/reports/{municipio}/{referencia}", response_class=HTMLResponse)
@@ -62,6 +97,7 @@ def get_parcel_report(municipio: str, referencia: str) -> str:
                 protected_area_port=ProtectedAreaAdapter(),
             )
             report = enriched_use_case.execute(referencia)
+            findings = evaluate_rules(report, _APPROVED_RULES)
     except psycopg.OperationalError as error:
         raise HTTPException(
             status_code=503,
@@ -72,4 +108,4 @@ def get_parcel_report(municipio: str, referencia: str) -> str:
     except ParcelNotFoundError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
 
-    return render_parcel_report_html(report)
+    return render_parcel_report_html(report, findings)
