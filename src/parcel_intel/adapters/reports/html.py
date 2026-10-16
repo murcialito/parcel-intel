@@ -5,6 +5,8 @@ from parcel_intel.domain.bulletin import BulletinNotice
 from parcel_intel.domain.flood_hazard import FloodHazardSample
 from parcel_intel.domain.geometry import Geometry
 from parcel_intel.domain.land_classification import LandClassification
+from parcel_intel.domain.livestock_trail import LivestockTrail
+from parcel_intel.domain.protected_area import ProtectedArea
 from parcel_intel.domain.report import EnrichedParcelReport
 from parcel_intel.domain.watercourse import Watercourse
 
@@ -138,6 +140,38 @@ def _render_flood_hazard_section(samples: tuple[FloodHazardSample, ...] | None) 
     return f"<ul>{items}</ul>"
 
 
+def _render_livestock_trail_section(trails: tuple[LivestockTrail, ...] | None) -> str:
+    if trails is None:
+        return "<p><em>Vías pecuarias (IDEM) no disponible.</em></p>"
+    if not trails:
+        return "<p><em>Sin vías pecuarias cercanas.</em></p>"
+    items = "\n".join(
+        f"<li>{escape(t.name)} ({escape(t.trail_type)}) — {escape(t.municipality_name)} "
+        f"— {t.area_m2:.0f} m² / {t.length_m:.0f} m</li>"
+        for t in trails
+    )
+    # `area_m2`/`length_m` no son la anchura legal (ADR 0014) -- nota
+    # explícita para que el fundador no la confunda al verificar a ojo.
+    return (
+        f"<ul>{items}</ul>"
+        '<p class="meta">area_m2/length_m son la franja real cartografiada, '
+        "no la anchura legal de la Ley de Vías Pecuarias.</p>"
+    )
+
+
+def _render_protected_area_section(areas: tuple[ProtectedArea, ...] | None) -> str:
+    if areas is None:
+        return "<p><em>Espacios protegidos Red Natura 2000 (IDEM) no disponible.</em></p>"
+    if not areas:
+        return "<p><em>Sin espacios protegidos Red Natura 2000 cercanos.</em></p>"
+    items = "\n".join(
+        f"<li>Plan {escape(a.plan_code)}: {escape(a.plan_name)} "
+        f"— Zona {escape(a.zone_code)}: {escape(a.zone_name)}</li>"
+        for a in areas
+    )
+    return f"<ul>{items}</ul>"
+
+
 def render_parcel_report_html(report: EnrichedParcelReport) -> str:
     """Renderiza el informe de una parcela como una página HTML autocontenida.
 
@@ -148,7 +182,8 @@ def render_parcel_report_html(report: EnrichedParcelReport) -> str:
     `EnrichedParcelReport` (parcela/edificios de Catastro más evidencia de
     PNOA/Sentinel-2/BOE/BOCM, cada una opcional si la fuente falló — ver
     ADR 0010), extendido en la historia 0013 con IDEM/cauces/peligrosidad
-    por inundación (ADR 0013).
+    por inundación (ADR 0013) y en la historia 0016 con vías pecuarias y
+    Red Natura 2000 (ADR 0016).
     """
     parcel_report = report.report
     geometries = [parcel_report.parcel.geometry] + [b.geometry for b in parcel_report.buildings]
@@ -250,6 +285,14 @@ def render_parcel_report_html(report: EnrichedParcelReport) -> str:
     <div>
       <h2>Peligrosidad por inundación</h2>
       {_render_flood_hazard_section(report.flood_hazard)}
+    </div>
+    <div>
+      <h2>Vías pecuarias cercanas</h2>
+      {_render_livestock_trail_section(report.livestock_trails)}
+    </div>
+    <div>
+      <h2>Red Natura 2000</h2>
+      {_render_protected_area_section(report.protected_areas)}
     </div>
   </div>
 </body>

@@ -10,8 +10,10 @@ from parcel_intel.domain.bulletin import BulletinNotice
 from parcel_intel.domain.flood_hazard import FloodHazardSample
 from parcel_intel.domain.geometry import Geometry, LineGeometry
 from parcel_intel.domain.land_classification import LandClassification
+from parcel_intel.domain.livestock_trail import LivestockTrail
 from parcel_intel.domain.ndvi import Grid, NdviGrid
 from parcel_intel.domain.orthophoto import Orthophoto
+from parcel_intel.domain.protected_area import ProtectedArea
 from parcel_intel.domain.report import ParcelReport
 from parcel_intel.domain.watercourse import Watercourse
 from parcel_intel.ports.errors import (
@@ -144,6 +146,40 @@ class FakeFloodHazardPort:
         return self._samples
 
 
+class FakeLivestockTrailPort:
+    def __init__(
+        self, trails: list[LivestockTrail] | None = None, raises: Exception | None = None
+    ) -> None:
+        self._trails = trails if trails is not None else []
+        self._raises = raises
+        self.calls: list[tuple[Geometry, float]] = []
+
+    def get_nearby_livestock_trails(
+        self, geometry: Geometry, margin_m: float
+    ) -> list[LivestockTrail]:
+        self.calls.append((geometry, margin_m))
+        if self._raises is not None:
+            raise self._raises
+        return self._trails
+
+
+class FakeProtectedAreaPort:
+    def __init__(
+        self, areas: list[ProtectedArea] | None = None, raises: Exception | None = None
+    ) -> None:
+        self._areas = areas if areas is not None else []
+        self._raises = raises
+        self.calls: list[tuple[Geometry, float]] = []
+
+    def get_nearby_protected_areas(
+        self, geometry: Geometry, margin_m: float
+    ) -> list[ProtectedArea]:
+        self.calls.append((geometry, margin_m))
+        if self._raises is not None:
+            raise self._raises
+        return self._areas
+
+
 class _UnusedPort:
     """Ni `parcel_port` ni `building_port` deberían llamarse: el repositorio
     ya tiene un informe cacheado, así que `GenerateParcelReportUseCase`
@@ -246,6 +282,31 @@ def _flood_hazard_samples() -> list[FloodHazardSample]:
     ]
 
 
+def _livestock_trail() -> LivestockTrail:
+    return LivestockTrail(
+        trail_type="Vereda",
+        name="Vereda del Cristo",
+        municipality_code="043",
+        municipality_name="COLMENAR DE OREJA",
+        trail_code="2804301",
+        length_m=10492.0,
+        area_m2=122148.0,
+        geometry=Geometry(rings=(((0.0, 0.0), (1.0, 0.0), (1.0, 1.0)),), srid=25830),
+        provenance=make_provenance("idem"),
+    )
+
+
+def _protected_area() -> ProtectedArea:
+    return ProtectedArea(
+        plan_code="SE",
+        plan_name="Plan de gestión de vegas, cuestas y páramos del sureste de Madrid",
+        zone_code="X",
+        zone_name="Espacio previamente ordenado",
+        geometry=Geometry(rings=(((0.0, 0.0), (1.0, 0.0), (1.0, 1.0)),), srid=25830),
+        provenance=make_provenance("idem"),
+    )
+
+
 def test_todas_las_fuentes_disponibles_componen_el_informe_enriquecido() -> None:
     orthophoto_port = FakeOrthophotoPort(orthophoto=_orthophoto())
     ndvi_port = FakeNdviSeriesPort(grids=[_ndvi_grid()])
@@ -262,6 +323,8 @@ def test_todas_las_fuentes_disponibles_componen_el_informe_enriquecido() -> None
         ),
         watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
         flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[_livestock_trail()]),
+        protected_area_port=FakeProtectedAreaPort(areas=[_protected_area()]),
         today=_fixed_today,
     )
 
@@ -277,6 +340,8 @@ def test_todas_las_fuentes_disponibles_componen_el_informe_enriquecido() -> None
     assert enriched.land_classifications == (_land_classification(),)
     assert enriched.watercourses == (_watercourse(),)
     assert enriched.flood_hazard == tuple(_flood_hazard_samples())
+    assert enriched.livestock_trails == (_livestock_trail(),)
+    assert enriched.protected_areas == (_protected_area(),)
 
 
 def test_fallo_de_idem_no_impide_el_resto_del_informe() -> None:
@@ -291,6 +356,8 @@ def test_fallo_de_idem_no_impide_el_resto_del_informe() -> None:
         ),
         watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
         flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[_livestock_trail()]),
+        protected_area_port=FakeProtectedAreaPort(areas=[_protected_area()]),
         today=_fixed_today,
     )
 
@@ -314,6 +381,8 @@ def test_fallo_de_hidrografia_no_impide_el_resto_del_informe() -> None:
         ),
         watercourse_port=FakeWatercoursePort(raises=RuntimeError("timeout")),
         flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[_livestock_trail()]),
+        protected_area_port=FakeProtectedAreaPort(areas=[_protected_area()]),
         today=_fixed_today,
     )
 
@@ -336,6 +405,8 @@ def test_sin_cauces_cercanos_devuelve_tupla_vacia_no_none() -> None:
         ),
         watercourse_port=FakeWatercoursePort(watercourses=[]),
         flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[_livestock_trail()]),
+        protected_area_port=FakeProtectedAreaPort(areas=[_protected_area()]),
         today=_fixed_today,
     )
 
@@ -356,6 +427,8 @@ def test_fallo_de_peligrosidad_inundacion_no_impide_el_resto_del_informe() -> No
         ),
         watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
         flood_hazard_port=FakeFloodHazardPort(raises=RuntimeError("timeout en una de las 5 capas")),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[_livestock_trail()]),
+        protected_area_port=FakeProtectedAreaPort(areas=[_protected_area()]),
         today=_fixed_today,
     )
 
@@ -378,6 +451,8 @@ def test_fallo_de_pnoa_no_impide_el_resto_del_informe() -> None:
         ),
         watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
         flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[_livestock_trail()]),
+        protected_area_port=FakeProtectedAreaPort(areas=[_protected_area()]),
         today=_fixed_today,
     )
 
@@ -406,6 +481,8 @@ def test_fallo_de_sentinel2_no_impide_el_resto_del_informe() -> None:
         ),
         watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
         flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[_livestock_trail()]),
+        protected_area_port=FakeProtectedAreaPort(areas=[_protected_area()]),
         today=_fixed_today,
     )
 
@@ -429,6 +506,8 @@ def test_fallo_de_boe_no_impide_el_resto_del_informe() -> None:
         ),
         watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
         flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[_livestock_trail()]),
+        protected_area_port=FakeProtectedAreaPort(areas=[_protected_area()]),
         today=_fixed_today,
     )
 
@@ -452,6 +531,8 @@ def test_fallo_de_bocm_no_impide_el_resto_del_informe() -> None:
         ),
         watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
         flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[_livestock_trail()]),
+        protected_area_port=FakeProtectedAreaPort(areas=[_protected_area()]),
         today=_fixed_today,
     )
 
@@ -475,6 +556,8 @@ def test_boletin_sin_coincidencias_devuelve_tupla_vacia_no_none() -> None:
         ),
         watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
         flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[_livestock_trail()]),
+        protected_area_port=FakeProtectedAreaPort(areas=[_protected_area()]),
         today=_fixed_today,
     )
 
@@ -498,6 +581,8 @@ def test_dia_consultado_es_el_today_inyectado_no_la_fecha_real() -> None:
         ),
         watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
         flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[_livestock_trail()]),
+        protected_area_port=FakeProtectedAreaPort(areas=[_protected_area()]),
         today=lambda: date(2020, 1, 1),
     )
 
@@ -505,3 +590,94 @@ def test_dia_consultado_es_el_today_inyectado_no_la_fecha_real() -> None:
 
     assert boe_port.calls == ["20200101"]
     assert bocm_port.calls == ["20200101"]
+
+
+def test_fallo_de_vias_pecuarias_no_impide_el_resto_del_informe() -> None:
+    use_case = GenerateEnrichedParcelReportUseCase(
+        base_use_case=_base_use_case(),
+        orthophoto_port=FakeOrthophotoPort(orthophoto=_orthophoto()),
+        ndvi_port=FakeNdviSeriesPort(grids=[_ndvi_grid()]),
+        boe_port=FakeBulletinPort(notices=[_notice()]),
+        bocm_port=FakeBulletinPort(notices=[_notice()]),
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(raises=RuntimeError("timeout")),
+        protected_area_port=FakeProtectedAreaPort(areas=[_protected_area()]),
+        today=_fixed_today,
+    )
+
+    enriched = use_case.execute("REFCAT-RETIRADA")
+
+    assert enriched.livestock_trails is None
+    assert enriched.protected_areas == (_protected_area(),)
+    assert enriched.watercourses == (_watercourse(),)
+
+
+def test_sin_vias_pecuarias_cercanas_devuelve_tupla_vacia_no_none() -> None:
+    use_case = GenerateEnrichedParcelReportUseCase(
+        base_use_case=_base_use_case(),
+        orthophoto_port=FakeOrthophotoPort(orthophoto=_orthophoto()),
+        ndvi_port=FakeNdviSeriesPort(grids=[_ndvi_grid()]),
+        boe_port=FakeBulletinPort(notices=[_notice()]),
+        bocm_port=FakeBulletinPort(notices=[_notice()]),
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[]),
+        protected_area_port=FakeProtectedAreaPort(areas=[_protected_area()]),
+        today=_fixed_today,
+    )
+
+    enriched = use_case.execute("REFCAT-RETIRADA")
+
+    assert enriched.livestock_trails == ()
+
+
+def test_fallo_de_red_natura_no_impide_el_resto_del_informe() -> None:
+    use_case = GenerateEnrichedParcelReportUseCase(
+        base_use_case=_base_use_case(),
+        orthophoto_port=FakeOrthophotoPort(orthophoto=_orthophoto()),
+        ndvi_port=FakeNdviSeriesPort(grids=[_ndvi_grid()]),
+        boe_port=FakeBulletinPort(notices=[_notice()]),
+        bocm_port=FakeBulletinPort(notices=[_notice()]),
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[_livestock_trail()]),
+        protected_area_port=FakeProtectedAreaPort(raises=RuntimeError("timeout")),
+        today=_fixed_today,
+    )
+
+    enriched = use_case.execute("REFCAT-RETIRADA")
+
+    assert enriched.protected_areas is None
+    assert enriched.livestock_trails == (_livestock_trail(),)
+
+
+def test_sin_espacios_protegidos_cercanos_devuelve_tupla_vacia_no_none() -> None:
+    use_case = GenerateEnrichedParcelReportUseCase(
+        base_use_case=_base_use_case(),
+        orthophoto_port=FakeOrthophotoPort(orthophoto=_orthophoto()),
+        ndvi_port=FakeNdviSeriesPort(grids=[_ndvi_grid()]),
+        boe_port=FakeBulletinPort(notices=[_notice()]),
+        bocm_port=FakeBulletinPort(notices=[_notice()]),
+        land_classification_port=FakeLandClassificationPort(
+            classifications=[_land_classification()]
+        ),
+        watercourse_port=FakeWatercoursePort(watercourses=[_watercourse()]),
+        flood_hazard_port=FakeFloodHazardPort(samples=_flood_hazard_samples()),
+        livestock_trail_port=FakeLivestockTrailPort(trails=[_livestock_trail()]),
+        protected_area_port=FakeProtectedAreaPort(areas=[]),
+        today=_fixed_today,
+    )
+
+    enriched = use_case.execute("REFCAT-RETIRADA")
+
+    assert enriched.protected_areas == ()

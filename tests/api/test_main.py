@@ -12,9 +12,11 @@ from parcel_intel.domain.bulletin import BulletinNotice
 from parcel_intel.domain.flood_hazard import FloodHazardSample
 from parcel_intel.domain.geometry import Geometry, LineGeometry
 from parcel_intel.domain.land_classification import LandClassification
+from parcel_intel.domain.livestock_trail import LivestockTrail
 from parcel_intel.domain.ndvi import NdviGrid
 from parcel_intel.domain.orthophoto import HistoricalVintage, Orthophoto
 from parcel_intel.domain.parcel import Parcel
+from parcel_intel.domain.protected_area import ProtectedArea
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.domain.report import ParcelReport
 from parcel_intel.domain.watercourse import Watercourse
@@ -251,6 +253,59 @@ class _FakeFloodHazardAdapter:
         ]
 
 
+class _FakeLivestockTrailAdapter:
+    """Doble de `LivestockTrailAdapter`: evita red real en los tests del endpoint."""
+
+    behavior: str = "ok"
+
+    def __init__(self) -> None:
+        pass
+
+    def get_nearby_livestock_trails(
+        self, geometry: Geometry, margin_m: float
+    ) -> list[LivestockTrail]:
+        if self.behavior == "fails":
+            raise RuntimeError("Vías pecuarias no disponible (simulado)")
+        return [
+            LivestockTrail(
+                trail_type="Vereda",
+                name="Vereda del Cristo",
+                municipality_code="043",
+                municipality_name="COLMENAR DE OREJA",
+                trail_code="2804301",
+                length_m=10492.0,
+                area_m2=122148.0,
+                geometry=Geometry(rings=(((0.0, 0.0), (1.0, 0.0), (1.0, 1.0)),), srid=25830),
+                provenance=_provenance("idem"),
+            )
+        ]
+
+
+class _FakeProtectedAreaAdapter:
+    """Doble de `ProtectedAreaAdapter`: evita red real en los tests del endpoint."""
+
+    behavior: str = "ok"
+
+    def __init__(self) -> None:
+        pass
+
+    def get_nearby_protected_areas(
+        self, geometry: Geometry, margin_m: float
+    ) -> list[ProtectedArea]:
+        if self.behavior == "fails":
+            raise RuntimeError("Red Natura 2000 no disponible (simulado)")
+        return [
+            ProtectedArea(
+                plan_code="SE",
+                plan_name="Plan de gestión de vegas, cuestas y páramos del sureste de Madrid",
+                zone_code="X",
+                zone_name="Espacio previamente ordenado",
+                geometry=Geometry(rings=(((0.0, 0.0), (1.0, 0.0), (1.0, 1.0)),), srid=25830),
+                provenance=_provenance("idem"),
+            )
+        ]
+
+
 @pytest.fixture(autouse=True)
 def _reset_fake_behavior() -> Iterator[None]:
     _FakeCatastroAdapter.behavior = "ok"
@@ -265,6 +320,8 @@ def _reset_fake_behavior() -> Iterator[None]:
     _FakeIdemAdapter.behavior = "ok"
     _FakeHydrographyAdapter.behavior = "ok"
     _FakeFloodHazardAdapter.behavior = "ok"
+    _FakeLivestockTrailAdapter.behavior = "ok"
+    _FakeProtectedAreaAdapter.behavior = "ok"
     yield
 
 
@@ -280,6 +337,8 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setattr(main, "IdemAdapter", _FakeIdemAdapter)
     monkeypatch.setattr(main, "HydrographyAdapter", _FakeHydrographyAdapter)
     monkeypatch.setattr(main, "FloodHazardAdapter", _FakeFloodHazardAdapter)
+    monkeypatch.setattr(main, "LivestockTrailAdapter", _FakeLivestockTrailAdapter)
+    monkeypatch.setattr(main, "ProtectedAreaAdapter", _FakeProtectedAreaAdapter)
     return TestClient(main.app)
 
 
@@ -345,7 +404,7 @@ def test_postgis_no_disponible_devuelve_503(
     assert response.status_code == 503
 
 
-def test_informe_incluye_evidencia_de_las_siete_fuentes_nuevas(client: TestClient) -> None:
+def test_informe_incluye_evidencia_de_las_nueve_fuentes_nuevas(client: TestClient) -> None:
     response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
 
     assert response.status_code == 200
@@ -356,6 +415,8 @@ def test_informe_incluye_evidencia_de_las_siete_fuentes_nuevas(client: TestClien
     assert "Suelo No Urbanizable Común" in response.text  # IDEM
     assert "Barranco del Montero" in response.text  # hidrografía
     assert "NO DATA" in response.text  # peligrosidad por inundación
+    assert "Vereda del Cristo" in response.text  # vías pecuarias
+    assert "Plan de gestión de vegas" in response.text  # Red Natura 2000
 
     # Ninguna de las cuatro fuentes nuevas se persiste en PostGIS: lo único
     # que llega a save_report es el ParcelReport de Catastro ya existente
@@ -432,4 +493,24 @@ def test_fallo_de_peligrosidad_inundacion_no_tumba_el_informe(client: TestClient
 
     assert response.status_code == 200
     assert "Peligrosidad por inundación no disponible." in response.text
+    assert "REFCAT-RETIRADA" in response.text
+
+
+def test_fallo_de_vias_pecuarias_no_tumba_el_informe(client: TestClient) -> None:
+    _FakeLivestockTrailAdapter.behavior = "fails"
+
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert "Vías pecuarias (IDEM) no disponible." in response.text
+    assert "REFCAT-RETIRADA" in response.text
+
+
+def test_fallo_de_red_natura_no_tumba_el_informe(client: TestClient) -> None:
+    _FakeProtectedAreaAdapter.behavior = "fails"
+
+    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+
+    assert response.status_code == 200
+    assert "Espacios protegidos Red Natura 2000 (IDEM) no disponible." in response.text
     assert "REFCAT-RETIRADA" in response.text

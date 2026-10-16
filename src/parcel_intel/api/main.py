@@ -8,9 +8,11 @@ from parcel_intel.adapters.catastro.adapter import CatastroAdapter
 from parcel_intel.adapters.flood_hazard.adapter import FloodHazardAdapter
 from parcel_intel.adapters.hydrography.adapter import HydrographyAdapter
 from parcel_intel.adapters.idem.adapter import IdemAdapter
+from parcel_intel.adapters.livestock_trails.adapter import LivestockTrailAdapter
 from parcel_intel.adapters.pnoa.adapter import PnoaAdapter
 from parcel_intel.adapters.postgis.connection import get_connection
 from parcel_intel.adapters.postgis.repository import PostgisParcelRepository
+from parcel_intel.adapters.protected_areas.adapter import ProtectedAreaAdapter
 from parcel_intel.adapters.reports.html import render_parcel_report_html
 from parcel_intel.adapters.sentinel2.adapter import Sentinel2Adapter
 from parcel_intel.application.generate_enriched_report import (
@@ -56,6 +58,8 @@ def get_parcel_report(municipio: str, referencia: str) -> str:
                 land_classification_port=IdemAdapter(),
                 watercourse_port=HydrographyAdapter(),
                 flood_hazard_port=FloodHazardAdapter(),
+                livestock_trail_port=LivestockTrailAdapter(),
+                protected_area_port=ProtectedAreaAdapter(),
             )
             report = enriched_use_case.execute(referencia)
     except psycopg.OperationalError as error:

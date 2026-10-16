@@ -7,8 +7,10 @@ from parcel_intel.domain.bulletin import BulletinNotice
 from parcel_intel.domain.flood_hazard import FloodHazardSample
 from parcel_intel.domain.geometry import Geometry, LineGeometry
 from parcel_intel.domain.land_classification import LandClassification
+from parcel_intel.domain.livestock_trail import LivestockTrail
 from parcel_intel.domain.ndvi import NdviSummary
 from parcel_intel.domain.orthophoto import Orthophoto
+from parcel_intel.domain.protected_area import ProtectedArea
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.domain.report import EnrichedParcelReport, ParcelReport
 from parcel_intel.domain.watercourse import Watercourse
@@ -25,6 +27,8 @@ def _enrich(
     land_classifications: tuple[LandClassification, ...] | None = None,
     watercourses: tuple[Watercourse, ...] | None = None,
     flood_hazard: tuple[FloodHazardSample, ...] | None = None,
+    livestock_trails: tuple[LivestockTrail, ...] | None = None,
+    protected_areas: tuple[ProtectedArea, ...] | None = None,
 ) -> EnrichedParcelReport:
     return EnrichedParcelReport(
         report=report,
@@ -35,6 +39,8 @@ def _enrich(
         land_classifications=land_classifications,
         watercourses=watercourses,
         flood_hazard=flood_hazard,
+        livestock_trails=livestock_trails,
+        protected_areas=protected_areas,
     )
 
 
@@ -133,6 +139,8 @@ def test_fuentes_sin_evidencia_se_muestran_como_no_disponible() -> None:
     assert "Clasificación de suelo (IDEM) no disponible." in html
     assert "Cursos de agua (hidrografía) no disponible." in html
     assert "Peligrosidad por inundación no disponible." in html
+    assert "Vías pecuarias (IDEM) no disponible." in html
+    assert "Espacios protegidos Red Natura 2000 (IDEM) no disponible." in html
 
 
 def test_ortofoto_disponible_se_embebe_como_base64() -> None:
@@ -283,3 +291,78 @@ def test_peligrosidad_inundacion_muestra_las_cinco_combinaciones_con_no_data() -
 
     assert html.count("NO DATA") == 4
     assert "1.25 m" in html
+
+
+def _livestock_trail(name: str = "Vereda del Cristo") -> LivestockTrail:
+    return LivestockTrail(
+        trail_type="Vereda",
+        name=name,
+        municipality_code="043",
+        municipality_name="COLMENAR DE OREJA",
+        trail_code="2804301",
+        length_m=10492.0,
+        area_m2=122148.0,
+        geometry=Geometry(rings=(((0.0, 0.0), (1.0, 0.0), (1.0, 1.0)),), srid=25830),
+        provenance=Provenance(
+            source="idem", url="https://example.org", retrieved_at=date(2026, 10, 15)
+        ),
+    )
+
+
+def test_vias_pecuarias_con_tupla_vacia_se_distingue_de_no_disponible() -> None:
+    report = ParcelReport(parcel=make_parcel(), buildings=())
+
+    html = render_parcel_report_html(_enrich(report, livestock_trails=()))
+
+    assert "Sin vías pecuarias cercanas." in html
+    assert "Vías pecuarias (IDEM) no disponible." not in html
+
+
+def test_via_pecuaria_real_se_lista_con_valores_y_nota_de_anchura_no_legal() -> None:
+    report = ParcelReport(parcel=make_parcel(), buildings=())
+
+    html = render_parcel_report_html(_enrich(report, livestock_trails=(_livestock_trail(),)))
+
+    assert "Vereda del Cristo" in html
+    assert "Vereda" in html
+    assert "COLMENAR DE OREJA" in html
+    assert "122148 m²" in html
+    assert "10492 m" in html
+    assert "no la anchura legal" in html
+
+
+def _protected_area(
+    plan_name: str = "Plan de gestión de vegas, cuestas y páramos del sureste de Madrid",
+) -> ProtectedArea:
+    return ProtectedArea(
+        plan_code="SE",
+        plan_name=plan_name,
+        zone_code="X",
+        zone_name="Espacio previamente ordenado",
+        geometry=Geometry(rings=(((0.0, 0.0), (1.0, 0.0), (1.0, 1.0)),), srid=25830),
+        provenance=Provenance(
+            source="idem", url="https://example.org", retrieved_at=date(2026, 10, 15)
+        ),
+    )
+
+
+def test_red_natura_con_tupla_vacia_se_distingue_de_no_disponible() -> None:
+    report = ParcelReport(parcel=make_parcel(), buildings=())
+
+    html = render_parcel_report_html(_enrich(report, protected_areas=()))
+
+    assert "Sin espacios protegidos Red Natura 2000 cercanos." in html
+    assert "Espacios protegidos Red Natura 2000 (IDEM) no disponible." not in html
+
+
+def test_espacio_protegido_real_se_lista_con_codigos_y_nombres() -> None:
+    report = ParcelReport(parcel=make_parcel(), buildings=())
+
+    html = render_parcel_report_html(_enrich(report, protected_areas=(_protected_area(),)))
+
+    assert "Plan SE:" in html
+    assert "Plan de gestión de vegas, cuestas y páramos del sureste de Madrid" in html
+    assert "Zona X:" in html
+    assert "Espacio previamente ordenado" in html
+    # Sin "Plan Plan" duplicado pese a que plan_name real empieza por "Plan de gestión..."
+    assert "Plan Plan" not in html
