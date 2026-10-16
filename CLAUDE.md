@@ -49,6 +49,12 @@ uv run python -m parcel_intel.adapters.postgis.migrate up      # aplicar migraci
 uv run python -m parcel_intel.adapters.postgis.migrate down    # revertir la última
 uv run python -m parcel_intel.adapters.postgis.migrate status  # ver estado
 uv run pytest -m integration    # tests que requieren PostGIS local levantado
+
+# Autoría de reglas asistida por LLM (historia 0019) -- requiere DEEPSEEK_API_KEY en el entorno
+uv run python -m parcel_intel.cli.main author --layer dph_cauce --text ruta/articulo.txt
+uv run python -m parcel_intel.cli.main review list
+uv run python -m parcel_intel.cli.main review approve <identifier>
+uv run python -m parcel_intel.cli.main review reject <identifier>
 ```
 
 ## Contexto de negocio (resumen)

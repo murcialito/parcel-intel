@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import date, datetime
 from typing import Literal
 
 from parcel_intel.domain.building import BuildingOrigin
@@ -12,6 +13,11 @@ WatercourseLayer = Literal["dph_cauce"]
 OverlapLayer = Literal["via_pecuaria", "red_natura_plan"]
 RuleStatus = Literal["proposed", "approved", "rejected"]
 Severity = Literal["informational", "actionable"]
+
+# Unión de las tres capas de evidencia reales que una `Rule` puede citar
+# hoy -- historia 0019 (ADR 0019): el único tipo que acepta
+# `RuleAuthoringPort.propose_rule`, nunca `str` libre.
+RuleLayer = WatercourseLayer | OverlapLayer
 
 # Confianza para un hallazgo de `within_distance` sobre `dph_cauce`: la
 # distancia medida es exacta y determinista, pero se descuenta porque
@@ -273,3 +279,68 @@ def evaluate_rules(report: EnrichedParcelReport, rules: Sequence[Rule]) -> tuple
             )
         )
     return tuple(findings)
+
+
+@dataclass(frozen=True)
+class LlmUsage:
+    """Metadatos de una llamada real a un proveedor de LLM -- análogo a
+    `Provenance` (domain/provenance.py), que ya documenta "cómo se
+    obtuvo un dato" para toda fuente externa del proyecto. No se funde
+    con `Provenance`: sus campos (modelo/tokens/coste) no tienen sentido
+    para las demás fuentes (WFS/WMS sin coste por llamada) -- historia
+    0019, ADR 0019."""
+
+    model: str
+    prompt_tokens: int
+    completion_tokens: int
+    cost_usd: float
+
+
+@dataclass(frozen=True)
+class RuleProposalDraft:
+    """Lo que el LLM propuso, ya parseado y validado contra los tipos
+    cerrados de este módulo (`adapters/deepseek/parsing.py` construye
+    esto, nunca `application/`). No incluye `layer`/`operation`/
+    `status`/`region`/`building_origin`: esos los fija
+    `AuthorRuleProposalUseCase`, nunca el LLM -- historia 0019."""
+
+    soil_classes: tuple[SoilClass, ...]
+    meters: float | None
+    outcome: str
+    authority: str
+    norm_title: str
+    norm_url: str
+    article: str
+    in_force_since: date
+    provision_url: str | None
+    explanation: str
+    usage: LlmUsage
+
+
+@dataclass(frozen=True)
+class ProposedRule:
+    """`Rule` candidata ya ensamblada (`status="proposed"` siempre) junto
+    a su explicación y el coste de la llamada que la produjo. Mismo
+    patrón que `Finding` (rule + severity + confidence + evidence):
+    envolver, no mezclar campos ajenos dentro de `Rule` -- historia 0019,
+    ADR 0019, decisión 2 (rechaza añadir `explanation` directo a `Rule`
+    porque `evaluate_rules` y las reglas aprobadas a mano de
+    `api/main.py` no tienen ningún uso para ese campo)."""
+
+    rule: Rule
+    explanation: str
+    usage: LlmUsage
+    created_at: datetime
+
+
+def spatial_condition_for_layer(layer: RuleLayer, meters: float | None) -> SpatialCondition:
+    """Pura: la capa ya determina la operación (`dph_cauce` ->
+    `within_distance`, las otras dos -> `overlaps`) -- el LLM nunca
+    propone `operation` (historia 0019)."""
+    if layer == "dph_cauce":
+        if meters is None:
+            raise ValueError("meters es obligatorio para layer='dph_cauce'")
+        return WithinDistanceCondition(operation="within_distance", layer=layer, meters=meters)
+    if meters is not None:
+        raise ValueError(f"meters no aplica para layer={layer!r}")
+    return OverlapsCondition(operation="overlaps", layer=layer)

@@ -80,6 +80,46 @@ class BulletinNotPublishedError(Exception):
         self.day = day
 
 
+class InvalidRuleLayerError(Exception):
+    """La capa de evidencia pedida al flujo de autoría de reglas no es
+    ninguno de los valores cerrados que `domain/rule.py` reconoce hoy
+    (`dph_cauce`, `via_pecuaria`, `red_natura_plan`) -- historia 0019.
+    Vive aquí, no en `adapters/deepseek/`, porque la lanza
+    `AuthorRuleProposalUseCase` (`application/`), que solo puede
+    importar `ports`/`domain` -- mismo criterio que
+    `InvalidCadastralReferenceError`."""
+
+    def __init__(self, layer: str) -> None:
+        super().__init__(f"Capa de evidencia no reconocida para autoría de reglas: {layer!r}")
+        self.layer = layer
+
+
+class InvalidLlmProposalError(Exception):
+    """La respuesta del LLM no se pudo interpretar como una propuesta de
+    `Rule` válida (JSON inválido, campo fuera de los tipos cerrados, o
+    `meters` incoherente con la capa pedida) -- historia 0019. Ninguna
+    propuesta a medias llega a persistirse cuando se lanza este error."""
+
+    def __init__(self, raw_content: str) -> None:
+        super().__init__(
+            f"La respuesta del LLM no es una propuesta de regla válida: {raw_content[:200]!r}"
+        )
+        self.raw_content = raw_content
+
+
+class RuleProposalNotFoundError(Exception):
+    """No hay ninguna propuesta `proposed` con ese identificador -- el
+    identificador no existe, o ya fue revisada (aprobada/rechazada). Esta
+    ambigüedad se acepta explícitamente para el MVP (ADR 0019), mismo
+    nivel de rigor que `NoLandClassificationFoundError` ya acepta."""
+
+    def __init__(self, identifier: str) -> None:
+        super().__init__(
+            f"No hay ninguna propuesta de regla pendiente con el identificador: {identifier!r}"
+        )
+        self.identifier = identifier
+
+
 class NoLandClassificationFoundError(Exception):
     """Ningún polígono de clasificación de suelo intersecta el bbox pedido.
     El servicio no distingue "fuera de cobertura de la Comunidad de Madrid"

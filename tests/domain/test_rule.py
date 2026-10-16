@@ -1,6 +1,8 @@
 from dataclasses import replace
 from datetime import date
 
+import pytest
+
 from parcel_intel.adapters.catastro.parsing import parse_wfs_parcels
 from parcel_intel.adapters.hydrography.parsing import parse_watercourse_features
 from parcel_intel.adapters.livestock_trails.parsing import parse_wfs_livestock_trails
@@ -19,6 +21,7 @@ from parcel_intel.domain.rule import (
     RuleScope,
     WithinDistanceCondition,
     evaluate_rules,
+    spatial_condition_for_layer,
 )
 from parcel_intel.domain.watercourse import Watercourse
 from tests.adapters.catastro.helpers import FIXTURES_DIR as CATASTRO_FIXTURES_DIR
@@ -539,3 +542,30 @@ def test_mas_de_un_finding_simultaneo_no_se_mezcla() -> None:
     assert via_finding.rule.outcome == "requires_authorization"
     assert via_finding.evidence[0].source_name == "Vereda del Cristo"
     assert via_finding.evidence[0].unit == "m2"
+
+
+# --- spatial_condition_for_layer -- historia 0019 ---
+
+
+def test_spatial_condition_for_layer_dph_cauce_con_meters() -> None:
+    condition = spatial_condition_for_layer("dph_cauce", 100.0)
+
+    assert condition == WithinDistanceCondition(
+        operation="within_distance", layer="dph_cauce", meters=100.0
+    )
+
+
+def test_spatial_condition_for_layer_dph_cauce_sin_meters_lanza_error() -> None:
+    with pytest.raises(ValueError, match="meters es obligatorio"):
+        spatial_condition_for_layer("dph_cauce", None)
+
+
+def test_spatial_condition_for_layer_overlap_sin_meters() -> None:
+    condition = spatial_condition_for_layer("via_pecuaria", None)
+
+    assert condition == OverlapsCondition(operation="overlaps", layer="via_pecuaria")
+
+
+def test_spatial_condition_for_layer_overlap_con_meters_lanza_error() -> None:
+    with pytest.raises(ValueError, match="no aplica"):
+        spatial_condition_for_layer("red_natura_plan", 50.0)
