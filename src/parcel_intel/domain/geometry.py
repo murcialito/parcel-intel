@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 Ring = tuple[tuple[float, float], ...]
+Line = tuple[tuple[float, float], ...]
 BBox = tuple[float, float, float, float]  # (minx, miny, maxx, maxy)
 
 
@@ -14,6 +15,22 @@ class Geometry:
     """
 
     rings: tuple[Ring, ...]
+    srid: int
+
+
+@dataclass(frozen=True)
+class LineGeometry:
+    """Geometría de línea abierta (curva), p. ej. el eje de un curso de
+    agua. A diferencia de `Geometry` (superficie cerrada, con anillos
+    exterior/interior), no tiene noción de interior/exterior — solo una
+    secuencia ordenada de puntos. Nueva en la historia 0012: ninguna fuente
+    anterior (Catastro, PNOA, IDEM, Sentinel-2) tenía geometría de línea —
+    todas eran superficies. No modelar como `Geometry` con un único anillo
+    "abierto" evita que un consumidor futuro asuma por error que el primer
+    y el último punto están conectados, cerrando una superficie que no
+    existe (ver ADR 0012)."""
+
+    points: Line
     srid: int
 
 

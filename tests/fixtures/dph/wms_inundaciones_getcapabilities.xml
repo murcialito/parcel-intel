@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WMS_Capabilities version="1.3.0" xmlns="http://www.opengis.net/wms" 
+xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" 
+xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" 
+xmlns:xlink="http://www.w3.org/1999/xlink" 
+xmlns:sld="http://www.opengis.net/sld"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0 http://www.opengis.net/sld 
+http://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd">
+
+	<Service>
+		<Name>WMS</Name>
+		<Title>Peligrosidad por Inundación</Title>
+		<Abstract>Mapas de peligrosidad de las Áreas de Riesgo Potencial Significativo de Inundación (ARPSI) elaborados en cada Demarcación por las autoridades competentes en materia de aguas, costas y protección civil según el artículo 8 del Real Decreto 903/2010, de 9 de julio, de evaluación y gestión de riesgos de inundación que traspone la Directiva 2007/60/CE, relativa a al evaluación y gestión de los riesgos de inundación.</Abstract>
+		<KeywordList>
+			<Keyword>WMS</Keyword>
+			<Keyword>SNCZI</Keyword>
+			<Keyword>ARPI</Keyword>
+			<Keyword>Zonas Inundación</Keyword>
+			<Keyword>Zonas de peligro</Keyword>
+			<Keyword>Peligrosidad por inundación</Keyword>
+			<Keyword>Periodo de Retorno</Keyword>
+			<Keyword>T=10</Keyword>
+			<Keyword>T=100</Keyword>
+			<Keyword>T=500</Keyword>
+			<Keyword>MAPAMA</Keyword>
+			<Keyword>MITECO</Keyword>			
+			<Keyword>ES</Keyword>
+			<Keyword>España</Keyword>
+			<Keyword>Water</Keyword>
+			<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">InfoMapAccessService</Keyword> 
+			<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">InfoManagementService</Keyword>
+		</KeywordList>
+		<OnlineResource xlink:type="simple" xlink:href="http://www.mapama.gob.es"/>
+		<ContactInformation>
+			<ContactPersonPrimary>
+				<ContactPerson/>
+				<ContactOrganization>Ministerio para la Transición Ecológica y el Reto Demográfico</ContactOrganization>
+			</ContactPersonPrimary>
+			<ContactPosition>pointOfContact</ContactPosition>
+			<ContactElectronicMailAddress>buzon-dphdga@mapama.es</ContactElectronicMailAddress>
+		</ContactInformation>
+		<Fees>no conditions apply</Fees>
+		<AccessConstraints>Este servicio se puede usar de modo libre y gratuito en cualquier caso, siempre que se mencione al Ministerio para la Transición Ecológica y el Reto Demográfico como autor y propietario de la información.</AccessConstraints>
+		<MaxWidth>4096</MaxWidth>
+		<MaxHeight>4096</MaxHeight>
+	</Service>
+	<Capability>
+		<Request>
+			<GetCapabilities>
+				<Format>text/xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/riesgos-naturales/inundaciones?SERVICE=WMS&amp;"/>
+						</Get>
+						<Post>
+							<OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/riesgos-naturales/inundaciones?SERVICE=WMS&amp;"/>
+						</Post>
+					</HTTP>
+				</DCPType>
+			</GetCapabilities>
+			<GetMap>
+				<Format>image/png</Format>
+				<Format>image/jpeg</Format>
+				<Format>image/gif</Format>
+				<Format>image/tiff</Format>
+				<Format>image/png; mode=8bit</Format>
+				<Format>application/x-pdf</Format>
+				<Format>image/svg+xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/riesgos-naturales/inundaciones?SERVICE=WMS&amp;"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetMap>
+			<GetFeatureInfo>
+				<Format>text/html</Format>
+				<Format>text/plain</Format>
+				<Format>application/vnd.ogc.gml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/riesgos-naturales/inundaciones?SERVICE=WMS&amp;"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetFeatureInfo>
+			<sld:GetLegendGraphic>
+				<Format>image/png</Format>
+				<Format>image/jpeg</Format>
+				<Format>image/gif</Format>
+				<Format>image/png; mode=8bit</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://servicios.idee.es/wms-inspire/riesgos-naturales/inundaciones?"/>
+						</Get>
+						<Post>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://servicios.idee.es/wms-inspire/riesgos-naturales/inundaciones?"/>
+						</Post>
+					</HTTP>
+				</DCPType>
+			</sld:GetLegendGraphic>			
+		</Request>
+		<Exception>
+			<Format>XML</Format>
+			<Format>INIMAGE</Format>
+			<Format>BLANK</Format>
+		</Exception>
+		<inspire_vs:ExtendedCapabilities>
+			<inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType">
+				<inspire_common:URL>https://www.mapama.gob.es/ide/metadatos/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=f6c6eaac-2126-4a43-909f-3467380e6cde</inspire_common:URL>
+				<inspire_common:MediaType>application/vnd.ogc.csw.GetRecordByIdResponse_xml</inspire_common:MediaType>
+			</inspire_common:MetadataUrl>
+			<inspire_common:SupportedLanguages xsi:type="inspire_common:supportedLanguagesType">
+				<inspire_common:DefaultLanguage>
+					<inspire_common:Language>spa</inspire_common:Language>
+				</inspire_common:DefaultLanguage>
+			</inspire_common:SupportedLanguages>
+			<inspire_common:ResponseLanguage>
+				<inspire_common:Language>spa</inspire_common:Language>
+			</inspire_common:ResponseLanguage>
+		</inspire_vs:ExtendedCapabilities>		
+		<Layer>
+			<Title>Peligrosidad por inundación</Title>  
+			<Abstract>Mapas de peligrosidad de las Áreas de Riesgo Potencial Significativo de Inundación (ARPSI) tanto fluvial como costera en tres periodos de retorno diferentes: 10, 100 y 500 años.</Abstract>
+			<CRS>EPSG:32630</CRS>
+			<CRS>EPSG:25828</CRS> 
+			<CRS>EPSG:25829</CRS> 
+			<CRS>EPSG:25830</CRS>  
+			<CRS>EPSG:25831</CRS> 
+			<CRS>EPSG:3857</CRS>
+			<CRS>EPSG:4326</CRS>
+			<CRS>EPSG:4258</CRS>
+			<CRS>EPSG:4230</CRS>
+			<CRS>EPSG:4081</CRS>
+			<CRS>EPSG:4080</CRS>
+			<CRS>EPSG:4082</CRS>
+			<CRS>EPSG:4083</CRS>
+			<CRS>CRS:84</CRS>	
+			<EX_GeographicBoundingBox>
+				<westBoundLongitude>-19.00</westBoundLongitude>
+				<eastBoundLongitude>5.00</eastBoundLongitude>
+				<southBoundLatitude>27.00</southBoundLatitude>
+				<northBoundLatitude>44.00</northBoundLatitude>
+			</EX_GeographicBoundingBox>
+			<BoundingBox CRS="EPSG:32630" minx="-1099672.95" miny="3089598.72" maxx="1141463.33" maxy="4903085.27"/>
+			<BoundingBox CRS="EPSG:25828" minx="102948.37120930111" miny="2986435.242554414" maxx="2508202.7078586714" maxy="5070480.910938781"/>
+			<BoundingBox CRS="EPSG:25829" minx="-495135.75545113813" miny="2988008.138364256" maxx="1897204.2192702503" maxy="4968139.496965927"/>				
+			<BoundingBox CRS="EPSG:25830" minx="-1099673.71" miny="3089598.79" maxx="1141463.33" maxy="4903085.27"/>
+			<BoundingBox CRS="EPSG:25831" minx="-1714549.1480570585" miny="2988008.138364256" maxx="698454.234216212" maxy="5113259.329838102"/>
+			<BoundingBox CRS="EPSG:3857" minx="-2115069.50" miny="3123471.78" maxx="556597.44" maxy="5465442.18"/>
+			<BoundingBox CRS="EPSG:4326" minx="27.00" miny="-19.00" maxx="44.00" maxy="5.00"/>
+			<BoundingBox CRS="EPSG:4258" minx="27.00" miny="-19.00" maxx="44.00" maxy="5.00"/>
+			<BoundingBox CRS="EPSG:4230" minx="27.00" miny="-19.00" maxx="44.00" maxy="5.00"/>
+			<BoundingBox CRS="EPSG:4081" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+			<BoundingBox CRS="EPSG:4080" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+			<BoundingBox CRS="EPSG:4082" minx="-1.8240005281965184E8" miny="-1.2158937910363802E8" maxx="4.081872876443419E7" maxy="1.2158937910363802E8"/>
+			<BoundingBox CRS="EPSG:4083" minx="-2.237679047670823E8" miny="-1.5102999309586868E8" maxx="5.425414857933458E7" maxy="1.5102999309586868E8"/>
+			<BoundingBox CRS="CRS:84" minx="-19.00" miny="27.00" maxx="5.00" maxy="44.00"/>				
+			<AuthorityURL name="MITECO">
+				<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.miteco.gob.es/es/"/>
+			</AuthorityURL>
+			
+			<Layer queryable="1">
+				<Name>NZ.Flood.FluvialT10</Name>
+				<Title>Fluvial T = 10 años</Title>
+				<Abstract>Peligrosidad asociada a las Zonas Inundables por inundación fluvial, correspondientes a un escenario de probabilidad alta de inundación (periodo de retorno de 10 años).</Abstract>
+				<KeywordList>
+					<Keyword>Zonas de riesgos naturales</Keyword>
+					<Keyword>Natural risk zones</Keyword>
+					<Keyword>Peligrosidad ZI</Keyword>
+					<Keyword>Periodo de Retorno</Keyword>
+					<Keyword>T=10</Keyword>
+					<Keyword>Inundación fluvial</Keyword>
+					<Keyword>ES</Keyword>
+					<Keyword>España</Keyword>
+					<Keyword>Water</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>Ministerio para la Transición Ecológica y el Reto Demográfico</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.miteco.gob.es/es/"/>
+				</Attribution>
+				<Identifier authority="MITECO">ESNZSNCZIMPFT010</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.mapama.gob.es/ide/metadatos/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=bf02855d-8351-445c-8cd6-e103699c102e"/>
+				</MetadataURL>
+				<Style>
+					<Name>default</Name>
+					<Title>default</Title>
+					<Abstract>Estilo de representación de la capa Peligrosidad Fluvial con un periodo de retorno de 10 años.</Abstract>
+					<LegendURL width="320" height="270">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/riesgos-naturales/inundaciones/leyendas/riesgos-naturales-fluvial.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>NZ.Flood.FluvialT100</Name>
+				<Title>Fluvial T = 100 años</Title>
+				<Abstract>Peligrosidad asociada a las Zonas Inundables por inundación fluvial, correspondientes a un escenario de probabilidad media de inundación (periodo de retorno de 100 años).</Abstract>
+				<KeywordList>
+					<Keyword>Zonas de riesgos naturales</Keyword>
+					<Keyword>Natural risk zones</Keyword>
+					<Keyword>Peligrosidad ZI</Keyword>
+					<Keyword>Periodo de Retorno</Keyword>
+					<Keyword>T=100</Keyword>
+					<Keyword>Inundación fluvial</Keyword>
+					<Keyword>ES</Keyword>
+					<Keyword>España</Keyword>
+					<Keyword>Water</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>Ministerio para la Transición Ecológica y el Reto Demográfico</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.miteco.gob.es/es/"/>
+				</Attribution>
+				<Identifier authority="MITECO">ESNZSNCZIMPFT100</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.mapama.gob.es/ide/metadatos/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=f8d6869d-d585-4beb-ba72-2556098a7899"/>
+				</MetadataURL>
+				<Style>
+					<Name>default</Name>
+					<Title>default</Title>
+					<Abstract>Estilo de representación de la capa Peligrosidad Fluvial con un periodo de retorno de 100 años.</Abstract>
+					<LegendURL width="320" height="270">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/riesgos-naturales/inundaciones/leyendas/riesgos-naturales-fluvial.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>NZ.Flood.FluvialT500</Name>
+				<Title>Fluvial T = 500 años</Title>
+				<Abstract>Peligrosidad asociada a las Zonas Inundables por inundación fluvial, correspondientes a un escenario de probabilidad baja de inundación (periodo de retorno de 500 años).</Abstract>
+				<KeywordList>
+					<Keyword>Zonas de riesgos naturales</Keyword>
+					<Keyword>Natural risk zones</Keyword>
+					<Keyword>Peligrosidad ZI</Keyword>
+					<Keyword>Periodo de Retorno</Keyword>
+					<Keyword>T=500</Keyword>
+					<Keyword>Inundación fluvial</Keyword>
+					<Keyword>ES</Keyword>
+					<Keyword>España</Keyword>
+					<Keyword>Water</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>Ministerio para la Transición Ecológica y el Reto Demográfico</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.miteco.gob.es/es/"/>
+				</Attribution>
+				<Identifier authority="MITECO">ESNZSNCZIMPFT500</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.mapama.gob.es/ide/metadatos/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=68de70b5-117a-4943-b864-f856218be37f"/>
+				</MetadataURL>
+				<Style>
+					<Name>default</Name>
+					<Title>default</Title>
+					<Abstract>Estilo de representación de la capa Peligrosidad Fluvial con un periodo de retorno de 500 años.</Abstract>
+					<LegendURL width="320" height="270">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/riesgos-naturales/inundaciones/leyendas/riesgos-naturales-fluvial.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+			
+			
+			
+			<Layer queryable="1">
+				<Name>NZ.Flood.MarinaT100</Name>
+				<Title>Marina T = 100 años</Title>
+				<Abstract>Peligrosidad asociada a las Zonas Inundables por inundación costera, correspondientes a un escenario de probabilidad media de inundación (periodo de retorno de 100 años)</Abstract>
+				<KeywordList>
+					<Keyword>Zonas de riesgos naturales</Keyword>
+					<Keyword>Natural risk zones</Keyword>
+					<Keyword>Peligrosidad ZI</Keyword>
+					<Keyword>Periodo de Retorno</Keyword>
+					<Keyword>T=100</Keyword>
+					<Keyword>Inundación costera</Keyword>
+					<Keyword>ES</Keyword>
+					<Keyword>España</Keyword>
+					<Keyword>Water</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>Ministerio para la Transición Ecológica y el Reto Demográfico</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.miteco.gob.es/es/"/>
+				</Attribution>
+				<Identifier authority="MITECO">ESMAGRAMADGCOSTASSNCZIMP1000003</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.mapama.gob.es/ide/metadatos/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=e5da1aa1-91dc-4b9b-a6d8-7b2326455f3c"/>
+				</MetadataURL>
+				<Style>
+					<Name>default</Name>
+					<Title>default</Title>
+					<Abstract>Estilo de representación de la capa Peligrosidad Costera con un periodo de retorno de 100 años.</Abstract>
+					<LegendURL width="320" height="270">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/riesgos-naturales/inundaciones/leyendas/riesgos-naturales-marina.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>NZ.Flood.MarinaT500</Name>
+				<Title>Marina T = 500 años</Title>
+				<Abstract>Peligrosidad asociada a las Zonas Inundables por inundación costera, correspondientes a un escenario de baja probabilidad de inundación (periodo de retorno de 500 años)</Abstract>
+				<KeywordList>
+					<Keyword>Zonas de riesgos naturales</Keyword>
+					<Keyword>Natural risk zones</Keyword>
+					<Keyword>Peligrosidad ZI</Keyword>
+					<Keyword>Periodo de Retorno</Keyword>
+					<Keyword>T=500</Keyword>
+					<Keyword>Inundación costera</Keyword>
+					<Keyword>ES</Keyword>
+					<Keyword>España</Keyword>
+					<Keyword>Water</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>Ministerio para la Transición Ecológica y el Reto Demográfico</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.miteco.gob.es/es/"/>
+				</Attribution>
+				<Identifier authority="MITECO">ESMAGRAMADGCOSTASSNCZIMP5000004</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.mapama.gob.es/ide/metadatos/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=6e3a56da-a5bc-4227-9960-ffae3327bff8"/>
+				</MetadataURL>
+				<Style>
+					<Name>default</Name>
+					<Title>default</Title>
+					<Abstract>Estilo de representación de la capa Peligrosidad Costera con un periodo de retorno de 500 años.</Abstract>
+					<LegendURL width="320" height="270">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/riesgos-naturales/inundaciones/leyendas/riesgos-naturales-marina.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+			
+			
+			
+			
+			<Layer queryable="1">
+				<Name>EL.GridCoverage</Name>
+				<Title>Modelo Digital del Terreno de las ARPSIs</Title>
+				<Abstract>Representación de la superficie de un terreno, creada a partir de los datos de altitud del terreno. Obtenido a partir de vuelo Lidar PNOA en las áreas de riesgo potencial significativo de inundación (ARPSIs) de la Directiva 2007/60 de inundaciones. Tamaño de celda de 1 m o 2 m en la mayor parte de los casos. En grandes ríos de 5 m.</Abstract>
+				<KeywordList>
+					<Keyword>Zonas de riesgos naturales</Keyword>
+					<Keyword>Natural risk zones</Keyword>
+					<Keyword>Peligrosidad ZI</Keyword>
+					<Keyword>Elevaciones</Keyword>
+					<Keyword>MDT</Keyword>
+					<Keyword>Modelo Digital Terreno</Keyword>
+					<Keyword>ES</Keyword>
+					<Keyword>España</Keyword>
+					<Keyword>Water</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>Ministerio para la Transición Ecológica y el Reto Demográfico</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.miteco.gob.es/es/"/>
+				</Attribution>
+				<Identifier authority="MITECO">ESMAGRAMADGAGUASNCZIMDT0001</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.mapama.gob.es/ide/metadatos/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=873f5b08-4263-48ec-9345-3aaacd53d1e0"/>
+				</MetadataURL>
+				<Style>
+					<Name>default</Name>
+					<Title>default</Title>
+					<Abstract>Estilo de representación del Modelo Digital del Terreno.</Abstract>
+					<LegendURL width="320" height="270">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/riesgos-naturales/inundaciones/leyendas/mdt.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+		</Layer>
+	</Capability>
+</WMS_Capabilities>

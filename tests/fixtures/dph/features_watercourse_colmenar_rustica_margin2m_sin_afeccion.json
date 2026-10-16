@@ -1,0 +1,33 @@
+{
+    "type":"FeatureCollection",
+    "features":[],
+    "numberMatched":0,
+    "numberReturned":0,
+    "links":[
+        {
+            "type":"application/geo+json",
+            "rel":"self",
+            "title":"This document as GeoJSON",
+            "href":"https://api-features.idee.es/collections/watercourse/items?f=json&bbox=467548.15,4442009.35,467616.92,4442039.4&bbox-crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F25830&crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F25830"
+        },
+        {
+            "rel":"alternate",
+            "type":"application/ld+json",
+            "title":"This document as RDF (JSON-LD)",
+            "href":"https://api-features.idee.es/collections/watercourse/items?f=jsonld&bbox=467548.15,4442009.35,467616.92,4442039.4&bbox-crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F25830&crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F25830"
+        },
+        {
+            "type":"text/html",
+            "rel":"alternate",
+            "title":"This document as HTML",
+            "href":"https://api-features.idee.es/collections/watercourse/items?f=html&bbox=467548.15,4442009.35,467616.92,4442039.4&bbox-crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F25830&crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F25830"
+        },
+        {
+            "type":"application/json",
+            "title":"HY-P Curso de agua",
+            "rel":"collection",
+            "href":"https://api-features.idee.es/collections/watercourse"
+        }
+    ],
+    "timeStamp":"2026-10-16T07:53:06.466563Z"
+}
