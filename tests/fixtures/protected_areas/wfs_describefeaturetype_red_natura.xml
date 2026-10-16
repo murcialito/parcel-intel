@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:Zonas="Zonas" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:wfs="http://www.opengis.net/wfs/2.0" elementFormDefault="qualified" targetNamespace="Zonas">
+  <xsd:import namespace="http://www.opengis.net/gml/3.2" schemaLocation="https://idem.comunidad.madrid/geoidem/schemas/gml/3.2.1/gml.xsd"/>
+  <xsd:complexType name="IDEM_MA_RED_NATURA_PLANType">
+    <xsd:complexContent>
+      <xsd:extension base="gml:AbstractFeatureType">
+        <xsd:sequence>
+          <xsd:element maxOccurs="1" minOccurs="0" name="CD_PLAN" nillable="true" type="xsd:string"/>
+          <xsd:element maxOccurs="1" minOccurs="0" name="DS_PLAN" nillable="true" type="xsd:string"/>
+          <xsd:element maxOccurs="1" minOccurs="0" name="CD_ZONA" nillable="true" type="xsd:string"/>
+          <xsd:element maxOccurs="1" minOccurs="0" name="DS_ZONA" nillable="true" type="xsd:string"/>
+          <xsd:element maxOccurs="1" minOccurs="0" name="GEOMETRY1" nillable="true" type="gml:GeometryPropertyType"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="IDEM_MA_RED_NATURA_PLAN" substitutionGroup="gml:AbstractFeature" type="Zonas:IDEM_MA_RED_NATURA_PLANType"/>
+</xsd:schema>

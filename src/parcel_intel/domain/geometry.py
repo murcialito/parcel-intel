@@ -11,7 +11,12 @@ class Geometry:
 
     Más de un anillo representa una geometría multi-parte (p. ej. un edificio
     con varios cuerpos separados en la misma referencia catastral). No modela
-    anillos interiores (huecos): ninguna fuente usada hasta ahora los tiene.
+    anillos interiores (huecos) a nivel de tipo: varias fuentes reales SÍ los
+    tienen (IDEM/`UsoDelSuelo`, ADR 0011; Red Natura 2000, ADR 0015) — sus
+    parsers descartan los `gml:interior` al convertir a este tipo, tomando
+    solo los anillos exteriores. No asumir que una fuente geoespacial nueva
+    carece de huecos solo porque otra del mismo servidor/workspace tampoco
+    los tenía (p. ej. vías pecuarias, ADR 0014, sí es el caso simple).
     """
 
     rings: tuple[Ring, ...]

@@ -1,0 +1,29 @@
+Intento real de búsqueda complementaria en el catálogo de datos abiertos de
+MITECO, siguiendo el mismo método ya usado con éxito en la historia 0012
+(package_search contra la API de CKAN) para confirmar si existe un dataset
+oficial de límites de Red Natura 2000 con código de sitio EU (ES3XXXXXX).
+
+Comando real ejecutado (y repetido 3 veces, mismo resultado):
+  curl -sv --max-time 15 \
+    "https://catalogo.datosabiertos.miteco.gob.es/catalogo/api/3/action/package_search?q=red+natura"
+
+Resultado real: fallo de conexión a nivel TLS, no un error HTTP.
+  * Connected to catalogo.datosabiertos.miteco.gob.es (89.251.228.132) port 443
+  * TLS handshake, Client hello (1)
+  * Recv failure: Connection reset by peer
+  * LibreSSL/3.3.6: error:02FFF036:system library:func(4095):Connection reset by peer
+  HTTP 000
+
+No es un bloqueo de red general de esta sesión: en la misma sesión,
+dominios .gob.es genéricos (https://www.miteco.gob.es) y servicios ya usados
+en historias anteriores (https://ovc.catastro.meh.es, idem.comunidad.madrid,
+sig.mapama.gob.es/arcgis/rest/services, servicios.idee.es/wms-inspire/
+riesgos-naturales/inundaciones) respondieron con normalidad (HTTP 200). El
+fallo es específico de este host/puerto en esta sesión — mismo catálogo que
+historia 0012 sí pudo consultar con éxito (ver REGISTRY.md,
+ckan_package_show_cauces_dph_deslindado.json) — no se puede concluir que el
+catálogo esté permanentemente inaccesible, solo que no se pudo repetir la
+consulta en esta sesión concreta. Documentado honestamente como intento
+real sin resultado, no como "servicio roto" (a diferencia del gateway
+wms.mapama.gob.es/sig/*/wms.aspx, que sí da un error de aplicación real
+confirmado, ver wms_mapama_biodiversidad_rednatura_getcapabilities_roto.xml).
