@@ -78,3 +78,16 @@ class BulletinNotPublishedError(Exception):
     def __init__(self, day: str) -> None:
         super().__init__(f"No hay sumario de boletín publicado para el día: {day!r}")
         self.day = day
+
+
+class NoLandClassificationFoundError(Exception):
+    """Ningún polígono de clasificación de suelo intersecta el bbox pedido.
+    El servicio no distingue "fuera de cobertura de la Comunidad de Madrid"
+    de "hueco real dentro de la cobertura" — confirmado real en
+    REGISTRY.md (ambos casos devuelven una FeatureCollection vacía
+    idéntica, 200 OK, 0 features) — así que tampoco este cliente los
+    distingue."""
+
+    def __init__(self, bbox: tuple[float, float, float, float]) -> None:
+        super().__init__(f"Ninguna clasificación de suelo encontrada para el bbox: {bbox}")
+        self.bbox = bbox
