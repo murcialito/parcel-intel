@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from datetime import UTC, date
 from datetime import datetime as _datetime
 
@@ -46,10 +47,12 @@ class CatastroAdapter:
         provincia: str,
         municipio: str,
         http_get: HttpGetter = default_http_getter,
+        clock: Callable[[], date] = _today,
     ) -> None:
         self._provincia = provincia
         self._municipio = municipio
         self._http_get = http_get
+        self._clock = clock
 
     def get_parcel(self, cadastral_reference: str) -> Parcel:
         compact = to_compact_reference(cadastral_reference)
@@ -70,7 +73,7 @@ class CatastroAdapter:
                     provenance=Provenance(
                         source="catastro",
                         url=f"{WFS_PARCEL_URL}?{self._params_to_query(params)}",
-                        retrieved_at=_today(),
+                        retrieved_at=self._clock(),
                     ),
                 )
         raise ParcelNotFoundError(compact)
@@ -107,7 +110,7 @@ class CatastroAdapter:
                     provenance=Provenance(
                         source="catastro",
                         url=f"{WFS_BUILDING_URL}?{self._params_to_query(params)}",
-                        retrieved_at=_today(),
+                        retrieved_at=self._clock(),
                     ),
                 )
             )

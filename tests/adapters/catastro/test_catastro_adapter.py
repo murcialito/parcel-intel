@@ -18,7 +18,13 @@ def test_get_parcel_rustica_colmenar_de_oreja() -> None:
             FIXTURES_DIR / "wfsCP_colmenar_rustica_por_centroide.xml",
         ]
     )
-    adapter = _adapter(http_get, "COLMENAR DE OREJA")
+    reloj_fijo = date(2026, 1, 15)
+    adapter = CatastroAdapter(
+        provincia="MADRID",
+        municipio="COLMENAR DE OREJA",
+        http_get=http_get,
+        clock=lambda: reloj_fijo,
+    )
 
     parcel = adapter.get_parcel("REFCAT-RETIRADA")
 
@@ -28,7 +34,7 @@ def test_get_parcel_rustica_colmenar_de_oreja() -> None:
     assert parcel.geometry.srid == 25830
     assert len(parcel.geometry.rings) >= 1
     assert parcel.provenance.source == "catastro"
-    assert parcel.provenance.retrieved_at == date.today()
+    assert parcel.provenance.retrieved_at == reloj_fijo
 
 
 def test_get_parcel_rustica_villaconejos() -> None:
