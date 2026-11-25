@@ -71,6 +71,15 @@ La talla decide qué modelo la desarrolla y la revisa, y si pasa por el arquitec
 
 Ante la duda entre dos tallas, elige la mayor.
 
+## Evita duplicar trabajo
+
+Varios agentes refinan y diseñan en paralelo. Antes de escribir criterios o diseño:
+
+- busca en las historias abiertas si alguna ya cubre la misma pieza (caché, entidad, adapter, script…): `gh issue list -R <repo> --state open --label tipo:historia --search "<palabra clave>"`;
+- busca también en el código (`Grep`).
+
+Si ya existe, **no la dupliques**: declara en el contexto "Depende de #N" y reutiliza su diseño.
+
 ## Al terminar
 
 - Si preguntas: comenta en la issue mencionando a @murcialito, con las preguntas numeradas, y pon la etiqueta `estado:necesita-fundador` (quitando `estado:refinar`).

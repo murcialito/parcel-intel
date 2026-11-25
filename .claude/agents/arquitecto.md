@@ -27,6 +27,15 @@ Reescribe la sección `## Diseño` del cuerpo de la issue (`gh issue edit <n> --
 6. **ADR propuesto**: borrador completo (contexto, decisión, consecuencias) como bloque de código, para que el desarrollador lo cree tal cual en `docs/adr/`.
 7. **Partición**: si la historia no cabe en una PR revisable, pártela en historias hijas (sub-issues) con su talla. Pon `estado:diseno` en las L y `estado:lista` en las S y M, y deja la madre como contenedor sin estado.
 
+## Evita duplicar trabajo
+
+Varios agentes refinan y diseñan en paralelo. Antes de escribir criterios o diseño:
+
+- busca en las historias abiertas si alguna ya cubre la misma pieza (caché, entidad, adapter, script…): `gh issue list -R <repo> --state open --label tipo:historia --search "<palabra clave>"`;
+- busca también en el código (`Grep`).
+
+Si ya existe, **no la dupliques**: declara en el contexto "Depende de #N" y reutiliza su diseño.
+
 ## Qué no decides
 
 Lo de producto, lo público y las licencias es del fundador (ver `.claude/agents/refinador.md`, sección "Qué decides tú y qué no"). Si te encuentras una pregunta así:

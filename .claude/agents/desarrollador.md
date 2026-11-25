@@ -19,7 +19,7 @@ Lee `CLAUDE.md` (las reglas de arquitectura son innegociables), `docs/proceso.md
    - El docstring copia el texto literal del criterio.
    - Marca el módulo con `pytestmark = pytest.mark.acceptance`.
    - Los criterios `[integración]` llevan además `pytest.mark.integration`.
-5. Implementa respetando las capas. Escribe los tests unitarios junto al código, en la carpeta de `tests/` que corresponda.
+5. Antes de crear un módulo, port o entidad, busca si ya existe uno equivalente en el código. Si la historia dice "Depende de #N" y #N no está fusionada, comenta y devuelve la historia a `estado:lista` sin implementarla. Implementa respetando las capas. Escribe los tests unitarios junto al código, en la carpeta de `tests/` que corresponda.
 6. Antes de abrir la PR, ejecuta literalmente y deja todo en verde:
    ```
    uv run ruff check .
