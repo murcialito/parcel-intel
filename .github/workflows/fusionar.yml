@@ -1,0 +1,83 @@
+name: Fusionar
+
+# Único camino de merge de las PRs de agentes (ADR 0024). Se lanza cuando terminan CI o Revisar
+# y fusiona solo si, sobre el último commit de la PR:
+#   - el check "checks" (CI) y el check "revision" (agente revisor) están en SUCCESS;
+#   - la PR no es borrador y no tiene las etiquetas veto ni cambios-pedidos.
+# Los agentes no pueden fusionar (gh pr merge y gh api están vetados en sus herramientas).
+# Como fusiona con GITHUB_TOKEN, los eventos que provoca no disparan workflows: por eso lanza
+# a mano CI en main, el despliegue, la sincronización del tablero y la siguiente historia.
+
+on:
+  workflow_run:
+    workflows: [CI, Revisar]
+    types: [completed]
+
+concurrency:
+  group: fusionar-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  fusionar:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      startsWith(github.event.workflow_run.head_branch, 'claude/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Comprobar condiciones y fusionar
+        id: fusion
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RAMA: ${{ github.event.workflow_run.head_branch }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          pr=$(gh pr list -R "$REPO" --head "$RAMA" --state open --json number --jq '.[0].number // empty')
+          if [ -z "$pr" ]; then echo "No hay PR abierta para $RAMA (ya fusionada o cerrada)."; exit 0; fi
+
+          datos=$(gh pr view "$pr" -R "$REPO" --json headRefOid,isDraft,labels,statusCheckRollup,body)
+          cabeza=$(jq -r '.headRefOid' <<<"$datos")
+          if [ "$cabeza" != "$SHA" ]; then echo "La PR #$pr ya tiene un commit más nuevo; se decidirá con sus checks."; exit 0; fi
+          if [ "$(jq -r '.isDraft' <<<"$datos")" = "true" ]; then echo "PR #$pr en borrador."; exit 0; fi
+          if jq -e '.labels[].name | select(. == "veto" or . == "cambios-pedidos")' <<<"$datos" >/dev/null; then
+            echo "PR #$pr con veto o cambios-pedidos: no se fusiona."; exit 0
+          fi
+          for check in checks revision; do
+            estado=$(jq -r --arg c "$check" '[.statusCheckRollup[] | select(.name == $c)][0].conclusion // "PENDIENTE"' <<<"$datos")
+            if [ "$estado" != "SUCCESS" ]; then echo "Check '$check' en $estado: se espera."; exit 0; fi
+          done
+
+          gh pr merge "$pr" -R "$REPO" --squash --delete-branch --match-head-commit "$SHA"
+          historia=$(sed -nE 's#^claude/historia-([0-9]+).*#\1#p' <<<"$RAMA")
+          echo "historia=$historia" >> "$GITHUB_OUTPUT"
+          echo "fusionada=true" >> "$GITHUB_OUTPUT"
+          echo "PR #$pr fusionada."
+
+      - name: Lanzar CI en main, despliegue y siguiente historia
+        if: steps.fusion.outputs.fusionada == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh workflow run ci.yml -R "$REPO" --ref main
+          gh workflow run desplegar.yml -R "$REPO" --ref main
+          gh workflow run desarrollar.yml -R "$REPO" --ref main || echo "Desarrollar desactivado: no se lanza la siguiente historia."
+
+      - name: Mover la historia a Done en el tablero
+        if: steps.fusion.outputs.fusionada == 'true' && steps.fusion.outputs.historia != ''
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          REPO_TOKEN: ${{ github.token }}
+          OWNER: ${{ github.repository_owner }}
+          PROJECT_NUMBER: "1"
+          REPO: ${{ github.repository }}
+          ISSUE: ${{ steps.fusion.outputs.historia }}
+        run: .github/scripts/sincronizar_tablero.sh

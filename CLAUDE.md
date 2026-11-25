@@ -33,9 +33,9 @@ Desde el 2026-11-25 el backlog vive en GitHub Issues y los agentes corren en Git
 
 1. **refinador** (`.claude/agents/refinador.md`) parte épicas y features, escribe la historia en la issue con criterios Dado/Cuando/Entonces y le pone talla (`talla:s`/`m`/`l`) → `estado:lista`, `estado:diseno` o `estado:necesita-fundador`.
 2. **arquitecto** (`.claude/agents/arquitecto.md`) diseña toda historia `talla:l` o con ADR antes de desarrollo (ADR 0023).
-3. **desarrollador** (`.claude/agents/desarrollador.md`) implementa con tests unitarios y un test de aceptación por criterio (`tests/acceptance/test_historia_<n>.py`), anota lecciones y ADR en la misma PR y activa el auto-merge.
+3. **desarrollador** (`.claude/agents/desarrollador.md`) implementa con tests unitarios y un test de aceptación por criterio (`tests/acceptance/test_historia_<n>.py`), anota lecciones y ADR en la misma PR y la deja abierta: nunca fusiona.
 4. **revisor** (`.claude/agents/revisor.md`) revisa la PR; su veredicto es el check obligatorio `revision`.
-5. CI verde + `APROBADO` + sin `veto` → merge y despliegue automáticos.
+5. CI verde + `APROBADO` + sin `veto` sobre el último commit → `fusionar.yml` fusiona y despliega (ADR 0024).
 
 El modelo de cada fase depende de la talla: barato solo para desarrollar `talla:s`, capaz para diseñar, desarrollar y revisar `talla:l`, intermedio en lo demás; la revisión nunca usa el barato (`.github/scripts/modelo.sh`, `docs/proceso.md`).
 

@@ -70,7 +70,7 @@ Una historia pasa a `estado:lista` solo si:
 
 ## Definición de Hecho (DoD)
 
-La PR de una historia se fusiona sola cuando:
+La PR de una historia la fusiona el workflow `fusionar.yml` (nunca un agente) cuando:
 
 - CI en verde: `ruff`, `mypy`, `lint-imports`, `pytest` (unitarios) y `pytest -m acceptance`.
 - Hay **un test de aceptación por criterio** en `tests/acceptance/test_historia_<n>.py`, con el texto del criterio en el docstring.
@@ -90,6 +90,7 @@ Definidos en `.claude/agents/` y lanzados por los workflows de `.github/workflow
 | `arquitecto` | `disenar.yml` | Etiqueta `estado:diseno` |
 | `desarrollador` | `desarrollar.yml` | Etiqueta `estado:lista` en una historia, cada hora como cola, o la etiqueta `cambios-pedidos` en su PR |
 | `revisor` | `revisar.yml` | PR abierta o actualizada desde una rama `claude/` |
+| — | `fusionar.yml` | Termina CI o Revisar: fusiona si `checks` y `revision` están en verde sobre el último commit y no hay `veto` (ADR 0024) |
 | — | `ci.yml` | Toda PR y todo push a `main` |
 | Claude a demanda | `claude.yml` (del instalador de la app) | Escribes `@claude` en una issue o PR: pregunta o encargo puntual fuera del flujo |
 | — | `desplegar.yml` | Push a `main` (solo si el repo es público) |

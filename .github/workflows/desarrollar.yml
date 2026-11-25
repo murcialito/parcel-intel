@@ -2,7 +2,7 @@ name: Desarrollar
 
 # Agente desarrollador. Una historia a la vez:
 # - "seleccionar" elige la historia lista más antigua si no hay otra en desarrollo o revisión;
-# - "desarrollar" la implementa y abre la PR con auto-merge;
+# - "desarrollar" la implementa y abre la PR (la fusiona fusionar.yml, nunca el agente);
 # - "corregir" atiende la etiqueta cambios-pedidos que pone el revisor.
 
 on:
@@ -90,11 +90,12 @@ jobs:
 
             Actúa como el agente definido en .claude/agents/desarrollador.md e implementa
             la historia #${{ env.HISTORIA }} siguiendo sus instrucciones al pie de la letra,
-            hasta dejar abierta la PR con auto-merge activado.
+            hasta dejar abierta la PR. No la fusiones: la fusiona el workflow Fusionar.
           claude_args: |
             --model ${{ steps.modelo.outputs.modelo }}
             --max-turns 150
             --allowedTools "Read,Glob,Grep,Edit,Write,Bash(uv:*),Bash(git:*),Bash(gh:*),Bash(curl:*),Bash(python3:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
+            --disallowedTools "Bash(gh pr merge:*),Bash(gh api:*)"
 
 
       - name: Guardar transcripción del agente
@@ -177,6 +178,7 @@ jobs:
             --model ${{ steps.modelo.outputs.modelo }}
             --max-turns 100
             --allowedTools "Read,Glob,Grep,Edit,Write,Bash(uv:*),Bash(git:*),Bash(gh:*),Bash(python3:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
+            --disallowedTools "Bash(gh pr merge:*),Bash(gh api:*)"
 
       - name: Guardar transcripción del agente
         if: always()
