@@ -127,7 +127,7 @@ Todas las issues se reflejan en el proyecto [Parcela Intel](https://github.com/u
 
 `talla:s`, `talla:m` y `talla:l` se copian al campo Size del proyecto (S, M, L). Priority lo pones tú si quieres: los agentes no lo tocan.
 
-La app de Claude no puede escribir en proyectos de usuario, así que el workflow necesita el secret `PROJECT_TOKEN`: un token clásico con el permiso `project`. Sin él, el workflow no hace nada y las etiquetas siguen mandando.
+La app de Claude no puede escribir en proyectos de usuario, así que el workflow necesita el secret `PROJECT_TOKEN`: un token clásico con los permisos `repo` y `project` (mientras el repo sea privado, sin `repo` el proyecto no puede resolver las issues). Sin él, el workflow no hace nada y las etiquetas siguen mandando.
 
 ## Coste
 

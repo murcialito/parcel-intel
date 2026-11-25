@@ -27,7 +27,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      issues: read
+      issues: write
       actions: write
       checks: read
       statuses: read
@@ -45,7 +45,7 @@ jobs:
           pr=$(gh pr list -R "$REPO" --head "$RAMA" --state open --json number --jq '.[0].number // empty')
           if [ -z "$pr" ]; then echo "No hay PR abierta para $RAMA (ya fusionada o cerrada)."; exit 0; fi
 
-          datos=$(gh pr view "$pr" -R "$REPO" --json headRefOid,isDraft,labels,statusCheckRollup,body)
+          datos=$(gh pr view "$pr" -R "$REPO" --json headRefOid,isDraft,labels,statusCheckRollup,closingIssuesReferences)
           cabeza=$(jq -r '.headRefOid' <<<"$datos")
           if [ "$cabeza" != "$SHA" ]; then echo "La PR #$pr ya tiene un commit más nuevo; se decidirá con sus checks."; exit 0; fi
           if [ "$(jq -r '.isDraft' <<<"$datos")" = "true" ]; then echo "PR #$pr en borrador."; exit 0; fi
@@ -58,7 +58,13 @@ jobs:
           done
 
           gh pr merge "$pr" -R "$REPO" --squash --delete-branch --match-head-commit "$SHA"
-          historia=$(sed -nE 's#^claude/historia-([0-9]+).*#\1#p' <<<"$RAMA")
+          # Un merge hecho con GITHUB_TOKEN no siempre cierra las issues de "Closes #n": se cierran aquí.
+          historia=$(jq -r '.closingIssuesReferences[0].number // empty' <<<"$datos")
+          if [ -z "$historia" ]; then historia=$(sed -nE 's#^claude/historia-([0-9]+).*#\1#p' <<<"$RAMA"); fi
+          for n in $(jq -r '.closingIssuesReferences[].number' <<<"$datos") $historia; do
+            gh issue edit "$n" -R "$REPO" --remove-label estado:en-revision --remove-label estado:en-desarrollo || true
+            gh issue close "$n" -R "$REPO" --reason completed --comment "Fusionada en la PR #$pr." || true
+          done
           echo "historia=$historia" >> "$GITHUB_OUTPUT"
           echo "fusionada=true" >> "$GITHUB_OUTPUT"
           echo "PR #$pr fusionada."
@@ -74,6 +80,7 @@ jobs:
           gh workflow run desarrollar.yml -R "$REPO" --ref main || echo "Desarrollar desactivado: no se lanza la siguiente historia."
 
       - name: Mover la historia a Done en el tablero
+        continue-on-error: true  # el tablero es un reflejo; no tumba un merge ya hecho
         if: steps.fusion.outputs.fusionada == 'true' && steps.fusion.outputs.historia != ''
         env:
           GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
