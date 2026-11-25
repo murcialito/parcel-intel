@@ -248,3 +248,90 @@ def distance_polygon_to_line(geometry: Geometry, line: LineGeometry) -> float:
                 if distance < min_distance:
                     min_distance = distance
     return min_distance
+
+
+@dataclass(frozen=True)
+class MultiLineGeometry:
+    """Una o más polilíneas abiertas (p. ej. un camino de la red del IGN o
+    un trazado vectorizado de una planimetría en varios tramos) — historia
+    #14, ADR 0025. Una sola línea es una tupla de un elemento. Igual que
+    `LineGeometry`, nunca se cierra. Partes con menos de 2 puntos se ignoran
+    donde se mida."""
+
+    lines: tuple[Line, ...]
+    srid: int
+
+
+TrailShape = Geometry | MultiLineGeometry
+"""Forma de un trazado: franja poligonal (vía pecuaria, parcela-camino) o
+eje(s) abierto(s)."""
+
+
+def ring_signed_area(ring: Ring) -> float:
+    """Área con signo por la fórmula de Gauss (*shoelace*): positiva si el
+    anillo es antihorario, negativa si es horario. Cierra por índice módulo,
+    así que da igual que el anillo traiga repetido el primer punto al final.
+    Un anillo de menos de 3 puntos da 0."""
+    n = len(ring)
+    total = 0.0
+    for i in range(n):
+        x1, y1 = ring[i]
+        x2, y2 = ring[(i + 1) % n]
+        total += x1 * y2 - x2 * y1
+    return total / 2.0
+
+
+def ring_perimeter(ring: Ring) -> float:
+    """Perímetro del anillo, cerrado por índice módulo. Los segmentos de
+    longitud 0 (p. ej. el de cierre de un anillo ya cerrado) suman 0."""
+    n = len(ring)
+    if n < 2:
+        return 0.0
+    total = 0.0
+    for i in range(n):
+        (x1, y1), (x2, y2) = ring[i], ring[(i + 1) % n]
+        total += math.hypot(x2 - x1, y2 - y1)
+    return total
+
+
+def shape_bbox(shape: TrailShape) -> BBox:
+    """Rectángulo envolvente de todos los puntos de `shape`. Lanza
+    `EmptyGeometryError` si no hay ningún punto (lección 0006)."""
+    parts = shape.rings if isinstance(shape, Geometry) else shape.lines
+    xs = [x for part in parts for x, _ in part]
+    ys = [y for part in parts for _, y in part]
+    if not xs:
+        raise EmptyGeometryError
+    return (min(xs), min(ys), max(xs), max(ys))
+
+
+def shape_segments(shape: TrailShape) -> list[tuple[Point, Point]]:
+    """Segmentos medibles de `shape`: los anillos de una `Geometry` con 2 o
+    más puntos se cierran por índice módulo; las líneas de una
+    `MultiLineGeometry` con 2 o más puntos, no. Pares consecutivos con
+    `zip(..., strict=False)` (lección 0017)."""
+    segments: list[tuple[Point, Point]] = []
+    if isinstance(shape, Geometry):
+        for ring in shape.rings:
+            if len(ring) >= 2:
+                segments.extend(zip(ring, (*ring[1:], ring[0]), strict=False))
+    else:
+        for line in shape.lines:
+            if len(line) >= 2:
+                segments.extend(zip(line, line[1:], strict=False))
+    return segments
+
+
+def distance_point_to_shape(point: Point, shape: TrailShape) -> float:
+    """0.0 si `point` cae dentro de algún anillo de una `Geometry`
+    (`point_in_any_ring`); si no, la mínima distancia punto-segmento a
+    todos los segmentos (anillos cerrados por módulo; líneas sin cerrar).
+    Multi-parte: mira todos los anillos/partes, no solo el primero (lección
+    0001). Lanza `EmptyGeometryError` si `shape` no tiene ningún segmento
+    medible."""
+    segments = shape_segments(shape)
+    if not segments:
+        raise EmptyGeometryError
+    if isinstance(shape, Geometry) and point_in_any_ring(point, shape.rings):
+        return 0.0
+    return min(_point_segment_distance(point, a, b) for a, b in segments)
