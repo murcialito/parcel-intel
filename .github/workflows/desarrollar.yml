@@ -70,6 +70,16 @@ jobs:
 
       - run: uv sync --frozen --extra dev
 
+      - id: modelo
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          MODELO_BARATO: ${{ vars.MODELO_BARATO }}
+          MODELO_INTERMEDIO: ${{ vars.MODELO_INTERMEDIO }}
+          MODELO_CAPAZ: ${{ vars.MODELO_CAPAZ }}
+          ISSUE: ${{ env.HISTORIA }}
+        run: echo "modelo=$(.github/scripts/modelo.sh desarrollo "$ISSUE")" >> "$GITHUB_OUTPUT"
+
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -82,6 +92,7 @@ jobs:
             la historia #${{ env.HISTORIA }} siguiendo sus instrucciones al pie de la letra,
             hasta dejar abierta la PR con auto-merge activado.
           claude_args: |
+            --model ${{ steps.modelo.outputs.modelo }}
             --max-turns 150
             --allowedTools "Read,Glob,Grep,Edit,Write,Bash(uv:*),Bash(git:*),Bash(gh:*),Bash(curl:*),Bash(ls:*),Bash(mkdir:*),Bash(python3:*)"
 
@@ -100,6 +111,10 @@ jobs:
           else
             gh issue comment "$HISTORIA" -R "$REPO" --body "Fallo del agente de desarrollo: $RUN_URL. Vuelve a la cola."
             gh issue edit "$HISTORIA" -R "$REPO" --remove-label "estado:en-desarrollo" --add-label "estado:lista"
+            # Si falló con el modelo barato, el reintento sube a talla M (modelo intermedio).
+            if gh issue view "$HISTORIA" -R "$REPO" --json labels --jq '.labels[].name' | grep -qx 'talla:s'; then
+              gh issue edit "$HISTORIA" -R "$REPO" --remove-label "talla:s" --add-label "talla:m"
+            fi
           fi
 
   corregir:
@@ -125,6 +140,18 @@ jobs:
 
       - run: uv sync --frozen --extra dev
 
+      - id: modelo
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          MODELO_BARATO: ${{ vars.MODELO_BARATO }}
+          MODELO_INTERMEDIO: ${{ vars.MODELO_INTERMEDIO }}
+          MODELO_CAPAZ: ${{ vars.MODELO_CAPAZ }}
+          RAMA: ${{ github.event.pull_request.head.ref }}
+        run: |
+          ISSUE=$(sed -nE 's#^claude/historia-([0-9]+).*#\1#p' <<<"$RAMA")
+          echo "modelo=$(.github/scripts/modelo.sh desarrollo "$ISSUE")" >> "$GITHUB_OUTPUT"
+
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -138,5 +165,6 @@ jobs:
             "Si te llaman para corregir", sobre la PR #${{ github.event.pull_request.number }}.
             Trabaja en la rama ${{ github.event.pull_request.head.ref }}, que ya está en el checkout.
           claude_args: |
+            --model ${{ steps.modelo.outputs.modelo }}
             --max-turns 100
             --allowedTools "Read,Glob,Grep,Edit,Write,Bash(uv:*),Bash(git:*),Bash(gh:*),Bash(ls:*),Bash(mkdir:*),Bash(python3:*)"

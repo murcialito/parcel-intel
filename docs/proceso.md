@@ -21,18 +21,24 @@ Las etiquetas son la fuente de verdad: los workflows reaccionan a ellas. La colu
 ```
 estado:refinar ──► estado:necesita-fundador ──► (respondes) ──► estado:refinar
       │
-      ▼
-estado:lista ──► estado:en-desarrollo ──► estado:en-revision ──► (merge) ──► issue cerrada
-                                              │      ▲
-                                              ▼      │
-                                         cambios-pedidos
+      ├─ talla:s / talla:m ─────────────────────────┐
+      └─ talla:l o ADR ──► estado:diseno ──► (arquitecto)
+                                                    ▼
+                                              estado:lista
+                                                    │
+                                                    ▼
+          estado:en-desarrollo ──► estado:en-revision ──► (merge) ──► issue cerrada
+                                        │      ▲
+                                        ▼      │
+                                   cambios-pedidos
 ```
 
 | Etiqueta | Significa | Quién la pone |
 | --- | --- | --- |
 | `estado:refinar` | El agente de refinamiento debe trabajarla | El fundador (o el agente al crear hijas) |
 | `estado:necesita-fundador` | Hay preguntas para el fundador en el último comentario | Agente de refinamiento, o desarrollo/revisión si se atascan |
-| `estado:lista` | Cumple la Definición de Lista | Agente de refinamiento |
+| `estado:diseno` | Historia grande o con decisión nueva: la diseña el arquitecto | Agente de refinamiento |
+| `estado:lista` | Cumple la Definición de Lista | Agente de refinamiento o arquitecto |
 | `estado:en-desarrollo` | Un agente la está programando | Agente de desarrollo |
 | `estado:en-revision` | Hay PR abierta | Agente de desarrollo |
 | `cambios-pedidos` (en la PR) | La revisión encontró problemas bloqueantes | Agente de revisión |
@@ -57,7 +63,7 @@ Una historia pasa a `estado:lista` solo si:
 - Tiene historia ("Como… quiero… para…"), contexto y **criterios de aceptación en formato Dado / Cuando / Entonces**, numerados (CA1, CA2…).
 - Cada criterio es comprobable **sin red** con fixtures grabadas, o está marcado `[integración]` y dice qué fuente real toca.
 - Las fuentes que usa están verificadas en `REGISTRY.md`. Si no, la primera historia es la de verificación.
-- Si introduce una decisión de arquitectura o un proveedor nuevo, el agente arquitecto ha dejado el ADR propuesto en la issue.
+- Tiene talla (`talla:s`, `talla:m` o `talla:l`). Las `talla:l`, y cualquiera con decisión de arquitectura o proveedor nuevo, han pasado por el arquitecto: la sección `## Diseño` y el ADR propuesto están en la issue.
 - No quedan preguntas abiertas para el fundador.
 - Cabe en una PR revisable (orientativo: menos de ~600 líneas de producción).
 - Respeta los principios: indicios y no ilegalidades, ningún dato de propietarios, aprobación humana de reglas propuestas por IA, coste casi cero, licencia de publicación.
@@ -80,7 +86,8 @@ Definidos en `.claude/agents/` y lanzados por los workflows de `.github/workflow
 
 | Agente | Workflow | Disparo |
 | --- | --- | --- |
-| `refinador` (analista + arquitecto) | `refinar.yml` | Etiqueta `estado:refinar`, o un comentario tuyo en una issue `estado:necesita-fundador` |
+| `refinador` (analista) | `refinar.yml` | Etiqueta `estado:refinar`, o un comentario tuyo en una issue `estado:necesita-fundador` |
+| `arquitecto` | `disenar.yml` | Etiqueta `estado:diseno` |
 | `desarrollador` | `desarrollar.yml` | Etiqueta `estado:lista` en una historia, cada hora como cola, o la etiqueta `cambios-pedidos` en su PR |
 | `revisor` | `revisar.yml` | PR abierta o actualizada desde una rama `claude/` |
 | — | `ci.yml` | Toda PR y todo push a `main` |
@@ -88,6 +95,21 @@ Definidos en `.claude/agents/` y lanzados por los workflows de `.github/workflow
 | — | `desplegar.yml` | Push a `main` (solo si el repo es público) |
 
 **Una historia a la vez.** El desarrollo va en serie para evitar conflictos entre PRs: si ya hay una historia `estado:en-desarrollo` o `estado:en-revision`, la siguiente `estado:lista` espera a la pasada horaria.
+
+## Talla, arquitecto y modelos por tarea
+
+El refinador pone una talla a cada historia. La talla decide si pasa por el arquitecto y qué modelo trabaja en cada fase (`.github/scripts/modelo.sh`):
+
+| Fase | `talla:s` | `talla:m` | `talla:l` |
+| --- | --- | --- | --- |
+| Refinamiento | Intermedio | Intermedio | Intermedio |
+| Diseño (arquitecto) | — | — | **Capaz** |
+| Desarrollo y corrección | **Barato** | Intermedio | Capaz |
+| Revisión | Intermedio | Intermedio | Capaz, y revisa también contra el diseño y el ADR |
+
+Por defecto: barato = `claude-haiku-5-5`, intermedio = `claude-sonnet-5-5`, capaz = `claude-opus-5-5`. Se cambian sin tocar código con las variables de repositorio `MODELO_BARATO`, `MODELO_INTERMEDIO` y `MODELO_CAPAZ` (Settings → Secrets and variables → Actions → Variables).
+
+La revisión nunca usa el modelo barato: es la última barrera antes del merge automático. Si el desarrollo de una `talla:s` falla, el reintento sube sola a `talla:m`.
 
 ## Sincronización con el tablero
 

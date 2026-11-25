@@ -12,6 +12,7 @@ fi
 case "$ETIQUETA" in
   estado:refinar) COLUMNA="Refinando" ;;
   estado:necesita-fundador) COLUMNA="Necesita al fundador" ;;
+  estado:diseno) COLUMNA="Diseño" ;;
   estado:lista) COLUMNA="Lista" ;;
   estado:en-desarrollo) COLUMNA="En desarrollo" ;;
   estado:en-revision) COLUMNA="En revisión" ;;

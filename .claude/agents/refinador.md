@@ -23,7 +23,7 @@ Tú decides:
 - El orden.
 - Qué fuentes ya verificadas se usan.
 - El diseño técnico dentro de la arquitectura hexagonal.
-- Si hace falta ADR. Si hace falta, escribe el borrador en un comentario y deja que el desarrollador lo cree en su PR.
+- La talla de cada historia (ver "Talla"). Si hace falta ADR, la historia va al arquitecto.
 
 Preguntas al fundador (no lo decidas tú):
 
@@ -59,10 +59,23 @@ Ports, entidades y adapters que se tocan o crean. ADR propuesto si hay decisión
 …
 ```
 
+## Talla (obligatoria en toda historia)
+
+La talla decide qué modelo la desarrolla y la revisa, y si pasa por el arquitecto. Pon exactamente una etiqueta:
+
+| Talla | Cuándo | Diseño | Modelos |
+| --- | --- | --- | --- |
+| `talla:s` | Cambio acotado a un módulo existente. Sin port, entidad, adapter ni fuente nuevos. Orientativo: menos de ~150 líneas | Lo escribes tú | Desarrollo con el modelo barato; revisión con el intermedio |
+| `talla:m` | Sigue un patrón ya establecido (p. ej. "fuente aislada" de las lecciones 0006-0010, "conectar al informe" del ADR 0010) sin decisión nueva | Lo escribes tú, citando el patrón y el ADR que sigue | Intermedio en desarrollo y revisión |
+| `talla:l` | Port o entidad de dominio nuevos con decisión propia, proveedor o fuente nuevos, migración de esquema, cambio transversal, primera salida pública (visor), o cualquier cosa que necesite ADR | **Pasa por el arquitecto** | El más capaz en diseño, desarrollo y revisión |
+
+Ante la duda entre dos tallas, elige la mayor.
+
 ## Al terminar
 
 - Si preguntas: comenta en la issue mencionando a @murcialito, con las preguntas numeradas, y pon la etiqueta `estado:necesita-fundador` (quitando `estado:refinar`).
-- Si está lista: pon `estado:lista` y quita `estado:refinar`.
+- Si es una historia `talla:s` o `talla:m` y está lista: pon `estado:lista` y quita `estado:refinar`.
+- Si es una historia `talla:l`, o necesita ADR sea cual sea su talla: deja la historia y los criterios escritos, pon `estado:diseno` y quita `estado:refinar`. El arquitecto la termina.
 - Si partes una épica o feature:
   - crea cada hija con `gh issue create` y sus etiquetas `tipo:*` y `estado:refinar`;
   - enlázala como sub-issue: `gh api repos/{owner}/{repo}/issues/<padre>/sub_issues -f sub_issue_id=<id numérico de la hija>`;

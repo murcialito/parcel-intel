@@ -30,6 +30,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - id: modelo
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          MODELO_BARATO: ${{ vars.MODELO_BARATO }}
+          MODELO_INTERMEDIO: ${{ vars.MODELO_INTERMEDIO }}
+          MODELO_CAPAZ: ${{ vars.MODELO_CAPAZ }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: echo "modelo=$(.github/scripts/modelo.sh refinar "$ISSUE")" >> "$GITHUB_OUTPUT"
+
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -49,5 +59,6 @@ jobs:
             No pongas nunca la etiqueta estado:refinar en esta misma issue: volvería a
             lanzar este workflow.
           claude_args: |
+            --model ${{ steps.modelo.outputs.modelo }}
             --max-turns 40
             --allowedTools "Read,Glob,Grep,Write,Bash(gh issue:*),Bash(gh api:*),Bash(gh label:*),Bash(git log:*),Bash(curl:*)"

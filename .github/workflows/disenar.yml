@@ -1,0 +1,47 @@
+name: Diseñar
+
+# Agente arquitecto: diseña las historias con estado:diseno (talla L o con ADR) antes de desarrollo.
+
+on:
+  issues:
+    types: [labeled]
+
+concurrency:
+  group: disenar-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  disenar:
+    if: github.event.label.name == 'estado:diseno'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: modelo
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          MODELO_BARATO: ${{ vars.MODELO_BARATO }}
+          MODELO_INTERMEDIO: ${{ vars.MODELO_INTERMEDIO }}
+          MODELO_CAPAZ: ${{ vars.MODELO_CAPAZ }}
+        run: echo "modelo=$(.github/scripts/modelo.sh diseno ${{ github.event.issue.number }})" >> "$GITHUB_OUTPUT"
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: "claude[bot]"
+          prompt: |
+            REPO: ${{ github.repository }}
+            ISSUE: #${{ github.event.issue.number }}
+
+            Actúa como el agente definido en .claude/agents/arquitecto.md y diseña la
+            historia #${{ github.event.issue.number }} siguiendo sus instrucciones al pie de la letra.
+          claude_args: |
+            --model ${{ steps.modelo.outputs.modelo }}
+            --max-turns 60
+            --allowedTools "Read,Glob,Grep,Write,Bash(gh issue:*),Bash(gh api:*),Bash(git log:*),Bash(curl:*)"

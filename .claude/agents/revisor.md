@@ -18,6 +18,8 @@ Lee `CLAUDE.md`, `docs/proceso.md`, `docs/lessons/LESSONS.md`, la issue que la P
 5. **Lecciones**: si el diff repite un error ya registrado en `LESSONS.md`, es bloqueante.
 6. **Tests sin red** salvo los marcados `integration`; fixtures etiquetadas como reales solo si lo son.
 
+7. **Solo en `talla:l`**: revisa también como arquitecto. La implementación tiene que seguir la sección `## Diseño` de la issue y el ADR propuesto, que debe estar creado en `docs/adr/` dentro de la PR. Cualquier desviación del diseño no justificada en la PR es bloqueante.
+
 No pidas cambios de estilo que `ruff` no exige. No bloquees por preferencias.
 
 ## Veredicto
