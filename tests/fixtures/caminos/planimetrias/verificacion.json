@@ -1,0 +1,230 @@
+{
+  "historia": 17,
+  "fecha": "2026-11-25",
+  "script": "scripts/verificar_planimetrias.py",
+  "ventana_descarga_25830": [464200.0, 4437450.0, 469200.0, 4442450.0],
+  "ventana_fixture_25830": [466200.0, 4439450.0, 467200.0, 4440450.0],
+  "metodo_resolucion": "Se pide al WMS la misma ventana de 600 m a 0,25, 0,5, 1, 2 y 4 m/px y se mide s(k)=media|I(x+k)-I(x)| para k=1..32 px. En una imagen sobremuestreada desde un píxel nativo P, s(k)/(k*s(1)) vale ~1 mientras k*m/px < P y cae después. La rodilla de la curva da P. Es una estimación por interpolación, no una lectura del original.",
+  "acceso_original": {
+    "estado": "bloqueado para automatizar; posible a mano",
+    "url_ficha": "https://centrodedescargas.cnig.es/CentroDescargas/detalleArchivo?sec=81979",
+    "fixture": "cdd_detalle_alti280352_colmenar.html",
+    "hallazgos": [
+      "El enlace de GetFeatureInfo lleva al Centro de Descargas del CNIG, serie 'Planimetrías, Altimetrías y Conjuntas' (MIPAC).",
+      "Formato del original: JPG + ECW. Sistema: ED50, proyección UTM huso 30 extendido. Escala 25000. Unidad de descarga: municipio. Tamaños vistos en Colmenar: 11,38 a 30,27 MB por fichero (confirmado, ficha ALTI280352).",
+      "El botón de descarga llama a preAutorizarDescarga con un token reCAPTCHA v3, y el formulario de descargaDir lleva un campo señuelo y una firma de navegador. Está pensado para personas: no se automatiza ni se elude.",
+      "El fichero PLANI del doc. 280075 no se localizó en el listado público (solo aparecen ficheros ALTI de Colmenar); su existencia, tamaño y píxeles son asumidos.",
+      "El WMS sí sirve las imágenes sin captcha, pero ya reproyectadas y en mosaico (ver 'servicio')."
+    ]
+  },
+  "imagenes": {
+    "planimetria_colmenar_280075": {
+      "descripcion": "Planimetría de Colmenar de Oreja, doc. 280075, 1875-08-06, capa Minutas del WMS de minutas cartográficas",
+      "fixture": "planimetria_colmenar_280075_recorte_casco_2mpx.png",
+      "sha256_fixture": "80222cbcd74130a4d9624537232a6c8b9683b66b18cf3cf2a0acf2fe65430dd1",
+      "procedencia": "planimetria_colmenar_280075.provenance.json",
+      "pixeles": {"ancho": 500, "alto": 500},
+      "formato": "image/png",
+      "resolucion_efectiva": {
+        "metros_por_pixel_fixture": 2.0,
+        "metros_por_pixel_nativo_estimado": 2.5,
+        "rango_m_px": [2.0, 3.0],
+        "metodo": "rodilla de s(k)/(k*s(1)): 1,00 hasta 2 m en el terreno y 0,73 a 4 m (casco urbano)",
+        "estado": "asumido"
+      },
+      "original": {
+        "tamano": "11 a 30 MB por municipio (JPG + ECW), según las fichas ALTI de Colmenar; la del PLANI 280075 no localizada",
+        "estado": "asumido",
+        "pixeles": "desconocidos"
+      },
+      "imagen_completa_cacheada": {
+        "ruta": "data/raw/ign_planimetrias/planimetria_colmenar_280075.png",
+        "pixeles": {"ancho": 2000, "alto": 2000},
+        "metros_por_pixel": 2.5,
+        "tamano_bytes": 9259812
+      },
+      "marco": {
+        "presente": false,
+        "detalle": "El render del WMS es un mosaico de varias hojas recortadas, con huecos blancos; no muestra el marco de ninguna hoja. El marco del original no se pudo ver."
+      },
+      "coordenadas": {
+        "presente": false,
+        "detalle": "Solo hay mojones kilométricos de carretera y ferrocarril (K.3, K.21...). No se ven rótulos de coordenadas."
+      },
+      "cuadricula": {
+        "presente": true,
+        "detalle": "Rejilla fina de líneas en el plano urbano del casco y abanico de líneas de triangulación alrededor; no cubre toda la hoja."
+      },
+      "servicio": {
+        "estado_georreferenciacion": "ya reproyectada",
+        "detalle": "El WMS 1.3.0 ofrece EPSG:25830 y otros 12 CRS y compone todas las hojas en un mosaico. Entre hojas se ven desajustes de decenas de metros. No expone la imagen cruda por esta vía."
+      },
+      "puntos_control": [
+        {
+          "id": "cruce_radial_norte",
+          "descripcion": "Cruce de los caminos radiales de acceso al casco por el norte (hoy glorieta)",
+          "coordenada_25830": [466776.0, 4440184.0],
+          "fuente_coordenada": "PNOA 2 m/px, leída a ojo",
+          "precision_m": 30,
+          "pixel_en_fixture": [268, 122],
+          "estado": "asumido"
+        },
+        {
+          "id": "iglesia_santa_maria",
+          "descripcion": "Iglesia parroquial de Santa María la Mayor, en el casco",
+          "coordenada_25830": [466924.0, 4439766.0],
+          "fuente_coordenada": "PNOA 2 m/px, leída a ojo",
+          "precision_m": 25,
+          "pixel_en_fixture": [362, 340],
+          "estado": "asumido"
+        },
+        {
+          "id": "plaza_mayor",
+          "descripcion": "Plaza Mayor de Colmenar de Oreja",
+          "coordenada_25830": [467004.0, 4439754.0],
+          "fuente_coordenada": "PNOA 2 m/px, leída a ojo",
+          "precision_m": 25,
+          "pixel_en_fixture": null,
+          "estado": "asumido"
+        },
+        {
+          "id": "ermita_san_juan",
+          "descripcion": "Ermita de San Juan, al norte del casco",
+          "coordenada_25830": "sin coordenada",
+          "fuente_coordenada": null,
+          "precision_m": null,
+          "pixel_en_fixture": [75, 45],
+          "estado": "asumido"
+        },
+        {
+          "id": "cementerio_municipal",
+          "descripcion": "Cementerio municipal, al norte del casco",
+          "coordenada_25830": "sin coordenada",
+          "fuente_coordenada": null,
+          "precision_m": null,
+          "pixel_en_fixture": null,
+          "estado": "asumido"
+        },
+        {
+          "id": "ermita_del_cristo",
+          "descripcion": "Ermita del Cristo, al sureste del casco",
+          "coordenada_25830": "sin coordenada",
+          "fuente_coordenada": null,
+          "precision_m": null,
+          "pixel_en_fixture": null,
+          "estado": "asumido"
+        }
+      ],
+      "resumen_puntos_control": {
+        "total": 6,
+        "con_coordenada": 3,
+        "cumple_minimo_4": true,
+        "limitacion": "Los 3 con coordenada están a menos de 600 m entre sí, todos en el casco. Sirven para medir el desajuste local, no para ajustar una transformación de toda la hoja: hacen falta puntos repartidos (cruces, puentes, ermitas) por todo el término."
+      }
+    },
+    "mtn50_0606_chinchon": {
+      "descripcion": "Primera edición del MTN50, hoja 0606 (Chinchón), 1881, capa MTN50 del WMS primera-edicion-mtn",
+      "fixture": "mtn50_0606_chinchon_recorte_casco_2mpx.png",
+      "sha256_fixture": "7b86ca4575083228abceadfec4427584f4835175b09d2f9a0ddf5fdab28d2662",
+      "procedencia": "mtn50_0606_chinchon.provenance.json",
+      "pixeles": {"ancho": 500, "alto": 500},
+      "formato": "image/png",
+      "resolucion_efectiva": {
+        "metros_por_pixel_fixture": 2.0,
+        "metros_por_pixel_nativo_estimado": 4.0,
+        "rango_m_px": [3.0, 5.0],
+        "metodo": "rodilla de s(k)/(k*s(1)): 1,00 hasta 2 m en el terreno, 0,91 a 4 m y 0,76 a 8 m (casco urbano)",
+        "estado": "asumido"
+      },
+      "original": {
+        "tamano": "no consultado: la ficha del MTN50 0606 en el Centro de Descargas no se abrió en esta historia",
+        "estado": "asumido",
+        "pixeles": "desconocidos"
+      },
+      "imagen_completa_cacheada": {
+        "ruta": "data/raw/ign_planimetrias/mtn50_0606_chinchon.png",
+        "pixeles": {"ancho": 2000, "alto": 2000},
+        "metros_por_pixel": 2.5,
+        "tamano_bytes": 10571057
+      },
+      "marco": {
+        "presente": false,
+        "detalle": "El WMS compone las hojas sin marco ni margen. El del original no se pudo ver."
+      },
+      "coordenadas": {
+        "presente": false,
+        "detalle": "No hay rótulos de coordenadas. Hay cotas de altitud, mojones kilométricos (K1, K2, K3) y un vértice geodésico (triángulo con la cota 765) en el casco."
+      },
+      "cuadricula": {
+        "presente": false,
+        "detalle": "No se ve cuadrícula en el render."
+      },
+      "servicio": {
+        "estado_georreferenciacion": "ya reproyectada",
+        "detalle": "El WMS compone las hojas del MTN50 en un mosaico continuo y lo sirve en EPSG:25830. La imagen cruda de la hoja está en el Centro de Descargas (descarga con reCAPTCHA)."
+      },
+      "puntos_control": [
+        {
+          "id": "cruce_radial_norte",
+          "descripcion": "Cruce de los caminos radiales de acceso al casco por el norte (hoy glorieta)",
+          "coordenada_25830": [466776.0, 4440184.0],
+          "fuente_coordenada": "PNOA 2 m/px, leída a ojo",
+          "precision_m": 30,
+          "pixel_en_fixture": [255, 118],
+          "estado": "asumido"
+        },
+        {
+          "id": "iglesia_santa_maria",
+          "descripcion": "Iglesia parroquial de Santa María la Mayor, en el casco (posiblemente el vértice geodésico de la hoja)",
+          "coordenada_25830": [466924.0, 4439766.0],
+          "fuente_coordenada": "PNOA 2 m/px, leída a ojo",
+          "precision_m": 25,
+          "pixel_en_fixture": [350, 335],
+          "estado": "asumido"
+        },
+        {
+          "id": "plaza_mayor",
+          "descripcion": "Plaza Mayor de Colmenar de Oreja",
+          "coordenada_25830": [467004.0, 4439754.0],
+          "fuente_coordenada": "PNOA 2 m/px, leída a ojo",
+          "precision_m": 25,
+          "pixel_en_fixture": null,
+          "estado": "asumido"
+        },
+        {
+          "id": "ermita_san_juan",
+          "descripcion": "Ermita de San Juan, rotulada al norte del casco",
+          "coordenada_25830": "sin coordenada",
+          "fuente_coordenada": null,
+          "precision_m": null,
+          "pixel_en_fixture": null,
+          "estado": "asumido"
+        },
+        {
+          "id": "cementerio_municipal",
+          "descripcion": "Cementerio, rotulado al norte del casco",
+          "coordenada_25830": "sin coordenada",
+          "fuente_coordenada": null,
+          "precision_m": null,
+          "pixel_en_fixture": null,
+          "estado": "asumido"
+        },
+        {
+          "id": "ermita_del_cristo",
+          "descripcion": "Ermita del Cristo, rotulada al sureste del casco",
+          "coordenada_25830": "sin coordenada",
+          "fuente_coordenada": null,
+          "precision_m": null,
+          "pixel_en_fixture": null,
+          "estado": "asumido"
+        }
+      ],
+      "resumen_puntos_control": {
+        "total": 6,
+        "con_coordenada": 3,
+        "cumple_minimo_4": true,
+        "limitacion": "Los 3 con coordenada están a menos de 600 m entre sí, todos en el casco. En la lectura a ojo el desajuste local entre el MTN50 y el PNOA fue de 15 a 60 m, sin medirlo con rigor."
+      }
+    }
+  }
+}

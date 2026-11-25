@@ -489,6 +489,47 @@ Búsqueda del 2026-11-25 en la web general y en el BOCM indexado, por "inventari
 
 ---
 
+## Planimetría de Colmenar y MTN50 0606: acceso y georreferenciabilidad
+
+Verificado el 2026-11-25 para la [historia #17](https://github.com/murcialito/parcel-intel/issues/17) (feature #11). Pregunta: ¿se pueden obtener la planimetría de Colmenar de Oreja (doc. 280075, 1875) y la hoja MTN50 0606 (1881) a una resolución útil, y georreferenciarlas? Datos en `tests/fixtures/caminos/planimetrias/` (`verificacion.json`, recortes de 1 km, procedencia de las imágenes completas y ficha del Centro de Descargas). Script puntual: `scripts/verificar_planimetrias.py`. Imágenes completas (ventana de 5×5 km, 2000×2000 px, 2,5 m/px) en `data/raw/ign_planimetrias/`, fuera de git, con su `*.provenance.json` (URL exacta, fecha, SHA-256, licencia).
+
+### Hallazgos
+
+| Hallazgo | Estado | Detalle |
+| --- | --- | --- |
+| El WMS de minutas y el de primera edición MTN sirven las dos imágenes sin captcha | `confirmado` | `GetMap` en EPSG:25830, PNG. Respuestas de 5×5 km a 2000 px en 10 a 25 s |
+| Lo que sirve el WMS es un **mosaico ya reproyectado**, no la imagen cruda | `confirmado` | Las hojas de la planimetría aparecen recortadas, con huecos blancos y desajustes entre sí; la capa trae 13 CRS |
+| El WMS devuelve 500/502 con el User-Agent por defecto de `requests`; con uno identificable funciona | `confirmado` | Descarga ya con reintentos en el script (ver `LESSONS.md`) |
+| Resolución efectiva de la planimetría ≈ 2,5 m/px (rango 2 a 3) | `asumido` | Estimada por interpolación (método en `verificacion.json`); el original no se ha visto |
+| Resolución efectiva del MTN50 ≈ 4 m/px (rango 3 a 5) | `asumido` | Igual |
+| El original existe en el Centro de Descargas del CNIG: JPG + ECW, ED50 UTM 30 extendido, escala 25000, por municipio, 11 a 30 MB | `confirmado` (fichas ALTI de Colmenar); `asumido` (PLANI 280075) | Ficha en `cdd_detalle_alti280352_colmenar.html`. El PLANI 280075 no apareció en el listado público |
+| La descarga del original pasa por reCAPTCHA v3 (`preAutorizarDescarga`) y un formulario con campo señuelo | `confirmado` | No se automatiza ni se elude: la hace una persona en el navegador |
+| Marco, coordenadas y cuadrícula visibles | `confirmado` en el render | Planimetría: sin marco; solo mojones kilométricos; rejilla fina solo en el plano urbano. MTN50: sin marco, sin cuadrícula, sin coordenadas; hay cotas y un vértice geodésico en el casco |
+| Puntos de control reconocibles hoy | `asumido` | 6 por imagen (cruce radial norte, iglesia, Plaza Mayor, ermita de San Juan, cementerio, ermita del Cristo); 3 con coordenada leída a ojo en el PNOA (±25 a 30 m), 3 `sin coordenada`. Los 3 con coordenada están a menos de 600 m entre sí: sirven para medir el desajuste local, no para ajustar toda la hoja |
+| Desajuste local MTN50 frente a PNOA en el casco | `asumido` | 15 a 60 m a ojo; no medido con rigor |
+| Ficha MTN50 0606 en el Centro de Descargas (tamaño, píxeles del original) | `bloqueado` | No se abrió en esta historia; queda para la de georreferenciación |
+
+### Licencia y atribución exacta
+
+CC BY 4.0 por la Orden FOM/2807/2015 y la licencia de uso del IGN (ver "Detalle de licencias", `https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf`), citada también por la ficha del Centro de Descargas. Redistribución permitida con atribución. Usar, junto a la imagen:
+
+- Planimetría: `Obra derivada de Planimetrías 1870-1950 CC-BY 4.0 © Instituto Geográfico Nacional de España`
+- MTN50: `Obra derivada de Primera edición MTN50 1875-1968 CC-BY 4.0 © Instituto Geográfico Nacional de España`
+
+### Recomendación de método de georreferenciación
+
+| Opción | Coste | Precisión esperable | Esfuerzo humano |
+| --- | --- | --- | --- |
+| **A. Usar el mosaico del WMS tal cual**, cacheado a 2,5 m/px | Cero. Una descarga por ventana, reproducible desde `data/raw/` | Heredada de la georreferenciación del IGN: MTN50 1:50.000 (el IGN declara una precisión de 1:50.000 para los datos de las planimetrías), y desajustes visibles entre hojas del mosaico de la planimetría. Orden de decenas de metros | Bajo: solo medir el desajuste |
+| **B. Original (JPG + ECW) + transformación afín o polinómica de 2.º orden** con 8 a 10 puntos de control repartidos (QGIS), un fichero por hoja | Cero en dinero. Dependencia de una descarga manual con captcha | RMSE esperable de 5 a 15 m en la planimetría con buenos puntos (estimación, sin medir) | Alto: unas 2 a 4 h por municipio, más la descarga manual |
+| **C. Híbrido**: A como base cacheada y reproducible; medir su error con 8 a 10 puntos de control repartidos; pasar a B solo en los términos donde el error pase de ~25 m | Cero | A donde basta, la de A; donde no, la de B | Medio: 2 h de medida por municipio, y B solo donde haga falta |
+
+**Recomendación: C.** La imagen cruda **sí se puede obtener, pero solo a mano** (reCAPTCHA), así que B no puede ser un paso automático de un proceso por lotes. Empezar con A permite digitalizar y medir ya, y deja B como mejora acotada. Si la medida de la historia de georreferenciación sale por encima de ~25 m en un término, la alternativa es B para ese término. Pedir las imágenes al IGN (acción externa, decide el fundador) solo hace falta si el WMS no basta y la descarga manual resulta inviable para los siete municipios.
+
+**¿Hace falta ADR?** Sí, en la historia de georreferenciación: fija el método (WMS cacheado frente a original manual) y la dependencia de un paso humano con captcha. No introduce proveedor nuevo (sigue siendo el IGN).
+
+---
+
 ## Vías pecuarias — clasificación y deslinde por municipio (historia #26)
 
 Verificado el 2026-11-25 para la [historia #26](https://github.com/murcialito/parcel-intel/issues/26) (feature #9, pendiente heredada de la historia 0021). Pregunta: para los 7 municipios del ámbito, ¿hay orden de clasificación y deslinde aprobados, y dónde se publican? **Respuesta corta: no se ha podido verificar para ninguno de los 7.** No es que no existan: el canal donde se publican (BOCM) no es consultable por búsqueda desde esta pasada. Las fixtures están en `tests/fixtures/caminos/`.

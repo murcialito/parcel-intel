@@ -1,0 +1,21 @@
+{
+  "fuente": "IGN — WMS https://www.ign.es/wms/minutas-cartograficas capa Minutas",
+  "descripcion": "Planimetría de Colmenar de Oreja, doc. 280075, 1875-08-06",
+  "url": "https://www.ign.es/wms/minutas-cartograficas?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=Minutas&STYLES=&CRS=EPSG:25830&BBOX=464200.00,4437450.00,469200.00,4442450.00&WIDTH=2000&HEIGHT=2000&FORMAT=image/png",
+  "fecha_descarga": "2026-11-25",
+  "licencia": "CC BY 4.0 (Orden FOM/2807/2015; licencia de uso IGN compatible con CC-BY 4.0)",
+  "atribucion": "Obra derivada de Planimetrías 1870-1950 CC-BY 4.0 © Instituto Geográfico Nacional de España",
+  "sha256": "4b356414497cae86e425a062354e174ff2ccedcd21dcaddc9a2677763fe2ae21",
+  "formato": "image/png",
+  "ancho_px": 2000,
+  "alto_px": 2000,
+  "crs": "EPSG:25830",
+  "bbox_25830": [
+    464200.0,
+    4437450.0,
+    469200.0,
+    4442450.0
+  ],
+  "metros_por_pixel_solicitados": 2.5,
+  "nota": "Render del WMS (ya reproyectado y en mosaico), no el original escaneado."
+}

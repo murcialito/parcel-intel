@@ -1,0 +1,21 @@
+{
+  "fuente": "IGN — WMS https://www.ign.es/wms/primera-edicion-mtn capa MTN50",
+  "descripcion": "Primera edición MTN50 hoja 0606 (Chinchón), 1881",
+  "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=MTN50&STYLES=&CRS=EPSG:25830&BBOX=464200.00,4437450.00,469200.00,4442450.00&WIDTH=2000&HEIGHT=2000&FORMAT=image/png",
+  "fecha_descarga": "2026-11-25",
+  "licencia": "CC BY 4.0 (Orden FOM/2807/2015; licencia de uso IGN compatible con CC-BY 4.0)",
+  "atribucion": "Obra derivada de Primera edición MTN50 1875-1968 CC-BY 4.0 © Instituto Geográfico Nacional de España",
+  "sha256": "0c96eaa15797dcc3617838d3288e432f45a0ecbff60c5fe940ec0ff4bebe7c68",
+  "formato": "image/png",
+  "ancho_px": 2000,
+  "alto_px": 2000,
+  "crs": "EPSG:25830",
+  "bbox_25830": [
+    464200.0,
+    4437450.0,
+    469200.0,
+    4442450.0
+  ],
+  "metros_por_pixel_solicitados": 2.5,
+  "nota": "Render del WMS (ya reproyectado y en mosaico), no el original escaneado."
+}

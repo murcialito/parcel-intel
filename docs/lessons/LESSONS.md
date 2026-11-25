@@ -187,6 +187,16 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: la búsqueda presentó `BOCM-20230825-31` como una desafectación de un camino público en Chinchón. Al leer el PDF resultó ser de Chapinería, que no está en el ámbito. Se habría registrado un falso "acto sobre caminos" en un municipio del hito.
   - **Aplica a**: BA | implementación. Sobre todo al construir el conjunto de validación de caminos cerrados, que se nutre de fuentes de terceros.
 
+## [2026-11-25] Historia #17 — Acceso y georreferenciabilidad de planimetrías IGN y MTN50
+
+- **Lección**: "el original existe" no es "el original se puede descargar por lotes". Antes de prometer un paso automático sobre un fichero, abrir la ficha y leer cómo se descarga (aquí, un reCAPTCHA v3) y qué sirve cada vía (un WMS da un render ya reproyectado, no la imagen cruda).
+  - **Causa**: el `GetFeatureInfo` de minutas solo enlaza al Centro de Descargas del CNIG. La ficha anuncia JPG + ECW de 11 a 30 MB, pero el botón exige un token reCAPTCHA y un formulario con campo señuelo. Sin leer el JS, el plan de georreferenciación habría contado con descargar el original en un proceso por lotes. Las minutas que sí se bajan sin captcha (WMS) son un mosaico ya reproyectado, con desajustes entre hojas.
+  - **Aplica a**: BA (al redactar criterios de "se puede descargar", exigir cómo y por quién) | implementación (no automatizar ni eludir un captcha: se documenta como paso humano).
+
+- **Lección**: el User-Agent por defecto de `requests` puede provocar 500/502 intermitentes en los WMS del IGN que `curl` no sufre. Usar un User-Agent identificable del proyecto (sin datos personales) y reintentar con espera.
+  - **Causa**: la misma URL de `GetMap` del WMS de primera edición MTN devolvió 502 cuatro veces seguidas desde `requests` y 200 desde `curl`; con `User-Agent: parcel-intel-verificacion/0.1` funcionó. Se perdió tiempo creyendo que era un límite de tamaño.
+  - **Aplica a**: implementación (adapters del IGN: fijar cabecera y reintentos desde el principio).
+
 ## [2026-11-25] Historia #26 — Clasificación y deslindes de vías pecuarias
 
 - **Lección**: "no encontrada" solo es una conclusión si el canal donde se publicaría era consultable. Antes de escribir "no encontrada" o "sin deslinde publicado" en el registro, anotar qué canal se consultó y cuál no; si el canal principal (aquí el archivo del BOCM) no se puede consultar, la fila va como `bloqueado`, no como negativo verificado.
