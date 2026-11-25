@@ -3,7 +3,8 @@
 # Refleja una issue en el proyecto de usuario "Parcela Intel" (users/<owner>/projects/<n>):
 # la añade si no está, pone Status según su etiqueta estado:* (o Done si está cerrada)
 # y Size según su etiqueta talla:*. Idempotente: se puede llamar con cualquier evento.
-# Entradas por entorno: GH_TOKEN, OWNER, PROJECT_NUMBER, REPO, ISSUE (número).
+# Entradas por entorno: GH_TOKEN (permiso project), REPO_TOKEN (lectura del repo; si falta, GH_TOKEN),
+# OWNER, PROJECT_NUMBER, REPO, ISSUE (número).
 set -euo pipefail
 
 if [ -z "${GH_TOKEN:-}" ]; then
@@ -11,7 +12,7 @@ if [ -z "${GH_TOKEN:-}" ]; then
   exit 0
 fi
 
-datos=$(gh issue view "$ISSUE" -R "$REPO" --json id,state,labels)
+datos=$(GH_TOKEN="${REPO_TOKEN:-$GH_TOKEN}" gh issue view "$ISSUE" -R "$REPO" --json id,state,labels)
 issue_id=$(jq -r '.id' <<<"$datos")
 estado_issue=$(jq -r '.state' <<<"$datos")
 etiquetas=$(jq -r '.labels[].name' <<<"$datos")
