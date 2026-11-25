@@ -43,7 +43,7 @@ Las historias 0001–0021 de `docs/stories/` son archivo; las nuevas viven en su
 ## Comandos
 
 ```bash
-uv sync                 # instalar deps
+uv sync --extra dev     # instalar deps (incluye pytest, mypy, ruff, import-linter)
 uv run pytest           # tests
 uv run mypy             # tipado estricto
 uv run ruff check .     # lint

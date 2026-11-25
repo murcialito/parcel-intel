@@ -28,7 +28,7 @@ jobs:
 
       - uses: astral-sh/setup-uv@v6
 
-      - run: uv sync --frozen
+      - run: uv sync --frozen --extra dev
 
       - uses: anthropics/claude-code-action@v1
         with:
