@@ -1,8 +1,8 @@
 # Parcel Intel
 
-Informe de due diligence legal y física de inmuebles a partir de una referencia catastral: cruza lo que hay sobre el terreno (imagen, LiDAR, Catastro) con lo que la norma permite (planeamiento, boletines, afecciones). El principio rector es innegociable: el sistema señala **indicios a verificar**, con confianza y norma aplicable — nunca un dictamen jurídico.
+Herramienta abierta y sin ánimo de lucro para la defensa de caminos públicos: reconstruye qué trazados deberían ser públicos (vías pecuarias oficiales, Catastro, cartografía histórica) y señala los tramos donde hoy parecen desaparecer o quedar dentro de una finca cerrada. Principios innegociables: el sistema señala **indicios a verificar**, con confianza y evidencia — nunca ilegalidades ni dictámenes; **nunca se nombra a propietarios**; las reglas propuestas por IA requieren aprobación humana antes de usarse.
 
-MVP técnico en Colmenar de Oreja y Villaconejos (Comunidad de Madrid), sin canal B2B ni abogado validador. Ver [`docs/vision.md`](docs/vision.md) para la visión completa, las fases geográficas y las decisiones abiertas.
+Primer hito en Colmenar de Oreja y municipios vecinos (Comunidad de Madrid). Cambio de rumbo del 25 nov 2026: el informe de due diligence por referencia catastral (historias 0001–0020) queda como base reutilizable y posible fase posterior; pisos, fuera. Ver [`docs/vision.md`](docs/vision.md) y el ADR 0021.
 
 ## Arquitectura: hexagonal, innegociable
 
@@ -18,7 +18,9 @@ Otras reglas:
 - Dependencias nuevas de terceros: solo en adapters, y requieren ADR si introducen un proveedor nuevo (fuente de datos, LLM, etc.).
 - Validación con pydantic solo en los bordes (adapters, API). El dominio usa dataclasses congeladas.
 - mypy estricto en verde siempre.
-- Ningún LLM en la evaluación de reglas; solo en extracción de boletines (con revisión humana) y en redacción de explicaciones del informe.
+- Ningún LLM en la evaluación de reglas; solo fuera de línea: autoría de reglas y extracción (con revisión humana) y redacción de textos que se publican ya generados. **Nada llama a un LLM en una consulta de usuario.**
+- Coste de funcionamiento casi cero: solo datos públicos, análisis por lotes y publicación como ficheros estáticos siempre que se pueda. Cualquier componente con coste recurrente (backend, almacenamiento de fotos, API de pago) requiere ADR con estimación de coste.
+- Ningún dato de titularidad entra en el sistema ni sale en ninguna vista. Una capa solo se publica en el mapa si su licencia permite redistribución.
 - Todo dato lleva procedencia: fuente, URL, fecha de descarga y licencia.
 - Operaciones métricas en EPSG:25830 (ETRS89 / UTM 30N); almacenamiento en ese CRS.
 - Datos crudos cacheados e inmutables en `data/` (fuera de git); el procesamiento es reproducible desde la caché.
@@ -59,8 +61,11 @@ uv run python -m parcel_intel.cli.main review reject <identifier>
 
 ## Contexto de negocio (resumen)
 
-- Fase 0 (actual): MVP técnico en Colmenar de Oreja y Villaconejos — validar el motor de punta a punta con parcelas verificables en persona. Sin canal B2B, sin abogado validador, sin modelo de precio definido todavía.
-- Fase 1: entrada comercial en Murcia/Alicante/Almería, suelo rústico, comprador extranjero con dolor alto y poca competencia.
-- Fase 2: España entera, comunidad autónoma a comunidad autónoma.
-- LLM del MVP: API de DeepSeek (`DEEPSEEK_API_KEY`), siempre detrás de una interfaz única en `ports/` para poder cambiar de proveedor o ir a modelo local sin tocar el resto del motor. Todo consumo se registra (coste y tokens).
-- Riesgos abiertos sin resolver (ver `docs/vision.md`): responsabilidad legal/seguro antes de cobrar un informe real; cómo financiar la digitalización de boletines/planeamiento al escalar a más municipios.
+- Modelo: sin ánimo de lucro y código abierto. Sin clientes, precios ni cuentas de pago; solo se plantearían aportaciones si hubiera costes reales de funcionamiento.
+- Usuarios: asociaciones de defensa de caminos, senderistas, ciclistas, ganaderos y ayuntamientos pequeños.
+- Fase 1 (actual): caminos públicos. Primer hito en Colmenar de Oreja y vecinos: (a) mapa de trazados que deberían ser públicos, (b) candidatos a corte, (c) visor web estático. Después: avisos ciudadanos con foto y dossier para el ayuntamiento.
+- Fase posterior posible: informe de rústico para compradores (reutiliza 0001–0020). Pisos: fuera del alcance.
+- Validación: casos de caminos cerrados ya documentados públicamente; el sistema debe señalarlos por sí solo.
+- **Antes de programar el hito**: verificar resolución, frecuencia y licencia de cada fuente de imágenes y cartografía, y si cada municipio tiene inventario de caminos publicado (resultado en `src/parcel_intel/sources/REGISTRY.md`).
+- LLM: API de DeepSeek (`DEEPSEEK_API_KEY`), solo fuera de línea, siempre detrás de una interfaz única en `ports/`. Todo consumo se registra (coste y tokens).
+- Riesgos abiertos (ver `docs/vision.md`): que un candidato publicado se lea como acusación o identifique indirectamente a un propietario; licencias de redistribución de las capas; método de detección de cortes.

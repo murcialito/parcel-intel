@@ -1,0 +1,19 @@
+{
+  "_nota": "Resumen derivado (no respuesta cruda). La respuesta real completa (27 MB) está en data/raw/ign_au/ign_au_adminunit_bbox_colmenar.xml, fuera de git.",
+  "peticion": "https://www.ign.es/wfs-inspire/unidades-administrativas?service=WFS&version=2.0.0&request=GetFeature&typeNames=au:AdministrativeUnit&bbox=39.98,-3.62,40.22,-3.15,urn:ogc:def:crs:EPSG::4258&count=200",
+  "fecha": "2026-11-25",
+  "licencia_declarada_en_getcapabilities": "CC BY 4.0 ign.es",
+  "metodo": "municipios (4thOrder) que comparten vértices exactos de su polígono con el de Colmenar de Oreja (34132828043)",
+  "colindantes": [
+    {"municipio": "Aranjuez", "ine": "28013", "comunidad": "Madrid", "vertices_compartidos": 405},
+    {"municipio": "Chinchón", "ine": "28052", "comunidad": "Madrid", "vertices_compartidos": 124},
+    {"municipio": "Belmonte de Tajo", "ine": "28019", "comunidad": "Madrid", "vertices_compartidos": 57},
+    {"municipio": "Villaconejos", "ine": "28170", "comunidad": "Madrid", "vertices_compartidos": 38},
+    {"municipio": "Villarejo de Salvanés", "ine": "28180", "comunidad": "Madrid", "vertices_compartidos": 22},
+    {"municipio": "Valdelaguna", "ine": "28157", "comunidad": "Madrid", "vertices_compartidos": 5},
+    {"municipio": "Noblejas", "ine": "45115", "comunidad": "Castilla-La Mancha", "vertices_compartidos": 299},
+    {"municipio": "Ontígola", "ine": "45123", "comunidad": "Castilla-La Mancha", "vertices_compartidos": 238},
+    {"municipio": "Villarrubia de Santiago", "ine": "45195", "comunidad": "Castilla-La Mancha", "vertices_compartidos": 168},
+    {"municipio": "Ocaña", "ine": "45121", "comunidad": "Castilla-La Mancha", "vertices_compartidos": 23}
+  ]
+}

@@ -1,0 +1,1799 @@
+<?xml version="1.0" encoding="UTF-8"?><WMS_Capabilities xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" version="1.3.0" updateSequence="13441" xmlns="http://www.opengis.net/wms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wms https://idem.comunidad.madrid/geoidem/Zonas/wms http://inspire.ec.europa.eu/schemas/inspire_vs/1.0 https://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd">
+  <Service>
+    <Name>WMS</Name>
+    <Title>WMS de Zonas sujetas a ordenación de la Comunidad de Madrid</Title>
+    <Abstract>Servicio WFS 1.1.0 de las diferentes capas incluidas en el Tema Inspire "Zonas sujetas a ordenación del Anexo II de la Directiva de INSPIRE.&#13;
+  Zonas gestionadas, reglamentadas o utilizadas para la elaboración de informes para organismos internacionales, europeos, nacionales, regionales y locales. &#13;
+  Se incluirán vertederos, zonas restringidas alrededor de lugares de extracción de agua potable, zonas sensibles a los nitratos, rutas marítimas o por grandes vías navegables reglamentadas, zonas de vertido, zonas de restricción de ruidos, zonas de prospección o extracción</Abstract>
+    <KeywordList>
+      <Keyword>WMS</Keyword>
+      <Keyword>Zonas</Keyword>
+      <Keyword>IDEM</Keyword>
+      <Keyword>Comunidad de Madrid</Keyword>
+      <Keyword>cotos</Keyword>
+    </KeywordList>
+    <OnlineResource xlink:type="simple" xlink:href="http://geoserver.org"/>
+    <ContactInformation>
+      <ContactPersonPrimary>
+        <ContactPerson/>
+        <ContactOrganization>Consejeria de Medio Ambiente, Vivienda y Agricultura</ContactOrganization>
+      </ContactPersonPrimary>
+      <ContactPosition/>
+      <ContactAddress>
+        <AddressType/>
+        <Address/>
+        <City>Madrid</City>
+        <StateOrProvince/>
+        <PostCode/>
+        <Country>España</Country>
+      </ContactAddress>
+      <ContactVoiceTelephone/>
+      <ContactFacsimileTelephone/>
+      <ContactElectronicMailAddress>info.ambiental@madrid.org</ContactElectronicMailAddress>
+    </ContactInformation>
+    <Fees>NONE</Fees>
+    <AccessConstraints>CC BY 4.0 Comunidad de Madrid</AccessConstraints>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCapabilities>
+        <Format>text/xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetCapabilities>
+      <GetMap>
+        <Format>image/png</Format>
+        <Format>application/atom+xml</Format>
+        <Format>application/geopackage+sqlite3</Format>
+        <Format>application/json;type=geojson</Format>
+        <Format>application/json;type=topojson</Format>
+        <Format>application/json;type=utfgrid</Format>
+        <Format>application/pdf</Format>
+        <Format>application/rss+xml</Format>
+        <Format>application/vnd.google-earth.kml+xml</Format>
+        <Format>application/vnd.google-earth.kml+xml;mode=networklink</Format>
+        <Format>application/vnd.google-earth.kmz</Format>
+        <Format>application/vnd.mapbox-vector-tile</Format>
+        <Format>application/x-sqlite3</Format>
+        <Format>image/geotiff</Format>
+        <Format>image/geotiff8</Format>
+        <Format>image/gif</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/png; mode=8bit</Format>
+        <Format>image/svg+xml</Format>
+        <Format>image/tiff</Format>
+        <Format>image/tiff8</Format>
+        <Format>image/vnd.jpeg-png</Format>
+        <Format>image/vnd.jpeg-png8</Format>
+        <Format>text/html</Format>
+        <Format>text/html; subtype=openlayers</Format>
+        <Format>text/html; subtype=openlayers2</Format>
+        <Format>text/html; subtype=openlayers3</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetMap>
+      <GetFeatureInfo>
+        <Format>text/plain</Format>
+        <Format>text/xml</Format>
+        <Format>text/html</Format>
+        <Format>application/json</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetFeatureInfo>
+    </Request>
+    <Exception>
+      <Format>XML</Format>
+      <Format>INIMAGE</Format>
+      <Format>BLANK</Format>
+      <Format>JSON</Format>
+    </Exception>
+    <inspire_vs:ExtendedCapabilities>
+      <inspire_common:MetadataUrl>
+        <inspire_common:URL>https://idem.comunidad.madrid/catalogocartografia/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spacm_wms_am</inspire_common:URL>
+        <inspire_common:MediaType>application/vnd.ogc.csw.GetRecordByIdResponse_xml</inspire_common:MediaType>
+      </inspire_common:MetadataUrl>
+      <inspire_common:SupportedLanguages>
+        <inspire_common:DefaultLanguage>
+          <inspire_common:Language>spa</inspire_common:Language>
+        </inspire_common:DefaultLanguage>
+      </inspire_common:SupportedLanguages>
+      <inspire_common:ResponseLanguage>
+        <inspire_common:Language>spa</inspire_common:Language>
+      </inspire_common:ResponseLanguage>
+    </inspire_vs:ExtendedCapabilities>
+    <Layer>
+      <Title>WMS de Zonas sujetas a ordenación de la Comunidad de Madrid</Title>
+      <Abstract>Servicio WFS 1.1.0 de las diferentes capas incluidas en el Tema Inspire "Zonas sujetas a ordenación del Anexo II de la Directiva de INSPIRE.&#13;
+  Zonas gestionadas, reglamentadas o utilizadas para la elaboración de informes para organismos internacionales, europeos, nacionales, regionales y locales. &#13;
+  Se incluirán vertederos, zonas restringidas alrededor de lugares de extracción de agua potable, zonas sensibles a los nitratos, rutas marítimas o por grandes vías navegables reglamentadas, zonas de vertido, zonas de restricción de ruidos, zonas de prospección o extracción</Abstract>
+      <!--Limited list of EPSG projections:-->
+      <CRS>EPSG:4258</CRS>
+      <CRS>EPSG:23030</CRS>
+      <CRS>EPSG:25830</CRS>
+      <CRS>EPSG:4326</CRS>
+      <CRS>EPSG:3857</CRS>
+      <CRS>EPSG:32630</CRS>
+      <CRS>EPSG:3035</CRS>
+      <CRS>CRS:84</CRS>
+      <EX_GeographicBoundingBox>
+        <westBoundLongitude>-4.686685519649489</westBoundLongitude>
+        <eastBoundLongitude>-2.8152463339137905</eastBoundLongitude>
+        <southBoundLatitude>39.84586868426016</southBoundLatitude>
+        <northBoundLatitude>41.26345685319389</northBoundLatitude>
+      </EX_GeographicBoundingBox>
+      <BoundingBox CRS="CRS:84" minx="-4.686685519649489" miny="39.84586868426016" maxx="-2.8152463339137905" maxy="41.26345685319389"/>
+      <BoundingBox CRS="EPSG:4258" minx="39.84586872503878" miny="-4.686685519649489" maxx="41.26345689492529" maxy="-2.8152463339137905"/>
+      <BoundingBox CRS="EPSG:23030" minx="355798.1696126985" miny="4410865.251714535" maxx="515907.4041885094" maxy="4569584.263851275"/>
+      <BoundingBox CRS="EPSG:25830" minx="355698.06980426447" miny="4410658.116697532" maxx="515805.9229487508" maxy="4569375.735975712"/>
+      <BoundingBox CRS="EPSG:4326" minx="39.84586868426016" miny="-4.686685519649489" maxx="41.26345685319389" maxy="-2.8152463339137905"/>
+      <BoundingBox CRS="EPSG:3857" minx="-521719.44555558986" miny="4843569.550836649" maxx="-313391.7883489133" maxy="5051279.49893736"/>
+      <BoundingBox CRS="EPSG:32630" minx="355698.06971983955" miny="4410658.112285286" maxx="515805.9229579951" maxy="4569375.731458217"/>
+      <BoundingBox CRS="EPSG:3035" minx="1954213.7047867025" miny="3066085.6259472286" maxx="2137817.3680813545" maxy="3248414.2221856336"/>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_CORREDORES_ECO</Name>
+        <Title>Corredores ecológicos 2010 de la Comunidad de Madrid</Title>
+        <Abstract>Planificación de la red de corredores ecológicos de la Comunidad de Madrid: identificación de oportunidades para el bienestar social y la conservación del patrimonio natural.</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>IDEM_CORREDORES_ECO</Keyword>
+          <Keyword>Corredores</Keyword>
+          <Keyword>Ecológicos</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.686685519649489</westBoundLongitude>
+          <eastBoundLongitude>-2.8152463339137905</eastBoundLongitude>
+          <southBoundLatitude>39.84586868426016</southBoundLatitude>
+          <northBoundLatitude>41.26345685319389</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.686685519649489" miny="39.84586868426016" maxx="-2.8152463339137905" maxy="41.26345685319389"/>
+        <BoundingBox CRS="EPSG:25830" minx="358684.3262" miny="4411955.7267" maxx="515476.0529" maxy="4568011.7399"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.845868645338115" miny="-4.686685519649489" maxx="41.263456813333335" maxy="-2.8152463339137905"/>
+        <BoundingBox CRS="EPSG:23030" minx="358784.4336078564" miny="4412162.861946379" maxx="515577.54122855945" maxy="4568220.253063713"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.84586868426016" miny="-4.686685519649489" maxx="41.26345685319389" maxy="-2.8152463339137905"/>
+        <BoundingBox CRS="EPSG:3857" minx="-521719.44555558986" miny="4843569.550836649" maxx="-313391.7883489133" maxy="5051279.49893736"/>
+        <BoundingBox CRS="EPSG:32630" minx="358684.326280611" miny="4411955.731133682" maxx="515476.0528911513" maxy="4568011.744440679"/>
+        <BoundingBox CRS="EPSG:3035" minx="1955539.500988151" miny="3069025.9639548482" maxx="2136477.0375794787" maxy="3248412.8741038935"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_corredoresecol"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_IDEM_CORREDORECO</Name>
+          <Title>S_IDEM_CORREDORECO</Title>
+          <LegendURL width="177" height="60">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_CORREDORES_ECO"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_CEH_EMBALSES</Name>
+        <Title>Catálogo de Embalses y Humedales de la Comunidad de Madrid. EMBALSES</Title>
+        <Abstract>Embalses incluidos en la revisión del Catálogo de Embalses y Humedales de la Comunidad de Madrid, aprobada por el Gobierno de la Comunidad de Madrid el 2 de septiembre de 2004, este catálogo se estableció en la Ley de Protección de Embalses y Humedales de 1990 y se materializó por Acuerdo del Consejo de Gobierno de 10 de octubre de 1991.  Escala de visualización a 1:25.000.</Abstract>
+        <KeywordList>
+          <Keyword>Embalses</Keyword>
+          <Keyword>Zonas</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.433898999268167</westBoundLongitude>
+          <eastBoundLongitude>-3.463380016327349</eastBoundLongitude>
+          <southBoundLatitude>40.329508054804556</southBoundLatitude>
+          <northBoundLatitude>41.03710041485055</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.433898999268167" miny="40.329508054804556" maxx="-3.463380016327349" maxy="41.03710041485055"/>
+        <BoundingBox CRS="EPSG:25830" minx="379458.2449" miny="4465296.5623" maxx="460641.2467" maxy="4542981.163"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.32950801553106" miny="-4.433898999268167" maxx="41.03710037512101" maxy="-3.463380016327349"/>
+        <BoundingBox CRS="EPSG:23030" minx="379558.5603643603" miny="4465504.174313787" maxx="460742.27392564743" maxy="4543189.46040023"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.329508054804556" miny="-4.433898999268167" maxx="41.03710041485055" maxy="-3.463380016327349"/>
+        <BoundingBox CRS="EPSG:3857" minx="-493579.37882733764" miny="4913941.664723653" maxx="-385541.69984116" maxy="5017815.507666169"/>
+        <BoundingBox CRS="EPSG:32630" minx="379458.24497064436" miny="4465296.566773711" maxx="460641.2467239438" maxy="4542981.167525685"/>
+        <BoundingBox CRS="EPSG:3035" minx="2017504.1038424142" miny="3097899.810710098" maxx="2108164.9912546" maxy="3190298.4897369505"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ceh_embalses"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_SIGI_CEH_EMBALSES</Name>
+          <Title>Catálogo de Embalses y Humedales. Embalses</Title>
+          <Abstract>Catálogo de Embalses y Humedales. Embalses</Abstract>
+          <LegendURL width="157" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_CEH_EMBALSES"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_CEH_HUMEDALES</Name>
+        <Title>Catálogo de Embalses y Humedales de la Comunidad de Madrid.HUMEDALES</Title>
+        <Abstract>Cartografía aprobada por Acuerdo de 17 de mayo de 2023, del Consejo de Gobierno, por el que se aprueba la segunda revisión del Catálogo de Embalses y Humedales de la Comunidad de Madrid.&#13;
+&#13;
+En cumplimiento de lo previsto en la Ley 7/1990, de 28 de junio, se procede a realizar la segunda revisión del Catálogo de Embalses y Humedales de la Comunidad de Madrid, estimándose conveniente extender el régimen genérico de protección otorgado a 17 humedales más y ampliándose uno de los ya existentes, siendo 40 humedales los incluidos en el Catálogo.&#13;
+&#13;
+Escala de digitalización 1:5.000 o inferior. Excepto en el caso de la delimitación RAMSAR de los Humedales de Macizo de Peñalara, que es a 1:50.000, por lo que en este caso se recomienda una escala de visualización entre 1:50.000 y 1:25.000. El empleo de escalas a mayor detalle podría dar lugar a confusiones en los límites establecidos.</Abstract>
+        <KeywordList>
+          <Keyword>HUMEDALES</Keyword>
+          <Keyword>Zonas</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.153958827138391</westBoundLongitude>
+          <eastBoundLongitude>-3.4713361825683138</eastBoundLongitude>
+          <southBoundLatitude>39.92395837423843</southBoundLatitude>
+          <northBoundLatitude>40.86921740057025</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.153958827138391" miny="39.92395837423843" maxx="-3.4713361825683138" maxy="40.86921740057025"/>
+        <BoundingBox CRS="EPSG:25830" minx="402750.7625" miny="4419937.2504" maxx="459724.9225" maxy="4524349.0303"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.92395833525749" miny="-4.153958827138392" maxx="40.869217360942564" maxy="-3.4713361825683138"/>
+        <BoundingBox CRS="EPSG:23030" minx="402851.2520188822" miny="4420144.472687612" maxx="459825.93701435183" maxy="4524557.162716922"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.92395837423843" miny="-4.153958827138391" maxx="40.86921740057025" maxy="-3.4713361825683138"/>
+        <BoundingBox CRS="EPSG:3857" minx="-462416.5814132696" miny="4854898.262793305" maxx="-386427.37621577084" maxy="4993070.356526136"/>
+        <BoundingBox CRS="EPSG:32630" minx="402750.7625557921" miny="4419937.254840353" maxx="459724.9225242942" maxy="4524349.034814031"/>
+        <BoundingBox CRS="EPSG:3035" minx="1972976.680671762" miny="3113802.930917532" maxx="2085736.0582801132" maxy="3186457.4854591666"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ceh_humedales"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_SIGI_CEH_HUMEDALES</Name>
+          <Title>Catálogo de Embalses y Humedales. Humedales</Title>
+          <Abstract>Catálogo de Embalses y Humedales. Humedales</Abstract>
+          <LegendURL width="155" height="80">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_CEH_HUMEDALES"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_COMARCAS_FORESTALES</Name>
+        <Title>Comarcas Forestales de la Comunidad de Madrid</Title>
+        <Abstract>[LANG_ES]Comarcas Forestales de la Comunidad de Madrid según la Orden 4634/2006, de 29 diciembre, BOCM 23/01/2007, por la que se modifica la distribución territorial de las comarcas forestales de la Comunidad de Madrid[LANG_EN]Forestal Regions of the Comunidad de Madrid according to the Order 4634/2006, of 29 December, BOCM 23/01/2007, by which modifies the territorial distribution of the forest regions of the Comunidad de Madrid[LANG_CA]Comarcas Forestales de la Comunidad de Madrid según la Orden 4634/2006, de 29 diciembre, BOCM 23/01/2007, por la que se modifica la distribución territorial de las comarcas forestales de la Comunidad de Madrid[LANG_EU]Comarcas Forestales de la Comunidad de Madrid según la Orden 4634/2006, de 29 diciembre, BOCM 23/01/2007, por la que se modifica la distribución territorial de las comarcas forestales de la Comunidad de Madrid[LANG_GL]Comarcas Forestales de la Comunidad de Madrid según la Orden 4634/2006, de 29 diciembre, BOCM 23/01/2007, por la que se modifica la distribución territorial de las comarcas forestales de la Comunidad de Madrid</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Forest counties</Keyword>
+          <Keyword>ALLOW_LABELS::1</Keyword>
+          <Keyword>OPACITY::70</Keyword>
+          <Keyword>Comarcas Forestales</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.601397003503758</westBoundLongitude>
+          <eastBoundLongitude>-3.052819196533949</eastBoundLongitude>
+          <southBoundLatitude>39.876865421750516</southBoundLatitude>
+          <northBoundLatitude>41.167116228709865</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.601397003503758" miny="39.876865421750516" maxx="-3.052819196533949" maxy="41.167116228709865"/>
+        <BoundingBox CRS="EPSG:25830" minx="365635.7202" miny="4415271.9975" maxx="495483.9787" maxy="4557310.2105"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.876865382805" miny="-4.601397003503758" maxx="41.16711618890419" maxy="-3.052819196533949"/>
+        <BoundingBox CRS="EPSG:23030" minx="365735.88916101534" miny="4415479.1671316475" maxx="495585.299172049" maxy="4557518.632525238"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.876865421750516" miny="-4.601397003503758" maxx="41.167116228709865" maxy="-3.052819196533949"/>
+        <BoundingBox CRS="EPSG:3857" minx="-512225.17136773316" miny="4848064.798911193" maxx="-339838.2784420898" maxy="5037022.606623917"/>
+        <BoundingBox CRS="EPSG:32630" minx="365635.72027680394" miny="4415272.001936358" maxx="495483.9787027652" maxy="4557310.215034388"/>
+        <BoundingBox CRS="EPSG:3035" minx="1962230.4567471195" miny="3076409.7106581703" maxx="2124708.4797810894" maxy="3226974.7567524468"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_cf"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_FORESTAL_COMARCA</Name>
+          <Title>Comarcas forestales</Title>
+          <Abstract>Comarcas forestales</Abstract>
+          <LegendURL width="233" height="380">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_COMARCAS_FORESTALES"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_MONTES_CM</Name>
+        <Title>Montes Propiedad de la Comunidad de Madrid</Title>
+        <Abstract>[LANG_ES]Contiene los límites de los montes que son propiedad de la Comunidad de Madrid: montes de utilidad pública, montes forestales periurbanos y otros
+
+  La capa está en proceso de revisión por lo que algunos montes pueden no estar aún ajustados a escala 1:10.000
+
+[LANG_EN]Contains the limits of the mounts that are property of the Comunidad de Madrid: mounds of public utility, periurban forests and others
+
+[LANG_CA]Contiene los límites de los montes que son propiedad de la Comunidad de Madrid: montes de utilidad pública, montes forestales periurbanos y otros
+
+[LANG_EU]Contiene los límites de los montes que son propiedad de la Comunidad de Madrid: montes de utilidad pública, montes forestales periurbanos y otros
+
+[LANG_GL]Contiene los límites de los montes que son propiedad de la Comunidad de Madrid: montes de utilidad pública, montes forestales periurbanos y otros</Abstract>
+        <KeywordList>
+          <Keyword>OPACITY::70</Keyword>
+          <Keyword>LANG_EN::Mounts owned by the Comunidad de Madrid</Keyword>
+          <Keyword>LANG_CA::Montes propiedad Comunidad de Madrid</Keyword>
+          <Keyword>LANG_EU::Montes propiedad Comunidad de Madrid</Keyword>
+          <Keyword>LANG_GL::Montes propiedad Comunidad de Madrid</Keyword>
+          <Keyword>Montes</Keyword>
+          <Keyword>Zonas</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.340675139466719</westBoundLongitude>
+          <eastBoundLongitude>-3.2137121850750288</eastBoundLongitude>
+          <southBoundLatitude>40.086684549487856</southBoundLatitude>
+          <northBoundLatitude>41.16692098495899</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.340675139466719" miny="40.086684549487856" maxx="-3.2137121850750288" maxy="41.16692098495899"/>
+        <BoundingBox CRS="EPSG:25830" minx="387517.7199" miny="4438212.4838" maxx="481782.6242" maxy="4557309.8647"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.08668451038684" miny="-4.340675139466719" maxx="41.16692094515341" maxy="-3.2137121850750288"/>
+        <BoundingBox CRS="EPSG:23030" minx="387618.08901405835" miny="4438419.856409508" maxx="481883.8306508583" maxy="4557518.276831372"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.086684549487856" miny="-4.340675139466719" maxx="41.16692098495899" maxy="-3.2137121850750288"/>
+        <BoundingBox CRS="EPSG:3857" minx="-483201.7462244568" miny="4878547.049375351" maxx="-357748.80399869074" maxy="5036993.734932032"/>
+        <BoundingBox CRS="EPSG:32630" minx="387517.719965085" miny="4438212.488254048" maxx="481782.62421115447" maxy="4557309.86923438"/>
+        <BoundingBox CRS="EPSG:3035" minx="1987179.4787581882" miny="3101611.3329710183" maxx="2120885.0756006273" maxy="3213440.390705268"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_mpcm"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_MONTES_CM</Name>
+          <Title>Montes propiedad Comunidad de Madrid</Title>
+          <Abstract>Montes propiedad Comunidad de Madrid</Abstract>
+          <LegendURL width="197" height="80">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_MONTES_CM"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_MONTES_PRESERVADOS</Name>
+        <Title>Montes Preservados (Anexo Ley 16/1995)</Title>
+        <Abstract>[LANG_ES]Son Montes Preservados los incluidos en las zonas declaradas de especial protección para las aves (ZEPAS), en el Catálogo de embalses y humedales de la Comunidad de Madrid y aquellos espacios que constituyan un enclave con valores de entidad local que sea preciso preservar[LANG_EN]Preserved Hills are those included in the declared areas of special protection for birds (ZEPAS), in the Catalog of reservoirs and wetlands of the Comunidad de Madrid and those spaces that constitute an enclave with values of local entity that must be preserved[LANG_CA]Son Montes Preservados los incluidos en las zonas declaradas de especial protección para las aves (ZEPAS), en el Catálogo de embalses y humedales de la Comunidad de Madrid y aquellos espacios que constituyan un enclave con valores de entidad local que sea preciso preservar[LANG_EU]Son Montes Preservados los incluidos en las zonas declaradas de especial protección para las aves (ZEPAS), en el Catálogo de embalses y humedales de la Comunidad de Madrid y aquellos espacios que constituyan un enclave con valores de entidad local que sea preciso preservar[LANG_GL]Son Montes Preservados los incluidos en las zonas declaradas de especial protección para las aves (ZEPAS), en el Catálogo de embalses y humedales de la Comunidad de Madrid y aquellos espacios que constituyan un enclave con valores de entidad local que sea preciso preservar</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Preserved Hills (Annex Law 16/1995)</Keyword>
+          <Keyword>OPACITY::70</Keyword>
+          <Keyword>Montes preservados</Keyword>
+          <Keyword>ZEPAS</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.596464238234793</westBoundLongitude>
+          <eastBoundLongitude>-3.1044491675968966</eastBoundLongitude>
+          <southBoundLatitude>39.97621479089877</southBoundLatitude>
+          <northBoundLatitude>41.14575294101363</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.596464238234793" miny="39.97621479089877" maxx="-3.1044491675968966" maxy="41.14575294101363"/>
+        <BoundingBox CRS="EPSG:25830" minx="366006.3384" miny="4426296.2969" maxx="491082.5318" maxy="4554942.663"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.97621475187888" miny="-4.596464238234793" maxx="41.14575290122029" maxy="-3.1044491675968966"/>
+        <BoundingBox CRS="EPSG:23030" minx="366106.5173343732" miny="4426503.563599891" maxx="491183.8152113772" maxy="4555151.065378482"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.97621479089877" miny="-4.596464238234793" maxx="41.14575294101363" maxy="-3.1044491675968966"/>
+        <BoundingBox CRS="EPSG:3857" minx="-511676.0584497893" miny="4862486.4794927" maxx="-345585.7005304885" maxy="5033864.018123027"/>
+        <BoundingBox CRS="EPSG:32630" minx="366006.3384770105" miny="4426296.301344824" maxx="491082.5318054544" maxy="4554942.667532975"/>
+        <BoundingBox CRS="EPSG:3035" minx="1973843.8300769853" miny="3078500.570977591" maxx="2122309.29655156" maxy="3222253.4079443165"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_mpreser"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_MONTES_PRESERVADOS</Name>
+          <Title>Montes preservados</Title>
+          <Abstract>Montes preservados</Abstract>
+          <LegendURL width="195" height="84">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_MONTES_PRESERVADOS"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_MONTES_UP</Name>
+        <Title>Montes del Catálogo de Utilidad Pública de la Comunidad de Madrid</Title>
+        <Abstract>[LANG_ES]Capa que contiene información sobre los montes del catálogo de utilidad pública de la Comunidad de Madrid.10ª Revisión de Montes de la Comunidad de Madrid. 
+
+  La capa en proceso de revisión por lo que algunos montes pueden no estar aún ajustados a escala 1:10.000.
+[LANG_EN]Layer containing information on the Mountains of the public utility catalog of the Comunidad de Madrid</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Mountains of public utility</Keyword>
+          <Keyword>ALLOW_LABELS::1</Keyword>
+          <Keyword>OPACITY::70</Keyword>
+          <Keyword>Montes</Keyword>
+          <Keyword>Utilidad Pública</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.522502269054415</westBoundLongitude>
+          <eastBoundLongitude>-3.1465084970723</eastBoundLongitude>
+          <southBoundLatitude>40.0845077945032</southBoundLatitude>
+          <northBoundLatitude>41.16702948749713</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.522502269054415" miny="40.0845077945032" maxx="-3.1465084970723" maxy="41.16702948749713"/>
+        <BoundingBox CRS="EPSG:25830" minx="372257.6257" miny="4438212.4838" maxx="487511.261" maxy="4557309.8647"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.08450775540377" miny="-4.522502269054415" maxx="41.167029447691505" maxy="-3.1465084970723"/>
+        <BoundingBox CRS="EPSG:23030" minx="372357.86497152684" miny="4438419.854674326" maxx="487612.5151019832" maxy="4557518.283606167"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.0845077945032" miny="-4.522502269054415" maxx="41.16702948749713" maxy="-3.1465084970723"/>
+        <BoundingBox CRS="EPSG:3857" minx="-503442.64970256184" miny="4878230.331895434" maxx="-350267.72367079696" maxy="5037009.779746588"/>
+        <BoundingBox CRS="EPSG:32630" minx="372257.6257738701" miny="4438212.488253879" maxx="487511.2610076469" maxy="4557309.869234382"/>
+        <BoundingBox CRS="EPSG:3035" minx="1986194.5850748855" miny="3086540.233722025" maxx="2123550.1324436683" maxy="3219098.9677413227"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_mcup"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_MONTES_UTILIDAD_PUBLICA</Name>
+          <Title>Montes de utilidad pública</Title>
+          <Abstract>Montes de utilidad pública</Abstract>
+          <LegendURL width="63" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_MONTES_UP"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_PLANES_EMBALSES</Name>
+        <Title>Planes de Ordenación de los Embalses de la Comunidad de Madrid</Title>
+        <Abstract>[LANG_ES]Delimitación de zonas con normas específicas de Plan de Ordenación de Embalse, según la Ley 7/1990, de 28 de junio de Protección de Embalses y Zonas Húmedas.
+  [LANG_EN]Delimitation of areas with specific rules of Dams Management Plan, according to Law 7/1990, of June 28, Protection of Dams and Wetlands</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Dams management plans</Keyword>
+          <Keyword>OPACITY::70</Keyword>
+          <Keyword>Embalses</Keyword>
+          <Keyword>Ordenación</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.327043116609888</westBoundLongitude>
+          <eastBoundLongitude>-3.463380016327349</eastBoundLongitude>
+          <southBoundLatitude>40.330757529819586</southBoundLatitude>
+          <northBoundLatitude>41.039003976741846</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.327043116609888" miny="40.330757529819586" maxx="-3.463380016327349" maxy="41.039003976741846"/>
+        <BoundingBox CRS="EPSG:25830" minx="388446.7708" miny="4465296.5623" maxx="460641.2467" maxy="4543192.4849"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.33075749054522" miny="-4.327043116609888" maxx="41.03900393701117" maxy="-3.463380016327349"/>
+        <BoundingBox CRS="EPSG:23030" minx="388547.1621741322" miny="4465504.174313787" maxx="460742.27398084686" maxy="4543400.780018072"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.330757529819586" miny="-4.327043116609888" maxx="41.039003976741846" maxy="-3.463380016327349"/>
+        <BoundingBox CRS="EPSG:3857" minx="-481684.2363815522" miny="4914124.120189337" maxx="-385541.69984116" maxy="5018096.444864541"/>
+        <BoundingBox CRS="EPSG:32630" minx="388446.7708653974" miny="4465296.566773802" maxx="460641.24672394607" maxy="4543192.4894258175"/>
+        <BoundingBox CRS="EPSG:3035" minx="2017504.1038424142" miny="3106775.330533688" maxx="2106804.5907561495" maxy="3190331.822369797"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_poembalses"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_EMBALSES_PLANES</Name>
+          <Title>Planes de Ordenación de Embalses</Title>
+          <Abstract>Planes de Ordenación de Embalses</Abstract>
+          <LegendURL width="220" height="264">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PLANES_EMBALSES"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25000.0</MinScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_PNSG_AREA_SEN_SOBREV</Name>
+        <Title>Parque Nacional Sierra de Guadarrama - Áreas sensibles al sobrevuelo</Title>
+        <Abstract>Capa que Recoge las restricciones para el sobrevuelo. Artículo 49 y Anexo VI del Plan Rector de Uso y Gestión del Parque Nacional de la Sierra de Guadarrama. Escala 1:10.000</Abstract>
+        <KeywordList>
+          <Keyword>STATIC_LEGEND</Keyword>
+          <Keyword>Áreas sensibles</Keyword>
+          <Keyword>Sobrevuelo</Keyword>
+          <Keyword>Sierra de Guadarrama</Keyword>
+          <Keyword>Parque Nacional</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.201724886617852</westBoundLongitude>
+          <eastBoundLongitude>-3.7453134294968375</eastBoundLongitude>
+          <southBoundLatitude>40.72357559819946</southBoundLatitude>
+          <northBoundLatitude>41.05560273432272</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.201724886617852" miny="40.72357559819946" maxx="-3.7453134294968375" maxy="41.05560273432272"/>
+        <BoundingBox CRS="EPSG:25830" minx="399011.1863" miny="4508759.6624" maxx="437060.1585" maxy="4545199.7267"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.72357555866336" miny="-4.201724886617852" maxx="41.0556026945822" maxy="-3.7453134294968375"/>
+        <BoundingBox CRS="EPSG:23030" minx="399111.68734305876" miny="4508967.650978784" maxx="437160.9902777499" maxy="4545408.033966551"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.72357559819946" miny="-4.201724886617852" maxx="41.05560273432272" maxy="-3.7453134294968375"/>
+        <BoundingBox CRS="EPSG:3857" minx="-467733.87483172433" miny="4971654.229763845" maxx="-416926.38383279706" maxy="5020546.517048788"/>
+        <BoundingBox CRS="EPSG:32630" minx="399011.1863604446" miny="4508759.666903657" maxx="437060.1585383241" maxy="4545199.731226973"/>
+        <BoundingBox CRS="EPSG:3035" minx="2064411.5623996686" miny="3124044.802806305" maxx="2106941.890718293" maxy="3167361.982814177"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pnsobvue"/>
+        </MetadataURL>
+        <Style>
+          <Name>SIGI_MA_PNSG_AREAS_SENSIBLE_SOBREVUELO</Name>
+          <Title>SIGI_MA_PNSG_AREAS_SENSIBLE_SOBREVUELO</Title>
+          <LegendURL width="471" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PNSG_AREA_SEN_SOBREV"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_PNSG_CAMINOS</Name>
+        <Title>Parque Nacional Sierra de Guadarrama-Caminos y Senderos Autorizados-ZUR</Title>
+        <Abstract>Senderos e itinerarios de montaña autorizados, es decir, aquellos que aparecen en los planos del anexo XI “Cartografía de caminos y senderos autorizados para el tránsito a pie por las zonas de uso restringido en el ámbito de la Comunidad de Madrid” del Decreto 238/2023, por el que se modifica el Plan Rector Plan Rector de Uso y Gestión del Parque Nacional de la Sierra de Guadarrama. (DECRETO 18/2020)"Escala 1:10.000.</Abstract>
+        <KeywordList>
+          <Keyword>features</Keyword>
+          <Keyword>IDEM_MA_PNSG_CAMINOS</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.100846676319913</westBoundLongitude>
+          <eastBoundLongitude>-3.726579413715121</eastBoundLongitude>
+          <southBoundLatitude>40.73603943679087</southBoundLatitude>
+          <northBoundLatitude>41.027563643381505</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.100846676319913" miny="40.73603943679087" maxx="-3.726579413715121" maxy="41.027563643381505"/>
+        <BoundingBox CRS="EPSG:25830" minx="407450.7633" miny="4510033.3269" maxx="438652.8617" maxy="4542073.3433"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.736039397246806" miny="-4.100846676319914" maxx="41.02756360365765" maxy="-3.726579413715121"/>
+        <BoundingBox CRS="EPSG:23030" minx="407551.3354137906" miny="4510241.325633968" maxx="438753.70571722795" maxy="4542281.62126077"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.73603943679087" miny="-4.100846676319913" maxx="41.027563643381505" maxy="-3.726579413715121"/>
+        <BoundingBox CRS="EPSG:3857" minx="-456504.16382922104" miny="4973485.157913332" maxx="-414840.9227354632" maxy="5016408.145457672"/>
+        <BoundingBox CRS="EPSG:32630" minx="407450.76335543557" miny="4510033.331404553" maxx="438652.86173730186" maxy="4542073.347825062"/>
+        <BoundingBox CRS="EPSG:3035" minx="2065390.9092958088" miny="3132577.8762514247" maxx="2102390.359104762" maxy="3168440.846229645"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pncaminos"/>
+        </MetadataURL>
+        <Style>
+          <Name>s_ma_pnsg_caminos</Name>
+          <Title>s_ma_pnsg_caminos</Title>
+          <LegendURL width="259" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PNSG_CAMINOS"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_PNSG_CONOS_DESPEGUE</Name>
+        <Title>Parque Nacional Sierra de Guadarrama - Conos de despegue</Title>
+        <Abstract>Recoge los conos de despegue para la práctica de vuelo libre. Articulo 49 y Anexo VI del Plan Rector de Uso y Gestión del Parque Nacional de la Sierra de Guadarrama Escala 1:10.000</Abstract>
+        <KeywordList>
+          <Keyword>Conos despegue</Keyword>
+          <Keyword>Sierra de Guadarrama</Keyword>
+          <Keyword>Parque Nacional</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-3.8525078155042385</westBoundLongitude>
+          <eastBoundLongitude>-3.7625866510388466</eastBoundLongitude>
+          <southBoundLatitude>40.87303204555094</southBoundLatitude>
+          <northBoundLatitude>40.99997048282465</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-3.8525078155042385" miny="40.87303204555094" maxx="-3.7625866510388466" maxy="40.99997048282465"/>
+        <BoundingBox CRS="EPSG:25830" minx="428301.7093" miny="4525010.9654" maxx="435742.7008" maxy="4539034.8691"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.87303200592091" miny="-3.8525078155042385" maxx="40.999970443117306" maxy="-3.7625866510388466"/>
+        <BoundingBox CRS="EPSG:23030" minx="428402.4613800157" miny="4525219.090794587" maxx="435843.51965035184" maxy="4539243.114124052"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.87303204555094" miny="-3.8525078155042385" maxx="40.99997048282465" maxy="-3.7625866510388466"/>
+        <BoundingBox CRS="EPSG:3857" minx="-428859.2082990386" miny="4993631.919196737" maxx="-418849.23005921295" maxy="5012337.310071867"/>
+        <BoundingBox CRS="EPSG:32630" minx="428301.70934325503" miny="4525010.969914343" maxx="435742.7008390169" maxy="4539034.873623178"/>
+        <BoundingBox CRS="EPSG:3035" minx="2080657.4285166247" miny="3155527.292854197" maxx="2095771.5043759842" maxy="3165087.5538090765"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pnvlibre"/>
+        </MetadataURL>
+        <Style>
+          <Name>SIGI_MA_PNSG_CONOS_DESPEGUE</Name>
+          <Title>SIGI_MA_PNSG_CONOS_DESPEGUE</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PNSG_CONOS_DESPEGUE"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_PNSG_PUN_DESPEGUE</Name>
+        <Title>Parque Nacional Sierra de Guadarrama - Puntos de despegue</Title>
+        <Abstract>Recoge los puntos de despegue para la práctica de vuelo libre.Artículo 49 y Anexo VI del Plan Rector de Uso y Gestión del Parque Nacional de la Sierra de Guadarrama Escala 1:10.000</Abstract>
+        <KeywordList>
+          <Keyword>Puntos despegue</Keyword>
+          <Keyword>Sierra de Guadarrama</Keyword>
+          <Keyword>Parque Nacional</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-3.8509991457805337</westBoundLongitude>
+          <eastBoundLongitude>-3.779948504493111</eastBoundLongitude>
+          <southBoundLatitude>40.87304313524079</southBoundLatitude>
+          <northBoundLatitude>40.999756056905845</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-3.8509991457805337" miny="40.87304313524079" maxx="-3.779948504493111" maxy="40.999756056905845"/>
+        <BoundingBox CRS="EPSG:25830" minx="428428.5002" miny="4525010.9654" maxx="434279.6234" maxy="4539024.0099"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.873043095610754" miny="-3.8509991457805337" maxx="40.999756017198614" maxy="-3.7799485044931127"/>
+        <BoundingBox CRS="EPSG:23030" minx="428529.2533377174" miny="4525219.091294239" maxx="434380.43008233514" maxy="4539232.254790004"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.87304313524079" miny="-3.8509991457805337" maxx="40.999756056905845" maxy="-3.779948504493111"/>
+        <BoundingBox CRS="EPSG:3857" minx="-428691.26395362045" miny="4993633.55178268" maxx="-420781.94274496904" maxy="5012305.682363401"/>
+        <BoundingBox CRS="EPSG:32630" minx="428428.5002431787" miny="4525010.969914344" maxx="434279.62343990465" maxy="4539024.014423166"/>
+        <BoundingBox CRS="EPSG:3035" minx="2080911.0735038903" miny="3155652.492786884" maxx="2095738.7952178372" maxy="3163641.185230054"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pnvlibre"/>
+        </MetadataURL>
+        <Style>
+          <Name>SIGI_MA_PNSG_PUNTOS_DESPEGUE</Name>
+          <Title>SIGI_MA_PNSG_PUNTOS_DESPEGUE</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PNSG_PUN_DESPEGUE"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_PNSG_VIAL_CICLABLE</Name>
+        <Title>Parque Nacional Sierra de Guadarrama - Viales ciclables</Title>
+        <Abstract>Capa que Recoge los viales compatibles con la práctica del ciclismo en el ámbito del PRUG. Artículo 47 y Anexo IV del Plan Rector de Uso y Gestión del Parque Nacional de la Sierra de Guadarrama. Escala 1:10.000</Abstract>
+        <KeywordList>
+          <Keyword>Vias ciclables</Keyword>
+          <Keyword>Sierra de Guadarrama</Keyword>
+          <Keyword>Parque Nacional</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.142029414790526</westBoundLongitude>
+          <eastBoundLongitude>-3.728047774414742</eastBoundLongitude>
+          <southBoundLatitude>40.7397439062471</southBoundLatitude>
+          <northBoundLatitude>41.03198540719768</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.142029414790526" miny="40.7397439062471" maxx="-3.728047774414742" maxy="41.03198540719768"/>
+        <BoundingBox CRS="EPSG:25830" minx="403994.2824" miny="4510488.5821" maxx="438532.65" maxy="4542565.2497"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.73974386670068" miny="-4.142029414790526" maxx="41.03198536747118" maxy="-3.728047774414742"/>
+        <BoundingBox CRS="EPSG:23030" minx="404094.8258271448" miny="4510696.584704067" maxx="438633.49317369267" maxy="4542773.533111208"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.7397439062471" miny="-4.142029414790526" maxx="41.03198540719768" maxy="-3.728047774414742"/>
+        <BoundingBox CRS="EPSG:3857" minx="-461088.6053052423" miny="4974029.407704865" maxx="-415004.37990084593" maxy="5017060.649459564"/>
+        <BoundingBox CRS="EPSG:32630" minx="403994.28245751426" miny="4510488.586604829" maxx="438532.65003738325" maxy="4542565.254225366"/>
+        <BoundingBox CRS="EPSG:3035" minx="2065860.4230636496" miny="3129237.020254653" maxx="2103476.9062967487" maxy="3168399.82288774"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pnpcicla"/>
+        </MetadataURL>
+        <Style>
+          <Name>SIGI_MA_PNSG_VIALES_CICLABLES</Name>
+          <Title>SIGI_MA_PNSG_VIALES_CICLABLES</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PNSG_VIAL_CICLABLE"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_PNSG_ZONAS_ESCALADA</Name>
+        <Title>Parque Nacional Sierra de Guadarrama – Zonas de escalada</Title>
+        <Abstract>Capa que recoge los sectores compatibles con la práctica de la escalada en roca en cualquier modalidad. Articulo 47 y Anexo III del Plan Rector de Uso y Gestión del Parque Nacional de la Sierra de Guadarrama. Escala 1:10.000</Abstract>
+        <KeywordList>
+          <Keyword>Escalada</Keyword>
+          <Keyword>Sierra de Guadarrama</Keyword>
+          <Keyword>Parque Nacional</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.031171102196995</westBoundLongitude>
+          <eastBoundLongitude>-3.8299712116266065</eastBoundLongitude>
+          <southBoundLatitude>40.737712971547346</southBoundLatitude>
+          <northBoundLatitude>40.91997997214517</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.031171102196995" miny="40.737712971547346" maxx="-3.8299712116266065" maxy="40.91997997214517"/>
+        <BoundingBox CRS="EPSG:25830" minx="413169.3532" miny="4510149.9342" maxx="429923.4868" maxy="4530207.5039"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.73771293200222" miny="-4.031171102196995" maxx="40.919979932486264" maxy="-3.8299712116266065"/>
+        <BoundingBox CRS="EPSG:23030" minx="413269.97317448724" miny="4510357.937038677" maxx="430024.25423743663" maxy="4530415.680932968"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.737712971547346" miny="-4.031171102196995" maxx="40.91997997214517" maxy="-3.8299712116266065"/>
+        <BoundingBox CRS="EPSG:3857" minx="-448747.91439712886" miny="4973731.024980031" maxx="-426350.44503117085" maxy="5000545.883100692"/>
+        <BoundingBox CRS="EPSG:32630" minx="413169.35325201775" miny="4510149.938704665" maxx="429923.486842378" maxy="4530207.508417645"/>
+        <BoundingBox CRS="EPSG:3035" minx="2067018.9545538395" miny="3138242.604169929" maxx="2089698.5194009324" maxy="3157948.3712310856"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pnzesca"/>
+        </MetadataURL>
+        <Style>
+          <Name>SIGI_MA_PNSG_ZONAS_ESCALADA</Name>
+          <Title>SIGI_MA_PNSG_ZONAS_ESCALADA</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PNSG_ZONAS_ESCALADA"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_PNSG_ZONIFICACION</Name>
+        <Title>Parque Nacional Sierra de Guadarrama - Zonificación</Title>
+        <Abstract>Capa que recoge la zonificación establecida en el artículo 27 y siguientes (título III)y Anexo I del Plan Rector de Uso y Gestión del Parque Nacional de la Sierra de Guadarrama. DECRETO 18/2020, de 11 de febrero, del Consejo de Gobierno, por el que se aprueba el Plan Rector de Uso y Gestión del Parque Nacional de la Sierra de Guadarrama en el ámbito territorial de la Comunidad de Madrid. DECRETO 16/2019, de 23 de mayo, por el que se aprueba el Plan Rector de Uso y Gestión del Parque Nacional de la Sierra de Guadarrama en el ámbito territorial de la Comunidad de Castilla y León. Escala 1:10.000</Abstract>
+        <KeywordList>
+          <Keyword>Zonificación</Keyword>
+          <Keyword>Sierra de Guadarrama</Keyword>
+          <Keyword>Parque Nacional</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.143582744306087</westBoundLongitude>
+          <eastBoundLongitude>-3.7270568302975433</eastBoundLongitude>
+          <southBoundLatitude>40.73540899067232</southBoundLatitude>
+          <northBoundLatitude>41.03900033649806</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.143582744306087" miny="40.73540899067232" maxx="-3.7270568302975433" maxy="41.03900033649806"/>
+        <BoundingBox CRS="EPSG:25830" minx="403873.8726" miny="4510008.8528" maxx="438612.3463" maxy="4543343.3743"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.735408951128655" miny="-4.143582744306087" maxx="41.03900029676739" maxy="-3.7270568302975424"/>
+        <BoundingBox CRS="EPSG:23030" minx="403974.41481362894" miny="4510216.851342218" maxx="438713.19038119575" maxy="4543551.664213238"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.73540899067232" miny="-4.143582744306087" maxx="41.03900033649806" maxy="-3.7270568302975433"/>
+        <BoundingBox CRS="EPSG:3857" minx="-461261.52115594875" miny="4973392.537635687" maxx="-414894.0685063147" maxy="5018095.907611376"/>
+        <BoundingBox CRS="EPSG:32630" minx="403873.8726575733" miny="4510008.857304513" maxx="438612.34633734793" maxy="4543343.3788258415"/>
+        <BoundingBox CRS="EPSG:3035" minx="2065373.8070916557" miny="3129042.511073688" maxx="2104264.9705362977" maxy="3168601.3971465565"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pnzonif"/>
+        </MetadataURL>
+        <Style>
+          <Name>SIGI_MA_PNSG_ZONIFICACION</Name>
+          <Title>SIGI_MA_PNSG_ZONIFICACION</Title>
+          <LegendURL width="193" height="180">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PNSG_ZONIFICACION"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_PNSG_ZON_VIVAC_ANUA</Name>
+        <Title>Parque Nacional Sierra de Guadarrama - Zonas de Vivac Anual</Title>
+        <Abstract>La capa recoge las zonas donde está permitido el vivac o la pernocta al raso. Artículo 48 y Anexo III del Plan Rector de Uso y Gestión del Parque Nacional de la Sierra de Guadarrama. Modificada en diciembre de 2023 para excluir la zona "Pajaros_Peñalara // Los Llanos" por motivos de conservación, y de acuerdo a los art. 33.1 y 45.3 del PRUG. Escala 1:10.000</Abstract>
+        <KeywordList>
+          <Keyword>Vivac</Keyword>
+          <Keyword>Sierra de Guadarrama</Keyword>
+          <Keyword>Parque Nacional</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-3.9597309400168874</westBoundLongitude>
+          <eastBoundLongitude>-3.8631237482822782</eastBoundLongitude>
+          <southBoundLatitude>40.75355896789984</southBoundLatitude>
+          <northBoundLatitude>40.858816166970605</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-3.9597309400168874" miny="40.75355896789984" maxx="-3.8631237482822782" maxy="40.858816166970605"/>
+        <BoundingBox CRS="EPSG:25830" minx="419111.7031" miny="4511841.9299" maxx="427140.6781" maxy="4523444.1"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.75355892834464" miny="-3.9597309400168874" maxx="40.85881612734937" maxy="-3.8631237482822773"/>
+        <BoundingBox CRS="EPSG:23030" minx="419212.37345881766" miny="4512049.947980266" maxx="427241.41992845456" maxy="4523652.218291367"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.75355896789984" miny="-3.9597309400168874" maxx="40.858816166970605" maxy="-3.8631237482822782"/>
+        <BoundingBox CRS="EPSG:3857" minx="-440795.2319210504" miny="4976059.343394806" maxx="-430040.9685301856" maxy="4991539.331322178"/>
+        <BoundingBox CRS="EPSG:32630" minx="419111.7031484997" miny="4511841.9344058065" maxx="427140.6781439236" maxy="4523444.104513342"/>
+        <BoundingBox CRS="EPSG:3035" minx="2069169.328312004" miny="3144376.846447384" maxx="2081998.9792223512" maxy="3154133.755316641"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pnzvivac"/>
+        </MetadataURL>
+        <Style>
+          <Name>SIGI_MA_PNSG_ZONAS_VIVAC_ANUAL</Name>
+          <Title>SIGI_MA_PNSG_ZONAS_VIVAC_ANUAL</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PNSG_ZON_VIVAC_ANUA"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_PN_GUADARRAMA_INF_CM</Name>
+        <Title>Área de Influencia Socioeconómica del Parque Nacional de la Sierra de Guadarrama</Title>
+        <Abstract>[LANG_ES]Límites del Área de Influencia Socioeconómica en la Comunidad de Madrid, tal y como se refleja en el Artículo 5 y en el anexo IV de la Ley 7/2013, de 25 de junio, de declaración del Parque Nacional de la Sierra de Guadarrama&#13;
+  [LANG_EN]Limits of the Area of Socioeconomic Influence in the Community of Madrid, as reflected in Article 5 and Annex IV of Law 7/2013 of 25 June, the declaration of the Sierra de Guadarrama National Park</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Socioeconomic influence area (Comunidad de Madrid)</Keyword>
+          <Keyword>OPACITY::70</Keyword>
+          <Keyword>Influencia</Keyword>
+          <Keyword>Sierra de Guadarrama</Keyword>
+          <Keyword>Parque Nacional</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.180010812160719</westBoundLongitude>
+          <eastBoundLongitude>-3.675665478606337</eastBoundLongitude>
+          <southBoundLatitude>40.62849687388068</southBoundLatitude>
+          <northBoundLatitude>41.03656018891696</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.180010812160719" miny="40.62849687388068" maxx="-3.675665478606337" maxy="41.03656018891696"/>
+        <BoundingBox CRS="EPSG:25830" minx="400807.1002" miny="4498179.1573" maxx="442860.8276" maxy="4543038.1455"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.62849683440596" miny="-4.1800108121607185" maxx="41.03656014918775" maxy="-3.6756654786063367"/>
+        <BoundingBox CRS="EPSG:23030" minx="400907.6115134214" miny="4498387.054679034" maxx="442961.7068904938" maxy="4543246.434119447"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.62849687388068" miny="-4.180010812160719" maxx="41.03656018891696" maxy="-3.675665478606337"/>
+        <BoundingBox CRS="EPSG:3857" minx="-465316.6751201092" miny="4957698.50668143" maxx="-409173.20940487157" maxy="5017735.779897039"/>
+        <BoundingBox CRS="EPSG:32630" minx="400807.10025908053" miny="4498179.161796643" maxx="442860.8276347592" maxy="4543038.1500256695"/>
+        <BoundingBox CRS="EPSG:3035" minx="2052979.4818956445" miny="3124150.7383798314" maxx="2104498.0783422757" maxy="3172748.30418597"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pninfluencia"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_PN_GUADARRAMA_INF_CM</Name>
+          <Title>Parque nacional Guadarrama</Title>
+          <Abstract>Parque nacional Guadarrama</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PN_GUADARRAMA_INF_CM"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_PORN_S_GUADARRAMA</Name>
+        <Title>Plan de Ordenación de los Recursos Naturales de la Sierra de Guadarrama</Title>
+        <Abstract>[LANG_ES]Zonificación según el Plan de Ordenación de los Recursos Naturales (PORN) de la Sierra de Guadarrama en el ámbito territorial de la Comunidad de Madrid.&#13;
+  [LANG_EN]Areas of the Natural Resources Management Plan (PORN) of the Sierra de Guadarrama in the territorial area of the Comunidad de Madrid&#13;
+  [LANG_CA]Zonificación del Plan de Ordenación de los Recursos Naturales (PORN) de la Sierra de Guadarrama en el ámbito territorial de la Comunidad de Madrid&#13;
+  [LANG_EU]Zonificación del Plan de Ordenación de los Recursos Naturales (PORN) de la Sierra de Guadarrama en el ámbito territorial de la Comunidad de Madrid&#13;
+  [LANG_GL]Zonificación del Plan de Ordenación de los Recursos Naturales (PORN) de la Sierra de Guadarrama en el ámbito territorial de la Comunidad de Madrid</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Natural Resources Management Plan of the Sierra de Guadarrama</Keyword>
+          <Keyword>OPACITY::70</Keyword>
+          <Keyword>Ordenación</Keyword>
+          <Keyword>Recursos Naturales</Keyword>
+          <Keyword>Sierra de Guadarrama</Keyword>
+          <Keyword>Parque Nacional</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.334718634282516</westBoundLongitude>
+          <eastBoundLongitude>-3.5765826790909556</eastBoundLongitude>
+          <southBoundLatitude>40.54752970488614</southBoundLatitude>
+          <northBoundLatitude>41.16044098218159</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.334718634282516" miny="40.54752970488614" maxx="-3.5765826790909556" maxy="41.16044098218159"/>
+        <BoundingBox CRS="EPSG:25830" minx="388008.7218" miny="4489370.9023" maxx="451182.7471" maxy="4556730.9287"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.54752966546469" miny="-4.334718634282516" maxx="41.16044094237976" maxy="-3.576582679090956"/>
+        <BoundingBox CRS="EPSG:23030" minx="388109.12163332826" miny="4489578.722324106" maxx="451283.6994010864" maxy="4556939.335850292"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.54752970488614" miny="-4.334718634282516" maxx="41.16044098218159" maxy="-3.5765826790909556"/>
+        <BoundingBox CRS="EPSG:3857" minx="-482538.6711004439" miny="4945829.745028589" maxx="-398143.3626164474" maxy="5036035.552587633"/>
+        <BoundingBox CRS="EPSG:32630" minx="388008.7218664063" miny="4489370.90679058" maxx="451182.74712988135" maxy="4556730.933233976"/>
+        <BoundingBox CRS="EPSG:3035" minx="2042859.5852474093" miny="3110127.8685871796" maxx="2120228.612713399" maxy="3183128.791210886"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pornsg"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_PORN_SIERRA_GUADARRAMA</Name>
+          <Title>Plan de Ordenación de los Recursos Naturales de la Sierra de Guadarrama</Title>
+          <Abstract>Plan de Ordenación de los Recursos Naturales de la Sierra de Guadarrama</Abstract>
+          <LegendURL width="197" height="144">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PORN_S_GUADARRAMA"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_RED_NATURA_PLAN</Name>
+        <Title>Planes de Gestión de Espacios Protegidos Red Natura 2000 de la Comunidad de Madrid</Title>
+        <Abstract>[LANG_ES]Planes de Gestión de Espacios Protegidos Red Natura 2000 de la Comunidad de Madrid a escala 1:25.000 del año 2014
+  [LANG_EN]Plans for the Management of Protected Areas of Natura 2000 Network of the Comunidad de Madrid at 1: 25,000 scale in 2014
+  </Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::Natura 2000 Network - Management Plans</Keyword>
+          <Keyword>OPACITY::70</Keyword>
+          <Keyword>Red Natura</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.601149062063659</westBoundLongitude>
+          <eastBoundLongitude>-3.0675778909108633</eastBoundLongitude>
+          <southBoundLatitude>39.876940638562616</southBoundLatitude>
+          <northBoundLatitude>41.15691654629737</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.601149062063659" miny="39.876940638562616" maxx="-3.0675778909108633" maxy="41.15691654629737"/>
+        <BoundingBox CRS="EPSG:25830" minx="365635.720201493" miny="4415280.3488" maxx="494222.1215" maxy="4556178.8057"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.87694059961704" miny="-4.601149062063659" maxx="41.156916506497566" maxy="-3.0675778909108633"/>
+        <BoundingBox CRS="EPSG:23030" minx="365735.88916771713" miny="4415487.518881933" maxx="494323.43127560616" maxy="4556387.218423277"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.876940638562616" miny="-4.601149062063659" maxx="41.15691654629737" maxy="-3.0675778909108633"/>
+        <BoundingBox CRS="EPSG:3857" minx="-512197.5706528747" miny="4848075.709569223" maxx="-341481.20878490136" maxy="5035514.442550237"/>
+        <BoundingBox CRS="EPSG:32630" minx="365635.72027829726" miny="4415280.353236365" maxx="494222.121503536" maxy="4556178.810233715"/>
+        <BoundingBox CRS="EPSG:3035" minx="1962455.2014245638" miny="3076411.0165213123" maxx="2123592.936827103" maxy="3225549.801871885"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_rednaturapg"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_RED_NATURA_PLAN</Name>
+          <Title>Red Natura - Plan general</Title>
+          <Abstract>Red Natura - Plan general</Abstract>
+          <LegendURL width="206" height="102">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_RED_NATURA_PLAN"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_RESERVA_BIOS_ZONA</Name>
+        <Title>Zonificación de las Reservas de la Biosfera en la Comunidad de Madrid</Title>
+        <Abstract>[LANG_ES]La capa recoge la zonificación de las Reservas de la Biosfera: - Cuencas altas de los ríos Manzanares, Lozoya y Guadarrama, designada Reserva de la Biosfera por la UNESCO el 9 de noviembre de 1992, ampliada por la UNESCO el 19 de junio de 2019, a petición de la Comunidad de Madrid - Sierra del Rincón, designada por la UNESCO el 29 de junio de 2005, ampliada por la UNESCO el 15 de junio de 2022, a petición de la Comunidad de Madrid.[LANG_EN]The layer includes the zoning of the Cuenca Alta del Río Manzanares Biosphere Reserve, designated by UNESCO on November 9, 1999, and which is composed of two zones: Core zone: It must be legally protected and must ensure a long-term protection of the landscape, the ecosystems and the species it contains. Buffer or buffer zone surrounding the core zone and where activities compatible with conservation can take place. And the zoning of the Sierra Biosphere Reserve del Rincón, designated by UNESCO on June 29, 2005, composed of three zones: Core zone: It must be legally protected and must ensure long-term protection of the landscape, ecosystems and the species it contains. or buffer around the core area and where activities compatible with conservation can take place. Transition zone where forms of sustainable use are fostered and practiced of the resources.</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN :: Zoning of Biosphere Reserves in the Community of Madrid at a scale of 1: 25.000</Keyword>
+          <Keyword>Reservas Biosfera</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.182023174581844</westBoundLongitude>
+          <eastBoundLongitude>-3.391378803656375</eastBoundLongitude>
+          <southBoundLatitude>40.47291946667352</southBoundLatitude>
+          <northBoundLatitude>41.15025920767866</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.182023174581844" miny="40.47291946667352" maxx="-3.391378803656375" maxy="41.15025920767866"/>
+        <BoundingBox CRS="EPSG:25830" minx="400807.0688" miny="4480906.32" maxx="466826.1814" maxy="4555512.7871"/>
+        <BoundingBox CRS="EPSG:4258" minx="40.47291942730195" miny="-4.182023174581844" maxx="41.150259167882716" maxy="-3.3913788036563752"/>
+        <BoundingBox CRS="EPSG:23030" minx="400907.5721475371" miny="4481114.063118842" maxx="466927.2631726785" maxy="4555721.178953188"/>
+        <BoundingBox CRS="EPSG:4326" minx="40.47291946667352" miny="-4.182023174581844" maxx="41.15025920767866" maxy="-3.391378803656375"/>
+        <BoundingBox CRS="EPSG:3857" minx="-465540.69028012024" miny="4934905.52592988" maxx="-377526.5615101289" maxy="5034530.189560547"/>
+        <BoundingBox CRS="EPSG:32630" minx="400807.0688586032" miny="4480906.324484871" maxx="466826.1814202956" maxy="4555512.7916332865"/>
+        <BoundingBox CRS="EPSG:3035" minx="2031817.2090071468" miny="3121433.2915810314" maxx="2116796.4909647563" maxy="3198384.598450616"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_zrbios"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_RESERVA_BIOS_ZONA</Name>
+          <Title>Reserva de la biosfera con zona transición y tampón</Title>
+          <Abstract>Reserva de la biosfera con zona transición y tampón</Abstract>
+          <LegendURL width="138" height="80">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_RESERVA_BIOS_ZONA"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_VIAS_PECUARIAS</Name>
+        <Title>Red de Vías Pecuarias de la Comunidad de Madrid</Title>
+        <Abstract>[LANG_ES]Las vías pecuarias son bienes de dominio público, y como tales, son inalienables (no se pueden vender), imprescriptibles (no prescriben con el paso del tiempo) e inembargables (no pueden ser embargados). El territorio de la Comunidad de Madrid, es atravesado por cuatro cañadas reales, además de por gran número de otras vías pecuarias (cordeles, veredas y coladas). Ley 8/1998, de 15 de junio, de Vías Pecuarias de la Comunidad de Madrid.&#13;
+[LANG_EN]The licestock tracks are public domain assets, and as such, they are inalienable (they cannot be sold), imprescriptible (they do not prescribe over time) and unseizable (they cannot be seized). The territory of the Community of Madrid is crossed by four royal glens, in addition to a large number of other cattle tracks (cordes, paths and streams). Law 8/1998, of June 15, on Livestock Routes of the Community of Madrid.</Abstract>
+        <KeywordList>
+          <Keyword>Vias Pecuarias</Keyword>
+          <Keyword>Zonas sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.55367522680439</westBoundLongitude>
+          <eastBoundLongitude>-3.108358941735116</eastBoundLongitude>
+          <southBoundLatitude>39.896387430491245</southBoundLatitude>
+          <northBoundLatitude>41.16321512560477</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.55367522680439" miny="39.896387430491245" maxx="-3.108358941735116" maxy="41.16321512560477"/>
+        <BoundingBox CRS="EPSG:25830" minx="369633.5684" miny="4417370.214" maxx="490737.8908" maxy="4556881.6156"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.89638739153101" miny="-4.55367522680439" maxx="41.16321508580133" maxy="-3.108358941735116"/>
+        <BoundingBox CRS="EPSG:23030" minx="369733.7728427431" miny="4417577.403316298" maxx="490839.1716805604" maxy="4557090.032205991"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.896387430491245" miny="-4.55367522680439" maxx="41.16321512560477" maxy="-3.108358941735116"/>
+        <BoundingBox CRS="EPSG:3857" minx="-506912.8074858092" miny="4850896.987141969" maxx="-346020.9345966718" maxy="5036445.746870228"/>
+        <BoundingBox CRS="EPSG:32630" minx="369633.5684746118" miny="4417370.218438035" maxx="490737.8908056701" maxy="4556881.620134132"/>
+        <BoundingBox CRS="EPSG:3035" minx="1965111.5409563922" miny="3080686.2692952207" maxx="2123586.6602608473" maxy="3222218.73060943"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_vpec"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_VIAS_PECUARIAS</Name>
+          <Title>S_MA_VIAS_PECUARIAS</Title>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_VIAS_PECUARIAS"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0">
+        <Name>IDEM_MA_ZONAS_VULNERAB</Name>
+        <Title>Zonas Vulnerables a la Contaminación por Nitratos</Title>
+        <Abstract>Ámbito de las superficies territoriales recogidas en el Anexo del DECRETO 27/2020, de 15 de abril, del Consejo de Gobierno: "Cartografía de las zonas vulnerables declaradas en la Comunidad de Madrid"Esta capa es la ajustada para su inclusión en la capa de la conjunta de España y de la UE. Bajada de la WEB del Ministerio para la Transición Ecológica y el Reto Demográfico.</Abstract>
+        <KeywordList>
+          <Keyword>OPACITY::70</Keyword>
+          <Keyword>LANG_EN::Vulnerable areas to nitrite contamination. Year 2020</Keyword>
+          <Keyword>Zona vulnerables</Keyword>
+          <Keyword>Nitratos</Keyword>
+          <Keyword>Zonas Sujetas a ordenación</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.365434603034084</westBoundLongitude>
+          <eastBoundLongitude>-3.1045734533762537</eastBoundLongitude>
+          <southBoundLatitude>39.89064086178901</southBoundLatitude>
+          <northBoundLatitude>40.63209138610344</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.365434603034084" miny="39.89064086178901" maxx="-3.1045734533762537" maxy="40.63209138610344"/>
+        <BoundingBox CRS="EPSG:25830" minx="384513.1894" miny="4416492.6715" maxx="491060.433" maxy="4497922.3882"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.89064082283308" miny="-4.365434603034084" maxx="40.63209134662637" maxy="-3.1045734533762537"/>
+        <BoundingBox CRS="EPSG:23030" minx="384613.5206787208" miny="4416699.853088227" maxx="491161.7046709556" maxy="4498130.307955988"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.89064086178901" miny="-4.365434603034084" maxx="40.63209138610344" maxy="-3.1045734533762537"/>
+        <BoundingBox CRS="EPSG:3857" minx="-485957.9571010905" miny="4850063.210264925" maxx="-345599.5359601594" maxy="4958225.750025468"/>
+        <BoundingBox CRS="EPSG:32630" minx="384513.1894661093" miny="4416492.675937536" maxx="491060.4330053271" maxy="4497922.392696798"/>
+        <BoundingBox CRS="EPSG:3035" minx="1964191.879288834" miny="3095246.7601430593" maxx="2062865.304329416" maxy="3213269.2126376117"/>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/plain</Format>
+          <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_zvulnit"/>
+        </MetadataURL>
+        <Style>
+          <Name>S_MA_ZONAS_VULNERABLES</Name>
+          <Title>Zonas vulnerables a la contaminación por nitratos</Title>
+          <Abstract>Zonas vulnerables a la contaminación por nitratos</Abstract>
+          <LegendURL width="331" height="150">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_ZONAS_VULNERAB"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer>
+        <Name>Caza y pesca</Name>
+        <Title>Caza y pesca</Title>
+        <Layer>
+          <Name>Caza</Name>
+          <Title>Caza</Title>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_CAZA_CONTROLADA</Name>
+            <Title>Zonas de Caza Controlada en la Comunidad de Madrid</Title>
+            <Abstract>[LANG_ES]Capa que representa las zonas de caza controlada, las cuales son terrenos de aprovechamiento común que por razones de protección y regulación de la caza, está encomendada a la Administración competente directamente o a la sociedad de cazadores. 
+  [LANG_EN]The layer represents controlled hunting areas, which are lands of common use that for reasons of protection and regulation of the hunting, is entrusted to the competent Administration directly or to the society of hunters. 
+  [LANG_CA]La capa representa las zonas de caza controlada, las cuales son terrenos de aprovechamiento común que por razones de protección y regulación de la caza, está encomendada a la Administración competente directamente o a la sociedad de cazadores. [LANG_EU]La capa representa las zonas de caza controlada, las cuales son terrenos de aprovechamiento común que por razones de protección y regulación de la caza, está encomendada a la Administración competente directamente o a la sociedad de cazadores.</Abstract>
+            <KeywordList>
+              <Keyword>LANG_EN::Controlled hunting areas</Keyword>
+              <Keyword>OPACITY::70</Keyword>
+              <Keyword>Caza controlada</Keyword>
+              <Keyword>Zonas</Keyword>
+              <Keyword>Zonas Sujetas a ordenación</Keyword>
+              <Keyword>Comunidad de Madrid</Keyword>
+              <Keyword>IDEM</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-4.394829640748861</westBoundLongitude>
+              <eastBoundLongitude>-3.454175234563268</eastBoundLongitude>
+              <southBoundLatitude>40.310388327758844</southBoundLatitude>
+              <northBoundLatitude>41.16620519622662</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-4.394829640748861" miny="40.310388327758844" maxx="-3.454175234563268" maxy="41.16620519622662"/>
+            <BoundingBox CRS="EPSG:25830" minx="382972.904692004" miny="4463118.20409772" maxx="461411.934552652" maxy="4557309.63922199"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.31038828849863" miny="-4.39482964074886" maxx="41.16620515642147" maxy="-3.454175234563268"/>
+            <BoundingBox CRS="EPSG:23030" minx="383073.24867218814" miny="4463325.797236126" maxx="461512.9718159748" maxy="4557518.0533099165"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.310388327758844" miny="-4.394829640748861" maxx="41.16620519622662" maxy="-3.454175234563268"/>
+            <BoundingBox CRS="EPSG:3857" minx="-489230.19773134857" miny="4911150.1143590165" maxx="-384517.0282223193" maxy="5036887.888327566"/>
+            <BoundingBox CRS="EPSG:32630" minx="382972.9047605265" miny="4463118.208569914" maxx="461411.9345762788" maxy="4557309.643756336"/>
+            <BoundingBox CRS="EPSG:3035" minx="2015224.8481626082" miny="3101028.056606727" maxx="2121678.050930643" maxy="3193321.422230483"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_zcc"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_CAZA_CONTROLADA</Name>
+              <Title>Zonas de caza controlada</Title>
+              <Abstract>Zonas de caza controlada</Abstract>
+              <LegendURL width="20" height="20">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_CAZA_CONTROLADA"/>
+              </LegendURL>
+            </Style>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_COTOS_CAZA</Name>
+            <Title>Cotos Privados de Caza en la Comunidad de Madrid</Title>
+            <Abstract>La capa representa los cotos privados de caza que son terrenos contiguos susceptibles de aprovechamiento cinegético que han sido declarados como tal por resolución del Órgano competente. 
+  Debido a la constante modificación de los cotos privados de caza, los datos mostrados pueden haber variado desde la última actualización, por tanto, estos datos tienen un carácter informativo. 
+  En esta capa no se muestran las zonas de seguridad de los cotos, donde está prohibido el uso de armas de fuego. 
+  La superficie de los cotos es orientativa debido a que puede tener desajustes cartográficos derivados de su tratamiento con las herramientas informáticas con las que se elaboran estos mapas (SIG).</Abstract>
+            <KeywordList>
+              <Keyword>LANG_EN::Hunting Grounds</Keyword>
+              <Keyword>OPACITY::70</Keyword>
+              <Keyword>Cotos de Caza</Keyword>
+              <Keyword>Privados</Keyword>
+              <Keyword>Zonas</Keyword>
+              <Keyword>Zonas Sujetas a ordenación</Keyword>
+              <Keyword>Comunidad de Madrid</Keyword>
+              <Keyword>IDEM</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-4.599955377412942</westBoundLongitude>
+              <eastBoundLongitude>-3.0530648413061465</eastBoundLongitude>
+              <southBoundLatitude>39.87912510877307</southBoundLatitude>
+              <northBoundLatitude>41.162820285792975</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-4.599955377412942" miny="39.87912510877307" maxx="-3.0530648413061465" maxy="41.162820285792975"/>
+            <BoundingBox CRS="EPSG:25830" minx="365747.9582" miny="4415520.9167" maxx="495463.124" maxy="4556833.3191"/>
+            <BoundingBox CRS="EPSG:4258" minx="39.87912506982584" miny="-4.599955377412942" maxx="41.16282024598977" maxy="-3.053064841306147"/>
+            <BoundingBox CRS="EPSG:23030" minx="365848.1282759913" miny="4415728.088503868" maxx="495564.44422076305" maxy="4557041.737151047"/>
+            <BoundingBox CRS="EPSG:4326" minx="39.87912510877307" miny="-4.599955377412942" maxx="41.162820285792975" maxy="-3.0530648413061465"/>
+            <BoundingBox CRS="EPSG:3857" minx="-512064.69028538925" miny="4848392.585536809" maxx="-339865.62349304685" maxy="5036387.363452832"/>
+            <BoundingBox CRS="EPSG:32630" minx="365747.9582767497" miny="4415520.921136553" maxx="495463.12400277733" maxy="4556833.323634105"/>
+            <BoundingBox CRS="EPSG:3035" minx="1962479.1865707068" miny="3076559.483275578" maxx="2124218.638138995" maxy="3226878.9578080466"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_cpc"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_COTOS_CAZA</Name>
+              <Title>Cotos de caza</Title>
+              <Abstract>Cotos de caza</Abstract>
+              <LegendURL width="201" height="140">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_COTOS_CAZA"/>
+              </LegendURL>
+            </Style>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_RESERVA_CAZA_SONSAZ</Name>
+            <Title>Reserva Nacional de Caza de Sonsaz en la Comunidad de Madrid</Title>
+            <Abstract>[LANG_ES]La Reserva Nacional de Caza de Sonsaz fue creada por la Ley 2/1973, de 17 de marzo, y abarca terrenos de las provincias de Guadalajara y Madrid. 
+  [LANG_EN]The National Hunting Reserve of Sonsaz was created by Law 2/1973 of 17 March and covers lands in the provinces of Guadalajara and Madrid. </Abstract>
+            <KeywordList>
+              <Keyword>LANG_EN::National Hunting Reserve of Sonsaz</Keyword>
+              <Keyword>OPACITY::70</Keyword>
+              <Keyword>Caza</Keyword>
+              <Keyword>Reserva</Keyword>
+              <Keyword>Sonsaz</Keyword>
+              <Keyword>Zonas Sujetas a ordenación</Keyword>
+              <Keyword>Comunidad de Madrid</Keyword>
+              <Keyword>IDEM</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-3.5480223001820477</westBoundLongitude>
+              <eastBoundLongitude>-3.393905964789753</eastBoundLongitude>
+              <southBoundLatitude>40.90814082211918</southBoundLatitude>
+              <northBoundLatitude>41.15025757912172</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-3.5480223001820477" miny="40.90814082211918" maxx="-3.393905964789753" maxy="41.15025757912172"/>
+            <BoundingBox CRS="EPSG:25830" minx="454014.7806" miny="4528703.3898" maxx="466826.226700001" maxy="4555512.6061"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.90814078246754" miny="-3.5480223001820477" maxx="41.15025753932578" maxy="-3.3939059647897523"/>
+            <BoundingBox CRS="EPSG:23030" minx="454115.74858840957" miny="4528911.53681927" maxx="466927.3084730132" maxy="4555720.98039088"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.90814082211918" miny="-3.5480223001820477" maxx="41.15025757912172" maxy="-3.393905964789753"/>
+            <BoundingBox CRS="EPSG:3857" minx="-394964.03577944473" miny="4998801.883150575" maxx="-377807.8838006492" maxy="5034529.9487990765"/>
+            <BoundingBox CRS="EPSG:32630" minx="454014.7806277935" miny="4528703.3943167785" maxx="466826.2267202966" maxy="4555512.610633285"/>
+            <BoundingBox CRS="EPSG:3035" minx="2078919.0502988698" miny="3181502.9866025345" maxx="2107558.500991845" maxy="3198384.614609681"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_rncs"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_RESERVA_CAZA_SONSAZ</Name>
+              <Title>Reserva caza Sonsaz</Title>
+              <Abstract>Reserva caza Sonsaz</Abstract>
+              <LegendURL width="20" height="20">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_RESERVA_CAZA_SONSAZ"/>
+              </LegendURL>
+            </Style>
+          </Layer>
+        </Layer>
+        <Layer>
+          <Name>Pesca</Name>
+          <Title>Pesca</Title>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_PESCA_CONTROL</Name>
+            <Title>Zonas de pesca controlada</Title>
+            <Abstract>[LANG_ES]La capa muestra las zonas de pesca controlada en la Comunidad de Madrid
+  [LANG_EN]The layer shows the controlled fishing areas in the Comunidad de Madrid</Abstract>
+            <KeywordList>
+              <Keyword>LANG_EN::Controlled fishing areas</Keyword>
+              <Keyword>ALLOW_LABELS::1</Keyword>
+              <Keyword>Zonas</Keyword>
+              <Keyword>Pesca Controlada</Keyword>
+              <Keyword>Zonas Sujetas a ordenación</Keyword>
+              <Keyword>Comunidad de Madrid</Keyword>
+              <Keyword>IDEM</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-3.6501140320009395</westBoundLongitude>
+              <eastBoundLongitude>-3.604857358324261</eastBoundLongitude>
+              <southBoundLatitude>40.0303107756452</southBoundLatitude>
+              <northBoundLatitude>40.04519634658033</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-3.6501140320009395" miny="40.0303107756452" maxx="-3.604857358324261" maxy="40.04519634658033"/>
+            <BoundingBox CRS="EPSG:25830" minx="444542.66" miny="4431323.75" maxx="448392.41" maxy="4432948.89"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.03031073658537" miny="-3.6501140320009395" maxx="40.045196307509585" maxy="-3.604857358324261"/>
+            <BoundingBox CRS="EPSG:23030" minx="444643.51358741615" miny="4431531.075057448" maxx="448493.2973146776" maxy="4433156.230609047"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.0303107756452" miny="-3.6501140320009395" maxx="40.04519634658033" maxy="-3.604857358324261"/>
+            <BoundingBox CRS="EPSG:3857" minx="-406328.8353797273" miny="4870347.936934632" maxx="-401290.885511042" maxy="4872512.264683072"/>
+            <BoundingBox CRS="EPSG:32630" minx="444542.66003200965" miny="4431323.754449251" maxx="448392.41002981167" maxy="4432948.894450488"/>
+            <BoundingBox CRS="EPSG:3035" minx="1986149.3744053722" miny="3156881.314281866" maxx="1988415.6655494145" maxy="3160940.110611031"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pcont"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_PESCA_CONTROLADA_LIN</Name>
+              <Title>pesca controlada</Title>
+              <Abstract>pesca controlada</Abstract>
+              <LegendURL width="198" height="60">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PESCA_CONTROL"/>
+              </LegendURL>
+            </Style>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_PESCA_CONTROL_P</Name>
+            <Title>Zonas de Pesca Controlada Inicio-Fin</Title>
+            <Abstract>La capa indica los puntos de inicio y final con coordenadas ETRS89 y coordenadas geográficas decimales de las zonas de pesca controlada en la Comunidad de Madrid.</Abstract>
+            <KeywordList>
+              <Keyword>features</Keyword>
+              <Keyword>IDEM_MA_PESCA_CONTROL_P</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-4.32102357868445</westBoundLongitude>
+              <eastBoundLongitude>-3.42145451555435</eastBoundLongitude>
+              <southBoundLatitude>40.48177013132369</southBoundLatitude>
+              <northBoundLatitude>41.14079422101085</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-4.32102357868445" miny="40.48177013132369" maxx="-3.42145451555435" maxy="41.14079422101085"/>
+            <BoundingBox CRS="EPSG:25830" minx="389123.8735" miny="4482053.0188" maxx="464282.3348" maxy="4554474.0216"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.48177009194617" miny="-4.32102357868445" maxx="41.140794181220386" maxy="-3.42145451555435"/>
+            <BoundingBox CRS="EPSG:23030" minx="389224.2790750117" miny="4482260.772459253" maxx="464383.395198563" maxy="4554682.4096627"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.48177013132369" miny="-4.32102357868445" maxx="41.14079422101085" maxy="-3.42145451555435"/>
+            <BoundingBox CRS="EPSG:3857" minx="-481014.1444848816" miny="4936200.780029431" maxx="-380874.5744438567" maxy="5033131.012404011"/>
+            <BoundingBox CRS="EPSG:32630" minx="389123.8735655209" miny="4482053.023285566" maxx="464282.3348218417" maxy="4554474.026132659"/>
+            <BoundingBox CRS="EPSG:3035" minx="2033385.9897498088" miny="3110077.296130379" maxx="2117808.9158201916" maxy="3195708.274156632"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pcont"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_PESCA_CONTROLADA_P</Name>
+              <Title>pesca controlada</Title>
+              <Abstract>pesca controlada</Abstract>
+              <LegendURL width="312" height="20">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PESCA_CONTROL_P"/>
+              </LegendURL>
+            </Style>
+            <MaxScaleDenominator>75000.0</MaxScaleDenominator>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_PESCA_COTOS</Name>
+            <Title>Cotos de Pesca</Title>
+            <Abstract>[LANG_ES]La capa de cotos de pesca indica los tramos acotados en la Comunidad de Madrid.
+  La capa muestra los tramos y masas de agua delimitadas considerados ACOTADOS o 'cotos de pesca', con especiales condiciones hidrobiológicas, donde el ejercicio deportivo de la pesca se desarrolla con fines exclusivamente recreativos, mediante un aprovechamiento ordenado que regule la presión de pesca de los mismos. 
+  [LANG_EN]The layer of fishing reserves indicatesthe bounded sections in the Comunidad de Madrid.</Abstract>
+            <KeywordList>
+              <Keyword>LANG_EN::Fishing reserves</Keyword>
+              <Keyword>ALLOW_LABELS::1</Keyword>
+              <Keyword>Cotos de Pesca</Keyword>
+              <Keyword>Zonas Sujetas a ordenación</Keyword>
+              <Keyword>Comunidad de Madrid</Keyword>
+              <Keyword>IDEM</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-4.296954094524347</westBoundLongitude>
+              <eastBoundLongitude>-3.1339115266069903</eastBoundLongitude>
+              <southBoundLatitude>40.074750487305735</southBoundLatitude>
+              <northBoundLatitude>40.95717181089026</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-4.296954094524347" miny="40.074750487305735" maxx="-3.1339115266069903" maxy="40.95717181089026"/>
+            <BoundingBox CRS="EPSG:25830" minx="390840.3839" miny="4436839.0183" maxx="488582.993" maxy="4534011.5999"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.0747504482134" miny="-4.296954094524347" maxx="40.95717177120872" maxy="-3.1339115266069903"/>
+            <BoundingBox CRS="EPSG:23030" minx="390940.780577667" miny="4437046.376993008" maxx="488684.2515843616" maxy="4534219.817852426"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.074750487305735" miny="-4.296954094524347" maxx="40.95717181089026" maxy="-3.1339115266069903"/>
+            <BoundingBox CRS="EPSG:3857" minx="-478334.74176452216" miny="4876810.7697754605" maxx="-348865.4353330608" maxy="5006026.566650634"/>
+            <BoundingBox CRS="EPSG:32630" minx="390840.3839631267" miny="4436839.022753056" maxx="488582.99300691753" maxy="4534011.604420174"/>
+            <BoundingBox CRS="EPSG:3035" minx="1984657.530670681" miny="3104678.276425086" maxx="2097336.2343309284" maxy="3216487.2294891695"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_cpesca"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_COTO_PESCA_LIN</Name>
+              <Title>Cotos de pesca</Title>
+              <Abstract>cotos de pesca</Abstract>
+              <LegendURL width="116" height="60">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PESCA_COTOS"/>
+              </LegendURL>
+            </Style>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_PESCA_COTOS_P</Name>
+            <Title>Cotos de Pesca Inicio-Fin</Title>
+            <Abstract>La capa indica los puntos de inicio y final con coordenadas ETRS89 y coordenadas geográficas decimales de los tramos acotados en la Comunidad de Madrid.</Abstract>
+            <KeywordList>
+              <Keyword>features</Keyword>
+              <Keyword>IDEM_MA_PESCA_COTOS_P</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-4.296744305153024</westBoundLongitude>
+              <eastBoundLongitude>-3.133816280341037</eastBoundLongitude>
+              <southBoundLatitude>40.026087892795104</southBoundLatitude>
+              <northBoundLatitude>40.956108489519046</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-4.296744305153024" miny="40.026087892795104" maxx="-3.133816280341037" maxy="40.956108489519046"/>
+            <BoundingBox CRS="EPSG:25830" minx="390856.2942" miny="4431436.32" maxx="488582.993" maxy="4533893.5617"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.02608785373837" miny="-4.296744305153024" maxx="40.956108449838155" maxy="-3.133816280341036"/>
+            <BoundingBox CRS="EPSG:23030" minx="390956.6880882543" miny="4431643.631971379" maxx="488684.25156056817" maxy="4534101.778665313"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.026087892795104" miny="-4.296744305153024" maxx="40.956108489519046" maxy="-3.133816280341037"/>
+            <BoundingBox CRS="EPSG:3857" minx="-478311.3881185327" miny="4869734.02549912" maxx="-348854.8325672349" maxy="5005869.830055703"/>
+            <BoundingBox CRS="EPSG:32630" minx="390856.2942629514" miny="4431436.324449002" maxx="488582.9930069171" maxy="4533893.566220099"/>
+            <BoundingBox CRS="EPSG:3035" minx="1979335.8902476614" miny="3103848.6829481786" maxx="2097217.095999788" maxy="3216468.65817585"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_cpesca"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_COTO_PESCA_P</Name>
+              <Title>Coto de pesca</Title>
+              <Abstract>coto de pesca</Abstract>
+              <LegendURL width="234" height="20">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PESCA_COTOS_P"/>
+              </LegendURL>
+            </Style>
+            <MaxScaleDenominator>75000.0</MaxScaleDenominator>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_PESCA_CYS</Name>
+            <Title>Captura y suelta Comunidad de Madrid</Title>
+            <Abstract>[LANG_ES]Tramos de pesca en modalidad de captura y suelta en la Comunidad de Madrid.[LANG_EN]Fishing sections in capture and release mode in the Comunidad de Madrid.</Abstract>
+            <KeywordList>
+              <Keyword>LANG_EN::Capture and release (sections)</Keyword>
+              <Keyword> ALLOW_LABELS::1</Keyword>
+              <Keyword>Captura y suelta</Keyword>
+              <Keyword>Zonas Sujetas a ordenación</Keyword>
+              <Keyword>Comunidad de Madrid</Keyword>
+              <Keyword>IDEM</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-4.545116054883151</westBoundLongitude>
+              <eastBoundLongitude>-3.1376562640357006</eastBoundLongitude>
+              <southBoundLatitude>40.07784747630312</southBoundLatitude>
+              <northBoundLatitude>41.104329731272415</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-4.545116054883151" miny="40.07784747630312" maxx="-3.1376562640357006" maxy="41.104329731272415"/>
+            <BoundingBox CRS="EPSG:25830" minx="370236.1" miny="4437507.2996" maxx="488264.7578" maxy="4550348.1619"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.07784743720852" miny="-4.545116054883151" maxx="41.10432969150321" maxy="-3.1376562640357015"/>
+            <BoundingBox CRS="EPSG:23030" minx="370336.32167332276" miny="4437714.664160694" maxx="488366.016895385" maxy="4550556.524427316"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.07784747630312" miny="-4.545116054883151" maxx="41.104329731272415" maxy="-3.1376562640357006"/>
+            <BoundingBox CRS="EPSG:3857" minx="-505960.0048259248" miny="4877261.319621414" maxx="-349282.29759677936" maxy="5027742.475958643"/>
+            <BoundingBox CRS="EPSG:32630" minx="370236.1000750059" miny="4437507.30405333" maxx="488264.7578071632" maxy="4550348.16643021"/>
+            <BoundingBox CRS="EPSG:3035" minx="1985370.4795586113" miny="3084433.467456829" maxx="2117039.6014483054" maxy="3218745.507998312"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_cys"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_PESCA_CYS_LIN</Name>
+              <Title>Tramo de captura y suelta</Title>
+              <Abstract>Tramo de pesca de captura y suelta, líneas</Abstract>
+              <LegendURL width="190" height="60">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PESCA_CYS"/>
+              </LegendURL>
+            </Style>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_PESCA_CYS_P</Name>
+            <Title>Captura y Suelta Inicio-Fin</Title>
+            <Abstract>La capa indica los puntos de inicio y final con coordenadas ETRS89 y coordenadas geográficas decimales de las zonas las zonas de captura y suelta en la Comunidad de Madrid</Abstract>
+            <KeywordList>
+              <Keyword>features</Keyword>
+              <Keyword>IDEM_MA_PESCA_CYS_P</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-4.542213267740224</westBoundLongitude>
+              <eastBoundLongitude>-3.137920815891629</eastBoundLongitude>
+              <southBoundLatitude>40.20872177950614</southBoundLatitude>
+              <northBoundLatitude>41.03109273118226</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-4.542213267740224" miny="40.20872177950614" maxx="-3.137920815891629" maxy="41.03109273118226"/>
+            <BoundingBox CRS="EPSG:25830" minx="370336.2002" miny="4452036.8556" maxx="488264.7578" maxy="4542218.0401"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.20872174031743" miny="-4.542213267740223" maxx="41.0310926914563" maxy="-3.137920815891629"/>
+            <BoundingBox CRS="EPSG:23030" minx="370436.4311804613" miny="4452244.345416848" maxx="488366.0153459622" maxy="4542426.335489095"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.20872177950614" miny="-4.542213267740224" maxx="41.03109273118226" maxy="-3.137920815891629"/>
+            <BoundingBox CRS="EPSG:3857" minx="-505636.8680392929" miny="4896319.678528661" maxx="-349311.74737466977" maxy="5016928.916896014"/>
+            <BoundingBox CRS="EPSG:32630" minx="370336.2002754779" miny="4452036.860064048" maxx="488264.7578071369" maxy="4542218.044625257"/>
+            <BoundingBox CRS="EPSG:3035" minx="1999682.917049763" miny="3086810.9308298733" maxx="2109006.447499001" maxy="3217464.5805734107"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_cys"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_PESCA_CYS_P</Name>
+              <Title>Tramo de pesca de captura y suelta, líneas</Title>
+              <Abstract>Tramo de pesca de captura y suelta, líneas</Abstract>
+              <LegendURL width="304" height="20">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PESCA_CYS_P"/>
+              </LegendURL>
+            </Style>
+            <MaxScaleDenominator>75000.0</MaxScaleDenominator>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_PESCA_CYS_PRS</Name>
+            <Title>Captura y suelta Zonas B del Parque Regional del Sureste</Title>
+            <Abstract>[LANG_ES]Zonas de pesca en modalidad de captura y suelta en la Comunidad de Madrid.La capa muestra el polígono de los tramos de los ríos Henares, Jarama y Manzanares no vedados que estén incluidos en zonas B del Parque del Sureste, de conformidad con el PORN de este espacio natural.
+  [LANG_EN]Fishing areas in capture and release mode in the Comunidad de Madrid.</Abstract>
+            <KeywordList>
+              <Keyword>LANG_EN::Capture and release (areas)</Keyword>
+              <Keyword> ALLOW_LABELS::1</Keyword>
+              <Keyword>Captura y suelta</Keyword>
+              <Keyword>Parque Regional del Sureste</Keyword>
+              <Keyword>Zonas Sujetas a ordenación</Keyword>
+              <Keyword>Comunidad de Madrid</Keyword>
+              <Keyword>IDEM</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-3.682469417440777</westBoundLongitude>
+              <eastBoundLongitude>-3.424108286233175</eastBoundLongitude>
+              <southBoundLatitude>40.08528593206039</southBoundLatitude>
+              <northBoundLatitude>40.443871871285715</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-3.682469417440777" miny="40.08528593206039" maxx="-3.424108286233175" maxy="40.443871871285715"/>
+            <BoundingBox CRS="EPSG:25830" minx="442122.2932" miny="4437443.9911" maxx="463843.9075" maxy="4477111.8097"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.08528589296038" miny="-3.6824694174407773" maxx="40.44387183193379" maxy="-3.424108286233175"/>
+            <BoundingBox CRS="EPSG:23030" minx="442223.12852505385" miny="4437651.363052136" maxx="463944.9426129439" maxy="4477319.528919018"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.08528593206039" miny="-3.682469417440777" maxx="40.443871871285715" maxy="-3.424108286233175"/>
+            <BoundingBox CRS="EPSG:3857" minx="-409930.62041131005" miny="4878343.549614576" maxx="-381169.99084450566" maxy="4930655.742951885"/>
+            <BoundingBox CRS="EPSG:32630" minx="442122.29323350603" miny="4437443.9955538325" maxx="463843.90752133506" maxy="4477111.814182527"/>
+            <BoundingBox CRS="EPSG:3035" minx="1989511.6352272446" miny="3155443.6435135687" maxx="2032346.5851774295" maxy="3183111.7310767607"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_cysprs"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_PESCA_CYS_POL</Name>
+              <Title>Tramo de captura y suelta Zona B PRS</Title>
+              <Abstract>Tramo de pesca de captura y suelta, polígonos</Abstract>
+              <LegendURL width="267" height="60">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PESCA_CYS_PRS"/>
+              </LegendURL>
+            </Style>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_PESCA_EXPERIM</Name>
+            <Title>Zonas de pesca experimental en la Comunidad de Madrid</Title>
+            <Abstract>[LANG_ES]La capa muestra las zonas de pesca experimental en la Comunidad de Madrid.Son tramos experimentales de pesca aquellos en que será autorizado un aprovechamiento piscícola moderado con fines exclusivamente científicos y de forma experimental, con el fin de realizar la toma de datos de control y seguimiento de poblaciones piscícolas existentes. 
+  [LANG_EN]The layer shows the experimental fishing areas in the Comunidad de Madrid</Abstract>
+            <KeywordList>
+              <Keyword>LANG_EN::Experimental fishing areas</Keyword>
+              <Keyword> ALLOW_LABELS::1</Keyword>
+              <Keyword>Pesca experimental</Keyword>
+              <Keyword>Zonas Sujetas a ordenación</Keyword>
+              <Keyword>Comunidad de Madrid</Keyword>
+              <Keyword>IDEM</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-3.6498354648355926</westBoundLongitude>
+              <eastBoundLongitude>-3.5795715729259427</eastBoundLongitude>
+              <southBoundLatitude>40.98485626384433</southBoundLatitude>
+              <northBoundLatitude>41.05712147974972</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-3.6498354648355926" miny="40.98485626384433" maxx="-3.5795715729259427" maxy="41.05712147974972"/>
+            <BoundingBox CRS="EPSG:25830" minx="445394.582" miny="4537278.8393" maxx="451246.1438" maxy="4545260.2528"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.98485622414606" miny="-3.649835464835592" maxx="41.05712144000829" maxy="-3.579571572925943"/>
+            <BoundingBox CRS="EPSG:23030" minx="445495.48061908444" miny="4537487.06240399" maxx="451347.09345492616" maxy="4545468.54420072"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.98485626384433" miny="-3.6498354648355926" maxx="41.05712147974972" maxy="-3.5795715729259427"/>
+            <BoundingBox CRS="EPSG:3857" minx="-406297.8254247291" miny="5010108.222762969" maxx="-398476.0847561933" maxy="5020770.723484691"/>
+            <BoundingBox CRS="EPSG:32630" minx="445394.5820331316" miny="4537278.843822125" maxx="451246.1438296891" maxy="4545260.257327057"/>
+            <BoundingBox CRS="EPSG:3035" minx="2090064.338952005" miny="3174341.4295519935" maxx="2098944.6522712307" maxy="3181379.5793850934"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pexp"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_PESCA_EXPERIM</Name>
+              <Title>Tramo de Pesca Experimental</Title>
+              <Abstract>cotos de pesca</Abstract>
+              <LegendURL width="211" height="60">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PESCA_EXPERIM"/>
+              </LegendURL>
+            </Style>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_PESCA_EXPERIM_P</Name>
+            <Title>Zonas de Pesca Experimental Inicio-Fin</Title>
+            <Abstract>La capa indica los puntos de inicio y final con coordenadas ETRS89 y coordenadas geográficas decimales de las zonas las zonas de pesca experimental en la Comunidad de Madrid.</Abstract>
+            <KeywordList>
+              <Keyword>features</Keyword>
+              <Keyword>IDEM_MA_PESCA_EXPERIM_P</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-3.6491833409968946</westBoundLongitude>
+              <eastBoundLongitude>-3.5795715729259427</eastBoundLongitude>
+              <southBoundLatitude>40.984859176938166</southBoundLatitude>
+              <northBoundLatitude>41.04348826024041</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-3.6491833409968946" miny="40.984859176938166" maxx="-3.5795715729259427" maxy="41.04348826024041"/>
+            <BoundingBox CRS="EPSG:25830" minx="445438.1208" miny="4537278.8393" maxx="451246.1438" maxy="4543746.7451"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.9848591372399" miny="-3.6491833409968946" maxx="41.04348822050707" maxy="-3.579571572925943"/>
+            <BoundingBox CRS="EPSG:23030" minx="445539.01978171215" miny="4537487.06240399" maxx="451347.0930268824" maxy="4543955.023878245"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.984859176938166" miny="-3.6491833409968946" maxx="41.04348826024041" maxy="-3.5795715729259427"/>
+            <BoundingBox CRS="EPSG:3857" minx="-406225.2313310711" miny="5010108.652344971" maxx="-398476.0847561933" maxy="5018758.289999953"/>
+            <BoundingBox CRS="EPSG:32630" minx="445438.1208331052" miny="4537278.8438221235" maxx="451246.1438296688" maxy="4543746.749626133"/>
+            <BoundingBox CRS="EPSG:3035" minx="2090064.338952005" miny="3174384.4257656047" maxx="2097445.2067771866" maxy="3181140.689304541"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_pexp"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_PESCA_EXPERIM_P</Name>
+              <Title>Cotos de pesca</Title>
+              <Abstract>cotos de pesca</Abstract>
+              <LegendURL width="325" height="20">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PESCA_EXPERIM_P"/>
+              </LegendURL>
+            </Style>
+            <MaxScaleDenominator>75000.0</MaxScaleDenominator>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_PESCA_VEDADOS</Name>
+            <Title>Vedados de Pesca</Title>
+            <Abstract>[LANG_ES]La capa muestra los tramos vedados para la actividad piscícola en los ríos, arroyos y embalses de la Comunidad de Madrid.
+  [LANG_EN]The layer shows the sections closed to fish farming in the rivers, streams and reservoirs of the Comunidad de Madrid.</Abstract>
+            <KeywordList>
+              <Keyword>LANG_EN::Fishing fences (sections)</Keyword>
+              <Keyword>ALLOW_LABELS::1</Keyword>
+              <Keyword>Captura y suelta</Keyword>
+              <Keyword>Pesca</Keyword>
+              <Keyword>Zonas Sujetas a ordenación</Keyword>
+              <Keyword>Comunidad de Madrid</Keyword>
+              <Keyword>IDEM</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-4.399930784797374</westBoundLongitude>
+              <eastBoundLongitude>-3.1373395557072876</eastBoundLongitude>
+              <southBoundLatitude>39.92184260083989</southBoundLatitude>
+              <northBoundLatitude>41.14838903618894</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-4.399930784797374" miny="39.92184260083989" maxx="-3.1373395557072876" maxy="41.14838903618894"/>
+            <BoundingBox CRS="EPSG:25830" minx="382511.5001" miny="4419987.2347" maxx="488264.7578" maxy="4555239.2849"/>
+            <BoundingBox CRS="EPSG:4258" minx="39.92184256186052" miny="-4.399930784797373" maxx="41.148388996394075" maxy="-3.1373395557072876"/>
+            <BoundingBox CRS="EPSG:23030" minx="382611.8162516121" miny="4420194.447517401" maxx="488366.0177971133" maxy="4555447.682130083"/>
+            <BoundingBox CRS="EPSG:4326" minx="39.92184260083989" miny="-4.399930784797374" maxx="41.14838903618894" maxy="-3.1373395557072876"/>
+            <BoundingBox CRS="EPSG:3857" minx="-489798.0544892922" miny="4854591.150859058" maxx="-349247.0417869304" maxy="5034253.712386313"/>
+            <BoundingBox CRS="EPSG:32630" minx="382511.5001673664" miny="4419987.239140205" maxx="488264.7578071789" maxy="4555239.289433149"/>
+            <BoundingBox CRS="EPSG:3035" minx="1968113.7788013413" miny="3093815.4454676094" maxx="2119717.3443323425" maxy="3219516.6817304697"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_veda"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_PESCA_VEDADO_LIN</Name>
+              <Title>Vedados de pesca</Title>
+              <Abstract>Vedados de pesca</Abstract>
+              <LegendURL width="142" height="60">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PESCA_VEDADOS"/>
+              </LegendURL>
+            </Style>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_PESCA_VEDA_CUEN</Name>
+            <Title>Delimitación de cuencas vedadas de la Comunidad de Madrid</Title>
+            <Abstract>[LANG_ES]La capa muestra la delimitación de cuencas vedadas para la actividad piscícola en los ríos, arroyos y embalses de la Comunidad de Madrid.
+  [LANG_EN]Closed watersheds for the fish activity in the rivers, streams and reservoirs of the Comunidad de Madrid.</Abstract>
+            <KeywordList>
+              <Keyword>LANG_EN::Fishing fences (watersheds)</Keyword>
+              <Keyword> ALLOW_LABELS::1</Keyword>
+              <Keyword>Cuencas vedadas</Keyword>
+              <Keyword>Zonas Sujetas a ordenación</Keyword>
+              <Keyword>Comunidad de Madrid</Keyword>
+              <Keyword>IDEM</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-4.334824482458202</westBoundLongitude>
+              <eastBoundLongitude>-3.3918544500317935</eastBoundLongitude>
+              <southBoundLatitude>40.55310470758932</southBoundLatitude>
+              <northBoundLatitude>41.16645016319576</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-4.334824482458202" miny="40.55310470758932" maxx="-3.3918544500317935" maxy="41.16645016319576"/>
+            <BoundingBox CRS="EPSG:25830" minx="388008.7218" miny="4489989.8974" maxx="466826.226700001" maxy="4557310.229"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.55310466816417" miny="-4.334824482458202" maxx="41.16645012339047" maxy="-3.391854450031794"/>
+            <BoundingBox CRS="EPSG:23030" minx="388109.1219383115" miny="4490197.717714823" maxx="466927.3088922253" maxy="4557518.640925807"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.55310470758932" miny="-4.334824482458202" maxx="41.16645016319576" maxy="-3.3918544500317935"/>
+            <BoundingBox CRS="EPSG:3857" minx="-482550.45406546263" miny="4946646.509452393" maxx="-377579.5102224382" maxy="5036924.112464049"/>
+            <BoundingBox CRS="EPSG:32630" minx="388008.72186642565" miny="4489989.901891002" maxx="466826.22672031296" maxy="4557310.2335343575"/>
+            <BoundingBox CRS="EPSG:3035" minx="2040767.7450069631" miny="3110225.3210852235" maxx="2120799.767571191" maxy="3198668.484625361"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_vedacuen"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_PESCA_VEDADO_POL</Name>
+              <Title>Cuenca vedada</Title>
+              <Abstract>Vedados de pesca</Abstract>
+              <LegendURL width="122" height="40">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PESCA_VEDA_CUEN"/>
+              </LegendURL>
+            </Style>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_PESCA_VEDA_CUENTRA</Name>
+            <Title>Tramos de cuencas vedadas</Title>
+            <Abstract>[LANG_ES]La capa muestra los tramos vedados para la actividad piscícola en los ríos, arroyos y embalses de la Comunidad de Madrid.[LANG_EN]The layer shows the sections closed to fish farming in the rivers, streams and reservoirs of the Comunidad de Madrid.</Abstract>
+            <KeywordList>
+              <Keyword>LANG_EN::Sections of closed basins</Keyword>
+              <Keyword> ALLOW_LABELS::1</Keyword>
+              <Keyword>Tramos</Keyword>
+              <Keyword>Cuencas vedadas</Keyword>
+              <Keyword>Zonas Sujetas a ordenación</Keyword>
+              <Keyword>Comunidad de Madrid</Keyword>
+              <Keyword>IDEM</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-4.332194057050386</westBoundLongitude>
+              <eastBoundLongitude>-3.398048430430689</eastBoundLongitude>
+              <southBoundLatitude>40.553747635115336</southBoundLatitude>
+              <northBoundLatitude>41.16543553947302</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-4.332194057050386" miny="40.553747635115336" maxx="-3.398048430430689" maxy="41.16543553947302"/>
+            <BoundingBox CRS="EPSG:25830" minx="388227.7834" miny="4490057.9966" maxx="466302.1499" maxy="4557199.9899"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.553747595689764" miny="-4.332194057050386" maxx="41.1654354996683" maxy="-3.3980484304306886"/>
+            <BoundingBox CRS="EPSG:23030" minx="388328.18540932005" miny="4490265.817648927" maxx="466403.2277163356" maxy="4557408.400824218"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.553747635115336" miny="-4.332194057050386" maxx="41.16543553947302" maxy="-3.398048430430689"/>
+            <BoundingBox CRS="EPSG:3857" minx="-482257.63644849486" miny="4946740.705767463" maxx="-378269.02096642676" maxy="5036774.0773287285"/>
+            <BoundingBox CRS="EPSG:32630" minx="388227.78346629825" miny="4490058.00109105" maxx="466302.14992063184" maxy="4557199.994434293"/>
+            <BoundingBox CRS="EPSG:3035" minx="2040925.2719356727" miny="3110452.314678437" maxx="2120652.859492057" maxy="3198133.500785524"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_vedacuen"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_PESCA_VEDA_CUENTRA</Name>
+              <Title>Tramo vedado</Title>
+              <Abstract>cotos de pesca</Abstract>
+              <LegendURL width="114" height="40">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PESCA_VEDA_CUENTRA"/>
+              </LegendURL>
+            </Style>
+          </Layer>
+          <Layer queryable="1" opaque="0">
+            <Name>IDEM_MA_PESCA_ZTRUCHERA</Name>
+            <Title>Zona truchera de la Comunidad de Madrid</Title>
+            <Abstract>[LANG_ES]Zonas delimitadas para la pesca de trucha con regulación específica dentro de la Comunidad de Madrid
+  [LANG_EN]Areas delimited for the fishing of trout with specific regulation within the Comunidad de Madrid
+</Abstract>
+            <KeywordList>
+              <Keyword>LANG_EN::Trout fishing areas</Keyword>
+              <Keyword>ALLOW_LABELS::1</Keyword>
+              <Keyword>OPACITY::70</Keyword>
+              <Keyword>Zona Truchera</Keyword>
+              <Keyword>Pesca</Keyword>
+              <Keyword>Zonas Sujetas a ordenación</Keyword>
+              <Keyword>Comunidad de Madrid</Keyword>
+              <Keyword>IDEM</Keyword>
+            </KeywordList>
+            <CRS>EPSG:25830</CRS>
+            <CRS>CRS:84</CRS>
+            <EX_GeographicBoundingBox>
+              <westBoundLongitude>-4.334824482458202</westBoundLongitude>
+              <eastBoundLongitude>-3.3918544500317935</eastBoundLongitude>
+              <southBoundLatitude>40.55310470758932</southBoundLatitude>
+              <northBoundLatitude>41.16645016319576</northBoundLatitude>
+            </EX_GeographicBoundingBox>
+            <BoundingBox CRS="CRS:84" minx="-4.334824482458202" miny="40.55310470758932" maxx="-3.3918544500317935" maxy="41.16645016319576"/>
+            <BoundingBox CRS="EPSG:25830" minx="388008.7218" miny="4489989.8974" maxx="466826.226700001" maxy="4557310.229"/>
+            <BoundingBox CRS="EPSG:4258" minx="40.55310466816417" miny="-4.334824482458202" maxx="41.16645012339047" maxy="-3.391854450031794"/>
+            <BoundingBox CRS="EPSG:23030" minx="388109.1219383115" miny="4490197.717714823" maxx="466927.3088922253" maxy="4557518.640925807"/>
+            <BoundingBox CRS="EPSG:4326" minx="40.55310470758932" miny="-4.334824482458202" maxx="41.16645016319576" maxy="-3.3918544500317935"/>
+            <BoundingBox CRS="EPSG:3857" minx="-482550.45406546263" miny="4946646.509452393" maxx="-377579.5102224382" maxy="5036924.112464049"/>
+            <BoundingBox CRS="EPSG:32630" minx="388008.72186642565" miny="4489989.901891002" maxx="466826.22672031296" maxy="4557310.2335343575"/>
+            <BoundingBox CRS="EPSG:3035" minx="2040767.7450069631" miny="3110225.3210852235" maxx="2120799.767571191" maxy="3198668.484625361"/>
+            <MetadataURL type="ISO19115:2003">
+              <Format>text/plain</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/catalogocartografia/srv/spa/catalog.search#/metadata/spacm_ztru"/>
+            </MetadataURL>
+            <Style>
+              <Name>S_MA_ZONA_TRUCHERA</Name>
+              <Title>Zona truchera</Title>
+              <Abstract>Zona truchera</Abstract>
+              <LegendURL width="116" height="20">
+                <Format>image/png</Format>
+                <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/Zonas/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_MA_PESCA_ZTRUCHERA"/>
+              </LegendURL>
+            </Style>
+          </Layer>
+        </Layer>
+      </Layer>
+    </Layer>
+  </Capability>
+</WMS_Capabilities>

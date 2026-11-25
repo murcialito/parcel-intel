@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WMS_Capabilities version="1.3.0" xmlns="http://www.opengis.net/wms" 
+xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" 
+xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" 
+xmlns:xlink="http://www.w3.org/1999/xlink" 
+xmlns:sld="http://www.opengis.net/sld"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0 http://www.opengis.net/sld 
+http://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd">
+
+	<Service>
+		<Name>WMS</Name>
+		<Title>Minutas del Mapa Topográfico Nacional 1:50.000 (catastrones) 1910-1970</Title>
+		<Abstract>Primera edición del Mapa Topográfico Nacional (MTN) y las minutas obtenidas por métodos fotomecánicos. A través de la operación GetFeatureInfo se puede acceder a todas las ediciones disponibles de cada hoja MTN50 o MTN25 en el centro de descargas del CNIG o bien a información sobre las Minutas. Servicio WMS 1.3.0 conforme a ISO 19128:2005</Abstract>
+		<KeywordList>
+			<Keyword>MTN50</Keyword>
+			<Keyword>MTN25</Keyword>
+			<Keyword>Minutas</Keyword>
+			<Keyword>Histórico</Keyword>
+			<Keyword>1910</Keyword>
+			<Keyword>1970</Keyword>
+			<Keyword>IGN</Keyword>
+			<Keyword>Instituto Geográfico Nacional</Keyword>
+			<Keyword>CNIG</Keyword>
+			<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">InfoMapAccessService</Keyword> 
+			<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">InfoManagementService</Keyword>
+		</KeywordList>
+		<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+		<ContactInformation>
+			<ContactPersonPrimary>
+				<ContactPerson/>
+				<ContactOrganization>Instituto Geográfico Nacional</ContactOrganization>
+			</ContactPersonPrimary>
+			<ContactPosition>pointOfContact</ContactPosition>
+			<ContactElectronicMailAddress>ign@transportes.gob.es</ContactElectronicMailAddress>
+		</ContactInformation>
+   <Fees>No se aplican condiciones</Fees>
+	<AccessConstraints>CC BY 4.0 ign.es</AccessConstraints>	
+	<MaxWidth>4096</MaxWidth>
+		<MaxHeight>4096</MaxHeight>
+	</Service>
+	<Capability>
+		<Request>
+			<GetCapabilities>
+				<Format>text/xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&amp;"/>
+						</Get>
+						<Post>
+							<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&amp;"/>
+						</Post>
+					</HTTP>
+				</DCPType>
+			</GetCapabilities>
+			<GetMap>
+				<Format>image/png</Format>
+				<Format>image/jpeg</Format>
+				<Format>image/gif</Format>
+				<Format>image/tiff</Format>
+				<Format>image/png; mode=8bit</Format>
+				<Format>application/x-pdf</Format>
+				<Format>image/svg+xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&amp;"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetMap>
+			<GetFeatureInfo>
+				<Format>text/html</Format>
+				<Format>text/plain</Format>
+				<Format>application/vnd.ogc.gml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&amp;"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetFeatureInfo>
+			<sld:GetLegendGraphic>
+				<Format>image/png</Format>
+				<Format>image/jpeg</Format>
+				<Format>image/gif</Format>
+				<Format>image/png; mode=8bit</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ign.es/wms/primera-edicion-mtn?"/>
+						</Get>
+						<Post>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ign.es/wms/primera-edicion-mtn?"/>
+						</Post>
+					</HTTP>
+				</DCPType>
+			</sld:GetLegendGraphic>			
+		</Request>
+		<Exception>
+			<Format>XML</Format>
+			<Format>INIMAGE</Format>
+			<Format>BLANK</Format>
+		</Exception>
+		<inspire_vs:ExtendedCapabilities>
+			<inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType">
+				<inspire_common:URL>https://www.idee.es/csw-inspire-idee/srv/spa/csw?Service=CSW&amp;Request=GetRecordById&amp;Version=2.0.2&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;elementSetName=full&amp;ID=spaignwms_primera-edicion-mtn</inspire_common:URL>
+				<inspire_common:MediaType>application/vnd.ogc.csw.GetRecordByIdResponse_xml</inspire_common:MediaType>
+			</inspire_common:MetadataUrl>
+			<inspire_common:SupportedLanguages xsi:type="inspire_common:supportedLanguagesType">
+				<inspire_common:DefaultLanguage>
+					<inspire_common:Language>spa</inspire_common:Language>
+				</inspire_common:DefaultLanguage>
+			</inspire_common:SupportedLanguages>
+			<inspire_common:ResponseLanguage>
+				<inspire_common:Language>spa</inspire_common:Language>
+			</inspire_common:ResponseLanguage>
+		</inspire_vs:ExtendedCapabilities>		
+		<Layer>
+			<Title>Ediciones MTN</Title>  
+			<Abstract>Primera edición del Mapa Topográfico Nacional (MTN) y las minutas obtenidas por métodos fotomecánicos. A través de la operación GetFeatureInfo se puede acceder a todas las ediciones disponibles de cada hoja MTN50 o MTN25 en el centro de descargas del CNIG o bien a información sobre las Minutas</Abstract>
+			<CRS>EPSG:23029</CRS>
+			<CRS>EPSG:23030</CRS>
+			<CRS>EPSG:23031</CRS>
+			<CRS>EPSG:32629</CRS>
+			<CRS>EPSG:32630</CRS>
+			<CRS>EPSG:32631</CRS>
+			<CRS>EPSG:25829</CRS>
+			<CRS>EPSG:25830</CRS>  
+			<CRS>EPSG:25831</CRS> 
+			<CRS>EPSG:3857</CRS>
+			<CRS>EPSG:4326</CRS>
+			<CRS>EPSG:4258</CRS>
+			<CRS>EPSG:4230</CRS>
+			<CRS>EPSG:4230</CRS>
+			<CRS>EPSG:4080</CRS>
+			<CRS>EPSG:4081</CRS>
+			<CRS>EPSG:4082</CRS>
+			<CRS>EPSG:4083</CRS>
+			<CRS>CRS:84</CRS>	
+			<EX_GeographicBoundingBox>
+				<westBoundLongitude>-19.00</westBoundLongitude>
+				<eastBoundLongitude>5.00</eastBoundLongitude>
+				<southBoundLatitude>27.00</southBoundLatitude>
+				<northBoundLatitude>44.00</northBoundLatitude>
+			</EX_GeographicBoundingBox>
+			<BoundingBox CRS="EPSG:23029" minx="-495043.06" miny="3026318.29" maxx="1622869.86" maxy="4968361.01"/>
+			<BoundingBox CRS="EPSG:23030" minx="-1099596.83" miny="3089790.94" maxx="1141572.07" maxy="4903296.9"/>
+			<BoundingBox CRS="EPSG:23031" minx="-1714487.1" miny="3186110.55" maxx="660444.11" maxy="4874020.96"/>
+			<BoundingBox CRS="EPSG:32629" minx="-495135.01" miny="3026124.78" maxx="1622747.27" maxy="4968139.50"/>
+			<BoundingBox CRS="EPSG:32630" minx="-1099672.95" miny="3089598.72" maxx="1141463.33" maxy="4903085.27"/>
+			<BoundingBox CRS="EPSG:32631" minx="-1714548.37" miny="3185917.71" maxx="660349.40" maxy="4873817.33"/>
+			<BoundingBox CRS="EPSG:25829" minx="-495135.76" miny="3026124.81" maxx="1622747.28" maxy="4968139.50"/>
+			<BoundingBox CRS="EPSG:25830" minx="-1099673.71" miny="3089598.79" maxx="1141463.33" maxy="4903085.27"/>
+			<BoundingBox CRS="EPSG:25831" minx="-1714549.15" miny="3185917.82" maxx="660349.41" maxy="4873817.33"/>
+			<BoundingBox CRS="EPSG:3857" minx="-2115069.50" miny="3123471.78" maxx="556597.44" maxy="5465442.18"/>
+			<BoundingBox CRS="EPSG:4326" minx="27.00" miny="-19.00" maxx="44.00" maxy="5.00"/>
+			<BoundingBox CRS="EPSG:4258" minx="27.00" miny="-19.00" maxx="44.00" maxy="5.00"/>
+			<BoundingBox CRS="EPSG:4230" minx="27.00" miny="-19.00" maxx="44.00" maxy="5.00"/>
+			<BoundingBox CRS="EPSG:4080" minx="27" miny="-19" maxx="44" maxy="5"/>
+			<BoundingBox CRS="EPSG:4081" minx="27" miny="-19" maxx="44" maxy="5"/>
+			<BoundingBox CRS="EPSG:4082" minx="660349" miny="2.98801e+06" maxx="3.1321e+06" maxy="5.21244e+06"/>
+			<BoundingBox CRS="EPSG:4083" minx="102948" miny="2.98644e+06" maxx="2.5082e+06" maxy="5.07048e+06"/>
+			<BoundingBox CRS="CRS:84" minx="-19.00" miny="27.00" maxx="5.00" maxy="44.00"/>				
+			<AuthorityURL name="IGN">
+				<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/>
+			</AuthorityURL>
+			<Layer queryable="1">
+				<Name>EnlaceMTN25</Name>
+				<Title>Consulta de otras ediciones MTN25</Title>
+				<Abstract>Esta capa muestra la distribución de hojas del MTN25 y contiene información relativa al nombre y número de la hoja, su año y enlace para descargar las ediciones disponibles en el Centro de Descargas.</Abstract>
+				<KeywordList>
+					<Keyword>MTN25</Keyword>
+					<Keyword>Ediciones</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>Instituto Geográfico Nacional</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/>
+				</Attribution>
+				<Identifier authority="IGN">Capa_enlace_MTN25_WMS_IGN</Identifier>
+				<Style>
+					<Name>default</Name>
+					<Title>default</Title>
+					<Abstract>Estilo de representacion de la capa Enlace a otras ediciones del MTN25 edicion 1.</Abstract>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>Enlace</Name>
+				<Title>Consulta de otras ediciones MTN50</Title>
+				<Abstract>Esta capa muestra la distribución de hojas del MTN50 y contiene información relativa al nombre y número de la hoja, su año y enlace para descargar las ediciones disponibles en el Centro de Descargas.</Abstract>
+				<KeywordList>
+					<Keyword>MTN50</Keyword>
+					<Keyword>Ediciones</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>Instituto Geográfico Nacional</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/>
+				</Attribution>
+				<Identifier authority="IGN">Capa_enlace_WMS_IGN</Identifier>
+				<Style>
+					<Name>default</Name>
+					<Title>default</Title>
+					<Abstract>Estilo de representacion de la capa Enlace a otras ediciones MTN50.</Abstract>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>MTN25</Name>
+				<Title>Primera edición MTN25</Title>
+				<Abstract>Contiene la cartografía de la primera edición de las hojas del MTN25 (1975-2003)</Abstract>
+				<KeywordList>
+					<Keyword>MTN25</Keyword>
+					<Keyword>Primera</Keyword>
+					<Keyword>Edición</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>Instituto Geográfico Nacional</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/>
+				</Attribution>
+				<Identifier authority="IGN">MTN25ImpresoSerie</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignMTN25ImpresoSerie"/>
+				</MetadataURL>
+				<Style>
+					<Name>default</Name>
+					<Title>default</Title>
+					<Abstract>Estilo de representación de la capa Mosaico del MTN25 edicion 1.</Abstract>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>MTN50</Name>
+				<Title>Primera edición MTN50</Title>
+				<Abstract>Contiene la cartografía de la primera edición de las hojas del MTN50 (1875-1968)</Abstract>
+				<KeywordList>
+					<Keyword>MTN50</Keyword>
+					<Keyword>Primera</Keyword>
+					<Keyword>Edición</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>Instituto Geográfico Nacional</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/>
+				</Attribution>
+				<Identifier authority="IGN">MTN50ImpresoSerie</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignMTN50ImpresoSerie"/>
+				</MetadataURL>
+				<Style>
+					<Name>default</Name>
+					<Title>default</Title>
+					<Abstract>Estilo de representación de la capa Mosaico MTN50.</Abstract>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>catastrones</Name>
+				<Title>Minutas MTN50 (catastrones)</Title>
+				<Abstract>Minutas de las primeras ediciones del mapa 1:50.000 de España (1910-1970). Se elaboraron a escala 1:25.000 pero abarcando la extensión de una hoja del 50.000. Existen hojas que no tienen información del año de edición. Se conservan en la Cartoteca del IGN.</Abstract>
+				<KeywordList>
+					<Keyword>MTN50</Keyword>
+					<Keyword>Minutas</Keyword>
+					<Keyword>Histórico</Keyword>
+					<Keyword>1910</Keyword>
+					<Keyword>1970</Keyword>
+					<Keyword>Spain</Keyword>
+					<Keyword>España</Keyword>
+					<Keyword>IGN</Keyword>
+					<Keyword>WMS 1.3.0</Keyword>
+					<Keyword>OGC</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>Instituto Geográfico Nacional</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/>
+				</Attribution>
+				<Identifier authority="IGN">MinutasMTN50_raster</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignMinutasMTN50"/>
+				</MetadataURL>
+				<Style>
+					<Name>default</Name>
+					<Title>default</Title>
+					<Abstract>Estilo de representacion de la capa Catastrones.</Abstract>
+				</Style>
+			</Layer>
+		</Layer>
+	</Capability>
+</WMS_Capabilities>

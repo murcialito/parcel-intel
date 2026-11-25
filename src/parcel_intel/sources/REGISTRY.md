@@ -12,7 +12,7 @@ Municipios de referencia usados para verificar: Colmenar de Oreja (código Catas
 - **Autenticación:** ninguna.
 - **Formato de respuesta:** GML 3.2 / XML (WFS); XML propio (REST).
 - **CRS nativo:** parcelas (`cp:CadastralParcel`) — DefaultCRS `EPSG:4326`, pero acepta y devuelve correctamente `EPSG:25830` si se pide explícito vía `srsname` + bbox en esa proyección. Edificios (`bu:Building`, `bu:BuildingPart`, `bu:OtherConstruction`) — DefaultCRS ya es `EPSG:25830` nativo.
-- **Licencia:** "No conditions apply" (WFS INSPIRE), documentación de licencia en `https://www.catastro.hacienda.gob.es/webinspire/documentos/Licencia_en.pdf`.
+- **Licencia:** licencia propia de Catastro INSPIRE v1.0 (julio 2016), `https://www.catastro.hacienda.gob.es/webinspire/documentos/Licencia.pdf` — **no** es "No conditions apply" (eso es el campo `Fees` del `GetCapabilities`). Prohíbe difundir la información original sin transformarla. Detalle en la sección "Fuentes del primer hito de caminos públicos" (historia 0021).
 - **Estado:** `confirmado` (parcial — ver hallazgo pendiente abajo).
 
 **Endpoints verificados:**
@@ -108,7 +108,7 @@ Es decir, el mismo bbox pequeño (parcela real + 2 m) intersecta **tres polígon
 - **Autenticación:** ninguna.
 - **Formato de respuesta:** `image/jpeg` (GetMap); XML (GetCapabilities).
 - **CRS nativo:** `EPSG:25830` entre los CRS soportados (ambos servicios).
-- **Licencia:** no verificada explícitamente con cita textual en esta pasada (`asumido` CC-BY 4.0 / licencia IGN estándar, pendiente confirmar enlace exacto).
+- **Licencia:** CC BY 4.0 (`confirmado`, historia 0021): Orden FOM/2807/2015, `https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf`; `GetCapabilities` declara `CC BY 4.0 scne.es`.
 - **Estado:** `confirmado`.
 
 **Endpoints verificados:**
@@ -324,7 +324,7 @@ Verificado por primera vez el 2026-10-16, para la historia 0014 — a diferencia
 - **Autenticación:** ninguna.
 - **Formato de respuesta:** WFS `GetFeature` → GML 3.2/XML (idéntico patrón a `UsoDelSuelo`); `DescribeFeatureType` → XSD.
 - **CRS nativo:** `EPSG:25830`, confirmado real — el filtro `bbox=minx,miny,maxx,maxy,EPSG:25830` (mismo KVP que `UsoDelSuelo`, Catastro y PNOA) devuelve la geometría ya en esa proyección (`srsName="urn:ogc:def:crs:EPSG::25830"` explícito en cada `gml:Polygon`/`gml:MultiSurface` real), sin reproyección del cliente.
-- **Licencia:** no verificada explícitamente con cita textual (`asumido`); el `Abstract` real de la capa en `GetCapabilities` del WMS sí cita la norma de origen del dato (ver hallazgo 1), pero no es una licencia de uso del dato geoespacial.
+- **Licencia:** CC BY 4.0 Comunidad de Madrid, declarada en `AccessConstraints` del `GetCapabilities` WMS del workspace `Zonas` (historia 0021, fixture `tests/fixtures/caminos/idem_zonas_wms_getcapabilities.xml`). No hay documento de licencia aparte.
 - **Estado:** `confirmado`.
 - **Cobertura de Colmenar de Oreja y Villaconejos:** confirmada explícitamente, con dato real — ambos municipios tienen tramos reales en la capa (15 y 2 respectivamente, ver hallazgo 2), aunque ninguno de los dos está a menos de ~2 km de la parcela rústica de referencia del MVP (ver hallazgo 3).
 
@@ -398,6 +398,94 @@ Verificado en profundidad el 2026-10-16, para la historia 0015, a partir de un h
 **Hallazgo 4 — geometría real multi-parte CON anillos interiores reales (huecos), a diferencia de vías pecuarias (historia 0014) y más parecido a IDEM/`UsoDelSuelo` (historia 0011).** La geometría del plan `"SE"` (el feature real que cubre las tres geometrías de prueba) es un `gml:MultiSurface` con **5 `gml:Polygon`/`gml:surfaceMember` reales y 2 `gml:interior` reales** (huecos dentro de alguno de esos 5 polígonos) — confirmado contando explícitamente las etiquetas reales (no solo líneas que las contienen: el XML real viene minificado en una sola línea, `grep -c` sin `-o` habría dado un falso "1" en vez del conteo real; verificado con `grep -o '<gml:interior>' | wc -l`, mismo cuidado que ya exigió la lección de la historia 0011). **Esta fuente sí necesita el mismo patrón de parser que IDEM/`UsoDelSuelo`** (tomar solo `gml:exterior`, descartar `gml:interior`) — nunca asumir, solo porque comparte workspace y técnica de descubrimiento con vías pecuarias, que también comparte su forma de geometría (que resultó ser el caso simple, sin huecos). Cada fuente geoespacial se verifica por sí misma, incluso dentro del mismo servidor.
 
 **Hallazgo 3.1 — CORRECCIÓN del hallazgo 3, encontrada por el arquitecto al diseñar la historia 0018 (motor de reglas, regla de solape): "mismo feature devuelto por `BBOX`" NO equivale a "solape geométrico real" para esta capa concreta.** El hallazgo 3 afirmaba que las tres geometrías de prueba "están dentro" del plan `SE`/`X` basándose solo en que el WFS devolvía el mismo feature para las tres bboxes de consulta. Verificado con geometría real (parsers ya existentes sobre las fixtures ya citadas, cruzado con `shapely` como control independiente, ver `docs/adr/0018-solape-poligono-poligono-vias-pecuarias-red-natura-hallazgo-bbox-laxo.md`): la parcela rústica de Villaconejos (`REFCAT-RETIRADA`) está realmente a **1363.16 m** del polígono real más cercano de la zona; la rústica de Colmenar de Oreja (`REFCAT-RETIRADA`) está a **8329.95 m**. **Ninguna de las dos solapa de verdad.** Causa raíz confirmada: el filtro `BBOX` de OGC Filter Encoding que usa este WFS evalúa la envolvente (bounding box) de la geometría completa del feature, no su geometría real — y el feature `SE`/`X` es un `MultiSurface` de 5 polígonos reales dispersos en un área de ~46×41 km (hallazgo 4), cuya envolvente combinada cubre trivialmente cualquier bbox pequeño dentro de esa región aunque el polígono más próximo esté a más de 1 km. No se ha podido verificar el caso de la vivienda urbana real del fundador (`REFCAT-RETIRADA`) con geometría real porque ninguna fixture del repositorio contiene su geometría catastral — queda pendiente de verificación en vivo contra el servidor real. **Lección para cualquier fuente futura que use un filtro espacial `BBOX` (no `Intersects`) de OGC Filter Encoding**: no asumir que "el WFS devolvió este feature" implica solape/proximidad real, sobre todo si el feature es un `MultiSurface` disperso — confirmarlo siempre con geometría real antes de documentarlo como hallazgo.
+
+---
+
+## Fuentes del primer hito de caminos públicos — resolución, frecuencia y licencia (historia 0021)
+
+Verificado el 2026-11-25 para la [historia 0021](../../../docs/stories/0021-verificacion-fuentes-caminos-publicos.md), tras el cambio de rumbo del [ADR 0021](../../../docs/adr/0021-cambio-de-rumbo-caminos-publicos-coste-casi-cero.md). Cambia la pregunta: ya no basta con "¿responde el endpoint?". Ahora hace falta saber si la capa **distingue un camino**, **de cuándo es** y **si se puede publicar** en un mapa abierto. Fixtures en `tests/fixtures/caminos/` salvo que se indique otra cosa.
+
+Conclusión por capa: **publicar** (puede salir en el mapa público), **interno** (sirve para analizar, pero no se redistribuye tal cual) o **no usar**.
+
+### Ámbito del hito — `confirmado`
+
+`GetFeature` real al WFS INSPIRE de unidades administrativas del IGN (`https://www.ign.es/wfs-inspire/unidades-administrativas`, `au:AdministrativeUnit`, bbox `39.98,-3.62,40.22,-3.15` en EPSG:4258). Como colindante cuenta todo municipio que comparte vértices exactos con el polígono de Colmenar de Oreja. La respuesta completa (27 MB) está en `data/raw/ign_au/`, fuera de git. El resumen derivado está en `ambito_colindantes_colmenar.json`.
+
+| Municipio | INE | Comunidad | Vértices compartidos |
+| --- | --- | --- | --- |
+| Colmenar de Oreja | 28043 | Madrid | — |
+| Aranjuez | 28013 | Madrid | 405 |
+| Chinchón | 28052 | Madrid | 124 |
+| Belmonte de Tajo | 28019 | Madrid | 57 |
+| Villaconejos | 28170 | Madrid | 38 |
+| Villarejo de Salvanés | 28180 | Madrid | 22 |
+| Valdelaguna | 28157 | Madrid | 5 (linde corta, pero real) |
+| Noblejas, Ontígola, Villarrubia de Santiago, Ocaña | 45115, 45123, 45195, 45121 | Castilla-La Mancha | fuera del hito |
+
+### Resumen
+
+| Fuente | Resolución / escala | Fechas o frecuencia en el ámbito | Licencia | Conclusión |
+| --- | --- | --- | --- | --- |
+| PNOA ortofoto actual (IGN) | 0,25 m | Vuelo de **julio de 2023** (`confirmado`, tres puntos del ámbito). Madrid se vuela cada 3 años: 2011, 2014, 2017, 2020, 2023 → el siguiente debería ser 2026 (`asumido`) | CC BY 4.0 (`confirmado`) | **Publicar**, con atribución |
+| PNOA histórico (IGN) | 0,50 m (1956-57, SIGPAC 1997-2003, 2006, 2009); 0,25 m (2011-2023); 1 m (OLISTAT) | Vuelos sobre Colmenar: **1956-57**, 1997-98, 1997-2003, 2006, 2009, 2011, 2014, 2017, 2020, 2023 (`confirmado`). Interministerial (1973-86) y Nacional (1981-86): **sin imagen** en el punto de prueba | CC BY 4.0 (`confirmado`) | **Publicar**, con atribución |
+| Planimetrías / minutas del IGN (1870-1950) | Mapas manuscritos, escala de minuta (sin GSD) | **Los 7 municipios del ámbito tienen planimetría** de 1870-1880 (ver tabla). Aranjuez tiene además una de 1943 | CC BY 4.0 (`confirmado` por la Orden FOM/2807/2015, ver más abajo) | **Publicar** como imagen de referencia. Hay que georreferenciarlas: no son vectoriales |
+| Primera edición del MTN50 y del MTN25 (IGN) | 1:50.000 y 1:25.000 | Hoja 0606 "Chinchón": MTN50 de 1881, con reediciones en 1934, 1948, 1968, 1975 y 2002. Minuta MTN50 de 1963. MTN25 0606-1 de 1995 (`confirmado`) | CC BY 4.0 (`confirmado`) | **Publicar** |
+| Red de transporte del IGN (`roadlink`, OGC API Features) | Vectorial | 53 tramos en una ventana de 3×2 km de Colmenar; **41 sin asfaltar** (caminos). `fecha_alta` entre 2017 y 2026 (`confirmado`) | Licencia IGN CC BY 4.0 (`asumido` para este servicio, igual que los cauces de la historia 0012) | **Publicar**, como referencia de "camino actual" |
+| Catastro (INSPIRE) | Vectorial | Se actualiza 2 veces al año según la página INSPIRE de Catastro (`asumido`, no comprobado contra datos) | Licencia propia v1.0 de julio de 2016. **No es CC BY** (`confirmado`, ver más abajo) | **Interno**. Solo se puede publicar un producto **transformado**, y nunca con el nombre "cartografía catastral" |
+| Vías pecuarias (IDEM) | Polígonos de franja (historia 0014) | Ficha de datos.gob.es con fecha de modificación **2014-11-29**. No consta fecha de digitalización por tramo | CC BY 4.0 Comunidad de Madrid (declarada en el `GetCapabilities` del WMS `Zonas`; ningún documento de licencia aparte) | **Publicar**, con atribución y con el aviso de que es cartografía informativa, no un deslinde |
+| PNOA LiDAR | 3.ª cobertura: densidad nominal de 5 puntos/m² (`asumido`, especificación del IGN) | **3.ª cobertura volada en 2024** sobre Colmenar (`confirmado` por la capa `infoExpeditasLIDAR`) | CC BY 4.0 (`asumido`: producto del CNIG cubierto por la orden del IGN, sin cita específica) | **Interno** de momento; su utilidad para detectar cierres está sin demostrar |
+| Ortofoto propia de la Comunidad de Madrid (IDEM `srvimagen2`) | 50 cm publicada (original de 30 cm reservado a la Comunidad y los ayuntamientos) | 2019, junio-julio (`confirmado`). El visor de IDEM nombra una capa "2025-CT-25cm" que no aparece en el `GetCapabilities` global (`bloqueado`) | Sin verificar | **No usar** hasta verificarla. Una ortofoto de 2025 a 25 cm sería más reciente que la del PNOA |
+| OpenStreetMap | Vectorial, edición continua | Conteo no hecho: Overpass respondió `502`, "at capacity" (`bloqueado` temporalmente) | ODbL, de tipo "compartir igual" (`asumido`, https://www.openstreetmap.org/copyright) | **Interno**, como señal. Publicar mezclado con otras capas obligaría a liberar la base derivada bajo ODbL |
+
+### Detalle de licencias (citas textuales)
+
+- **IGN/CNIG (PNOA, histórico, minutas, MTN, red de transporte, unidades administrativas)** — `https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf` (leído el 2026-11-25). El uso de los productos del ámbito de la Orden FOM/2807/2015 "conlleva la aceptación por el usuario de una licencia CC-BY 4.0". Para una obra derivada, la atribución lleva delante "Obra derivada de", con el formato `Obra derivada de <producto> <fecha> CC-BY 4.0 <atribución>`; el propio documento pone como ejemplo `Obra derivada de PNOA 2010-2013 CC-BY scne.es`. La atribución tiene que verse junto a los datos. Los `GetCapabilities` del PNOA declaran `CC BY 4.0 scne.es`. El de unidades administrativas declara `CC BY 4.0 ign.es`. El WMS de minutas solo exige mencionar «© Instituto Geográfico Nacional de España» para acceder al servicio.
+- **Catastro INSPIRE (parcelas, direcciones, edificios)** — `https://www.catastro.hacienda.gob.es/webinspire/documentos/Licencia.pdf`, "Licencia de acceso y uso de los servicios y conjuntos de datos INSPIRE de la Dirección General del Catastro", versión 1.0, julio de 2016. Corrige el "No conditions apply" que figuraba en la sección de Catastro: ese texto es el `Fees` del `GetCapabilities`, no la licencia. Puntos clave:
+  - Permite el uso propio y "la elaboración y distribución de nuevos productos de valor añadido" siempre que la información "sea transformada".
+  - Prohíbe la difusión de la información original: no puede difundirse "por Internet ni por ningún otro medio sin su previa transformación".
+  - Exige que la transformación no altere ni desnaturalice el contenido, y que el producto no se identifique como "cartografía catastral" ni "información catastral".
+  - La información distribuida a terceros "carecerá de fehaciencia" y quien la distribuye soporta las reclamaciones de terceros.
+  - **Consecuencia:** el mapa no puede servir las parcelas catastrales tal cual. Sí puede publicar una capa propia derivada (p. ej. "trazado de camino inferido", que combina la geometría de las parcelas `VT` con otras fuentes), con un nombre que no la confunda con cartografía catastral. Si basta con simplificar o filtrar para que cuente como "transformación" en el sentido del artículo 21 de la Ley de Propiedad Intelectual es una cuestión jurídica abierta: **consultar antes de publicar**.
+- **Vías pecuarias (IDEM)** — el `GetCapabilities` WMS 1.3.0 del workspace `Zonas` (`idem_zonas_wms_getcapabilities.xml`) declara `AccessConstraints` = `CC BY 4.0 Comunidad de Madrid` y `Fees` = `NONE`. La ficha de datos.gob.es (`datosgob_vias_pecuarias_madrid.json`) no trae campo de licencia. El PDF del inventario de vías pecuarias (enero de 2023) que daba la búsqueda web devuelve 404, y su copia indexada lleva el aviso "DATOS CON CARÁCTER EXCLUSIVAMENTE INFORMATIVO". El mapa tiene que repetir ese carácter informativo.
+
+### Catastro — cómo aparecen los caminos en rústico — `confirmado`
+
+`GetFeature` real al WFS de parcelas sobre 600×600 m de rústico en Colmenar (`catastro_wfsCP_colmenar_rustica_bbox600m.xml`, 51 parcelas). Los caminos son **parcelas propias con número 9000 o superior** dentro de cada polígono: `REFCAT-RETIRADA`, `…09007`, `REFCAT-RETIRADA`, `…09004`. `Consulta_DNPPP` sobre cada una (`catastro_dnppp_colmenar_pol*_parc*.xml`) devuelve paraje **"DESCUENTO"**, subparcela de clase **`VT` — "VÍA DE COMUNICACIÓN DE DOMINIO PÚBLICO"** y su superficie (p. ej. 8.604 m² en la 1/9001). La parcela de control 1/1 da en cambio `C-` "LABOR O LABRADÍO SECANO".
+
+- Implicación: el filtro "camino según Catastro" es `parcela ≥ 9000` más la clase `VT`, que se comprueba contra `Consulta_DNPPP` (el WFS no trae el uso).
+- Límite: Catastro **no prueba la titularidad** (la propia licencia dice que la información carece de fehaciencia). Un camino que no figura como `9xxx` no queda descartado como público, y al revés.
+- Pendiente para la historia del mapa: comprobar si los arroyos salen como `HG` en las mismas parcelas `9xxx`, para no confundirlos con caminos.
+
+### PNOA — vuelos reales sobre el ámbito — `confirmado`
+
+- **Actual**: `GetFeatureInfo` sobre la capa `OI.MosaicElement` de `pnoa-ma`, en tres puntos (Colmenar `467400,4441800,467800,4442200`; zona de Chinchón `457000,4446000,…`; zona de Villarejo `478000,4447000,…`, EPSG:25830). Las tres respuestas dicen "Fecha 2023-07, Resolución 0.25 m, Ortoimagen verdadera NO" (`pnoa_ma_mosaicelement_gfi_*.html`).
+- **Histórico**: la capa `infoVuelos` en Colmenar (`pnoa_historico_infovuelos_gfi_colmenar.html`) da la lista de vuelos de la tabla resumen. Las capas `Interministerial_1973-1986` y `Nacional_1981-1986` devuelven un `GetFeatureInfo` vacío y un `GetMap` transparente de 334 bytes en ese punto: **hueco de 1957 a 1997** en el servicio de ortofotos. Las fotografías sin ortorrectificar de esos vuelos podrían estar en la Fototeca del CNIG (sin verificar).
+- **Coincide con el `Abstract` del `GetCapabilities` histórico**: la capa `PNOA2023` dice que abarca la Comunidad de Madrid a 25 cm, y la `PNOA2024` no incluye Madrid.
+
+### Planimetrías del IGN por municipio — `confirmado`
+
+`GetFeatureInfo` sobre la capa `Minutas` de `https://www.ign.es/wms/minutas-cartograficas` dentro de cada término (`ign_minutas_gfi_*.html`, `ign_minutas-cartograficas_gfi_Minutas_colmenar.html`). Todas son planimetrías, es decir, mapas manuscritos de trabajos topográficos que suelen dibujar caminos y vías pecuarias.
+
+| Municipio | Fecha | Documento |
+| --- | --- | --- |
+| Colmenar de Oreja | 1875-08-06 | 280075 |
+| Villaconejos | 1874-12-12 | 280264 |
+| Chinchón | 1870-01-01 (fecha genérica de la serie) | 281287 |
+| Belmonte de Tajo | 1874-05-20 | 280040 |
+| Valdelaguna | 1874-05-29 | 280246 |
+| Villarejo de Salvanés | 1874-11-21; 1870-01-01 | 280277; 281469 |
+| Aranjuez | 1880-04-03; 1943-05-27 | 280027; 280022 |
+
+`GetCapabilities` de `https://www.ign.es/wms/planimetrias` devuelve un error HTML de Tomcat (`bloqueado`); el servicio válido es el de minutas.
+
+### Inventarios municipales de caminos — **ninguno encontrado publicado**
+
+Búsqueda del 2026-11-25 en la web general y en el BOCM indexado, por "inventario de caminos" y por cada municipio del ámbito (Colmenar de Oreja, Villaconejos, Chinchón, Belmonte de Tajo, Valdelaguna, Villarejo de Salvanés, Aranjuez). **No aparece ningún inventario de caminos publicado ni ningún acuerdo de aprobación en el BOCM** para ninguno de los siete.
+
+- Un resultado que la búsqueda atribuía a Chinchón (`BOCM-20230825-31`, desafectación del "camino público del Pedazo") resultó ser de **Chapinería** al leer el PDF: falso positivo descartado.
+- Que no aparezca en la web no prueba que no exista. Los caminos públicos deben constar en el **inventario general de bienes** de cada ayuntamiento (Reglamento de Bienes de las Entidades Locales), que rara vez se publica.
+- **Siguiente paso, sin coste:** solicitud de acceso a información pública (Ley 19/2013) a cada uno de los siete ayuntamientos, pidiendo el epígrafe de caminos del inventario de bienes y su cartografía, si existe. Es una acción externa en nombre del proyecto: la decide el fundador.
+- **Mientras tanto**, el mapa se apoya en vías pecuarias oficiales + Catastro `VT` + planimetrías de 1870-1880 + PNOA de 1956, y lo dice explícitamente en el visor.
 
 ---
 

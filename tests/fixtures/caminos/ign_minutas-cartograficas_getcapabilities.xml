@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WMS_Capabilities version="1.3.0" xmlns="http://www.opengis.net/wms" 
+xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" 
+xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" 
+xmlns:xlink="http://www.w3.org/1999/xlink" 
+xmlns:sld="http://www.opengis.net/sld"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0 http://www.opengis.net/sld 
+http://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd">
+
+	<Service>
+		<Name>WMS</Name>
+		<Title>Planimetrías de España(1870-1950)</Title>
+		<Abstract>Planimetrías manuscritas de municipios españoles realizadas entre 1870 y 1950 de España, que se conservan en el Archivo Topográfico del IGN. Son los trabajos previos a la realización del Mapa Topográfico Nacional, en algunos casos con varias décadas de diferencia respecto a la publicación de la primera edición del MTN de la zona. Contienen información planimétrica como:  vías de comunicación, hidrografía, poblaciones, masas de cultivo de más de 10 ha, línea límite de término municipal y mojones que señalizan la línea límite descritos en las actas de deslinde. Están realizadas a escala 1:25.000, con una precisión de obtención de los datos correspondiente a una escala 1:50.000. A través de la operación GetFeatureInfo (que muestra información de un punto) se puede acceder a las minutas planimétricas y minutas altimétricas disponibles en el centro de descargas del CNIG. Servicio WMS 1.3.0 conforme a ISO 19128:2005</Abstract>
+		<KeywordList>
+			<Keyword>Mapa</Keyword>
+			<Keyword>Cartografía</Keyword>
+			<Keyword>MTN</Keyword>
+			<Keyword>Minutas</Keyword>
+			<Keyword>Histórico</Keyword>
+			<Keyword>IGN</Keyword>
+			<Keyword>Instituto Geográfico Nacional</Keyword>
+			<Keyword>CNIG</Keyword>
+			<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">InfoMapAccessService</Keyword> 
+			<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">InfoManagementService</Keyword>
+		</KeywordList>
+		<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/>
+		<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+		<ContactInformation>
+			<ContactPersonPrimary>
+				<ContactPerson/>
+			<ContactOrganization>Instituto Geográfico Nacional</ContactOrganization>
+			</ContactPersonPrimary>
+			<ContactPosition>PointOfContact</ContactPosition>
+				<ContactAddress>
+					<AddressType>Postal</AddressType>
+					<Address>C/ General Ibáñez de Ibero, 3</Address>
+					<City>Madrid</City>
+					<StateOrProvince>Madrid</StateOrProvince>
+					<PostCode>28003</PostCode>
+					<Country>España</Country>
+				</ContactAddress>
+			<ContactVoiceTelephone>+34 91 597 96 46</ContactVoiceTelephone>
+			<ContactFacsimileTelephone>+34 91 597 97 64</ContactFacsimileTelephone>
+			<ContactElectronicMailAddress>ign@mitma.es</ContactElectronicMailAddress>
+		</ContactInformation>
+		<Fees>no se aplican condiciones</Fees>
+		<AccessConstraints>Se permite el acceso a este servicio en cualquier caso siempre que se mencionen la autoría y propiedad del IGN del siguiente modo: «© Instituto Geográfico Nacional de España»</AccessConstraints>
+		<MaxWidth>4096</MaxWidth>
+		<MaxHeight>4096</MaxHeight>
+	</Service>
+	<Capability>
+		<Request>
+			<GetCapabilities>
+				<Format>text/xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es/wms/minutas-cartograficas?SERVICE=WMS&amp;"/>
+						</Get>
+						<Post>
+							<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es/wms/minutas-cartograficas?SERVICE=WMS&amp;"/>
+						</Post>
+					</HTTP>
+				</DCPType>
+			</GetCapabilities>
+			<GetMap>
+				<Format>image/png</Format>
+				<Format>image/jpeg</Format>
+				<Format>image/gif</Format>
+				<Format>image/tiff</Format>
+				<Format>image/png; mode=8bit</Format>
+				<Format>application/x-pdf</Format>
+				<Format>image/svg+xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es/wms/minutas-cartograficas?SERVICE=WMS&amp;"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetMap>
+			<GetFeatureInfo>
+				<Format>text/html</Format>
+				<Format>text/plain</Format>
+				<Format>application/vnd.ogc.gml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es/wms/minutas-cartograficas?SERVICE=WMS&amp;"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetFeatureInfo>
+			<sld:GetLegendGraphic>
+			  <Format>image/png</Format>
+			  <Format>image/jpeg</Format>
+			  <Format>image/gif</Format>
+			  <Format>image/png; mode=8bit</Format>
+			  <DCPType>
+				<HTTP>
+				  <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ign.es/wms/minutas-cartograficas?"/></Get>
+				  <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ign.es/wms/minutas-cartograficas?"/></Post>
+				</HTTP>
+			  </DCPType>
+			</sld:GetLegendGraphic>			
+		</Request>
+		<Exception>
+			<Format>XML</Format>
+			<Format>INIMAGE</Format>
+			<Format>BLANK</Format>
+		</Exception>
+		<inspire_vs:ExtendedCapabilities>
+			<inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType">
+				<inspire_common:URL>https://www.idee.es/csw-inspire-idee/srv/spa/csw?Service=CSW&amp;Request=GetRecordById&amp;Version=2.0.2&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;elementSetName=full&amp;ID=spaignwms_minutascartograficas</inspire_common:URL>		
+				<inspire_common:MediaType>application/vnd.ogc.csw.GetRecordByIdResponse_xml</inspire_common:MediaType>
+			</inspire_common:MetadataUrl>
+			<inspire_common:SupportedLanguages xsi:type="inspire_common:supportedLanguagesType">
+				<inspire_common:DefaultLanguage>
+					<inspire_common:Language>spa</inspire_common:Language>
+				</inspire_common:DefaultLanguage>
+			</inspire_common:SupportedLanguages>
+			<inspire_common:ResponseLanguage>
+				<inspire_common:Language>spa</inspire_common:Language>
+			</inspire_common:ResponseLanguage>
+		</inspire_vs:ExtendedCapabilities>		
+		<Layer>
+			<Title>Planimetrías (1870-1950)</Title>  
+			<Abstract>Planimetrías manuscritas de municipios españoles realizadas entre 1870 y 1950 de España, que se conservan en el Archivo Topográfico del IGN. Son los trabajos previos a la realización del Mapa Topográfico Nacional, en algunos casos con varias décadas de diferencia respecto a la publicación de la primera edición del MTN de la zona. Contienen información planimétrica como:  vías de comunicación, hidrografía, poblaciones, masas de cultivo de más de 10 ha, línea límite de término municipal y mojones que señalizan la línea límite descritos en las actas de deslinde. Están realizadas a escala 1:25.000, con una precisión de obtención de los datos correspondiente a una escala 1:50.000. A través de la operación GetFeatureInfo (que muestra información de un punto) se puede acceder a las minutas planimétricas y minutas altimétricas disponibles en el centro de descargas del CNIG</Abstract>
+			 <CRS>EPSG:32628</CRS>
+			 <CRS>EPSG:32629</CRS>
+			 <CRS>EPSG:32630</CRS>
+			 <CRS>EPSG:32631</CRS>
+			 <CRS>EPSG:25828</CRS>
+			 <CRS>EPSG:25829</CRS>
+			 <CRS>EPSG:25830</CRS>  
+			 <CRS>EPSG:25831</CRS> 
+			 <CRS>EPSG:3857</CRS>
+			 <CRS>EPSG:4326</CRS>
+			 <CRS>EPSG:4258</CRS>
+			 <CRS>EPSG:4230</CRS>
+			 <CRS>CRS:84</CRS>	
+			 <EX_GeographicBoundingBox>
+				<westBoundLongitude>-19.00</westBoundLongitude>
+				<eastBoundLongitude>5.00</eastBoundLongitude>
+				<southBoundLatitude>27.00</southBoundLatitude>
+				<northBoundLatitude>44.00</northBoundLatitude>
+			 </EX_GeographicBoundingBox>
+			 <BoundingBox CRS="EPSG:32628" minx="102948.37" miny="2986435.24" maxx="2508202.70" maxy="5070480.91"/>
+			 <BoundingBox CRS="EPSG:32629" minx="-495135.01" miny="3026124.78" maxx="1622747.27" maxy="4968139.50"/>
+			 <BoundingBox CRS="EPSG:32630" minx="-1099672.95" miny="3089598.72" maxx="1141463.33" maxy="4903084.27"/>
+			 <BoundingBox CRS="EPSG:32631" minx="-1714548.37" miny="3184917.71" maxx="660349.40" maxy="4873817.33"/>
+			 <BoundingBox CRS="EPSG:25828" minx="102948.37" miny="2986435.24" maxx="2508202.70" maxy="5070480.91"/>
+			 <BoundingBox CRS="EPSG:25829" minx="-495135.76" miny="3026124.81" maxx="1622747.28" maxy="4968139.50"/>
+			 <BoundingBox CRS="EPSG:25830" minx="-1099673.71" miny="3089598.79" maxx="1141463.33" maxy="4903084.27"/>
+			 <BoundingBox CRS="EPSG:25831" minx="-2.39906e+06" miny="2.94067e+06" maxx="817128" maxy="7.61813e+06"/>
+			 <BoundingBox CRS="EPSG:3857" minx="-2115069.50" miny="3123471.78" maxx="556597.44" maxy="5465442.18"/>
+			 <BoundingBox CRS="EPSG:4326" minx="27.00" miny="-19.00" maxx="44.00" maxy="5.00"/>
+			 <BoundingBox CRS="EPSG:4258" minx="27.00" miny="-19.00" maxx="44.00" maxy="5.00"/>
+			 <BoundingBox CRS="EPSG:4230" minx="27.00" miny="-19.00" maxx="44.00" maxy="5.00"/>
+			 <BoundingBox CRS="CRS:84" minx="-19.00" miny="27.00" maxx="5.00" maxy="44.00"/>				
+			<AuthorityURL name="IGN">
+				<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/>
+			</AuthorityURL>
+			<Layer queryable="1">
+				<Name>Minutas</Name>
+				<Title>Planimetrías</Title>
+				<Abstract>Archivos ráster de las planimetrías correspondientes a la digitalización de los mapas manuscritos en papel entre 1870 y 1950 de España conservados en el Archivo Topográfico del IGN. A través de la operación GetFeatureInfo se puede acceder a minutas planimétricas y altimétricas disponibles en el centro de descargas del CNIG</Abstract>
+				<KeywordList>
+					<Keyword>Planimetría</Keyword>
+					<Keyword>Altimetría</Keyword>
+					<Keyword>Mapa</Keyword>
+					<Keyword>IGN</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>© Instituto Geográfico Nacional</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/>
+				</Attribution>
+				<Identifier authority="IGN">Planimetría_raster</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignPlaniAltiConjSerie"/>
+				</MetadataURL>				
+				<Style>
+					<Name>default</Name>
+					<Title>Estilo por defecto de visualización</Title>
+					<Abstract>Estilo por defecto de visualización</Abstract>
+					<LegendURL width="125" height="21">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es/wms/minutas-cartograficas/leyendas/minutas-cartograficas.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+		</Layer>
+	</Capability>
+</WMS_Capabilities>
