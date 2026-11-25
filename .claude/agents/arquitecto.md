@@ -37,3 +37,4 @@ Lo de producto, lo público y las licencias es del fundador (ver `.claude/agents
 ## Al terminar
 
 Pon `estado:lista` y quita `estado:diseno`. No escribas código ni abras PRs.
+- Si una herramienta te es denegada y no puedes terminar, no acabes en silencio: comenta en la issue qué intentabas hacer y qué permiso faltó.

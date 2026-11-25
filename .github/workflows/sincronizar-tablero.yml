@@ -1,19 +1,22 @@
 name: Sincronizar tablero
 
-# Copia la etiqueta estado:* de una issue al campo Status del proyecto de usuario.
-# Requiere el secret PROJECT_TOKEN (token clásico con permiso "project"); sin él no hace nada.
-# Las opciones del campo Status deben llamarse como en MAPA (ver docs/proceso.md).
+# Refleja cada issue en el proyecto "Parcela Intel" (users/murcialito/projects/1):
+# Status según estado:* (o Done al cerrarse) y Size según talla:*.
+# Requiere el secret PROJECT_TOKEN (token con permiso "project"); sin él no hace nada.
 
 on:
   issues:
-    types: [labeled]
+    types: [opened, reopened, closed, labeled, unlabeled]
 
 permissions:
   contents: read
 
+concurrency:
+  group: tablero-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
 jobs:
   sincronizar:
-    if: startsWith(github.event.label.name, 'estado:')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,6 +24,6 @@ jobs:
           GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
           OWNER: ${{ github.repository_owner }}
           PROJECT_NUMBER: "1"
-          ISSUE_ID: ${{ github.event.issue.node_id }}
-          ETIQUETA: ${{ github.event.label.name }}
+          REPO: ${{ github.repository }}
+          ISSUE: ${{ github.event.issue.number }}
         run: .github/scripts/sincronizar_tablero.sh

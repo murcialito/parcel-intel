@@ -81,3 +81,4 @@ Ante la duda entre dos tallas, elige la mayor.
   - enlázala como sub-issue: `gh api repos/{owner}/{repo}/issues/<padre>/sub_issues -f sub_issue_id=<id numérico de la hija>`;
   - quita `estado:refinar` del padre.
 - No escribas código. No abras PRs.
+- Si una herramienta te es denegada y no puedes terminar, no acabes en silencio: comenta en la issue qué intentabas hacer y qué permiso faltó.

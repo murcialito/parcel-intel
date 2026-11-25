@@ -10,7 +10,7 @@ Decidido el 2026-11-25 ([ADR 0022](adr/0022-backlog-en-github-agentes-en-actions
 | Feature | `tipo:feature` | Una capacidad entregable dentro de la épica | El agente de refinamiento la parte en historias |
 | Historia | `tipo:historia` | Un incremento que cabe en una PR y se puede probar | Es lo que se desarrolla |
 
-Las tres son issues del repo. La relación padre-hijo usa **sub-issues** de GitHub. Las issues se añaden al proyecto [Parcel Intel](https://github.com/users/murcialito/projects/1) para verlas en tablero.
+Las tres son issues del repo. La relación padre-hijo usa **sub-issues** de GitHub. Todas aparecen solas en el tablero del proyecto [Parcela Intel](https://github.com/users/murcialito/projects/1) (ver "Sincronización con el tablero").
 
 El número de historia es el número de la issue: "Historia #12". Las historias 0001–0021 de `docs/stories/` se quedan como archivo histórico; las nuevas viven solo en su issue.
 
@@ -113,11 +113,20 @@ La revisión nunca usa el modelo barato: es la última barrera antes del merge a
 
 ## Sincronización con el tablero
 
-El proyecto es de usuario, y la app de GitHub de Claude no puede escribir en proyectos de usuario. Por eso:
+Todas las issues se reflejan en el proyecto [Parcela Intel](https://github.com/users/murcialito/projects/1) mediante `sincronizar-tablero.yml`. Este workflow se lanza cuando se abre, cierra, reabre o cambia de etiquetas cualquier issue, y llama a `.github/scripts/sincronizar_tablero.sh`:
 
-- **Añadir al tablero**: en el proyecto, workflow integrado "Auto-add to project" con el filtro `repo:murcialito/parcel-intel is:issue`.
-- **Columna de estado**: `sincronizar-tablero.yml` copia la etiqueta `estado:*` al campo Status. Necesita el secret `PROJECT_TOKEN`, un token clásico con el permiso `project`. Sin ese secret el workflow no hace nada y las etiquetas siguen funcionando.
-- **Cerrar**: el workflow integrado "Item closed → Done" del proyecto.
+| Etiqueta o estado de la issue | Columna (Status) |
+| --- | --- |
+| Sin estado, `estado:refinar` o `estado:diseno` | Backlog |
+| `estado:necesita-fundador` | **Necesita al fundador** (lo que te espera) |
+| `estado:lista` | Ready |
+| `estado:en-desarrollo` | In progress |
+| `estado:en-revision` | In review |
+| Cerrada | Done |
+
+`talla:s`, `talla:m` y `talla:l` se copian al campo Size del proyecto (S, M, L). Priority lo pones tú si quieres: los agentes no lo tocan.
+
+La app de Claude no puede escribir en proyectos de usuario, así que el workflow necesita el secret `PROJECT_TOKEN`: un token clásico con el permiso `project`. Sin él, el workflow no hace nada y las etiquetas siguen mandando.
 
 ## Coste
 

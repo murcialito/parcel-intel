@@ -56,8 +56,17 @@ jobs:
           claude_args: |
             --model ${{ steps.modelo.outputs.modelo }}
             --max-turns 40
-            --allowedTools "Read,Glob,Grep,Write,Bash(gh pr:*),Bash(gh issue view:*),Bash(git diff:*),Bash(git log:*),Bash(uv run:*),Bash(mkdir:*)"
+            --allowedTools "Read,Glob,Grep,Write,Bash(gh pr:*),Bash(gh issue view:*),Bash(git diff:*),Bash(git log:*),Bash(uv run:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
 
+
+      - name: Guardar transcripción del agente
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: transcripcion-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/claude-execution-output.json
+          retention-days: 3
+          if-no-files-found: ignore
       - name: Aplicar veredicto
         run: |
           veredicto=$(tr -d '[:space:]' < .revision/veredicto 2>/dev/null || echo "SIN_VEREDICTO")

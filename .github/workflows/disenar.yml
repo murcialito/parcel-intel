@@ -44,4 +44,26 @@ jobs:
           claude_args: |
             --model ${{ steps.modelo.outputs.modelo }}
             --max-turns 60
-            --allowedTools "Read,Glob,Grep,Write,Bash(gh issue:*),Bash(gh api:*),Bash(git log:*),Bash(curl:*)"
+            --allowedTools "Read,Glob,Grep,Write,Bash(gh issue:*),Bash(gh api:*),Bash(git log:*),Bash(curl:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
+
+      - name: Guardar transcripción del agente
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: transcripcion-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/claude-execution-output.json
+          retention-days: 3
+          if-no-files-found: ignore
+
+      - name: Comprobar que el agente cambió el estado
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE: ${{ github.event.issue.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if gh issue view "$ISSUE" -R "$REPO" --json labels --jq '.labels[].name' | grep -qx 'estado:diseno'; then
+            gh issue comment "$ISSUE" -R "$REPO" --body "El agente terminó sin cambiar el estado de la issue (sigue en \`estado:diseno\`): $RUN_URL. Para reintentar, quita y vuelve a poner la etiqueta."
+            echo "::error::El agente no cambió el estado (estado:diseno)."
+            exit 1
+          fi
