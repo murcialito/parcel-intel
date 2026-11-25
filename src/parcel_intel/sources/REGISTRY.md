@@ -489,6 +489,59 @@ Búsqueda del 2026-11-25 en la web general y en el BOCM indexado, por "inventari
 
 ---
 
+## Vías pecuarias — clasificación y deslinde por municipio (historia #26)
+
+Verificado el 2026-11-25 para la [historia #26](https://github.com/murcialito/parcel-intel/issues/26) (feature #9, pendiente heredada de la historia 0021). Pregunta: para los 7 municipios del ámbito, ¿hay orden de clasificación y deslinde aprobados, y dónde se publican? **Respuesta corta: no se ha podido verificar para ninguno de los 7.** No es que no existan: el canal donde se publican (BOCM) no es consultable por búsqueda desde esta pasada. Las fixtures están en `tests/fixtures/caminos/`.
+
+### Canales consultados — `confirmado`
+
+| Canal | Petición real | Resultado | Fixture |
+| --- | --- | --- | --- |
+| Buscador de texto del BOCM | `GET https://www.bocm.es/buscador?texto=clasificacion+vias+pecuarias+Colmenar+de+Oreja` | `404`, 12 KB. **No hay endpoint de búsqueda público por URL.** | `bocm_buscador_texto_404.html` |
+| RSS de sumarios del BOCM | `https://www.bocm.es/sumarios.rss` (ya documentado en la sección BOCM) | Solo ventana de 20 boletines recientes. **No sirve para búsquedas históricas.** | `tests/fixtures/bocm/sumarios.rss` |
+| Catálogo abierto de la Comunidad de Madrid (CKAN) | `package_search?q=deslinde` | **0 resultados.** | `ckan_package_search_deslinde_sin_resultados.json` |
+| Catálogo abierto (CKAN) | `package_search?q=clasificacion vias pecuarias` | 1 resultado: "Superficie de terreno forestal por tipo de propiedad" (estadística de superficie). **No es una orden de clasificación.** | `ckan_package_search_clasificacion_vias_pecuarias.json` |
+| WFS de IDEM, `GetCapabilities` global | `https://idem.comunidad.madrid/geoidem/ows?service=wfs&version=2.0.0&request=GetCapabilities` | Única capa de vías pecuarias: `Zonas:IDEM_MA_VIAS_PECUARIAS`. Las capas `UsoDelSuelo:VPLA_V_CLASIFICACION*` son **clasificación de suelo** (planeamiento, ver historia 0011), no de vías pecuarias. **No hay capa de deslinde.** | `tests/fixtures/livestock_trails/ows_getcapabilities_global_zonas_workspace.xml` |
+| Búsqueda web general | — | **No ejecutada.** El permiso de búsqueda web no estaba concedido en esta sesión. Ninguna afirmación de esta sección se basa en ella. | — |
+
+### Clasificación por municipio — orden, fecha y URL BOCM
+
+Estado de todas las filas: `bloqueado`. Motivo: el archivo del BOCM no se ha escaneado por fecha y no hay buscador accesible. "No encontrada" significa aquí "no localizada por los canales de arriba", no "no existe".
+
+| Municipio | INE | Orden de clasificación | Estado |
+| --- | --- | --- | --- |
+| Colmenar de Oreja | 28043 | no encontrada | `bloqueado` |
+| Aranjuez | 28013 | no encontrada | `bloqueado` |
+| Chinchón | 28052 | no encontrada | `bloqueado` |
+| Belmonte de Tajo | 28019 | no encontrada | `bloqueado` |
+| Villaconejos | 28170 | no encontrada | `bloqueado` |
+| Villarejo de Salvanés | 28180 | no encontrada | `bloqueado` |
+| Valdelaguna | 28157 | no encontrada | `bloqueado` |
+
+`asumido`: la clasificación de vías pecuarias en la Comunidad de Madrid se aprueba por orden de la Consejería competente en medio ambiente (Ley 8/1998, citada en el `Abstract` del WMS `Zonas`, `wms_zonas_getcapabilities.xml`). Por eso el sitio donde buscarla es el BOCM. La cita exacta de la norma de cada municipio no se ha comprobado.
+
+### Deslinde por municipio — `bloqueado`
+
+| Municipio | Deslinde (orden, fecha, URL, geometría) |
+| --- | --- |
+| Colmenar de Oreja | sin deslinde publicado (no verificado) |
+| Aranjuez | sin deslinde publicado (no verificado) |
+| Chinchón | sin deslinde publicado (no verificado) |
+| Belmonte de Tajo | sin deslinde publicado (no verificado) |
+| Villaconejos | sin deslinde publicado (no verificado) |
+| Villarejo de Salvanés | sin deslinde publicado (no verificado) |
+| Valdelaguna | sin deslinde publicado (no verificado) |
+
+Lo que sí está `confirmado`: ninguna geometría de deslinde en las fuentes consultadas. La única geometría de vías pecuarias es la cartografía informativa de IDEM (sección "Vías pecuarias — IDEM" arriba), que es polígono de franja sin fecha de deslinde ni campo de estado.
+
+### Conclusiones — `confirmado` salvo que se indique
+
+- **Se puede marcar un tramo como "deslindada" en el mapa?** **No, con lo verificado.** No hay orden de deslinde localizada ni geometría de deslinde descargable. La capa IDEM es informativa (su licencia es CC BY 4.0 y el mapa debe mantener el aviso de carácter informativo, ver sección del 2026-11-25 arriba).
+- **Qué falta para poder decidirlo:** (1) escanear el archivo del BOCM por fechas de la serie de clasificaciones y deslindes de la Consejería, o contar con un buscador del BOCM con permiso; (2) pedir la clasificación y deslindes a cada ayuntamiento y a la Dirección General competente (acción externa, la decide el fundador). Esto queda como **historia nueva** si el fundador lo aprueba: investigar el archivo del BOCM tiene coste de red y tiempo que esta historia no cubre.
+- **Licencia de una geometría de deslinde, si aparece:** no se puede decidir sin la fuente. Se verificará con la misma disciplina que la licencia de IDEM (documento de licencia citado, no solo el `AccessConstraints` del `GetCapabilities`).
+
+---
+
 ## Resumen de fuentes no verificadas en esta pasada
 
 Fuera de alcance de la historia 0001 (ver sección "Fuera de alcance" de `docs/stories/0001-registro-fuentes.md`): vías pecuarias, Red Natura 2000, concesiones de agua, inventario municipal de caminos. SNCZI/dominio público hidráulico, que figuraba aquí mismo hasta la historia 0012, quedó verificado en esa historia (ver sección "SNCZI / Dominio Público Hidráulico — MITECO" más arriba: cursos de agua y peligrosidad por inundación `confirmado`, deslinde legal de DPH y zonas de servidumbre/policía `bloqueado`). Vías pecuarias, que figuraba aquí mismo hasta la historia 0014, quedó verificada en esa historia (ver sección "Vías pecuarias — IDEM, Comunidad de Madrid" más arriba: `confirmado`, un único servicio real encontrado bajo el workspace `Zonas` del mismo GeoServer de IDEM). Red Natura 2000, que figuraba aquí mismo hasta la historia 0015, quedó verificada en esa historia (ver sección "Red Natura 2000 y espacios protegidos — IDEM, Comunidad de Madrid" más arriba: `confirmado` como fuente real de planes de gestión, con el alcance explícito de que modela zonificación de planes, no el límite oficial de cada sitio individual con código EU). Concesiones de agua e inventario municipal de caminos quedan para una iteración posterior del registro, cuando las historias de reglas/afecciones las necesiten.

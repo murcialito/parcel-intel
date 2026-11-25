@@ -186,3 +186,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: un resultado de búsqueda web que atribuye un documento oficial (un anuncio del BOCM) a un municipio no prueba esa atribución. Se abre el documento primario y se lee antes de anotarlo como hallazgo.
   - **Causa**: la búsqueda presentó `BOCM-20230825-31` como una desafectación de un camino público en Chinchón. Al leer el PDF resultó ser de Chapinería, que no está en el ámbito. Se habría registrado un falso "acto sobre caminos" en un municipio del hito.
   - **Aplica a**: BA | implementación. Sobre todo al construir el conjunto de validación de caminos cerrados, que se nutre de fuentes de terceros.
+
+## [2026-11-25] Historia #26 — Clasificación y deslindes de vías pecuarias
+
+- **Lección**: "no encontrada" solo es una conclusión si el canal donde se publicaría era consultable. Antes de escribir "no encontrada" o "sin deslinde publicado" en el registro, anotar qué canal se consultó y cuál no; si el canal principal (aquí el archivo del BOCM) no se puede consultar, la fila va como `bloqueado`, no como negativo verificado.
+  - **Causa**: el BOCM no expone buscador público por URL (`/buscador?texto=…` devuelve 404), su RSS solo cubre 20 boletines, y el catálogo abierto de la Comunidad de Madrid no tiene nada sobre deslindes. La búsqueda web general no estaba autorizada en esta sesión. Sin distinguir esto, el registro habría afirmado que no existen deslindes en siete municipios, y esa afirmación se puede usar luego para marcar tramos en el mapa.
+  - **Aplica a**: BA (al redactar criterios de "no encontrada" o "sin X publicado", exigir la lista de canales consultados y su resultado) | implementación (al investigar fuentes que solo existen en boletines oficiales, planear el escaneo del archivo por fechas, no asumir que un buscador por URL existe).
