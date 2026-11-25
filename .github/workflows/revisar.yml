@@ -1,0 +1,55 @@
+name: Revisar
+
+# Agente revisor. El check "revision" (nombre del job) es obligatorio para el merge:
+# falla si el veredicto es CAMBIOS.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: revisar-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  revision:
+    if: startsWith(github.event.pull_request.head.ref, 'claude/') && !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v6
+
+      - run: uv sync --frozen
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: "claude[bot]"
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR: #${{ github.event.pull_request.number }}
+
+            Actúa como el agente definido en .claude/agents/revisor.md y revisa la
+            PR #${{ github.event.pull_request.number }} siguiendo sus instrucciones al pie
+            de la letra. Termina escribiendo el veredicto en .revision/veredicto.
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Glob,Grep,Write,Bash(gh pr:*),Bash(gh issue view:*),Bash(git diff:*),Bash(git log:*),Bash(uv run:*),Bash(mkdir:*)"
+
+      - name: Aplicar veredicto
+        run: |
+          veredicto=$(tr -d '[:space:]' < .revision/veredicto 2>/dev/null || echo "SIN_VEREDICTO")
+          echo "Veredicto del revisor: $veredicto"
+          if [ "$veredicto" != "APROBADO" ]; then
+            echo "::error::Revisión: $veredicto"
+            exit 1
+          fi

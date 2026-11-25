@@ -29,11 +29,14 @@ Otras reglas:
 
 ## Flujo de trabajo por feature (obligatorio)
 
-1. **business-analyst** escribe la historia → `docs/stories/NNNN-*.md`
-2. **architect** valida el diseño; si hay decisión nueva, emite ADR → `docs/adr/`
-3. Implementación contra los criterios de aceptación de la historia
-4. **code-reviewer** revisa el diff antes de dar por cerrado
-5. **lessons-learned** cierra el ciclo → `docs/lessons/LESSONS.md`
+Desde el 2026-11-25 el backlog vive en GitHub Issues y los agentes corren en GitHub Actions ([`docs/proceso.md`](docs/proceso.md), ADR 0022). El fundador solo refina, y solo cuando un agente se lo pide.
+
+1. **refinador** (`.claude/agents/refinador.md`) parte épicas y features, escribe la historia en la issue con criterios Dado/Cuando/Entonces y propone ADR si hay decisión nueva → `estado:lista` o `estado:necesita-fundador`.
+2. **desarrollador** (`.claude/agents/desarrollador.md`) implementa con tests unitarios y un test de aceptación por criterio (`tests/acceptance/test_historia_<n>.py`), anota lecciones y ADR en la misma PR y activa el auto-merge.
+3. **revisor** (`.claude/agents/revisor.md`) revisa la PR; su veredicto es el check obligatorio `revision`.
+4. CI verde + `APROBADO` + sin `veto` → merge y despliegue automáticos.
+
+Las historias 0001–0021 de `docs/stories/` son archivo; las nuevas viven en su issue ("Historia #n").
 
 **Todos los agentes y toda implementación deben leer `docs/lessons/LESSONS.md` antes de empezar.**
 
@@ -45,6 +48,7 @@ uv run pytest           # tests
 uv run mypy             # tipado estricto
 uv run ruff check .     # lint
 uv run lint-imports     # verificar capas hexagonales
+uv run pytest -m acceptance   # tests de aceptación (uno por criterio de cada historia)
 
 docker compose -f infra/docker-compose.yml up -d    # levantar PostGIS local
 uv run python -m parcel_intel.adapters.postgis.migrate up      # aplicar migraciones

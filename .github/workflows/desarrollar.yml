@@ -1,0 +1,142 @@
+name: Desarrollar
+
+# Agente desarrollador. Una historia a la vez:
+# - "seleccionar" elige la historia lista más antigua si no hay otra en desarrollo o revisión;
+# - "desarrollar" la implementa y abre la PR con auto-merge;
+# - "corregir" atiende la etiqueta cambios-pedidos que pone el revisor.
+
+on:
+  issues:
+    types: [labeled]
+  pull_request:
+    types: [labeled]
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: desarrollo
+  cancel-in-progress: false
+
+jobs:
+  seleccionar:
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' && github.event.label.name == 'estado:lista')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: read
+    outputs:
+      historia: ${{ steps.elegir.outputs.historia }}
+    steps:
+      - id: elegir
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          ocupadas=0
+          for estado in estado:en-desarrollo estado:en-revision; do
+            n=$(gh issue list -R "$REPO" --state open --label "tipo:historia" --label "$estado" --json number --jq 'length')
+            ocupadas=$((ocupadas + n))
+          done
+          if [ "$ocupadas" -gt 0 ]; then
+            echo "Ya hay una historia en desarrollo o revisión; se espera a la siguiente pasada."
+            exit 0
+          fi
+          historia=$(gh issue list -R "$REPO" --state open --label "tipo:historia" --label "estado:lista" \
+            --json number,createdAt --jq 'sort_by(.createdAt) | .[0].number // empty')
+          echo "historia=$historia" >> "$GITHUB_OUTPUT"
+          echo "Historia elegida: ${historia:-ninguna}"
+
+  desarrollar:
+    needs: seleccionar
+    if: needs.seleccionar.outputs.historia != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    env:
+      HISTORIA: ${{ needs.seleccionar.outputs.historia }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v6
+
+      - run: uv sync --frozen
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: "claude[bot]"
+          prompt: |
+            REPO: ${{ github.repository }}
+            HISTORIA: #${{ env.HISTORIA }}
+
+            Actúa como el agente definido en .claude/agents/desarrollador.md e implementa
+            la historia #${{ env.HISTORIA }} siguiendo sus instrucciones al pie de la letra,
+            hasta dejar abierta la PR con auto-merge activado.
+          claude_args: |
+            --max-turns 150
+            --allowedTools "Read,Glob,Grep,Edit,Write,Bash(uv:*),Bash(git:*),Bash(gh:*),Bash(curl:*),Bash(ls:*),Bash(mkdir:*),Bash(python3:*)"
+
+      - name: Devolver la historia a la cola si el agente falla
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          fallos=$(gh issue view "$HISTORIA" -R "$REPO" --json comments \
+            --jq '[.comments[].body | select(startswith("Fallo del agente de desarrollo"))] | length')
+          if [ "$fallos" -ge 2 ]; then
+            gh issue comment "$HISTORIA" -R "$REPO" --body "Fallo del agente de desarrollo (tercero): $RUN_URL. @${{ github.repository_owner }}, necesito que mires esta historia."
+            gh issue edit "$HISTORIA" -R "$REPO" --remove-label "estado:en-desarrollo" --remove-label "estado:lista" --add-label "estado:necesita-fundador"
+          else
+            gh issue comment "$HISTORIA" -R "$REPO" --body "Fallo del agente de desarrollo: $RUN_URL. Vuelve a la cola."
+            gh issue edit "$HISTORIA" -R "$REPO" --remove-label "estado:en-desarrollo" --add-label "estado:lista"
+          fi
+
+  corregir:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.label.name == 'cambios-pedidos' &&
+      startsWith(github.event.pull_request.head.ref, 'claude/') &&
+      !contains(github.event.pull_request.labels.*.name, 'veto')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v6
+
+      - run: uv sync --frozen
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: "claude[bot]"
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR: #${{ github.event.pull_request.number }}
+            RAMA: ${{ github.event.pull_request.head.ref }}
+
+            Actúa como el agente definido en .claude/agents/desarrollador.md, sección
+            "Si te llaman para corregir", sobre la PR #${{ github.event.pull_request.number }}.
+            Trabaja en la rama ${{ github.event.pull_request.head.ref }}, que ya está en el checkout.
+          claude_args: |
+            --max-turns 100
+            --allowedTools "Read,Glob,Grep,Edit,Write,Bash(uv:*),Bash(git:*),Bash(gh:*),Bash(ls:*),Bash(mkdir:*),Bash(python3:*)"

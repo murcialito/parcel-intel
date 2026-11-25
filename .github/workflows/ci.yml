@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled, ready_for_review]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Veto del fundador
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'veto')
+        run: |
+          echo "::error::La PR tiene la etiqueta 'veto': el merge automático queda bloqueado."
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Instalar dependencias
+        run: uv sync --frozen
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Tipado estricto
+        run: uv run mypy
+
+      - name: Capas hexagonales
+        run: uv run lint-imports
+
+      - name: Tests unitarios
+        run: uv run pytest
+
+      - name: Tests de aceptación
+        run: |
+          set +e
+          uv run pytest -m acceptance
+          code=$?
+          # 5 = ningún test recogido (todavía no hay tests de aceptación): no es un fallo.
+          if [ "$code" -eq 5 ]; then exit 0; fi
+          exit "$code"

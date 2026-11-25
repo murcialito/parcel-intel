@@ -36,6 +36,7 @@ pythonpath = ["src"]
 testpaths = ["tests"]
 markers = [
     "integration: tests que llaman a red real o a una base de datos PostGIS local (excluidos por defecto)",
+    "acceptance: tests de aceptación, uno por criterio Dado/Cuando/Entonces de una historia (tests/acceptance/)",
 ]
 addopts = "-m 'not integration'"
 

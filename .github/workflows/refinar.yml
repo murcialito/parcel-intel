@@ -1,0 +1,53 @@
+name: Refinar
+
+# Agente refinador: trabaja una issue con estado:refinar, o vuelve sobre ella
+# cuando el fundador responde en una issue con estado:necesita-fundador.
+
+on:
+  issues:
+    types: [labeled]
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: refinar-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  refinar:
+    if: >-
+      (github.event_name == 'issues' && github.event.label.name == 'estado:refinar') ||
+      (github.event_name == 'issue_comment' &&
+       !github.event.issue.pull_request &&
+       github.event.comment.user.login == github.repository_owner &&
+       contains(github.event.issue.labels.*.name, 'estado:necesita-fundador'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: "claude[bot]"
+          prompt: |
+            REPO: ${{ github.repository }}
+            ISSUE: #${{ github.event.issue.number }}
+            EVENTO: ${{ github.event_name }}
+
+            Actúa como el agente definido en .claude/agents/refinador.md y sigue sus
+            instrucciones al pie de la letra sobre la issue #${{ github.event.issue.number }}.
+
+            Si el evento es un comentario, es la respuesta del fundador a tus preguntas:
+            incorpórala, quita la etiqueta estado:necesita-fundador y decide de nuevo
+            (lista, más preguntas o partir en hijas).
+
+            No pongas nunca la etiqueta estado:refinar en esta misma issue: volvería a
+            lanzar este workflow.
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Glob,Grep,Write,Bash(gh issue:*),Bash(gh api:*),Bash(gh label:*),Bash(git log:*),Bash(curl:*)"
