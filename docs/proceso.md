@@ -84,6 +84,7 @@ Definidos en `.claude/agents/` y lanzados por los workflows de `.github/workflow
 | `desarrollador` | `desarrollar.yml` | Etiqueta `estado:lista` en una historia, cada hora como cola, o la etiqueta `cambios-pedidos` en su PR |
 | `revisor` | `revisar.yml` | PR abierta o actualizada desde una rama `claude/` |
 | — | `ci.yml` | Toda PR y todo push a `main` |
+| Claude a demanda | `claude.yml` (del instalador de la app) | Escribes `@claude` en una issue o PR: pregunta o encargo puntual fuera del flujo |
 | — | `desplegar.yml` | Push a `main` (solo si el repo es público) |
 
 **Una historia a la vez.** El desarrollo va en serie para evitar conflictos entre PRs: si ya hay una historia `estado:en-desarrollo` o `estado:en-revision`, la siguiente `estado:lista` espera a la pasada horaria.

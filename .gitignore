@@ -10,3 +10,6 @@ mlruns/
 
 # Veredicto del agente revisor (GitHub Actions)
 .revision/
+
+# El lockfile sí va en git (el .gitignore global lo excluye): CI usa uv sync --frozen
+!uv.lock
