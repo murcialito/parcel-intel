@@ -38,7 +38,8 @@ jobs:
           MODELO_CAPAZ: ${{ vars.MODELO_CAPAZ }}
         run: echo "modelo=$(.github/scripts/modelo.sh diseno "$NUM")" >> "$GITHUB_OUTPUT"
 
-      - uses: anthropics/claude-code-action@v1
+      - id: agente
+        uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           allowed_bots: "claude[bot],github-actions[bot]"  # github-actions: lanzamientos de Fusionar y Desbloquear
@@ -50,7 +51,7 @@ jobs:
             historia #${{ env.NUM }} siguiendo sus instrucciones al pie de la letra.
           claude_args: |
             --model ${{ steps.modelo.outputs.modelo }}
-            --max-turns 60
+            --max-turns 120
             --allowedTools "WebSearch,WebFetch,Read,Glob,Grep,Write,Bash(gh issue:*),Bash(gh api:*),Bash(git log:*),Bash(curl:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
 
       - name: Guardar transcripción del agente
@@ -63,14 +64,17 @@ jobs:
           if-no-files-found: ignore
 
       - name: Comprobar que el agente cambió el estado
+        if: always()
         env:
+          AGENTE: ${{ steps.agente.outcome }}
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           ISSUE: ${{ env.NUM }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           if gh issue view "$ISSUE" -R "$REPO" --json labels --jq '.labels[].name' | grep -qx 'estado:diseno'; then
-            gh issue comment "$ISSUE" -R "$REPO" --body "El agente terminó sin cambiar el estado de la issue (sigue en \`estado:diseno\`): $RUN_URL. Para reintentar, quita y vuelve a poner la etiqueta."
+            if [ "$AGENTE" = "failure" ]; then motivo="El agente falló (por ejemplo, se quedó sin turnos)"; else motivo="El agente terminó sin cambiar el estado"; fi
+            gh issue comment "$ISSUE" -R "$REPO" --body "$motivo; la issue sigue en \`estado:diseno\`: $RUN_URL. Para reintentar: Actions → Diseñar → Run workflow con esta issue."
             echo "::error::El agente no cambió el estado (estado:diseno)."
             exit 1
           fi

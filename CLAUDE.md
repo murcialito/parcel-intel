@@ -65,7 +65,7 @@ uv run python -m parcel_intel.cli.main review list
 uv run python -m parcel_intel.cli.main review approve <identifier>
 uv run python -m parcel_intel.cli.main review reject <identifier>
 
-# Capa de vías pecuarias por municipio del ámbito (historia #36): recorte con los límites del IGN
+# Capa de vías pecuarias por municipio del ámbito (historias #36, #83): recorte con los límites del IGN, en data/derived/vias_pecuarias/<ine>.geojson
 uv run python -m parcel_intel.cli.main vias-pecuarias-municipios             # descarga y cachea en data/raw
 uv run python -m parcel_intel.cli.main vias-pecuarias-municipios --sin-red   # solo desde la caché
 

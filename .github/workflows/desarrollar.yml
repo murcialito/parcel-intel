@@ -1,7 +1,8 @@
 name: Desarrollar
 
-# Agente desarrollador. Una historia a la vez:
-# - "seleccionar" elige la historia lista más antigua si no hay otra en desarrollo o revisión;
+# Agente desarrollador. Hasta HISTORIAS_EN_PARALELO historias a la vez (variable de repo, por defecto 1):
+# - "seleccionar" (en serie) elige la siguiente historia lista que no se solape con las que están en
+#   curso, la marca estado:en-desarrollo y, si queda hueco, se relanza para llenarlo;
 # - "desarrollar" la implementa y abre la PR (la fusiona fusionar.yml, nunca el agente);
 # - "corregir" atiende la etiqueta cambios-pedidos que pone el revisor.
 
@@ -14,10 +15,6 @@ on:
     - cron: "17 * * * *"
   workflow_dispatch:
 
-concurrency:
-  group: desarrollo
-  cancel-in-progress: false
-
 jobs:
   seleccionar:
     if: >-
@@ -25,9 +22,14 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'issues' && github.event.label.name == 'estado:lista')
     runs-on: ubuntu-latest
+    # La elección va en serie: dos ejecuciones a la vez podrían coger la misma historia.
+    concurrency:
+      group: seleccionar-historia
+      cancel-in-progress: false
     permissions:
       contents: read
-      issues: read
+      issues: write
+      actions: write
     outputs:
       historia: ${{ steps.elegir.outputs.historia }}
     steps:
@@ -40,14 +42,38 @@ jobs:
           PROJECT_NUMBER: "1"
           REPO: ${{ github.repository }}
           COLA_PAUSADA: ${{ vars.COLA_PAUSADA }}
-        # Priority del tablero, luego antigüedad; salta las que tienen dependencias abiertas.
-        run: echo "historia=$(.github/scripts/elegir_historia.sh)" >> "$GITHUB_OUTPUT"
+          HISTORIAS_EN_PARALELO: ${{ vars.HISTORIAS_EN_PARALELO }}
+        # Priority del tablero, luego antigüedad; salta dependencias abiertas y zonas solapadas.
+        run: |
+          historia=$(.github/scripts/elegir_historia.sh)
+          echo "historia=$historia" >> "$GITHUB_OUTPUT"
+          [ -n "$historia" ] || exit 0
+          # Se reclama aquí, antes de soltar el turno, para que la siguiente elección ya la vea en curso.
+          gh issue edit "$historia" -R "$REPO" --add-label estado:en-desarrollo --remove-label estado:lista >/dev/null
+          echo "#$historia reclamada."
+          # Si queda hueco, otra elección para llenarlo.
+          gh workflow run desarrollar.yml -R "$REPO" --ref main
+
+      - name: Reflejar la historia en el tablero
+        if: steps.elegir.outputs.historia != ''
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          REPO_TOKEN: ${{ github.token }}
+          OWNER: ${{ github.repository_owner }}
+          PROJECT_NUMBER: "1"
+          REPO: ${{ github.repository }}
+          ISSUE: ${{ steps.elegir.outputs.historia }}
+        run: .github/scripts/sincronizar_tablero.sh
 
   desarrollar:
     needs: seleccionar
     if: needs.seleccionar.outputs.historia != ''
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    concurrency:
+      group: desarrollo-${{ needs.seleccionar.outputs.historia }}
+      cancel-in-progress: false
     permissions:
       contents: write
       issues: write
@@ -122,23 +148,15 @@ jobs:
             fi
           fi
 
-      - name: Seguir con la cola si no quedó nada en curso
-        # Si el agente bloqueó la historia, la devolvió a la cola o pidió ayuda, nadie más relanza la
-        # cola hasta el próximo merge (el cron horario de GitHub no es fiable). El selector salta las
-        # historias con dependencias abiertas. Tras un fallo no se relanza: así una caída general no
-        # quema la cola entera.
+      - name: Seguir con la cola
+        # Si el agente bloqueó la historia, la devolvió a la cola o pidió ayuda, queda un hueco libre que
+        # nadie llenaría hasta el próximo merge (el cron horario de GitHub no es fiable). El selector
+        # decide si hay hueco. Tras un fallo no se relanza: así una caída general no quema la cola entera.
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-        run: |
-          for estado in estado:en-desarrollo estado:en-revision; do
-            if [ "$(gh issue list -R "$REPO" --state open --label tipo:historia --label "$estado" --json number --jq length)" -gt 0 ]; then
-              echo "Hay una historia en $estado: la cola sigue sola tras el merge."; exit 0
-            fi
-          done
-          gh workflow run desarrollar.yml -R "$REPO" --ref main
-          echo "Cola relanzada."
+        run: gh workflow run desarrollar.yml -R "$REPO" --ref main
 
   corregir:
     if: >-
@@ -148,6 +166,9 @@ jobs:
       !contains(github.event.pull_request.labels.*.name, 'veto')
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    concurrency:
+      group: corregir-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
     permissions:
       contents: write
       issues: write

@@ -25,7 +25,8 @@ Reescribe la sección `## Diseño` del cuerpo de la issue (`gh issue edit <n> --
 4. **Datos**: procedencia, CRS (EPSG:25830 para operaciones métricas), caché en `data/`, migraciones si hay PostGIS.
 5. **Riesgos** y cómo los cubren los criterios de aceptación. Añade criterios si faltan, por ejemplo el caso no trivial que exigen las lecciones.
 6. **ADR propuesto**: borrador completo (contexto, decisión, consecuencias) como bloque de código, para que el desarrollador lo cree tal cual en `docs/adr/`.
-7. **Partición**: si la historia no cabe en una PR revisable, pártela en historias hijas (sub-issues) con su talla. Pon `estado:diseno` en las L y `estado:lista` en las S y M, y deja la madre como contenedor sin estado.
+7. **Línea `Toca:`**: los directorios y ficheros exactos que creará o modificará el desarrollo (ver `.claude/agents/refinador.md`, "Línea Toca"). Es lo que permite desarrollarla en paralelo con otra historia.
+8. **Partición**: si la historia no cabe en una PR revisable, pártela en historias hijas (sub-issues) con su talla. Pon `estado:diseno` en las L y `estado:lista` en las S y M, y deja la madre como contenedor sin estado.
 
 ## Evita duplicar trabajo
 

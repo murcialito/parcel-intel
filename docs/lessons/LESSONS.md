@@ -353,3 +353,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: hay tests que leen documentos. Por ejemplo, `test_historia_44` comprueba el orden de los pasos de `docs/runbook-publicacion.md`. Un cambio "solo de docs" empujado a `main` sin ejecutar `uv run pytest` dejó CI en rojo en `main` y en la PR en curso (#46), que lo heredó al fusionar con `main`. Antes de empujar cualquier cambio, aunque solo toque `.md`, se ejecutan los cinco comandos.
   - **Aplica a**: todos (agentes y fundador), sobre todo con commits directos a `main`.
+
+## [2026-11-26] Historia #83 — Escritor de la capa de vías pecuarias
+
+- **Lección**: antes de fijar un criterio sobre "los datos reales" (un municipio vacío, un código repetido, un papel `via`), contarlo en la capa real. En #83 la issue daba por vacío a Valdelaguna (28157) y por `role="via"` a todo el ámbito; la capa real tiene en Valdelaguna una astilla de 0,25 m², no repite `trail_code` en ningún municipio y las fixtures traen `DS_TIPO` ("Abrevadero-Descansadero", "Colada-Abrevadero") que la tabla `LIVESTOCK_TRAIL_TYPE_ROLE` no cubre, así que `livestock_trail_role` lanza `UnknownLivestockTrailTypeError`.
+  - **Causa**: los criterios se redactaron a partir de conteos de #36 sin volver a mirar el resultado del recorte. El escritor no escribe `papel` (el lector lo toma como `via`) y guarda `tipo`; clasificar anejos queda pendiente de decisión de producto.
+  - **Aplica a**: BA (comprobar en los datos cada afirmación "el municipio X está vacío" o "todos son Y") | implementación (los casos que los datos reales no ejercitan, como ids repetidos o capa vacía, se cubren con un test sintético etiquetado como tal) | arquitecto (la tabla de papeles, cerrada por ADR 0029, debe revisarse antes de publicar).
+
+- **Lección**: `uv run pytest -m acceptance`, escrito literalmente, pisa el `addopts = "-m 'not integration'"` de `pyproject.toml` y ejecuta también los tests `[integración]` contra la red real (tarda más de 2 minutos). Sin red, usar `-m "acceptance and not integration"`.
+  - **Aplica a**: implementación.

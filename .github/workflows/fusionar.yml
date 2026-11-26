@@ -3,7 +3,8 @@ name: Fusionar
 # Único camino de merge de las PRs de agentes (ADR 0024). Se lanza cuando terminan CI o Revisar
 # y fusiona solo si, sobre el último commit de la PR:
 #   - el check "checks" (CI) y el check "revision" (agente revisor) están en SUCCESS;
-#   - la PR no es borrador y no tiene las etiquetas veto ni cambios-pedidos.
+#   - la PR no es borrador y no tiene las etiquetas veto ni cambios-pedidos;
+#   - la PR está al día con main (si no, se pone al día y se espera a los checks nuevos).
 # Los agentes no pueden fusionar (gh pr merge y gh api están vetados en sus herramientas).
 # Como fusiona con GITHUB_TOKEN, los eventos que provoca no disparan workflows: por eso lanza
 # a mano CI en main, el despliegue, la sincronización del tablero y la siguiente historia.
@@ -41,6 +42,7 @@ jobs:
           REPO: ${{ github.repository }}
           RAMA: ${{ github.event.workflow_run.head_branch }}
           SHA: ${{ github.event.workflow_run.head_sha }}
+          PROYECTO_TOKEN: ${{ secrets.PROJECT_TOKEN }}
         run: |
           pr=$(gh pr list -R "$REPO" --head "$RAMA" --state open --json number --jq '.[0].number // empty')
           if [ -z "$pr" ]; then echo "No hay PR abierta para $RAMA (ya fusionada o cerrada)."; exit 0; fi
@@ -59,6 +61,19 @@ jobs:
             if [ "$estado" != "SUCCESS" ]; then echo "Check '$check' en $estado: se espera."; exit 0; fi
           done
 
+          # Con varias historias en paralelo, otra PR puede haber entrado en main después de que corriera
+          # el CI de esta: sus checks no cubren la combinación real. Si va por detrás de main, se pone al
+          # día (con PROJECT_TOKEN, para que el push dispare CI y Revisar) y se decide con los checks nuevos.
+          detras=$(gh api "repos/$REPO/compare/main...$SHA" --jq .behind_by)
+          if [ "$detras" -gt 0 ]; then
+            if [ -z "${PROYECTO_TOKEN:-}" ]; then echo "::error::PR #$pr va $detras commits por detrás de main y no hay PROJECT_TOKEN para ponerla al día."; exit 1; fi
+            if GH_TOKEN="$PROYECTO_TOKEN" gh api -X PUT "repos/$REPO/pulls/$pr/update-branch" -f expected_head_sha="$SHA" --silent; then
+              echo "PR #$pr iba $detras commits por detrás de main: puesta al día; se fusionará cuando CI y la revisión pasen otra vez."
+            else
+              echo "PR #$pr no se pudo poner al día (¿conflicto?): la atiende Actualizar rama."
+            fi
+            exit 0
+          fi
           gh pr merge "$pr" -R "$REPO" --squash --delete-branch --match-head-commit "$SHA"
           # Un merge hecho con GITHUB_TOKEN no siempre cierra las issues de "Closes #n": se cierran aquí.
           historia=$(jq -r '.closingIssuesReferences[0].number // empty' <<<"$datos")
