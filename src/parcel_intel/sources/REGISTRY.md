@@ -729,7 +729,7 @@ Ejecución real del 2026-11-26: `vias-pecuarias-municipios` y `camino-actual-mun
 | `site/datos/indice.json` | 1 municipio | 215 |
 | `site/datos/indice.json.procedencia.json` | — | 205 |
 
-Ningún fichero supera el umbral de simplificación (3 000 000 bytes). Belmonte de Tajo (28019) no tiene piezas de vías pecuarias, y su capa vacía lleva la procedencia del límite del IGN (uso interno), así que hoy no se puede publicar. Queda para #86 (ADR 0036, notas de implementación).
+Ningún fichero supera el umbral de simplificación (3 000 000 bytes). Belmonte de Tajo (28019) no tiene piezas de vías pecuarias, y su capa vacía no se publica (resuelto en #86, ADR 0036). El ámbito completo se publicó en #86: 13 capas, ninguna sobre el umbral.
 
 ---
 
