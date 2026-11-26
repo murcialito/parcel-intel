@@ -73,6 +73,12 @@ uv run python -m parcel_intel.cli.main vias-pecuarias-municipios --sin-red   # s
 uv run python -m parcel_intel.cli.main camino-actual-municipios              # descarga y cachea en data/raw
 uv run python -m parcel_intel.cli.main camino-actual-municipios --sin-red    # solo desde la caché
 
+# Capa interna de caminos de Catastro de un municipio (historia #37): parcelas >= 9000 de clase VT, por teselas de 900 m.
+# Capa de uso interno: NUNCA se publica (licencia INSPIRE). Sin fichero derivado: imprime el resumen. Caché inmutable en data/raw/catastro.
+# --codigo es el código de Catastro (5 dígitos, como el INE en Colmenar); --bbox, el del término en EPSG:25830 con ejes E,N.
+uv run python -m parcel_intel.cli.main catastro-caminos --provincia MADRID --municipio "COLMENAR DE OREJA" --codigo 28043 --bbox 449341,4431623,470702,4442906
+uv run python -m parcel_intel.cli.main catastro-caminos ... --sin-red        # solo desde la caché
+
 # Discrepancias entre capas de trazados por municipio (historia #32): lee data/derived/{vias_pecuarias,camino_actual,catastro_caminos}/<ine>.geojson
 # y escribe data/derived/discrepancias/{interno,publicable}/<ine>.geojson (el interno NUNCA se publica). Sin red. Sale con 1 si algún municipio falla.
 uv run python -m parcel_intel.cli.main discrepancias --municipio 28043 [--municipio ...]
