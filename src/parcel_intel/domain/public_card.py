@@ -88,7 +88,7 @@ class TextValidation:
 
 VALIDATION = TextValidation(
     validated_by_founder=date(2026, 11, 26),
-    validation_url="https://github.com/murcialito/parcel-intel/issues/16#issuecomment-7186000359",
+    validation_url="https://github.com/murcialito/paso-comun/issues/16#issuecomment-7186000359",
     text_hash="e188f341db01c25879884b6a62d6515321b06819af375a9fa30768fe5ccb651c",
 )
 

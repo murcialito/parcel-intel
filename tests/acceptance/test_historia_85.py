@@ -180,7 +180,7 @@ def test_ca1_recursos_locales_y_solo_teselas_ign_como_host_externo(tmp_path: Pat
     enlaces = [a.get("href") or "" for t, a in html.tags if t == "a"]
     for enlace in enlaces:
         assert enlace.startswith(
-            ("https://github.com/murcialito/parcel-intel", "https://creativecommons.org/")
+            ("https://github.com/murcialito/paso-comun", "https://creativecommons.org/")
         ), enlace
 
     # url(...) en todas las hojas de estilo del sitio (propias y de vendor).

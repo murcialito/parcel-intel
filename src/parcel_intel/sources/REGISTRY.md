@@ -564,7 +564,7 @@ Búsqueda del 2026-11-25 en la web general y en el BOCM indexado, por "inventari
 
 ## Planimetría de Colmenar y MTN50 0606: acceso y georreferenciabilidad
 
-Verificado el 2026-11-25 para la [historia #17](https://github.com/murcialito/parcel-intel/issues/17) (feature #11). Pregunta: ¿se pueden obtener la planimetría de Colmenar de Oreja (doc. 280075, 1875) y la hoja MTN50 0606 (1881) a una resolución útil, y georreferenciarlas? Datos en `tests/fixtures/caminos/planimetrias/` (`verificacion.json`, recortes de 1 km, procedencia de las imágenes completas y ficha del Centro de Descargas). Script puntual: `scripts/verificar_planimetrias.py`. Imágenes completas (ventana de 5×5 km, 2000×2000 px, 2,5 m/px) en `data/raw/ign_planimetrias/`, fuera de git, con su `*.provenance.json` (URL exacta, fecha, SHA-256, licencia).
+Verificado el 2026-11-25 para la [historia #17](https://github.com/murcialito/paso-comun/issues/17) (feature #11). Pregunta: ¿se pueden obtener la planimetría de Colmenar de Oreja (doc. 280075, 1875) y la hoja MTN50 0606 (1881) a una resolución útil, y georreferenciarlas? Datos en `tests/fixtures/caminos/planimetrias/` (`verificacion.json`, recortes de 1 km, procedencia de las imágenes completas y ficha del Centro de Descargas). Script puntual: `scripts/verificar_planimetrias.py`. Imágenes completas (ventana de 5×5 km, 2000×2000 px, 2,5 m/px) en `data/raw/ign_planimetrias/`, fuera de git, con su `*.provenance.json` (URL exacta, fecha, SHA-256, licencia).
 
 ### Hallazgos
 
@@ -605,7 +605,7 @@ CC BY 4.0 por la Orden FOM/2807/2015 y la licencia de uso del IGN (ver "Detalle 
 
 ## Vías pecuarias — clasificación y deslinde por municipio (historia #26)
 
-Verificado el 2026-11-25 para la [historia #26](https://github.com/murcialito/parcel-intel/issues/26) (feature #9, pendiente heredada de la historia 0021). Pregunta: para los 7 municipios del ámbito, ¿hay orden de clasificación y deslinde aprobados, y dónde se publican? **Respuesta corta: no se ha podido verificar para ninguno de los 7.** No es que no existan: el canal donde se publican (BOCM) no es consultable por búsqueda desde esta pasada. Las fixtures están en `tests/fixtures/caminos/`.
+Verificado el 2026-11-25 para la [historia #26](https://github.com/murcialito/paso-comun/issues/26) (feature #9, pendiente heredada de la historia 0021). Pregunta: para los 7 municipios del ámbito, ¿hay orden de clasificación y deslinde aprobados, y dónde se publican? **Respuesta corta: no se ha podido verificar para ninguno de los 7.** No es que no existan: el canal donde se publican (BOCM) no es consultable por búsqueda desde esta pasada. Las fixtures están en `tests/fixtures/caminos/`.
 
 ### Canales consultados — `confirmado`
 

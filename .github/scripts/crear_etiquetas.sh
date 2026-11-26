@@ -2,7 +2,7 @@
 # Crea (o actualiza) las etiquetas del proceso de docs/proceso.md. Idempotente.
 # Uso: .github/scripts/crear_etiquetas.sh [owner/repo]
 set -euo pipefail
-REPO="${1:-murcialito/parcel-intel}"
+REPO="${1:-murcialito/paso-comun}"
 
 etiqueta() { gh label create "$1" -R "$REPO" --color "$2" --description "$3" --force; }
 

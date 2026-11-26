@@ -208,7 +208,7 @@ def test_ca7_cambiar_el_texto_exige_nueva_validacion() -> None:
     marca inicial es 2026-11-26 y el enlace del comentario citado arriba."""
     assert VALIDATION.validated_by_founder == date(2026, 11, 26)
     assert VALIDATION.validation_url == (
-        "https://github.com/murcialito/parcel-intel/issues/16#issuecomment-7186000359"
+        "https://github.com/murcialito/paso-comun/issues/16#issuecomment-7186000359"
     )
     assert compute_text_hash() == VALIDATION.text_hash, (
         "Cambió el texto público (plantillas, etiquetas o aviso): hace falta nueva "

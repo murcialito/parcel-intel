@@ -70,7 +70,7 @@ Valdelaguna. Configuración del hito, no dominio."""
 AMBITO_HITO_BBOX_ETRS89 = (39.98, -3.62, 40.22, -3.15)
 """(lat_min, lon_min, lat_max, lon_max) en EPSG:4258 con el que se pide el WFS del IGN."""
 
-REPOSITORY_URL = "https://github.com/murcialito/parcel-intel"
+REPOSITORY_URL = "https://github.com/murcialito/paso-comun"
 """Procedencia del índice de capas publicadas (historia #84)."""
 
 PUBLISH_SIZE_THRESHOLD_BYTES = 3_000_000

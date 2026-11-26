@@ -3,7 +3,7 @@ from typing import Protocol
 import requests
 
 ROADLINK_URL = "https://api-features.idee.es/collections/roadlink/items"
-USER_AGENT = "parcel-intel/0.1 (+https://github.com/murcialito/parcel-intel)"
+USER_AGENT = "parcel-intel/0.1 (+https://github.com/murcialito/paso-comun)"
 
 
 class HttpGetter(Protocol):

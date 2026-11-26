@@ -611,7 +611,7 @@ def test_ca12_indice_con_contrato_del_visor_que_se_regenera_entero(
     index_provenance = _load(salida / "indice.json.procedencia.json")
     assert index_provenance == {
         "fuente": "Parcel Intel, índice de capas publicadas",
-        "url": "https://github.com/murcialito/parcel-intel",
+        "url": "https://github.com/murcialito/paso-comun",
         "fecha_descarga": "2026-11-26",
         "licencia": "CC BY 4.0",
         "redistribucion": "publicable",

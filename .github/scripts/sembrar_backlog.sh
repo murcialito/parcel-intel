@@ -5,7 +5,7 @@
 # Ejecutar una sola vez, después de crear_etiquetas.sh.
 # Uso: .github/scripts/sembrar_backlog.sh [owner/repo]
 set -euo pipefail
-REPO="${1:-murcialito/parcel-intel}"
+REPO="${1:-murcialito/paso-comun}"
 
 epica() {
   local titulo="$1" cuerpo="$2"; shift 2
