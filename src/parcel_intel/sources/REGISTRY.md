@@ -165,6 +165,17 @@ Verificación para el ADR 0042 (ventanas de un tramo y franjas de vuelo). Petici
   - `Orto-SIGPAC 1997-2003 CC-BY 4.0 scne.es`;
   - `Orto-OLISTAT 1997-1999 CC-BY 4.0 scne.es`;
   - `PNOA 2006 CC-BY 4.0 scne.es`, `PNOA 2009 CC-BY 4.0 scne.es`, `PNOA 2011 CC-BY 4.0 scne.es`, `PNOA 2014 CC-BY 4.0 scne.es`, `PNOA 2017 CC-BY 4.0 scne.es`, `PNOA 2020 CC-BY 4.0 scne.es` y `PNOA 2023 CC-BY 4.0 scne.es`.
+- **Fixtures del adapter de ventanas (historia #124)**, grabadas el 2026-11-26 con `User-Agent: parcel-intel-verificacion/0.1` en `tests/fixtures/pnoa/`. Ventana de 224 m de Colmenar de Oreja, `bbox=469928,4439888,470152,4440112` (EPSG:25830), `width=height=448`, mismos parámetros que la URL canónica de arriba (cambia `layers`):
+
+  | Fixture | Capa | Respuesta | Bytes | Bytes/píxel |
+  | --- | --- | --- | --- | --- |
+  | `window_224_pnoa2023.jpg` | `PNOA2023` | 200 `image/jpeg` | 44.674 | 0,223 |
+  | `window_224_ams.jpg` | `AMS_1956-1957` | 200 `image/jpeg` | 27.053 | 0,135 |
+  | `window_224_sigpac.jpg` | `SIGPAC` | 200 `image/jpeg` | 32.908 | 0,164 |
+  | `window_224_pnoa2010_blanca.jpg` | `PNOA2010` (sin vuelo) | 200 `image/jpeg`, **blanca** | 1.459 | 0,0073 |
+  | `window_capa_inexistente_serviceexception.xml` | `NOEXISTE` | 200 `text/xml`, `ServiceException code="LayerNotDefined"` | 554 | — |
+
+  Un `ServiceException` llega con **200**, no con un error HTTP: solo la cabecera JPEG lo distingue. `OLISTAT` no tiene fixture propia (la ventana no se pidió); el test de #124 lo sirve con la de `SIGPAC` y solo comprueba que el vuelo se acepta. CA8 de #124 (`PNOA2023` real, `PNOA2010` sin cobertura) pasó contra la red real el 2026-11-26.
 - **Sin fuentes nuevas ni licencias nuevas**: todo es PNOA (actual e histórico), CC BY 4.0, ya en la tabla resumen de licencias, que no cambia (`NOTICE`, historia #43). `NOTICE` recogerá estas atribuciones cuando se publique la primera imagen (#103).
 
 ---
