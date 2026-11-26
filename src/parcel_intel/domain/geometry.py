@@ -305,6 +305,25 @@ def shape_bbox(shape: TrailShape) -> BBox:
     return (min(xs), min(ys), max(xs), max(ys))
 
 
+def bbox_of(geometry: TrailShape | LineGeometry) -> BBox:
+    """Rectángulo envolvente de cualquier geometría del dominio (superficie,
+    multi-línea o línea). Lanza `EmptyGeometryError` si no tiene ningún punto
+    (lección 0006). No exige que haya segmentos medibles: una línea de un solo
+    punto tiene bbox, aunque no se pueda medir."""
+    if isinstance(geometry, LineGeometry):
+        xs = [x for x, _ in geometry.points]
+        ys = [y for _, y in geometry.points]
+        if not xs:
+            raise EmptyGeometryError
+        return (min(xs), min(ys), max(xs), max(ys))
+    return shape_bbox(geometry)
+
+
+def expand_bbox(bbox: BBox, margin_m: float) -> BBox:
+    """`bbox` ampliado `margin_m` por los cuatro lados."""
+    return (bbox[0] - margin_m, bbox[1] - margin_m, bbox[2] + margin_m, bbox[3] + margin_m)
+
+
 def shape_segments(shape: TrailShape) -> list[tuple[Point, Point]]:
     """Segmentos medibles de `shape`: los anillos de una `Geometry` con 2 o
     más puntos se cierran por índice módulo; las líneas de una

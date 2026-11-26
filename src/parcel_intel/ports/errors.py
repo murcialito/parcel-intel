@@ -153,6 +153,22 @@ class HistoricTrailNotPendingError(Exception):
         self.identifier = identifier
 
 
+class TrailLayerUnavailableError(Exception):
+    """No hay capa de trazados para esa fuente y municipio -- historia #31,
+    ADR 0030. Significa solo "no hay capa" (p. ej. sin fichero derivado en
+    caché). Cualquier otra excepción es un fallo real y no se convierte en
+    "ausente": si se convirtiera, una fuente rota bajaría el número de
+    discrepancias sin que nadie lo notara."""
+
+    def __init__(self, source: str, municipality_code: str, reason: str) -> None:
+        super().__init__(
+            f"Sin capa de trazados {source!r} para el municipio {municipality_code}: {reason}"
+        )
+        self.source = source
+        self.municipality_code = municipality_code
+        self.reason = reason
+
+
 class NoLandClassificationFoundError(Exception):
     """Ningún polígono de clasificación de suelo intersecta el bbox pedido.
     El servicio no distingue "fuera de cobertura de la Comunidad de Madrid"

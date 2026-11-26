@@ -237,3 +237,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: al mover un símbolo de un módulo a otro y querer que siga importable desde el sitio antiguo, importarlo con alias explícito (`from parcel_intel.domain.trail import SourceKind as SourceKind`). Con `mypy` estricto (`no_implicit_reexport`), un `import` normal no re-exporta y todos los que lo importaban del módulo antiguo fallan.
   - **Causa**: #22 movió `SourceKind` de `discrepancy_criterion` a `trail` (ADR 0029) sin tocar los tests de #14 ni `public_card`/`discrepancy`, que lo siguen importando de `discrepancy_criterion`.
   - **Aplica a**: implementación (antes de mover un tipo, `grep` de sus importadores; dejar el alias explícito y un test `is` que fije que es el mismo objeto).
+
+## [2026-11-26] Historia #31 — Detección de discrepancias de un municipio
+
+- **Lección**: un diseño escrito antes de que sus dependencias cerraran usa nombres orientativos (`TrailSource`, `evaluate`, `Geometry | LineGeometry`) y condiciones que caducan ("RED_IGN fuera mientras #24 esté abierta"). Antes de codificar, leer el código real de las dependencias ya fusionadas (`compare_trail`, `SourceRef`, `SourceKind`) y el estado actual de las issues citadas; adaptar el contrato y dejar la desviación escrita en el ADR y la PR.
+  - **Causa**: #15 pedía `evaluate(trail, candidates, other_source, other_provenance)`; lo fusionado es `compare_trail(subject, SourceRef, counterparts)`, que exige que todas las contrapartes compartan `SourceRef` (incluida `data_date`). Hubo que construir un `SourceRef` por capa, con la fecha común o `None`. Y #24 ya estaba cerrada, así que `RED_IGN` entró en `REDISTRIBUTABLE_SOURCES`.
+  - **Aplica a**: arquitecto (al fijar un contrato con una historia aún sin implementar, marcarlo como orientativo y fechar las condiciones) | implementación.
+
+- **Lección**: el identificador de un registro derivado de un criterio solo cambia con lo que entra en su hash. Un test "cambia si cambian los datos" debe variar un dato que esté en el hash (aquí la zona), no una medida (distancia) que no lo está.
+  - **Aplica a**: implementación (al escribir el test de un identificador por contenido, comprobar qué campos entran en él).
