@@ -263,6 +263,27 @@ def test_review_reject_exitoso(capsys: pytest.CaptureFixture[str]) -> None:
     assert _FakeRuleRepository.rejected == ["madrid-proposed-dph_cauce-aaaaaaaa"]
 
 
+def test_imagenes_comparacion_exige_municipio_y_tramos() -> None:
+    parser = main._build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["imagenes-comparacion", "--tramos", "t.geojson"])
+    with pytest.raises(SystemExit):
+        parser.parse_args(["imagenes-comparacion", "--municipio", "28043"])
+    with pytest.raises(SystemExit):
+        parser.parse_args(["imagenes-comparacion", "--municipio", "28", "--tramos", "t"])
+
+
+def test_imagenes_comparacion_fichero_de_tramos_ilegible_sale_con_1(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    parser = main._build_parser()
+    args = parser.parse_args(
+        ["imagenes-comparacion", "--municipio", "28043", "--tramos", str(tmp_path / "no.geojson")]
+    )
+    assert args.func(args) == 1
+    assert "Fichero de tramos no válido" in capsys.readouterr().err
+
+
 
 class _FakePublishUseCase:
     def __init__(self) -> None:

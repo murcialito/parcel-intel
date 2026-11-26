@@ -8,6 +8,12 @@ from pathlib import Path
 
 import requests
 
+from parcel_intel.adapters.comparison_files import (
+    JsonComparisonManifestWriter,
+    ManifestTooLargeError,
+    StretchFileFormatError,
+    read_stretches,
+)
 from parcel_intel.adapters.deepseek.adapter import DeepSeekAdapter, MissingDeepSeekApiKeyError
 from parcel_intel.adapters.deepseek.client import DeepSeekApiError
 from parcel_intel.adapters.discrepancy_files import (
@@ -19,6 +25,8 @@ from parcel_intel.adapters.ign_admin_units import IgnAdministrativeUnitsAdapter
 from parcel_intel.adapters.ign_admin_units import client as ign_client
 from parcel_intel.adapters.livestock_trails import client as livestock_client
 from parcel_intel.adapters.livestock_trails.adapter import LivestockTrailAdapter
+from parcel_intel.adapters.pnoa import client as pnoa_client
+from parcel_intel.adapters.pnoa.window import PnoaWindowAdapter
 from parcel_intel.adapters.postgis.connection import get_connection
 from parcel_intel.adapters.postgis.rule_repository import PostgisRuleRepository
 from parcel_intel.adapters.published_layers import (
@@ -42,6 +50,12 @@ from parcel_intel.adapters.road_network.adapter import RoadNetworkAdapter
 from parcel_intel.adapters.shapely_geometry import ShapelyLineClipper, ShapelyPolygonClipper
 from parcel_intel.adapters.trail_layers import GeoJsonTrailLayerReader, TrailLayerFormatError
 from parcel_intel.application.author_rule_proposal import AuthorRuleProposalUseCase
+from parcel_intel.application.build_comparison_images import BuildComparisonImagesUseCase
+from parcel_intel.application.build_municipal_comparisons import (
+    BuildMunicipalComparisonsUseCase,
+    ComparisonFailuresError,
+    MunicipalWindowLimitError,
+)
 from parcel_intel.application.build_municipal_livestock_trail_layers import (
     BuildMunicipalLivestockTrailLayersUseCase,
 )
@@ -52,6 +66,7 @@ from parcel_intel.application.publish_layers import (
     DEFAULT_LAYERS,
     PublishLayersUseCase,
 )
+from parcel_intel.domain.comparison_image import DegenerateStretchError
 from parcel_intel.domain.discrepancy import DiscrepancyKind
 from parcel_intel.domain.discrepancy_report import LayerStatus
 from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
@@ -546,6 +561,62 @@ def _publicar_discrepancias(args: argparse.Namespace) -> int:
     return 0
 
 
+def build_comparison_use_case(
+    cache_dir: Path,
+    output_dir: Path,
+    offline: bool,
+    http_get: HttpGet = pnoa_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> BuildMunicipalComparisonsUseCase:
+    """Composition root de `imagenes-comparacion` (historia #122, ADR 0042 §5).
+
+    Las imágenes entran en la caché cruda; el manifiesto interno va a `output_dir`.
+    Con `offline=True` nada llama a la red. Nada se escribe en `site/`."""
+    fetcher = CachedRawFetcher(http_get, cache_dir, today, sleep=sleep, offline=offline)
+    return BuildMunicipalComparisonsUseCase(
+        builder=BuildComparisonImagesUseCase(PnoaWindowAdapter(fetcher)),
+        sink=JsonComparisonManifestWriter(output_dir),
+    )
+
+
+def _imagenes_comparacion(args: argparse.Namespace) -> int:
+    code: str = args.municipio
+    try:
+        requests_ = read_stretches(args.tramos, code)
+    except StretchFileFormatError as error:
+        print(f"ERROR {error}", file=sys.stderr)
+        return 1
+    use_case = build_comparison_use_case(args.cache, args.salida, args.sin_red)
+    try:
+        results = use_case.execute(code, requests_)
+    except MunicipalWindowLimitError as error:
+        print(f"ERROR {code}: {error}; no se ha pedido ni escrito nada", file=sys.stderr)
+        return 1
+    except DegenerateStretchError as error:
+        print(f"ERROR {code}: tramo sin segmento medible: {error}", file=sys.stderr)
+        return 1
+    except ComparisonFailuresError as error:
+        for stretch_id, slot, error_type in error.failures:
+            print(f"FALLO {stretch_id} franja {slot}: {error_type}", file=sys.stderr)
+        print(f"No se ha escrito el manifiesto de {code}.", file=sys.stderr)
+        return 1
+    except (ManifestTooLargeError, OSError) as error:
+        print(f"ERROR {code}: {error}; no se ha escrito el manifiesto", file=sys.stderr)
+        return 1
+    for comparison in results:
+        images = sum(len(window.images) for window in comparison.windows)
+        omitted = [o for window in comparison.windows for o in window.omitted]
+        reasons = Counter(o.reason for o in omitted)
+        print(
+            f"{comparison.stretch_id}: {comparison.status}; {len(comparison.windows)} ventanas, "
+            f"{images} imágenes, {len(omitted)} omisiones "
+            f"(sin_cobertura={reasons['sin_cobertura']})"
+        )
+    print(f"{code}: {len(results)} tramos -> {args.salida / (code + '.json')}")
+    return 0
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="parcel_intel.cli.main")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -701,6 +772,30 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio publicado del sitio",
     )
     indicios_parser.set_defaults(func=_publicar_discrepancias)
+
+    comparacion_parser = subparsers.add_parser(
+        "imagenes-comparacion",
+        help="Imágenes de comparación de los tramos de un municipio y su manifiesto interno",
+    )
+    comparacion_parser.add_argument(
+        "--municipio", type=_municipality_code, required=True, help="Código INE de 5 dígitos"
+    )
+    comparacion_parser.add_argument(
+        "--tramos", type=Path, required=True, help="GeoJSON de tramos en EPSG:25830, con id opaco"
+    )
+    comparacion_parser.add_argument(
+        "--sin-red", action="store_true", help="Solo la caché cruda; un hueco es un fallo"
+    )
+    comparacion_parser.add_argument(
+        "--cache", type=Path, default=Path("data/raw"), help="Directorio de la caché cruda"
+    )
+    comparacion_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("data/derived/comparacion"),
+        help="Directorio de los manifiestos <codigo_ine>.json",
+    )
+    comparacion_parser.set_defaults(func=_imagenes_comparacion)
 
     return parser
 
