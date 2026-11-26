@@ -8,7 +8,8 @@
 #   los ancestros de la propia historia no cuentan; una historia madre cuenta mientras tenga hijas abiertas.
 # Entradas por entorno: GH_TOKEN (lectura del repo), REPO; para leer Priority, PROJECT_TOKEN, OWNER y
 # PROJECT_NUMBER (sin PROJECT_TOKEN se ordena solo por antigüedad). IGNORAR_OCUPADAS=1 prueba el
-# orden aunque haya una historia en curso. Los mensajes van a stderr.
+# orden aunque haya una historia en curso. COLA_PAUSADA=1 solo deja retomar historias con PR abierta.
+# Los mensajes van a stderr.
 set -euo pipefail
 
 log() { echo "$*" >&2; }
@@ -51,8 +52,17 @@ candidatas=$(gh issue list -R "$REPO" --state open --label tipo:historia --label
       | sort_by([({"P0": 0, "P1": 1, "P2": 2}[.prio] // 3), .createdAt])
       | .[] | "\(.number) \(.prio)"')
 
+# Cola pausada (variable de repo COLA_PAUSADA=1): solo se retoman historias que ya tienen PR abierta.
+con_pr=""
+if [ -n "${COLA_PAUSADA:-}" ]; then
+  con_pr=$(gh pr list -R "$REPO" --state open --json headRefName \
+             --jq '.[].headRefName | capture("^claude/historia-(?<n>[0-9]+)-").n')
+  log "Cola pausada: solo historias con PR abierta (${con_pr:-ninguna})."
+fi
+
 while read -r n prio; do
   [ -z "${n:-}" ] && continue
+  if [ -n "${COLA_PAUSADA:-}" ] && ! grep -qx "$n" <<<"$con_pr"; then continue; fi
   deps=$(gh issue view "$n" -R "$REPO" --json body --jq .body \
            | grep -iE 'depende de' | grep -oE '#[0-9]+' | tr -d '#' | sort -un || true)
   abiertas=""

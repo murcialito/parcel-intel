@@ -39,6 +39,7 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           PROJECT_NUMBER: "1"
           REPO: ${{ github.repository }}
+          COLA_PAUSADA: ${{ vars.COLA_PAUSADA }}
         # Priority del tablero, luego antigüedad; salta las que tienen dependencias abiertas.
         run: echo "historia=$(.github/scripts/elegir_historia.sh)" >> "$GITHUB_OUTPUT"
 
