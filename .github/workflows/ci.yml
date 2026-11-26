@@ -62,7 +62,8 @@ jobs:
       - name: Tests de aceptación
         run: |
           set +e
-          uv run pytest -m acceptance
+          # fuera_de_ci: servicios que rechazan los runners de GitHub (Catastro); se pasan en local.
+          uv run pytest -m "acceptance and not fuera_de_ci"
           code=$?
           # 5 = ningún test recogido (todavía no hay tests de aceptación): no es un fallo.
           if [ "$code" -eq 5 ]; then exit 0; fi
