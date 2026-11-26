@@ -237,7 +237,8 @@ def _validate_input(
     )
     if undeclared:
         raise CandidateEvaluationInputError(
-            f"candidatos de municipios no declarados en municipalities_with_candidates: {undeclared}"
+            "candidatos de municipios no declarados en municipalities_with_candidates:"
+            f" {undeclared}"
         )
     for case in cases:
         if case.line is not None and case.line.srid != METRIC_SRID:

@@ -153,7 +153,9 @@ def test_ca2_candidatos_lejanos_no_senalan_y_baja_la_cobertura() -> None:
     assert result.coverage == 0.0
     assert result.matches == ()
     with_hit = evaluate_candidates(
-        [_case("c1", C1), _case("c2", C2)], [_cand("k1", K1), _cand("k4", K4)], {COLMENAR},
+        [_case("c1", C1), _case("c2", C2)],
+        [_cand("k1", K1), _cand("k4", K4)],
+        {COLMENAR},
         MATCH_CRITERION_V1,
     )
     assert with_hit.coverage == 0.5
@@ -503,7 +505,9 @@ def test_ca18_entrada_incoherente_lanza_error_explicito() -> None:
     case_4326 = _case("c1", LineGeometry(points=((-3.4, 40.1), (-3.3, 40.1)), srid=4326))
     with pytest.raises(CandidateEvaluationInputError, match="EPSG:4326"):
         evaluate_candidates([case_4326], [], {COLMENAR}, v1)
-    candidate_4326 = _cand("k1", MultiLineGeometry(lines=(((-3.4, 40.1), (-3.3, 40.1)),), srid=4326))
+    candidate_4326 = _cand(
+        "k1", MultiLineGeometry(lines=(((-3.4, 40.1), (-3.3, 40.1)),), srid=4326)
+    )
     with pytest.raises(CandidateEvaluationInputError, match="EPSG:4326"):
         evaluate_candidates([], [candidate_4326], {COLMENAR}, v1)
     for cadastral_like in ("99043A90100001", "9872023VH5797S0001WX", "k-99043A90100001"):
