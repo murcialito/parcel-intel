@@ -443,3 +443,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: el primer test unitario esperaba `None` con una diagonal de 1500×1500 m y salieron 4 ventanas. El código seguía el ADR; el oráculo mental era erróneo.
   - **Aplica a**: implementación (tests de topes por tamaño de ventana).
 
+## [2026-11-26] Historia #18 — ADR de georreferenciación y digitalización
+
+- **Lección**: los cuerpos de las issues anteriores a la migración (ADR 0040) llevan referencias reescritas como `murcialito/parcel-intel#N`, también dentro de cadenas que un criterio pide «literales», como un encabezado de ADR. Antes de copiarlas, comprobar con `gh issue view N` que la issue de este repo es la misma. Si lo es, escribir `#N` en el documento, como el resto de `docs/adr/`; el docstring del test conserva el criterio literal y el módulo explica la adaptación. Un ADR con `murcialito/parcel-intel#N` enlazaría al repo antiguo.
+  - **Causa**: el CA12 de #18 exigía el encabezado `## Consecuencias para #19 y murcialito/parcel-intel#20`. #20 y #50 de este repo son las mismas historias.
+  - **Aplica a**: BA y arquitecto (al reescribir una issue migrada, normalizar sus referencias a `#N`) | implementación (anotar la adaptación en la PR).
+
+- **Lección**: al buscar frases en un ADR tras quitar las negritas (`texto.replace("**", "")`) también se borra el `**` de los globs (`curated/**`). Las cadenas con glob se buscan en el texto sin normalizar.
+  - **Aplica a**: implementación (tests que leen documentos Markdown).
+
