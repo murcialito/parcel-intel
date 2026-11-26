@@ -95,7 +95,8 @@ Definidos en `.claude/agents/` y lanzados por los workflows de `.github/workflow
 | --- | --- | --- |
 | `refinador` (analista) | `refinar.yml` | Etiqueta `estado:refinar`, o un comentario tuyo en una issue `estado:necesita-fundador` |
 | `arquitecto` | `disenar.yml` | Etiqueta `estado:diseno` |
-| `desarrollador` | `desarrollar.yml` | Etiqueta `estado:lista` en una historia, cada hora como cola, o la etiqueta `cambios-pedidos` en su PR |
+| `desarrollador` | `desarrollar.yml` | Etiqueta `estado:lista` en una historia, cada hora como cola |
+| `desarrollador` | `corregir.yml` | La etiqueta `cambios-pedidos` en su PR, que pone el revisor o Fusionar si falla CI. Se lanza desde `main` por `workflow_dispatch`: con el evento de etiqueta, el workflow sale de la versión de la PR y `claude-code-action` se salta si no coincide con `main` |
 | `desarrollador` | `actualizar-rama.yml` | Su PR queda en conflicto con `main` (lo detecta `fusionar.yml` tras cada merge, y la pasada diaria de `desbloquear.yml`): trae `main` a la rama con merge y vuelve a pasar CI y revisión |
 | `revisor` | `revisar.yml` | PR abierta o actualizada desde una rama `claude/` |
 | — | `fusionar.yml` | Termina CI o Revisar: fusiona si `checks` y `revision` están en verde sobre el último commit y no hay `veto` (ADR 0024) |
