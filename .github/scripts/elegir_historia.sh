@@ -6,7 +6,8 @@
 #   código que modifican) y no se solapan; una historia sin "Toca:" va sola.
 # - Candidatas: historias abiertas con estado:lista.
 # - Orden: Priority del tablero (P0, P1, P2, sin prioridad) y, dentro de cada una, la más antigua.
-# - Salta las que tienen dependencias abiertas ("Depende de #N" en el cuerpo). Las épicas, features y
+# - Salta las que tienen dependencias abiertas: solo cuentan las líneas que EMPIEZAN por "Depende de #N"
+#   (o "Depende de: #a, #b"); "no depende de #N" o "#N depende de esta" no cuentan. Las épicas, features y
 #   los ancestros de la propia historia no cuentan; una historia madre cuenta mientras tenga hijas abiertas.
 # Entradas por entorno: GH_TOKEN (lectura del repo), REPO; para leer Priority, PROJECT_TOKEN, OWNER y
 # PROJECT_NUMBER (sin PROJECT_TOKEN se ordena solo por antigüedad). IGNORAR_OCUPADAS=1 prueba el
@@ -102,7 +103,9 @@ while read -r n prio; do
   [ -z "${n:-}" ] && continue
   if [ -n "${COLA_PAUSADA:-}" ] && ! grep -qx "$n" <<<"$con_pr"; then continue; fi
   deps=$(gh issue view "$n" -R "$REPO" --json body --jq .body \
-           | grep -iE 'depende de' | grep -oE '#[0-9]+' | tr -d '#' | sort -un || true)
+           | sed -E 's|[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(#[0-9]+)|\1|g' \
+           | grep -iE '^[-*_ ]*Depende de[*_ :]*#' | sed -E 's/\. .*$//; s/;.*$//' \
+           | grep -oE '#[0-9]+' | tr -d '#' | sort -un || true)
   abiertas=""
   ancestros=$(gh api graphql -f query='
     query($o: String!, $r: String!, $n: Int!) {

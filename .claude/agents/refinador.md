@@ -56,6 +56,7 @@ Por qué ahora, qué existe ya (archivos, ports, ADRs), qué fuentes usa y su es
 Ports, entidades y adapters que se tocan o crean. ADR propuesto si hay decisión nueva.
 
 Toca: `ruta/de/directorio/`, `ruta/de/fichero.py`, …
+Depende de: #N, #M   (o «Depende de: ninguna»)
 
 ## Fuera de alcance
 …
@@ -69,6 +70,13 @@ Pueden desarrollarse dos historias a la vez, y la cola solo las junta si sus zon
 - Incluye los tests, las fixtures y los docs que la historia escribe. Lista también los puntos calientes compartidos si los tocas (`src/parcel_intel/cli/main.py`, `src/parcel_intel/ports/errors.py`, `REGISTRY.md`, `NOTICE`, `CLAUDE.md`, `LESSONS.md`): no impiden el paralelo, porque sus conflictos son triviales.
 - Al partir una feature, reparte el trabajo para que las historias hermanas toquen zonas distintas cuando sea posible.
 - Una historia sin línea `Toca:` se desarrolla sola, sin otra en paralelo.
+
+## Línea "Depende de:" (dependencias que la cola respeta)
+
+La cola solo lee como dependencia una línea que **empieza** por `Depende de` seguida de las issues: `Depende de: #84, #85` o `Depende de: ninguna`. Lo que escribas en prosa ("no depende de #112", "#116 depende de esta", "se beneficia de #18") no cuenta, así que redáctalo con libertad.
+
+- Pon ahí solo lo que **tiene que estar cerrado** antes de empezar a programar esta historia. Lo que solo conviene o reutiliza no cuenta.
+- Si la dependencia aún no está cerrada al refinar, usa además el bloqueo (`estado:bloqueada` y la línea `Desbloqueo:`, ver "Si depende de issues sin cerrar").
 
 ## Talla (obligatoria en toda historia)
 
