@@ -8,13 +8,18 @@ name: Sincronizar tablero
 on:
   issues:
     types: [opened, reopened, closed, labeled, unlabeled]
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: "Número de issue (vacío = todas)"
+        required: false
 
 permissions:
   contents: read
   issues: read
 
 concurrency:
-  group: tablero-${{ github.event.issue.number }}
+  group: tablero-${{ github.event.issue.number || inputs.issue || 'todas' }}
   cancel-in-progress: false
 
 jobs:
@@ -28,5 +33,9 @@ jobs:
           OWNER: ${{ github.repository_owner }}
           PROJECT_NUMBER: "1"
           REPO: ${{ github.repository }}
-          ISSUE: ${{ github.event.issue.number }}
-        run: .github/scripts/sincronizar_tablero.sh
+          ISSUE: ${{ github.event.issue.number || inputs.issue }}
+        run: |
+          if [ -n "$ISSUE" ]; then exec .github/scripts/sincronizar_tablero.sh; fi
+          for n in $(GH_TOKEN="$REPO_TOKEN" gh issue list -R "$REPO" --state all --limit 500 --json number --jq '.[].number'); do
+            ISSUE=$n .github/scripts/sincronizar_tablero.sh
+          done
