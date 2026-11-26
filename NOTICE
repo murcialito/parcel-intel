@@ -20,8 +20,12 @@ de memoria.
 - Licencia: CC BY 4.0 (Orden FOM/2807/2015).
 - URL de licencia: https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf
 - Atribución declarada por el servicio: `CC BY 4.0 scne.es`.
-- Formato de obra derivada con producto y fecha: pendiente de verificar (REGISTRY no cita
-  el texto exacto para estas capas).
+- Mapa base del visor (WMTS https://www.ign.es/wmts/pnoa-ma, teselas sin transformar):
+  `PNOA 2023 CC-BY 4.0 scne.es` y, a escalas pequeñas, `MosaicoSentinel2 2018-2026 CC-BY 4.0 ign.es`
+  (tabla de productos del SCNE, https://www.scne.es/tablaProductos.php, leída 2026-11-26).
+- Uso como obra derivada (si alguna vez se transforman las ortofotos): `Obra derivada de PNOA 2023 CC-BY 4.0 scne.es`.
+- Formato de obra derivada del PNOA histórico con producto y fecha: pendiente de verificar
+  (REGISTRY no cita el texto exacto para esas capas).
 
 ### IGN/CNIG — planimetrías del IGN (1870-1950)
 
@@ -56,6 +60,11 @@ de memoria.
   documento de licencia aparte.
 - Atribución declarada por el servicio: `CC BY 4.0 Comunidad de Madrid`.
 - Aviso obligatorio: es cartografía de carácter informativo, no un deslinde.
+
+## Software de terceros incluido en el sitio
+
+- Leaflet 1.9.4 (https://leafletjs.com), BSD 2-Clause. Copia en `site/vendor/leaflet/`, con su
+  licencia en `site/vendor/leaflet/LICENSE`.
 
 ## Fuentes no publicadas
 

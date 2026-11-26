@@ -3,33 +3,54 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Parcel Intel</title>
-<meta name="description" content="Mapa abierto de caminos públicos y vías pecuarias, con indicios de tramos cortados. En construcción.">
-<style>
-  :root { --bg: #fbfaf7; --fg: #1f2421; --muted: #5d655f; --accent: #2f6b3f; --line: #e3e0d8; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg: #151816; --fg: #e8ebe8; --muted: #a3aba5; --accent: #7cc290; --line: #2c312e; }
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg); font: 17px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { max-width: 40rem; margin: 0 auto; padding: 4rem 1rem; }
-  h1 { font-size: 2rem; margin: 0 0 .25rem; letter-spacing: -.01em; }
-  .tag { color: var(--accent); font-weight: 600; font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; }
-  p { margin: 1rem 0; }
-  .muted { color: var(--muted); font-size: .9rem; }
-  a { color: var(--accent); }
-  hr { border: 0; border-top: 1px solid var(--line); margin: 2.5rem 0 1.5rem; }
-</style>
+<title>Parcel Intel · Mapa de vías pecuarias y caminos</title>
+<meta name="description" content="Mapa abierto de vías pecuarias y caminos sin asfaltar en Colmenar de Oreja y su entorno. Señala indicios a verificar, nunca ilegalidades.">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="estilo.css">
 </head>
 <body>
-<main>
-  <div class="tag">En construcción</div>
+<header class="cabecera">
   <h1>Parcel Intel</h1>
-  <p>Un mapa abierto y sin ánimo de lucro de los caminos que deberían ser públicos (vías pecuarias, caminos del Catastro y de la cartografía histórica) en Colmenar de Oreja y los municipios vecinos, con los tramos donde hay indicios de que el trazado ha desaparecido o queda dentro de una finca cerrada.</p>
-  <p>El mapa señala <strong>indicios a verificar</strong>, nunca ilegalidades, y no muestra datos de propietarios.</p>
-  <p><a href="https://github.com/murcialito/parcel-intel">Código y avance del proyecto</a></p>
-  <hr>
-  <p class="muted">Cuando el mapa se publique, esta página mostrará la atribución de cada fuente, p. ej. «Obra derivada de PNOA 2023 CC-BY 4.0 scne.es».</p>
+  <p>Mapa abierto y sin ánimo de lucro de los trazados que deberían ser públicos en Colmenar de Oreja y su entorno. El mapa señala <strong>indicios a verificar</strong>, nunca ilegalidades, y no muestra datos de propietarios.</p>
+</header>
+
+<main class="visor">
+  <aside class="panel" aria-label="Controles del mapa">
+    <form class="controles" autocomplete="off">
+      <p class="campo">
+        <label for="municipio">Municipio</label>
+        <select id="municipio" name="municipio"></select>
+      </p>
+
+      <fieldset>
+        <legend>Capas</legend>
+        <p class="capa">
+          <input type="checkbox" id="capa-vias_pecuarias" name="vias_pecuarias" checked>
+          <label for="capa-vias_pecuarias"><span class="muestra muestra-vias_pecuarias" aria-hidden="true"></span> Vías pecuarias (Comunidad de Madrid)</label>
+          <span class="estado-capa" id="estado-vias_pecuarias"></span>
+        </p>
+        <p class="capa">
+          <input type="checkbox" id="capa-camino_actual" name="camino_actual" checked>
+          <label for="capa-camino_actual"><span class="muestra muestra-camino_actual" aria-hidden="true"></span> Camino actual (red de transporte del IGN, sin asfaltar)</label>
+          <span class="estado-capa" id="estado-camino_actual"></span>
+        </p>
+      </fieldset>
+    </form>
+
+    <div id="mensaje" class="mensaje" role="status" aria-live="polite"></div>
+    <div id="aviso-base" class="aviso-base" role="status" aria-live="polite"></div>
+
+    <p class="aviso"><strong>Aviso:</strong> la capa de vías pecuarias es cartografía de carácter informativo, no un deslinde. Ningún trazado de este mapa prueba por sí solo que un camino sea público ni que esté cortado.</p>
+  </aside>
+
+  <div id="mapa" role="region" aria-label="Mapa"></div>
 </main>
+
+<footer class="pie">
+  <p>Datos publicados con licencia <a href="https://creativecommons.org/licenses/by/4.0/deed.es">CC BY 4.0</a>; la atribución de cada capa se muestra junto al mapa. Código con licencia Apache 2.0. <a href="https://github.com/murcialito/parcel-intel">Código, fuentes y avance del proyecto</a>.</p>
+</footer>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>

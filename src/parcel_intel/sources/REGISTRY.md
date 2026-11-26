@@ -122,6 +122,22 @@ Es decir, el mismo bbox pequeño (parcela real + 2 m) intersecta **tres polígon
 
 **Implicación para el módulo de datación:** la serie histórica real empieza en 1956 y tiene cobertura anual completa desde 2004 — mejor granularidad de la que asumía `docs/vision.md` ("~cada pocos años").
 
+### WMTS (visor, historia #85) — `confirmado`
+
+Mapa base del visor estático (`site/config.js`, ADR 0037). Verificado por el arquitecto y de nuevo por el desarrollador el 2026-11-26, con peticiones reales (`User-Agent: parcel-intel-verificacion/0.1`).
+
+- **Servicio:** WMTS 1.0.0 `https://www.ign.es/wmts/pnoa-ma`, capa `OI.OrthoimageCoverage`, estilo `default`, `tilematrixset=GoogleMapsCompatible` (EPSG:3857, el de Leaflet por defecto), `image/jpeg`, niveles 0-19.
+- **Solo KVP:** el `GetCapabilities` declara `<ows:Value>KVP</ows:Value>` y no trae `ResourceURL` REST. Plantilla usada: `https://www.ign.es/wmts/pnoa-ma?service=WMTS&request=GetTile&version=1.0.0&layer=OI.OrthoimageCoverage&style=default&tilematrixset=GoogleMapsCompatible&format=image/jpeg&tilematrix={z}&tilerow={y}&tilecol={x}`.
+- **Petición real:** `GetCapabilities` → 200 (116.001 bytes en la pasada del arquitecto; 112.782 bytes en la del desarrollador, fixture `tests/fixtures/pnoa/wmts_pnoa_ma_getcapabilities.xml`). `GetTile` z=15 x=16075 y=12392 → `200 image/jpeg`, 22.052 bytes, `geowebcache-tile-bounds` −377904,67 / 4880962,88 − −376681,68 / 4882185,87 (EPSG:3857), casco urbano de Colmenar de Oreja → fixture `tests/fixtures/pnoa/wmts_pnoa_ma_colmenar_z15.jpg` (no se publica en `site/`). z=19 también responde (`200 image/jpeg`).
+- **Cabeceras útiles:** `access-control-allow-origin: *`, `cache-control: max-age=31536000`, servido por CloudFront. Sin clave ni `Referer`.
+- **Licencia:** `ows:AccessConstraints` = `CC BY 4.0 scne.es`; `ows:Fees` = `No se aplican condiciones` (no es la licencia, lección 0021). La licencia es la del documento del IGN (`https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf`), CC BY 4.0, con atribución visible junto a los datos. No se encontró ninguna condición que limite su uso en un visor web público.
+- **Atribución exacta** (tabla de productos del SCNE, `https://www.scne.es/tablaProductos.php`, leída en bruto el 2026-11-26). El servicio combina el PNOA de máxima actualidad a escalas grandes y el mosaico Sentinel-2 a escalas pequeñas:
+  - fila «Ortofotos PNOA anuales», producto `PNOA`, fecha `2023` → `PNOA 2023 CC-BY 4.0 scne.es` (vuelo de julio de 2023 en el ámbito: `GetFeatureInfo` de `OI.MosaicElement` en Colmenar `467400,4441800,467800,4442200` EPSG:25830 → «Fecha 2023-07», repetido el 2026-11-26);
+  - fila «MosaicoSentinel2», fecha `2018-2026` → `MosaicoSentinel2 2018-2026 CC-BY 4.0 ign.es`.
+  Las teselas se muestran sin transformar, así que va la forma sin «Obra derivada de». El visor muestra las dos siempre.
+- **IGN-Base** (`https://www.ign.es/wmts/ign-base`): responde con `CC BY 4.0 scne.es`, pero no se usa (atribución de producto sin verificar; el fundador pidió la ortofoto). Queda como alternativa.
+- **Caducidad del año:** la tabla del SCNE ya lista un vuelo PNOA 2024 con la Comunidad de Madrid entre los organismos, pero el servicio sigue sirviendo 2023-07 en Colmenar. Cuando cambie, el criterio `[integración]` CA10 de `tests/acceptance/test_historia_85.py` falla y hay que actualizar `NOTICE`, este registro y `site/config.js` juntos.
+
 ---
 
 ## BOE
