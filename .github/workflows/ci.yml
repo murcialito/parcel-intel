@@ -17,6 +17,19 @@ concurrency:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    # PostGIS efímero para los criterios de aceptación [integración: PostGIS local]. Sin coste.
+    services:
+      db:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: parcel_intel
+          POSTGRES_USER: parcel_intel
+          POSTGRES_PASSWORD: parcel_intel
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U parcel_intel -d parcel_intel"
+          --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - name: Veto del fundador
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'veto')
@@ -42,6 +55,9 @@ jobs:
 
       - name: Tests unitarios
         run: uv run pytest
+
+      - name: Migraciones de PostGIS
+        run: uv run python -m parcel_intel.adapters.postgis.migrate up
 
       - name: Tests de aceptación
         run: |
