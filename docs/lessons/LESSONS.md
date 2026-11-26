@@ -381,3 +381,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: un adapter que empieza a marcar `PUBLIC` en origen rompe tests de otras historias que fijaban "el adapter no marca" (#22 CA5 y CA8) y los literales de procedencia de los escritores (#83 CA3). Se actualiza el literal o se construye el caso sintético con la marca explícita. No se relaja la aserción ni se toca el docstring del criterio.
   - **Aplica a**: implementación (antes de cambiar qué marca un adapter, `grep` de `Redistribution.` y de `"licencia"` en `tests/acceptance/`).
 
+## [2026-11-26] Historia #54 — Congelar el conjunto de validación
+
+- **Lección**: una historia que congela un conjunto con mínimos fijos (10 casos, 5 en el ámbito) puede quedar por delante de las que lo rellenan: #53 rebajó los mínimos a 6/2 por decisión del fundador y `casos.json` tiene hoy 6 casos y 2 en el ámbito. Se entrega la herramienta (huella, integridad, workflow) pero no `CONGELADO.md`, y la historia pasa a `estado:necesita-fundador`.
+  - **Causa**: el criterio de #54 copia los mínimos del comentario original de #51; la rebaja posterior solo quedó escrita en #53.
+  - **Aplica a**: BA (al rebajar un mínimo en una historia, buscar y actualizar las historias que dependen de él) | implementación (comprobar los recuentos reales de `casos.json` antes de congelar).
+
+- **Lección**: el test de integridad del repo real debe pasar mientras no exista ningún `CONGELADO*.md` (solo valida `casos.json`) y ser estricto en cuanto exista el primero; así no bloquea CI durante la recopilación.
+  - **Aplica a**: implementación.
+

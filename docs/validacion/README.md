@@ -41,5 +41,5 @@ El validador es `tests/validacion/casos_schema.py` (`validar_casos`). Para compr
 uv run pytest tests/validacion tests/acceptance/test_historia_51.py
 ```
 
-Los mínimos del conjunto (10 casos verificados, 5 de ellos en el ámbito) los comprueban las
+Los mínimos del conjunto (6 casos, 2 de ellos en el ámbito; la meta de 10/5 se alcanzará con nuevas versiones congeladas) los comprueban las
 historias #52, #53 y #54, no este formato.

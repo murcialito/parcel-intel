@@ -1,0 +1,46 @@
+name: Etiquetar validación
+
+# Cuando entra en main un fichero de congelación del conjunto de validación (historia #54), crea la
+# etiqueta anotada validacion-vN sobre el commit que añadió ese fichero, si no existe.
+# Los merges de fusionar.yml usan GITHUB_TOKEN y sus push no disparan workflows: por eso Fusionar
+# lo lanza a mano tras cada merge (workflow_dispatch). Es idempotente: solo crea las que falten.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/validacion/CONGELADO*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  etiquetar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Crear las etiquetas validacion-vN que falten
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for fichero in $(git ls-files 'docs/validacion/CONGELADO*.md'); do
+            # Línea "version: N" del fichero (solo dígitos: el nombre de la etiqueta es seguro).
+            version=$(sed -n 's/^version: *\([0-9][0-9]*\) *$/\1/p' "$fichero" | head -n 1)
+            if [ -z "$version" ]; then
+              echo "::error file=$fichero::no declara 'version: N'"
+              exit 1
+            fi
+            etiqueta="validacion-v$version"
+            if git rev-parse -q --verify "refs/tags/$etiqueta" > /dev/null; then
+              echo "$etiqueta ya existe: no se hace nada"
+              continue
+            fi
+            commit=$(git log -1 --format=%H --diff-filter=A -- "$fichero")
+            git tag -a "$etiqueta" "$commit" -m "Conjunto de validación congelado, versión $version"
+            git push origin "refs/tags/$etiqueta"
+          done
