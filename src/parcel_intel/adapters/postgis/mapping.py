@@ -1,8 +1,32 @@
 import re
 
-from parcel_intel.domain.geometry import Geometry, Ring
+from parcel_intel.domain.geometry import Geometry, Line, LineGeometry, Ring
 
 _POLYGON_RE = re.compile(r"\(\(([^()]+)\)\)")
+_LINESTRING_RE = re.compile(r"^\s*LINESTRING\s*\(([^()]+)\)\s*$")
+
+
+class UnexpectedWktError(ValueError):
+    """El texto devuelto por PostGIS no tiene la forma esperada."""
+
+
+def line_to_ewkt(line: LineGeometry) -> str:
+    """`SRID=<srid>;LINESTRING(x y, ...)` con `repr` de cada float, para no
+    perder precisión en la ida (historia #19, ADR 0026)."""
+    coords = ", ".join(f"{x!r} {y!r}" for x, y in line.points)
+    return f"SRID={line.srid};LINESTRING({coords})"
+
+
+def wkt_linestring_to_points(wkt: str) -> Line:
+    """Inversa de `line_to_ewkt` a partir del texto de `ST_AsText`."""
+    match = _LINESTRING_RE.match(wkt)
+    if match is None:
+        raise UnexpectedWktError(f"No es un LINESTRING: {wkt[:80]!r}")
+    points: list[tuple[float, float]] = []
+    for pair in match.group(1).split(","):
+        x_str, y_str = pair.split()
+        points.append((float(x_str), float(y_str)))
+    return tuple(points)
 
 
 def _closed_ring(ring: Ring) -> Ring:

@@ -12,7 +12,7 @@ from parcel_intel.adapters.postgis.rule_repository import PostgisRuleRepository
 def db_connection() -> Iterator[psycopg.Connection]:
     conn = get_connection()
     with conn.cursor() as cur:
-        cur.execute("TRUNCATE building, parcel, rule RESTART IDENTITY CASCADE")
+        cur.execute("TRUNCATE building, parcel, rule, historic_trail RESTART IDENTITY CASCADE")
     conn.commit()
     yield conn
     conn.close()

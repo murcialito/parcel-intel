@@ -120,6 +120,28 @@ class RuleProposalNotFoundError(Exception):
         self.identifier = identifier
 
 
+class HistoricTrailNotFoundError(Exception):
+    """No existe ningún trazado histórico con ese identificador -- historia
+    #19, ADR 0026. Vive aquí porque la capturará `application/` (#20)."""
+
+    def __init__(self, identifier: str) -> None:
+        super().__init__(f"No existe ningún trazado histórico con el identificador: {identifier!r}")
+        self.identifier = identifier
+
+
+class HistoricTrailNotPendingError(Exception):
+    """No hay ningún trazado histórico `proposed` con ese identificador en la
+    base: no existe o ya fue revisado -- historia #19, ADR 0026. Misma
+    ambigüedad aceptada que `RuleProposalNotFoundError`."""
+
+    def __init__(self, identifier: str) -> None:
+        super().__init__(
+            "No hay ningún trazado histórico pendiente de revisión con el identificador: "
+            f"{identifier!r}"
+        )
+        self.identifier = identifier
+
+
 class NoLandClassificationFoundError(Exception):
     """Ningún polígono de clasificación de suelo intersecta el bbox pedido.
     El servicio no distingue "fuera de cobertura de la Comunidad de Madrid"
