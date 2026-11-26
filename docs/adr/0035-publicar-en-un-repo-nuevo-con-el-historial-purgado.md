@@ -12,7 +12,7 @@ En github.com, un push forzado no basta. Cada PR guarda `refs/pull/N/head`, de s
 
 ## Decisión
 
-1. Se crea un repo nuevo, `murcialito/paso-comun`, con el historial purgado. El actual se renombra a `parcel-intel-archivo` y queda **privado** como archivo de las PRs.
+1. Se crea un repo nuevo, `murcialito/parcel-intel`, con el historial purgado. El actual se renombra a `parcel-intel-archivo` y queda **privado** como archivo de las PRs.
 2. Las issues se transfieren conservando su número. Los números que eran PRs se rellenan con una issue de reserva que se borra al momento, así siguen valiendo "Depende de #N", las líneas "Desbloqueo" y los nombres de rama.
 3. El repo nuevo se crea privado, porque GitHub no transfiere issues de un repo privado a uno público. Se hace público al final, tras verificar la purga sobre un clon recién bajado.
 4. Lo ejecuta `scripts/migrar_a_repo_nuevo.sh`, por fases que se comprueban una a una.
