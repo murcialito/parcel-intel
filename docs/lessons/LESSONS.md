@@ -288,3 +288,17 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: un test que busca "qué funciones leen tal directorio de fixtures" no puede hacerlo por subcadena del código: `LIVESTOCK_FIXTURES_DIR` contiene `FIXTURES_DIR`. Se hace con `ast`, resolviendo los nombres que el módulo enlaza a ese directorio (imports con alias y asignaciones), y se fija un mínimo de coincidencias para que la detección no pase en vacío.
   - **Aplica a**: implementación (tests de convenciones sobre el propio árbol de tests).
+
+## [2026-11-26] Historia #27 — Capa de camino actual por municipio
+
+- **Lección**: un adapter verificado con una ventana de 1×2 km no está verificado para un término municipal entero. `roadlink` devuelve miles de tramos por término (19.557 en Aranjuez) y el adapter de #25, con una página de 500 y sin filtro, o lanzaba "resultado truncado" o, peor, habría dejado fuera la mayoría de los caminos. El servidor admite `filter=surfacecategory='unpaved'` y `offset`.
+  - **Causa**: el diseño de #27 daba por bueno `get_nearby_unpaved_roads` porque #25 estaba `confirmado`, y la historia pedía "recortar a cada término" sin calcular cuántos tramos trae un término. Se vio al grabar la respuesta real de cada bbox (`numberMatched` 823-19.557 frente a `numberReturned` 500).
+  - **Aplica a**: BA y arquitecto (al reutilizar un adapter para una consulta mucho mayor que la verificada, pedir el `numberMatched` real del caso grande antes de pasar a `estado:lista`) | implementación (grabar primero la respuesta del caso más grande del ámbito).
+
+- **Lección**: una respuesta real de decenas de MB no se versiona; se versiona un **recorte** honesto (tramos reales elegidos por lo que ejercitan, sin tocar su geometría) y se documenta cómo se obtuvo. El número de la pasada completa (oráculo) se calcula con el propio pipeline sobre la respuesta íntegra antes de recortar y se anota en `REGISTRY.md`.
+  - **Causa**: las 7 consultas reales pesan ~60 MB (28 páginas de 1-2 MB). Los recortes de 10-12 tramos por municipio (cruces de límite, ficticios, no ficticios y vecinos que no tocan el término) caben en 100 KB y siguen ejercitando el caso multi-parte (`281700231594`, 3 + 2 partes).
+  - **Aplica a**: implementación (etiquetar el fixture como recorte en el docstring del módulo de apoyo; el paginado real se prueba con sintéticas etiquetadas y con el criterio `[integración]`).
+
+- **Lección**: "sin tramos" no es "sin procedencia". Un port que devuelve `list[...]` pierde la procedencia de la consulta cuando la lista está vacía, y un fichero válido de cero elementos (CA3) sigue necesitando fuente, URL, fecha y licencia. El port devuelve un resultado con la procedencia aparte.
+  - **Aplica a**: arquitecto (al diseñar un port de consulta cuya salida se publica con procedencia, devolverla también en el caso vacío).
+

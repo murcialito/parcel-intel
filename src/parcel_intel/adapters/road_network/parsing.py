@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Literal, TypedDict
+from typing import Literal, NamedTuple, TypedDict
 
 from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 
@@ -67,25 +67,25 @@ class RoadNetworkParseError(Exception):
     """El cuerpo no es una `FeatureCollection` de `roadlink` válida."""
 
 
-def parse_road_segments(body: bytes) -> list[RawRoadSegment]:
-    """Parsea una respuesta GeoJSON de `.../collections/roadlink/items`.
-    Devuelve TODOS los tramos (filtrar por superficie es decisión del
-    adapter). La elevación (tercer valor de cada coordenada) se descarta.
-    Lanza `RoadNetworkParseError` si el JSON o su estructura no son válidos
-    o si el resultado está truncado (`numberMatched > numberReturned`)."""
+class RoadPage(NamedTuple):
+    """Una página de resultados: sus tramos (todos, sin filtrar) y los totales
+    que declara el servicio."""
+
+    segments: list[RawRoadSegment]
+    number_matched: int | None
+    number_returned: int | None
+
+
+def parse_road_page(body: bytes) -> RoadPage:
+    """Parsea una página de `.../collections/roadlink/items` sin exigir que
+    esté completa: el paginado es cosa del adapter. La elevación (tercer valor
+    de cada coordenada) se descarta. Lanza `RoadNetworkParseError` si el JSON o
+    su estructura no son válidos."""
     try:
         collection = _FeatureCollection.model_validate(json.loads(body))
     except (ValueError, ValidationError) as exc:
         raise RoadNetworkParseError(str(exc)) from exc
-    if (
-        collection.numberMatched is not None
-        and collection.numberReturned is not None
-        and collection.numberMatched > collection.numberReturned
-    ):
-        raise RoadNetworkParseError(
-            f"resultado truncado: {collection.numberReturned} de {collection.numberMatched} tramos"
-        )
-    return [
+    segments: list[RawRoadSegment] = [
         {
             "segment_id": feature.properties.id_tramo,
             "registered_at": feature.properties.fecha_alta,
@@ -95,3 +95,21 @@ def parse_road_segments(body: bytes) -> list[RawRoadSegment]:
         }
         for feature in collection.features
     ]
+    return RoadPage(segments, collection.numberMatched, collection.numberReturned)
+
+
+def parse_road_segments(body: bytes) -> list[RawRoadSegment]:
+    """Parsea una respuesta completa de `.../collections/roadlink/items`.
+    Devuelve TODOS los tramos (filtrar por superficie es decisión del
+    adapter). Lanza `RoadNetworkParseError` si el JSON o su estructura no son
+    válidos o si el resultado está truncado (`numberMatched > numberReturned`)."""
+    page = parse_road_page(body)
+    if (
+        page.number_matched is not None
+        and page.number_returned is not None
+        and page.number_matched > page.number_returned
+    ):
+        raise RoadNetworkParseError(
+            f"resultado truncado: {page.number_returned} de {page.number_matched} tramos"
+        )
+    return page.segments

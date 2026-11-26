@@ -68,6 +68,10 @@ uv run python -m parcel_intel.cli.main review reject <identifier>
 # Capa de vías pecuarias por municipio del ámbito (historia #36): recorte con los límites del IGN
 uv run python -m parcel_intel.cli.main vias-pecuarias-municipios             # descarga y cachea en data/raw
 uv run python -m parcel_intel.cli.main vias-pecuarias-municipios --sin-red   # solo desde la caché
+
+# Capa de camino actual (red del IGN sin asfaltar) por municipio, en data/derived/camino_actual/<ine>.geojson (historia #27)
+uv run python -m parcel_intel.cli.main camino-actual-municipios              # descarga y cachea en data/raw
+uv run python -m parcel_intel.cli.main camino-actual-municipios --sin-red    # solo desde la caché
 ```
 
 ## Contexto de negocio (resumen)

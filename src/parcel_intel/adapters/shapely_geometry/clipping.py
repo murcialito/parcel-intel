@@ -1,10 +1,10 @@
 import logging
 
 import shapely
-from shapely.geometry import MultiPolygon, Polygon
+from shapely.geometry import LineString, MultiPolygon, Polygon
 from shapely.geometry.base import BaseGeometry
 
-from parcel_intel.domain.geometry import Geometry
+from parcel_intel.domain.geometry import Geometry, LineGeometry, MultiLineGeometry
 from parcel_intel.ports.errors import ClippedGeometryHasHolesError
 
 _LOG = logging.getLogger(__name__)
@@ -29,6 +29,33 @@ def _polygons(shape: BaseGeometry) -> list[Polygon]:
     for part in shape.geoms:
         found.extend(_polygons(part))
     return found
+
+
+def _lines(shape: BaseGeometry) -> list[LineString]:
+    """Solo las partes de dimensión 1 y de longitud > 0 (se descartan puntos)."""
+    if isinstance(shape, LineString):
+        return [shape] if shape.length > 0 else []
+    if shape.is_empty or not hasattr(shape, "geoms"):
+        return []
+    found: list[LineString] = []
+    for part in shape.geoms:
+        found.extend(_lines(part))
+    return found
+
+
+class ShapelyLineClipper:
+    """Implementa `LineClippingPort` con `shapely` (historia #27)."""
+
+    def clip(self, subject: LineGeometry, boundary: Geometry) -> MultiLineGeometry:
+        if subject.srid != boundary.srid:
+            raise ValueError(
+                f"srid distinto: subject={subject.srid}, boundary={boundary.srid}"
+            )
+        if len(subject.points) < 2 or not boundary.rings:
+            return MultiLineGeometry(lines=(), srid=subject.srid)
+        result = LineString(subject.points).intersection(_to_shapely(boundary))
+        lines = tuple(tuple((x, y) for x, y in line.coords) for line in _lines(result))
+        return MultiLineGeometry(lines=lines, srid=subject.srid)
 
 
 class ShapelyPolygonClipper:

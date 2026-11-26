@@ -21,12 +21,17 @@ from parcel_intel.adapters.raw_cache import (
     RawCacheCorruptError,
     RawCacheMissError,
 )
-from parcel_intel.adapters.shapely_geometry import ShapelyPolygonClipper
+from parcel_intel.adapters.road_layer_files import GeoJsonRoadLayerWriter
+from parcel_intel.adapters.road_network import client as roadlink_client
+from parcel_intel.adapters.road_network.adapter import RoadNetworkAdapter
+from parcel_intel.adapters.shapely_geometry import ShapelyLineClipper, ShapelyPolygonClipper
 from parcel_intel.application.author_rule_proposal import AuthorRuleProposalUseCase
 from parcel_intel.application.build_municipal_livestock_trail_layers import (
     BuildMunicipalLivestockTrailLayersUseCase,
 )
+from parcel_intel.application.build_municipal_road_layers import BuildMunicipalRoadLayersUseCase
 from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
+from parcel_intel.domain.municipal_road_layer import MunicipalRoadLayerBatch
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.domain.rule import Rule, WithinDistanceCondition
 from parcel_intel.ports.errors import (
@@ -230,6 +235,62 @@ def _vias_pecuarias_municipios(args: argparse.Namespace) -> int:
     return 0
 
 
+def build_municipal_road_layers(
+    cache_dir: Path,
+    offline: bool,
+    ign_http_get: HttpGet = ign_client.default_http_getter,
+    roadlink_http_get: HttpGet = roadlink_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> MunicipalRoadLayerBatch:
+    """Composition root de la capa de camino actual por municipio (historia #27).
+
+    Misma caché cruda inmutable que las vías pecuarias (la clave es la URL
+    completa). Con `offline=True` nada llama a la red."""
+    ign_fetcher = CachedRawFetcher(ign_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    road_fetcher = CachedRawFetcher(
+        roadlink_http_get, cache_dir, today, sleep=sleep, offline=offline
+    )
+    use_case = BuildMunicipalRoadLayersUseCase(
+        boundaries=IgnAdministrativeUnitsAdapter(
+            AMBITO_HITO_BBOX_ETRS89, fetcher=ign_fetcher, today=today
+        ),
+        roads=RoadNetworkAdapter(fetcher=road_fetcher, today=today),
+        clipper=ShapelyLineClipper(),
+    )
+    return use_case.execute(AMBITO_HITO_INE)
+
+
+def _camino_actual_municipios(args: argparse.Namespace) -> int:
+    try:
+        batch = build_municipal_road_layers(args.cache, args.sin_red)
+    except (
+        MunicipalBoundaryNotFoundError,
+        MunicipalBoundaryUnusableError,
+        IncompleteWfsResponseError,
+        RawCacheMissError,
+        RawCacheCorruptError,
+    ) as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    except requests.RequestException as error:
+        print(f"Error de red: {error}", file=sys.stderr)
+        return 1
+    writer = GeoJsonRoadLayerWriter(args.salida)
+    for layer in batch.layers:
+        path = writer.write(layer)
+        print(
+            f"{layer.municipality.ine_code} {layer.municipality.name}: "
+            f"{len(layer.segments)} tramos -> {path}"
+        )
+    for failure in batch.failures:
+        print(
+            f"FALLO {failure.ine_code} {failure.name}: {failure.reason}",
+            file=sys.stderr,
+        )
+    return 1 if batch.failures else 0
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="parcel_intel.cli.main")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -270,6 +331,24 @@ def _build_parser() -> argparse.ArgumentParser:
         "--cache", type=Path, default=Path("data/raw"), help="Directorio de la caché cruda"
     )
     vias_parser.set_defaults(func=_vias_pecuarias_municipios)
+
+    camino_parser = subparsers.add_parser(
+        "camino-actual-municipios",
+        help="Capa de camino actual (tramos sin asfaltar del IGN) por municipio, en GeoJSON",
+    )
+    camino_parser.add_argument(
+        "--sin-red", action="store_true", help="Solo la caché cruda; falla si falta algo"
+    )
+    camino_parser.add_argument(
+        "--cache", type=Path, default=Path("data/raw"), help="Directorio de la caché cruda"
+    )
+    camino_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("data/derived/camino_actual"),
+        help="Directorio de los ficheros <codigo_ine>.geojson",
+    )
+    camino_parser.set_defaults(func=_camino_actual_municipios)
 
     return parser
 

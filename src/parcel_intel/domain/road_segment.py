@@ -20,3 +20,13 @@ class RoadSegment:
     fictitious: bool
     geometry: LineGeometry
     provenance: Provenance
+
+
+@dataclass(frozen=True)
+class RoadQueryResult:
+    """Resultado de una consulta de tramos sin asfaltar: los tramos y la
+    procedencia de la consulta, que existe aunque no haya ningún tramo
+    ("sin tramos" no es "sin procedencia", historia #27)."""
+
+    segments: tuple[RoadSegment, ...]
+    provenance: Provenance

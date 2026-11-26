@@ -648,6 +648,37 @@ Conclusión de la cadena: la licencia CC BY 4.0 la declara el documento que el p
 
 ---
 
+## Capa de camino actual por municipio — roadlink (historia #27)
+
+Consulta real del **2026-11-26**, `https://api-features.idee.es/collections/roadlink/items` con `bbox` del término (límite del IGN, margen 2 m) en EPSG:25830, `bbox-crs` y `crs` EPSG:25830. Estado: `confirmado`. ADR 0034.
+
+### Hallazgos de la consulta
+
+- **Un término entero no cabe en una página.** Con el `limit=500` del adapter de #25 y sin filtro, `numberMatched` por término fue 3.996 (Colmenar), 19.557 (Aranjuez), 3.957 (Chinchón), 1.131 (Belmonte), 823 (Villaconejos), 2.938 (Villarejo) y 1.331 (Valdelaguna): casi todo asfaltado. La primera página de Valdelaguna traía 98 caminos sin asfaltar de los 552 reales.
+- **El servidor filtra y pagina.** `filter=surfacecategory='unpaved'` (CQL por defecto) devuelve solo los sin asfaltar; `offset` y `limit` paginan; `limit=1000` se acepta. `numberMatched` con el filtro es coherente con la suma de las páginas.
+- **Pasada completa** (límites del IGN + todas las páginas, recorte a cada término): tramos de `roadlink` sin asfaltar devueltos por el bbox → piezas dentro del término → de ellas ficticias → longitud total de las piezas:
+
+| INE | Municipio | `numberMatched` | Piezas en el término | `fictitious="true"` | Longitud (m) |
+| --- | --- | --- | --- | --- | --- |
+| 28043 | Colmenar de Oreja | 1.774 | 893 | 893 | 384.707 |
+| 28013 | Aranjuez | 5.522 | 1.486 | 1.486 | 542.153 |
+| 28052 | Chinchón | 1.492 | 786 | 786 | 343.524 |
+| 28019 | Belmonte de Tajo | 523 | 231 | 231 | 86.197 |
+| 28170 | Villaconejos | 370 | 261 | 256 | 107.234 |
+| 28180 | Villarejo de Salvanés | 1.446 | 725 | 725 | 354.040 |
+| 28157 | Valdelaguna | 552 | 300 | 300 | 131.617 |
+
+  Las cifras salen de ejecutar el propio adapter y `ShapelyLineClipper` sobre las respuestas reales, no de un recuento aparte (lección #36). La diferencia entre `numberMatched` y las piezas son tramos de vecinos que tocan el bbox pero no el término.
+- **Casi todo el camino sin asfaltar del ámbito es `fictitious="true"`**: solo 5 tramos `false` en todo Villaconejos y ninguno en los otros seis municipios. El indicador se conserva en el fichero; qué significa para el visor es decisión de publicación.
+- **Tramos que cruzan términos**: 151 tramos aparecen en dos o más capas. Casos fijados en los tests: `280430189746` (Colmenar 239,19 m + Chinchón 272,14 m = 511,32 m), multi-parte `281700231594` (Chinchón 3 partes, Villaconejos 2; 111,45 + 110,34 = 221,79 m) y uno en tres términos (`281570201255`).
+- **Peso**: la pasada completa son ~60 MB de JSON (≈30 peticiones). Los fixtures de `tests/fixtures/road_network/roadlink_unpaved_recorte_municipio_<ine>.json` son **recortes** de la respuesta real (10-12 tramos por municipio: tramos que cruzan límite, ficticios, no ficticios y vecinos que no tocan el término; geometría y propiedades sin tocar; `numberMatched`/`numberReturned` ajustados). Cómo se obtuvieron está en el docstring de `tests/road_layer_fixtures.py`.
+
+### Licencia y atribución
+
+CC BY 4.0, confirmada en la historia #24 (sección anterior). La capa lleva la atribución «Obra derivada de red de transporte IGN CC-BY 4.0 ign.es», texto fijado por el criterio CA4 de #27; **difiere** de la forma recomendada arriba («Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional») y debe unificarse con el fundador antes de publicar. El fichero lleva además el aviso «cartografía informativa».
+
+---
+
 ## Resumen de fuentes no verificadas en esta pasada
 
 Fuera de alcance de la historia 0001 (ver sección "Fuera de alcance" de `docs/stories/0001-registro-fuentes.md`): vías pecuarias, Red Natura 2000, concesiones de agua, inventario municipal de caminos. SNCZI/dominio público hidráulico, que figuraba aquí mismo hasta la historia 0012, quedó verificado en esa historia (ver sección "SNCZI / Dominio Público Hidráulico — MITECO" más arriba: cursos de agua y peligrosidad por inundación `confirmado`, deslinde legal de DPH y zonas de servidumbre/policía `bloqueado`). Vías pecuarias, que figuraba aquí mismo hasta la historia 0014, quedó verificada en esa historia (ver sección "Vías pecuarias — IDEM, Comunidad de Madrid" más arriba: `confirmado`, un único servicio real encontrado bajo el workspace `Zonas` del mismo GeoServer de IDEM). Red Natura 2000, que figuraba aquí mismo hasta la historia 0015, quedó verificada en esa historia (ver sección "Red Natura 2000 y espacios protegidos — IDEM, Comunidad de Madrid" más arriba: `confirmado` como fuente real de planes de gestión, con el alcance explícito de que modela zonificación de planes, no el límite oficial de cada sitio individual con código EU). Concesiones de agua e inventario municipal de caminos quedan para una iteración posterior del registro, cuando las historias de reglas/afecciones las necesiten.

@@ -291,6 +291,16 @@ def polygon_area(geometry: Geometry) -> float:
     return sum(abs(ring_signed_area(ring)) for ring in geometry.rings)
 
 
+def multiline_length(geometry: MultiLineGeometry) -> float:
+    """Longitud total de las polilíneas, en unidades del CRS (m en EPSG:25830).
+    Las partes de menos de 2 puntos no suman; `lines=()` da 0.0."""
+    return sum(
+        math.hypot(x2 - x1, y2 - y1)
+        for line in geometry.lines
+        for (x1, y1), (x2, y2) in zip(line, line[1:], strict=False)
+    )
+
+
 def ring_perimeter(ring: Ring) -> float:
     """Perímetro del anillo, cerrado por índice módulo. Los segmentos de
     longitud 0 (p. ej. el de cierre de un anillo ya cerrado) suman 0."""
