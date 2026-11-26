@@ -1,0 +1,5 @@
+# Rutas a eliminar de TODO el historial de git (historia #44, licencia INSPIRE 2016 de Catastro;
+# ver src/parcel_intel/sources/REGISTRY.md). Formato de `git filter-repo --paths-from-file`:
+# una ruta por línea; una ruta de directorio incluye todo lo que cuelga de ella; `glob:` admite `*`.
+tests/fixtures/catastro/
+glob:tests/fixtures/caminos/catastro_*

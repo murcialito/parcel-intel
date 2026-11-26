@@ -256,6 +256,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el identificador de un registro derivado de un criterio solo cambia con lo que entra en su hash. Un test "cambia si cambian los datos" debe variar un dato que esté en el hash (aquí la zona), no una medida (distancia) que no lo está.
   - **Aplica a**: implementación (al escribir el test de un identificador por contenido, comprobar qué campos entran en él).
 
+## [2026-11-26] Historia #44 — Purga del historial de git
+
+- **Lección**: los tests de scripts de shell que dependen de una herramienta de operador (aquí `git-filter-repo`) se saltan en CI si el job no la instala, y los agentes no pueden tocar `.github/workflows/`. Un salto silencioso deja los criterios sin verificar en CI. Anotar en la PR que corren solo con la herramienta instalada, y pedir al fundador la línea `pip install git-filter-repo` en `ci.yml`.
+  - **Causa**: la historia fijaba que `git-filter-repo` no entra en `pyproject.toml` y que "CI lo instala si hace falta", pero instalarlo exige editar el workflow. Los tests se escribieron con `skipif` y se ejecutaron en local instalándolo en el venv.
+  - **Aplica a**: BA y arquitecto (si un criterio exige una herramienta externa en CI, decir quién cambia el workflow antes de `estado:lista`) | implementación (los scripts se prueban con repos temporales; las salvaguardas de rechazo no dependen de la herramienta y no se saltan).
+
 ## [2026-11-26] Historia #41 — Despliegue automático en GitHub Pages
 
 - **Lección**: una historia cuyo criterio exige editar `.github/workflows/*.yml` no la puede completar un agente: el push lo rechaza GitHub (la App no tiene permiso `workflows`). Mismo bloqueo que #19; el refinador debe pedírselo al fundador antes de `estado:lista`, o separar el cambio del workflow en una tarea suya.
