@@ -165,6 +165,17 @@ Verificación para el ADR 0042 (ventanas de un tramo y franjas de vuelo). Petici
   - `Orto-SIGPAC 1997-2003 CC-BY 4.0 scne.es`;
   - `Orto-OLISTAT 1997-1999 CC-BY 4.0 scne.es`;
   - `PNOA 2006 CC-BY 4.0 scne.es`, `PNOA 2009 CC-BY 4.0 scne.es`, `PNOA 2011 CC-BY 4.0 scne.es`, `PNOA 2014 CC-BY 4.0 scne.es`, `PNOA 2017 CC-BY 4.0 scne.es`, `PNOA 2020 CC-BY 4.0 scne.es` y `PNOA 2023 CC-BY 4.0 scne.es`.
+- **Fixtures del adapter de ventanas (historia #124)**, grabadas el 2026-11-26 con `User-Agent: parcel-intel-verificacion/0.1` en `tests/fixtures/pnoa/`. Ventana de 224 m de Colmenar de Oreja, `bbox=469928,4439888,470152,4440112` (EPSG:25830), `width=height=448`, mismos parámetros que la URL canónica de arriba (cambia `layers`):
+
+  | Fixture | Capa | Respuesta | Bytes | Bytes/píxel |
+  | --- | --- | --- | --- | --- |
+  | `window_224_pnoa2023.jpg` | `PNOA2023` | 200 `image/jpeg` | 44.674 | 0,223 |
+  | `window_224_ams.jpg` | `AMS_1956-1957` | 200 `image/jpeg` | 27.053 | 0,135 |
+  | `window_224_sigpac.jpg` | `SIGPAC` | 200 `image/jpeg` | 32.908 | 0,164 |
+  | `window_224_pnoa2010_blanca.jpg` | `PNOA2010` (sin vuelo) | 200 `image/jpeg`, **blanca** | 1.459 | 0,0073 |
+  | `window_capa_inexistente_serviceexception.xml` | `NOEXISTE` | 200 `text/xml`, `ServiceException code="LayerNotDefined"` | 554 | — |
+
+  Un `ServiceException` llega con **200**, no con un error HTTP: solo la cabecera JPEG lo distingue. `OLISTAT` no tiene fixture propia (la ventana no se pidió); el test de #124 lo sirve con la de `SIGPAC` y solo comprueba que el vuelo se acepta. CA8 de #124 (`PNOA2023` real, `PNOA2010` sin cobertura) pasó contra la red real el 2026-11-26.
 - **Sin fuentes nuevas ni licencias nuevas**: todo es PNOA (actual e histórico), CC BY 4.0, ya en la tabla resumen de licencias, que no cambia (`NOTICE`, historia #43). `NOTICE` recogerá estas atribuciones cuando se publique la primera imagen (#103).
 
 ---
@@ -718,6 +729,7 @@ Conclusión de la cadena: la licencia CC BY 4.0 la declara el documento que el p
 - Formato: «Obra derivada de <identificador> <fecha> CC-BY 4.0 <atribución de productores>», apartado 4 del documento de condiciones. Ese prefijo aplica a una obra derivada, es decir, si el visor transforma los datos. Si la capa publicada no altera la información original, el apartado 1 pide la forma sin «Obra derivada de» (`<identificador> <fecha> CC-BY 4.0 <atribución de productores>`). El texto de CA2 usa la forma derivada porque así lo fija el criterio; si la capa se publica sin transformar, cambiarlo es una decisión del fundador. La atribución debe verse junto a los datos (apartado 1).
 - Atribución de productores: la variante 2 de la tabla sin las otras comunidades. El considerando Tercero del documento indica que, si el ámbito está completamente en una comunidad autónoma, se usa la variante 2 «sin mencionar al resto de Comunidades Autónomas». Colmenar de Oreja está en la Comunidad de Madrid.
 - Alternativa literal si el fundador prefiere la variante 1: `Obra derivada de IGR-RT 2026 CC-BY 4.0 Sistema Cartográfico Nacional`.
+- Desde #94 (ADR 0044) la evidencia de la red de transporte aparece también en las fichas de los indicios publicados (`site/datos/discrepancias/`), con esta misma atribución de `NOTICE`: `SOURCE_POLICY["ign_red_transporte"]` pasa a verificada. No cambia ninguna conclusión de esta sección.
 
 ### Límites y canales no leídos
 

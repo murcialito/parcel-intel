@@ -61,6 +61,19 @@ de memoria.
 - Atribución declarada por el servicio: `CC BY 4.0 Comunidad de Madrid`.
 - Aviso obligatorio: es cartografía de carácter informativo, no un deslinde.
 
+## Información derivada de fuentes que no se publican
+
+### Dirección General del Catastro — indicios derivados (ADR 0041)
+
+- Se publican indicios y resultados sobre un trazado que usan Catastro como contraparte
+  (por ejemplo, «no aparece en los caminos derivados de Catastro»), nunca la geometría ni
+  los atributos de las parcelas ni sus referencias.
+- Licencia de la fuente: licencia INSPIRE v1.0 de la Dirección General del Catastro
+  (https://www.catastro.hacienda.gob.es/webinspire/documentos/Licencia.pdf), que autoriza
+  el uso público de la información transformada citando la fuente y la fecha de consulta.
+- Atribución que acompaña a la evidencia (con la fecha de consulta de cada dato):
+  `Elaboración propia a partir de datos de la Dirección General del Catastro (licencia INSPIRE v1.0), consultados en la fecha indicada. No es un producto oficial del Catastro ni reproduce su dato original, carece de fehaciencia y puede haber cambiado desde la consulta.`
+
 ## Software de terceros incluido en el sitio
 
 - Leaflet 1.9.4 (https://leafletjs.com), BSD 2-Clause. Copia en `site/vendor/leaflet/`, con su
@@ -70,9 +83,11 @@ de memoria.
 
 ### Catastro (INSPIRE)
 
-- Solo de uso interno. No se publica en bruto ni en ninguna capa derivada.
-- Sus capas derivadas no se publican hasta tener consulta jurídica sobre la licencia de 2016
-  (https://www.catastro.hacienda.gob.es/webinspire/documentos/Licencia.pdf).
+- Su geometría y sus atributos son solo de uso interno. No se publican en bruto ni en
+  ninguna capa derivada que reproduzca la geometría de las parcelas.
+- Esas capas derivadas no se publican hasta tener consulta jurídica sobre la licencia de 2016
+  (https://www.catastro.hacienda.gob.es/webinspire/documentos/Licencia.pdf). Los indicios
+  derivados sí se publican, con la atribución de la sección anterior (ADR 0041).
 
 ### OpenStreetMap (ODbL)
 

@@ -1,0 +1,28 @@
+{
+ "type": "FeatureCollection",
+ "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::25830"}},
+ "properties": {
+  "fuente": "catastro_vt",
+  "municipio": "28045",
+  "nombre_municipio": "Municipio sintético 28045",
+  "procedencia": {
+   "fuente": "SINTÉTICO capa de caminos de Catastro",
+   "url": "https://example.invalid/catastro_caminos?bbox=470000.0%2C4445000.0%2C470200.0%2C4445010.0",
+   "fecha_descarga": "2026-11-24",
+   "licencia": "SINTÉTICA, solo para pruebas (licencia INSPIRE de Catastro, no redistribuible)",
+   "redistribucion": "solo_uso_interno"
+  },
+  "aviso": "SINTÉTICO: capa inventada para pruebas, no es cartografía real."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "99045A00109001",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [[[470000, 4445000], [470200, 4445000], [470200, 4445010], [470000, 4445010], [470000, 4445000]]]
+   },
+   "properties": {"fecha_dato": "2026-06-01"}
+  }
+ ]
+}

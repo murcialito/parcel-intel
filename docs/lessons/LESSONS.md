@@ -455,3 +455,29 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: el primer test unitario esperaba `None` con una diagonal de 1500×1500 m y salieron 4 ventanas. El código seguía el ADR; el oráculo mental era erróneo.
   - **Aplica a**: implementación (tests de topes por tamaño de ventana).
 
+## [2026-11-26] Historia #18 — ADR de georreferenciación y digitalización
+
+- **Lección**: los cuerpos de las issues anteriores a la migración (ADR 0040) llevan referencias reescritas como `murcialito/parcel-intel#N`, también dentro de cadenas que un criterio pide «literales», como un encabezado de ADR. Antes de copiarlas, comprobar con `gh issue view N` que la issue de este repo es la misma. Si lo es, escribir `#N` en el documento, como el resto de `docs/adr/`; el docstring del test conserva el criterio literal y el módulo explica la adaptación. Un ADR con `murcialito/parcel-intel#N` enlazaría al repo antiguo.
+  - **Causa**: el CA12 de #18 exigía el encabezado `## Consecuencias para #19 y murcialito/parcel-intel#20`. #20 y #50 de este repo son las mismas historias.
+  - **Aplica a**: BA y arquitecto (al reescribir una issue migrada, normalizar sus referencias a `#N`) | implementación (anotar la adaptación en la PR).
+
+- **Lección**: al buscar frases en un ADR tras quitar las negritas (`texto.replace("**", "")`) también se borra el `**` de los globs (`curated/**`). Las cadenas con glob se buscan en el texto sin normalizar.
+  - **Aplica a**: implementación (tests que leen documentos Markdown).
+
+## [2026-11-26] Historia #94 — Publicar los indicios de discrepancia
+
+- **Lección**: una decisión del fundador tomada después del diseño (aquí el ADR 0041, que abre los indicios con Catastro como contraparte) cambia el oráculo, un criterio y el texto público a la vez. Antes de codificar, leer los comentarios de la issue y los ADR posteriores al diseño; recalcular el oráculo con el pipeline (Bloque 0) y escribir en el docstring del módulo de tests qué se ajustó y por qué, dejando el criterio literal en el docstring de cada test.
+  - **Causa**: el diseño fijaba 2 indicios publicados y 3 omitidos en 28043; con el ADR 0041 son 4 y 1. El número del ADR propuesto (0038) también estaba ya ocupado (lección #43).
+  - **Aplica a**: implementación | arquitecto (un diseño que depende de una decisión jurídica abierta debe decir qué cambia si se resuelve en el otro sentido).
+
+- **Lección**: una franja sintética de 20 m frente a una línea por su eje no "coincide" para todos los pares de fuentes. Las muestras del borde corto quedan a 7,5 m del eje y la tolerancia Catastro–IGN es 7,07 m, así que sale un `SOLAPE` que el oráculo no esperaba. Al escribir fixtures de franjas, comprobar la distancia de las muestras de los bordes cortos con la tolerancia más estricta de los pares que se van a comparar, o usar franjas estrechas (10 m).
+  - **Aplica a**: implementación y arquitecto (fixtures sintéticas de discrepancias).
+
+- **Lección**: en las capas derivadas reales ninguna fuente declara una fecha común: vías pecuarias no tiene fecha por tramo y la red del IGN mezcla `fecha_alta` de 2017 a 2026. Los `AUSENTE_EN_FUENTE` reales dicen «año no declarado» aunque el formato ya guarda `fecha_dato_b`. Un criterio con un año en el texto (CA11) se cumple con fixtures; con los datos reales hace falta decidir qué fecha representa a cada capa.
+  - **Aplica a**: BA y arquitecto (al fijar un texto público con año, comprobar qué fecha tienen los datos reales) | implementación (anotarlo en la PR al publicar datos reales).
+## [2026-11-26] Historia #124 — Adapter de ventanas de ortofoto PNOA
+
+- **Lección**: el WMS del IGN responde **200** a todo: una capa inexistente da un `ServiceException` XML y un vuelo sin cobertura da un JPEG blanco. Ningún código de estado distingue el éxito; solo la cabecera JPEG (para no cachear errores) y el tamaño por píxel (para detectar el blanco, que sí se cachea) lo hacen.
+  - **Causa**: ambas respuestas se grabaron como fixtures reales (`window_capa_inexistente_serviceexception.xml`, `window_224_pnoa2010_blanca.jpg`); la blanca a 448 px pesa 0,0073 bytes/píxel, las reales ≥ 0,135.
+  - **Aplica a**: implementación (cualquier adapter nuevo sobre WMS del IGN: validar el cuerpo, no el estado HTTP).
+

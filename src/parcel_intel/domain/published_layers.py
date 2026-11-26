@@ -20,6 +20,14 @@ from parcel_intel.domain.trail import SourceKind, Trail
 PublishedLayerId = Literal["vias_pecuarias", "camino_actual"]
 """Nombre del directorio en `site/datos/` y en `data/derived/`."""
 
+IndexedLayerId = Literal["vias_pecuarias", "camino_actual", "discrepancias"]
+"""Directorios de `site/datos/` que entran en el índice (historia #94, ADR 0044)."""
+
+INDEXED_LAYER_IDS: tuple[IndexedLayerId, ...] = ("camino_actual", "discrepancias", "vias_pecuarias")
+"""Única lista de capas del índice: las de trazados de `PUBLISHED_LAYERS` más la de
+indicios (`discrepancias`, que no es una capa de trazados de una sola fuente). Los
+dos sinks reconstruyen el índice con ella, así ningún comando borra la capa del otro."""
+
 
 @dataclass(frozen=True)
 class PublishedLayerSpec:
@@ -67,7 +75,7 @@ class Simplification:
 
 @dataclass(frozen=True)
 class PublishedFile:
-    layer_id: PublishedLayerId
+    layer_id: IndexedLayerId
     municipality_code: str
     path: str  # relativo al directorio de salida, p. ej. "camino_actual/28043.geojson"
     size_bytes: int

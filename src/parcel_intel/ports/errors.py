@@ -218,6 +218,18 @@ class TrailLayerUnavailableError(Exception):
         self.reason = reason
 
 
+class DiscrepancyReportUnavailableError(Exception):
+    """No hay informe de discrepancias escrito para ese municipio -- historia
+    #94. Significa solo "no hay fichero"; un fichero corrupto es otro error."""
+
+    def __init__(self, municipality_code: str, reason: str) -> None:
+        super().__init__(
+            f"Sin informe de discrepancias para el municipio {municipality_code}: {reason}"
+        )
+        self.municipality_code = municipality_code
+        self.reason = reason
+
+
 class NoLandClassificationFoundError(Exception):
     """Ningún polígono de clasificación de suelo intersecta el bbox pedido.
     El servicio no distingue "fuera de cobertura de la Comunidad de Madrid"
