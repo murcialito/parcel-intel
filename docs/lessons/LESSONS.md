@@ -452,3 +452,15 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: al buscar frases en un ADR tras quitar las negritas (`texto.replace("**", "")`) también se borra el `**` de los globs (`curated/**`). Las cadenas con glob se buscan en el texto sin normalizar.
   - **Aplica a**: implementación (tests que leen documentos Markdown).
 
+## [2026-11-26] Historia #94 — Publicar los indicios de discrepancia
+
+- **Lección**: una decisión del fundador tomada después del diseño (aquí el ADR 0041, que abre los indicios con Catastro como contraparte) cambia el oráculo, un criterio y el texto público a la vez. Antes de codificar, leer los comentarios de la issue y los ADR posteriores al diseño; recalcular el oráculo con el pipeline (Bloque 0) y escribir en el docstring del módulo de tests qué se ajustó y por qué, dejando el criterio literal en el docstring de cada test.
+  - **Causa**: el diseño fijaba 2 indicios publicados y 3 omitidos en 28043; con el ADR 0041 son 4 y 1. El número del ADR propuesto (0038) también estaba ya ocupado (lección #43).
+  - **Aplica a**: implementación | arquitecto (un diseño que depende de una decisión jurídica abierta debe decir qué cambia si se resuelve en el otro sentido).
+
+- **Lección**: una franja sintética de 20 m frente a una línea por su eje no "coincide" para todos los pares de fuentes. Las muestras del borde corto quedan a 7,5 m del eje y la tolerancia Catastro–IGN es 7,07 m, así que sale un `SOLAPE` que el oráculo no esperaba. Al escribir fixtures de franjas, comprobar la distancia de las muestras de los bordes cortos con la tolerancia más estricta de los pares que se van a comparar, o usar franjas estrechas (10 m).
+  - **Aplica a**: implementación y arquitecto (fixtures sintéticas de discrepancias).
+
+- **Lección**: en las capas derivadas reales ninguna fuente declara una fecha común: vías pecuarias no tiene fecha por tramo y la red del IGN mezcla `fecha_alta` de 2017 a 2026. Los `AUSENTE_EN_FUENTE` reales dicen «año no declarado» aunque el formato ya guarda `fecha_dato_b`. Un criterio con un año en el texto (CA11) se cumple con fixtures; con los datos reales hace falta decidir qué fecha representa a cada capa.
+  - **Aplica a**: BA y arquitecto (al fijar un texto público con año, comprobar qué fecha tienen los datos reales) | implementación (anotarlo en la PR al publicar datos reales).
+
