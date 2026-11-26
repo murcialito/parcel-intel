@@ -81,3 +81,16 @@ def test_main_falla_con_codigo_1_y_sugiere_teselas(
 
 def test_directorio_inexistente_sale_con_2(tmp_path: Path) -> None:
     assert peso.main(str(tmp_path / "no")) == 2
+
+
+def test_discrepancias_cuenta_en_fichero_pantalla_y_total(tmp_path: Path) -> None:
+    _write(tmp_path, "datos/discrepancias/28043.geojson", 3_000_001)
+    errors = peso.comprobar(tmp_path)
+    assert any("datos/discrepancias/28043.geojson" in e and "3000001" in e for e in errors)
+
+    pantalla = tmp_path / "pantalla"
+    for layer in ("discrepancias", "camino_actual"):
+        _write(pantalla, f"datos/{layer}/28013.geojson", 2_900_000)
+    _write(pantalla, "datos/vias_pecuarias/28013.geojson", 2_300_000)
+    (error,) = peso.comprobar(pantalla)
+    assert "municipio 28013" in error and "8100000" in error
