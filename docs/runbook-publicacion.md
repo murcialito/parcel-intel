@@ -8,6 +8,10 @@ Historia #44 (feature #39, épica #2). Autorización del fundador (en #39): rees
 
 Esta historia solo entrega las herramientas y este documento. **La ejecución la hace el fundador**, después de que se fusione #38 (fixtures sintéticas que sustituyen a las originales en el árbol de trabajo).
 
+
+> **Camino elegido: repo nuevo ([ADR 0035](adr/0035-publicar-en-un-repo-nuevo-con-el-historial-purgado.md)).**
+> No se hace push forzado sobre este repo, para no depender de GitHub Support con `refs/pull/*`. Se ejecuta `scripts/migrar_a_repo_nuevo.sh` por fases: `preparar`, `archivar`, `crear`, `numerar`, `restaurar`, `activar` (tras guardar los secrets) y `publicar`. La purga y la verificación de este runbook se siguen usando dentro de la fase `preparar`. Las secciones "Pasos" (5 a 7), "Purga en GitHub" y "Rollback" quedan como referencia del camino descartado.
+
 ## Requisitos de la herramienta
 
 `git-filter-repo` (p. ej. `pip install git-filter-repo`). Es herramienta de operador: no está en `pyproject.toml`.
@@ -68,3 +72,17 @@ Es una **acción manual del fundador**, no de un agente ni de un workflow: Setti
 - y el fundador ha borrado o custodiado el mirror de la precondición 4 fuera de cualquier lugar público.
 
 Después, borrar el clon de purga y el mirror si ya no hacen falta.
+
+## Clon local (tras migrar)
+
+El clon local tiene el historial antiguo. No se vuelve a clonar, para no perder `data/` (caché cruda, fuera de git): se re-apunta y se limpia.
+
+```bash
+git fetch origin
+git checkout main
+git reset --hard origin/main
+git branch | grep -v '^\* main$' | xargs -r git branch -D
+git reflog expire --expire=now --all && git gc --prune=now
+```
+
+La URL del remoto no cambia (`git@github.com:murcialito/parcel-intel.git`), pero ahora apunta al repo nuevo. El ruleset de `main` impide que un push desde un clon antiguo reintroduzca el historial viejo.
