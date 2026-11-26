@@ -418,3 +418,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en una medida por muestreo de puntos medios con `<=` (aquí `line_overlap_fraction`, paso 1 m), un oráculo escrito a mano falla si el alcance coincide con la distancia de un punto medio (0,5 m del vértice): ese punto cuenta como cubierto. Al calcular el oráculo, listar los puntos medios cercanos a la frontera y elegir un alcance que no caiga justo en uno, o fijar ese caso límite a propósito en un test propio.
   - **Causa**: un test unitario con alcance 0,5 m esperaba 0,5 y la función dio 0,505: el primer punto medio del segundo segmento quedaba a 0,5 m exactos. La función era correcta; el oráculo no.
   - **Aplica a**: arquitecto e implementación (oráculos de funciones muestreadas).
+
+## [2026-11-26] Historia #126 — Entidad CutCandidate y método de combinación
+
+- **Lección**: no ejecutes `ruff format .` sobre todo el repo: la versión de ruff local reformatea medio repo (incluidos bloques de código de los ADR, que rompen tests que leen sus textos literales). CI solo exige `ruff check`. Formatea solo los ficheros nuevos (`ruff format <ruta>`) y revisa `git status` antes de commitear.
+  - **Causa**: al formatear `.` se tocaron 44 ficheros ajenos a la historia y falló `test_historia_109` (que busca una línea exacta del ADR 0039). Se revirtió con `git checkout` de lo ajeno.
+  - **Aplica a**: implementación.
+
+- **Lección**: al fundir rachas por distancia entre piezas (`GAP_M`), basta comparar piezas con `segment_distance` y un prefiltro de bbox; el coste es cuadrático por trazado, aceptable con rachas de decenas de muestras. Si se calibra `GAP_M` o `SAMPLE_STEP_M`, revisar ese coste.
+  - **Aplica a**: implementación (al calibrar el método con #100).
