@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Componentes · Paso Común</title>
+<meta name="description" content="Mapa abierto de caminos públicos y vías pecuarias. Cartografía informativa con fuentes, fechas y licencias.">
+<meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#151816" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta property="og:title" content="Paso Común · Mapa abierto de los caminos públicos">
+<meta property="og:description" content="Colmenar de Oreja y municipios vecinos. Cada dato con su fuente, su fecha y su licencia.">
+<meta property="og:image" content="og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="es_ES">
+<link rel="preload" href="fonts/atkinson-hyperlegible-next-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/componentes.css">
+<script>
+  // Solo para la página de ejemplo: ?tema=claro | ?tema=oscuro fuerza el modo. En producción manda prefers-color-scheme.
+  (function () { var t = new URLSearchParams(location.search).get('tema'); if (t) document.documentElement.setAttribute('data-tema', t); })();
+</script>
+<style>
+  /* Solo maquetación del catálogo */
+  .demo { max-width: 720px; margin: 0 auto; padding: var(--space-4); display: grid; gap: var(--space-7); }
+  .demo h2 { margin: 0 0 var(--space-3); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: .08em; color: var(--color-muted); }
+  .demo-fila { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .demo-estados { display: grid; gap: var(--space-3); }
+  /* Simulación de ortofoto para probar contraste de capas (en producción, teselas PNOA) */
+  .demo-orto { height: 360px; border-radius: var(--radius-lg);
+    background:
+      radial-gradient(60% 45% at 18% 30%, #8a8a4e 0 60%, transparent 61%),
+      radial-gradient(40% 35% at 80% 75%, #4f6a3a 0 70%, transparent 71%),
+      radial-gradient(30% 25% at 70% 20%, #c9b58a 0 70%, transparent 71%),
+      radial-gradient(25% 30% at 35% 85%, #3c4330 0 70%, transparent 71%),
+      linear-gradient(120deg, #b49a68, #a08a5c 40%, #d2c29a 70%, #8f7f55); }
+  .demo-orto svg.lineas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .demo-orto .pc-avisos { position: absolute; top: var(--space-3); left: var(--space-3); right: 64px; }
+  .demo-orto .pc-mapa__controles { top: var(--space-3); right: var(--space-3); }
+  .demo-orto .pc-atribucion { position: absolute; left: var(--space-3); right: var(--space-3); bottom: var(--space-3); }
+</style>
+</head>
+<body>
+
+<!-- Iconos (trazo uniforme 2 px, 24×24, currentColor). Los mismos que en img/iconos/ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-capas" viewBox="0 0 24 24"><path d="M12 3 21 8l-9 5-9-5 9-5Z"/><path d="m3 12.5 9 5 9-5"/><path d="m3 17 9 5 9-5"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.5h.01"/></symbol>
+  <symbol id="i-aviso" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 7.5v5.5"/><path d="M12 16.5h.01"/></symbol>
+  <symbol id="i-ubicacion" viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.4a7 7 0 0 1 14 0C19 14.9 12 21 12 21Z"/><circle cx="12" cy="9.6" r="2.5"/></symbol>
+  <symbol id="i-compartir" viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="m8.2 10.8 7.6-4.1"/><path d="m8.2 13.2 7.6 4.1"/></symbol>
+  <symbol id="i-descargar" viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m7 10.5 5 5 5-5"/><path d="M5 20h14"/></symbol>
+  <symbol id="i-cerrar" viewBox="0 0 24 24"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></symbol>
+</svg>
+
+<header class="pc-cabecera">
+  <a class="pc-marca" href="./" aria-label="Paso Común, inicio">
+    <svg viewBox="3 4 26 26" aria-hidden="true"><mask id="logo-camino" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32"><rect width="32" height="32" fill="#fff"/><path d="M13 30C13 23 19 21.5 19 14" fill="none" stroke="#000" stroke-width="3.2" stroke-linecap="round"/></mask><path d="M7 29V14a9 9 0 0 1 18 0v15z" fill="currentColor" mask="url(#logo-camino)"/></svg>
+    <span>Paso Común</span>
+  </a>
+  <label class="pc-municipio">
+    <span class="pc-oculto">Municipio</span>
+    <select>
+      <option>Colmenar de Oreja</option>
+      <option>Chinchón</option>
+      <option>Valdelaguna</option>
+      <option>Belmonte de Tajo</option>
+      <option>Villarejo de Salvanés</option>
+      <option>Villamanrique de Tajo</option>
+      <option>Aranjuez</option>
+    </select>
+  </label>
+</header>
+
+<main class="demo">
+
+  <section>
+    <h2>Mapa · avisos, controles y atribución</h2>
+    <div class="pc-mapa demo-orto">
+      <svg class="lineas" viewBox="0 0 680 360" preserveAspectRatio="none" aria-hidden="true">
+        <g stroke-linejoin="round" fill="none">
+          <path d="M-10 250 C 120 230, 220 190, 330 200 S 560 250, 700 210" stroke="#1b1408" stroke-opacity=".55" stroke-width="9"/>
+          <path d="M-10 250 C 120 230, 220 190, 330 200 S 560 250, 700 210" stroke="var(--capa-vias)" stroke-width="6"/>
+          <path d="M80 380 C 140 300, 200 220, 260 130 S 360 40, 420 -10" stroke="#2a1424" stroke-opacity=".6" stroke-width="6"/>
+          <path d="M80 380 C 140 300, 200 220, 260 130 S 360 40, 420 -10" stroke="var(--capa-historico)" stroke-width="3" stroke-dasharray="10 7"/>
+          <path d="M120 -10 C 180 90, 300 120, 420 140 S 600 170, 700 120" stroke="#1b1b17" stroke-opacity=".75" stroke-width="5.5" stroke-linecap="round"/>
+          <path d="M120 -10 C 180 90, 300 120, 420 140 S 600 170, 700 120" stroke="var(--capa-camino)" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M390 205 C 450 215, 500 235, 560 238" stroke="var(--capa-seleccion-halo)" stroke-opacity=".95" stroke-width="16" stroke-linecap="round" stroke-dasharray="1 11"/>
+          <path d="M390 205 C 450 215, 500 235, 560 238" stroke="var(--capa-indicio)" stroke-width="9" stroke-linecap="round" stroke-dasharray="1 11"/>
+        </g>
+      </svg>
+      <div class="pc-avisos" role="note">
+        <p class="pc-aviso" style="margin:0"><svg class="pc-icono"><use href="#i-info"/></svg><span><strong>Cartografía informativa,</strong> no es un deslinde. Señalamos indicios a verificar, no ilegalidades.</span></p>
+      </div>
+      <div class="pc-mapa__controles">
+        <button class="pc-boton pc-boton--mapa" type="button" aria-label="Capas y leyenda"><svg class="pc-icono"><use href="#i-capas"/></svg></button>
+        <button class="pc-boton pc-boton--mapa" type="button" aria-label="Mostrar mi ubicación"><svg class="pc-icono"><use href="#i-ubicacion"/></svg></button>
+      </div>
+      <details class="pc-atribucion">
+        <summary><svg class="pc-icono"><use href="#i-info"/></svg><span>Obra derivada de PNOA 2023 CC-BY 4.0 scne.es · IGN · Catastro</span></summary>
+        <ul>
+          <li>Ortofoto: Obra derivada de PNOA 2023 CC-BY 4.0 <a href="https://www.scne.es">scne.es</a></li>
+          <li>Red de caminos y planimetrías 1870-1880: © Instituto Geográfico Nacional, CC BY 4.0 <a href="https://www.scne.es">scne.es</a></li>
+          <li>Vías pecuarias: cartografía oficial de la Comunidad de Madrid (licencia según la fuente)</li>
+          <li>Parcelario: Dirección General del Catastro</li>
+          <li>Visor: <a href="https://leafletjs.com">Leaflet</a></li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <h2>Panel de capas con leyenda</h2>
+    <div class="pc-panel" role="region" aria-labelledby="t-capas">
+      <div class="pc-panel__cabecera">
+        <h3 class="pc-panel__titulo" id="t-capas">Capas</h3>
+        <button class="pc-boton pc-boton--icono" type="button" aria-label="Cerrar capas"><svg class="pc-icono"><use href="#i-cerrar"/></svg></button>
+      </div>
+      <ul class="pc-capas">
+        <li class="pc-capa">
+          <label class="pc-capa__fila">
+            <svg class="pc-muestra pc-muestra--vias" viewBox="0 0 44 16" aria-hidden="true"><line class="h" x1="2" y1="8" x2="42" y2="8"/><line class="l" x1="2" y1="8" x2="42" y2="8"/></svg>
+            <span><span class="pc-capa__nombre">Vías pecuarias oficiales</span><span class="pc-capa__desc">Banda ancha continua · informativa, no deslinde</span></span>
+            <input class="pc-switch" type="checkbox" role="switch" checked>
+          </label>
+        </li>
+        <li class="pc-capa">
+          <label class="pc-capa__fila">
+            <svg class="pc-muestra pc-muestra--camino" viewBox="0 0 44 16" aria-hidden="true"><line class="h" x1="3" y1="8" x2="41" y2="8"/><line class="l" x1="3" y1="8" x2="41" y2="8"/></svg>
+            <span><span class="pc-capa__nombre">Camino actual</span><span class="pc-capa__desc">Línea fina continua · tramos sin asfaltar (IGN)</span></span>
+            <input class="pc-switch" type="checkbox" role="switch" checked>
+          </label>
+        </li>
+        <li class="pc-capa pc-capa--inactiva">
+          <label class="pc-capa__fila">
+            <svg class="pc-muestra pc-muestra--historico" viewBox="0 0 44 16" aria-hidden="true"><line class="h" x1="2" y1="8" x2="42" y2="8"/><line class="l" x1="2" y1="8" x2="42" y2="8"/></svg>
+            <span><span class="pc-capa__nombre">Trazado histórico</span><span class="pc-capa__desc">Discontinua · planimetrías 1870-1880</span></span>
+            <span class="pc-etiqueta">Próximamente</span>
+          </label>
+        </li>
+        <li class="pc-capa pc-capa--inactiva">
+          <label class="pc-capa__fila">
+            <svg class="pc-muestra pc-muestra--indicio pc-muestra--media" viewBox="0 0 44 16" aria-hidden="true"><line class="h" x1="6" y1="8" x2="40" y2="8"/><line class="l" x1="6" y1="8" x2="40" y2="8"/></svg>
+            <span><span class="pc-capa__nombre">Indicios de corte</span><span class="pc-capa__desc">Punteada · a verificar sobre el terreno</span></span>
+            <span class="pc-etiqueta">Próximamente</span>
+          </label>
+          <ul class="pc-capa__niveles" aria-label="Niveles de confianza">
+            <li><svg class="pc-muestra pc-muestra--indicio pc-muestra--baja" viewBox="0 0 36 16" aria-hidden="true"><line class="h" x1="5" y1="8" x2="32" y2="8"/><line class="l" x1="5" y1="8" x2="32" y2="8"/></svg>Confianza baja · punto pequeño y espaciado</li>
+            <li><svg class="pc-muestra pc-muestra--indicio pc-muestra--media" viewBox="0 0 36 16" aria-hidden="true"><line class="h" x1="5" y1="8" x2="32" y2="8"/><line class="l" x1="5" y1="8" x2="32" y2="8"/></svg>Confianza media · punto mediano</li>
+            <li><svg class="pc-muestra pc-muestra--indicio pc-muestra--alta" viewBox="0 0 36 16" aria-hidden="true"><line class="h" x1="5" y1="8" x2="32" y2="8"/><line class="l" x1="5" y1="8" x2="32" y2="8"/></svg>Confianza alta · punto grande y denso</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Ficha de evidencia</h2>
+    <article class="pc-panel pc-ficha" aria-labelledby="t-ficha">
+      <div class="pc-ficha__agarre" aria-hidden="true"></div>
+      <div class="pc-panel__cabecera" style="border:0">
+        <p class="pc-ficha__tipo">Indicio a verificar · Tramo 14</p>
+        <button class="pc-boton pc-boton--icono" type="button" aria-label="Cerrar ficha"><svg class="pc-icono"><use href="#i-cerrar"/></svg></button>
+      </div>
+      <div class="pc-ficha__cuerpo" style="padding-top:0">
+        <div style="display:grid;gap:var(--space-2)">
+          <h3 id="t-ficha">El trazado histórico no continúa en el camino actual</h3>
+          <p class="pc-ficha__nota">Colmenar de Oreja · 420 m · <span class="pc-mono">40.1032, −3.3871</span></p>
+        </div>
+        <div class="pc-confianza">
+          <span class="pc-confianza__puntos" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>
+          <p><strong>Confianza media (2 de 3)</strong><span>Dos fuentes coinciden. Falta comprobarlo sobre el terreno.</span></p>
+        </div>
+        <section>
+          <h4>Por qué aparece</h4>
+          <p>La vía pecuaria y la planimetría de 1876 pasan por aquí. En la red de caminos actual no hay ningún tramo en estos 420 m.</p>
+        </section>
+        <section>
+          <h4>Fuentes</h4>
+          <ul class="pc-fuentes">
+            <li class="pc-fuente"><b>Vías pecuarias · Comunidad de Madrid</b><span class="pc-fuente__meta"><span>Descarga: 14/10/2026</span><span>Licencia según la fuente</span></span></li>
+            <li class="pc-fuente"><b>Planimetría de Colmenar de Oreja, 1876 · IGN</b><span class="pc-fuente__meta"><span>Hoja escaneada · consulta 02/09/2026</span><span>CC BY 4.0 scne.es</span></span></li>
+            <li class="pc-fuente"><b>Red de caminos · IGN</b><span class="pc-fuente__meta"><span>Versión 2025 · descarga 14/10/2026</span><span>CC BY 4.0 scne.es</span></span></li>
+          </ul>
+        </section>
+        <section>
+          <h4>Qué comprobar</h4>
+          <ul>
+            <li>Si hay un paso practicable siguiendo el trazado.</li>
+            <li>Si quedan mojones, lindes o restos de firme del camino.</li>
+            <li>Si el paso está interrumpido y por qué elemento (puerta, cultivo, vegetación).</li>
+          </ul>
+        </section>
+        <section>
+          <h4>Cómo verificarlo</h4>
+          <ol>
+            <li>Acércate por un camino público. No entres en fincas privadas.</li>
+            <li>Haz fotos con fecha y ubicación desde el camino.</li>
+            <li>Consulta el expediente de clasificación de la vía pecuaria en el ayuntamiento.</li>
+          </ol>
+        </section>
+        <p class="pc-ficha__nota">Esta ficha describe un tramo de camino. No identifica a personas ni a propietarios.</p>
+      </div>
+      <div class="pc-ficha__acciones">
+        <button class="pc-boton pc-boton--primario" type="button"><svg class="pc-icono"><use href="#i-compartir"/></svg>Compartir</button>
+        <button class="pc-boton pc-boton--secundario" type="button"><svg class="pc-icono"><use href="#i-descargar"/></svg>Descargar GeoJSON</button>
+      </div>
+    </article>
+  </section>
+
+  <section>
+    <h2>Estados: carga, vacío y error</h2>
+    <div class="demo-estados">
+      <div class="pc-panel pc-estado" role="status" aria-live="polite">
+        <div class="pc-progreso" aria-hidden="true"><i></i></div>
+        <h3>Cargando capas…</h3>
+        <div class="pc-esqueleto" aria-hidden="true"><i></i><i></i><i></i></div>
+      </div>
+      <div class="pc-panel pc-estado">
+        <svg class="pc-icono"><use href="#i-capas"/></svg>
+        <h3>No hay indicios en esta zona</h3>
+        <p>Puede que aún no se haya analizado o que los caminos coincidan con las fuentes. Mueve el mapa o cambia de municipio.</p>
+      </div>
+      <div class="pc-panel pc-estado" role="alert">
+        <svg class="pc-icono"><use href="#i-aviso"/></svg>
+        <h3>No se ha podido cargar la capa</h3>
+        <p>Comprueba la conexión. Si estás en el campo con poca cobertura, prueba de nuevo en un rato.</p>
+        <button class="pc-boton pc-boton--secundario" type="button">Reintentar</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Botones e iconos</h2>
+    <div class="demo-fila">
+      <button class="pc-boton pc-boton--primario" type="button">Ver en el mapa</button>
+      <button class="pc-boton pc-boton--secundario" type="button"><svg class="pc-icono"><use href="#i-descargar"/></svg>Descargar</button>
+      <button class="pc-boton pc-boton--icono" type="button" aria-label="Capas"><svg class="pc-icono"><use href="#i-capas"/></svg></button>
+      <button class="pc-boton pc-boton--icono" type="button" aria-label="Información"><svg class="pc-icono"><use href="#i-info"/></svg></button>
+      <button class="pc-boton pc-boton--icono" type="button" aria-label="Aviso"><svg class="pc-icono"><use href="#i-aviso"/></svg></button>
+      <button class="pc-boton pc-boton--icono" type="button" aria-label="Ubicación"><svg class="pc-icono"><use href="#i-ubicacion"/></svg></button>
+      <button class="pc-boton pc-boton--icono" type="button" aria-label="Compartir"><svg class="pc-icono"><use href="#i-compartir"/></svg></button>
+      <button class="pc-boton pc-boton--icono" type="button" aria-label="Cerrar"><svg class="pc-icono"><use href="#i-cerrar"/></svg></button>
+    </div>
+  </section>
+</main>
+
+<footer class="pc-pie">
+  <nav aria-label="Enlaces del proyecto">
+    <a href="#">Código fuente</a>
+    <a href="#">Metodología y fuentes</a>
+    <a href="#">Cómo colaborar</a>
+  </nav>
+  <p>Proyecto cívico sin ánimo de lucro. Código abierto; diseño y textos bajo licencia CC BY 4.0.</p>
+  <p>Ortofoto: Obra derivada de PNOA 2023 CC-BY 4.0 scne.es. Red de caminos y planimetrías: © Instituto Geográfico Nacional, CC BY 4.0 scne.es. Vías pecuarias: Comunidad de Madrid. Parcelario: Dirección General del Catastro.</p>
+</footer>
+</body>
+</html>

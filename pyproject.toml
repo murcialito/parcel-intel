@@ -41,6 +41,7 @@ testpaths = ["tests"]
 markers = [
     "integration: tests que llaman a red real o a una base de datos PostGIS local (excluidos por defecto)",
     "acceptance: tests de aceptación, uno por criterio Dado/Cuando/Entonces de una historia (tests/acceptance/)",
+    "fuera_de_ci: necesitan un servicio real que rechaza los runners de GitHub Actions (p. ej. el WFS de Catastro); CI no los ejecuta y se pasan en local antes de fusionar",
 ]
 addopts = "-m 'not integration'"
 

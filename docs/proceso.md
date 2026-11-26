@@ -10,7 +10,7 @@ Decidido el 2026-11-25 ([ADR 0022](adr/0022-backlog-en-github-agentes-en-actions
 | Feature | `tipo:feature` | Una capacidad entregable dentro de la épica | El agente de refinamiento la parte en historias |
 | Historia | `tipo:historia` | Un incremento que cabe en una PR y se puede probar | Es lo que se desarrolla |
 
-Las tres son issues del repo. La relación padre-hijo usa **sub-issues** de GitHub. Todas aparecen solas en el tablero del proyecto [Parcela Intel](https://github.com/users/murcialito/projects/1) (ver "Sincronización con el tablero").
+Las tres son issues del repo. La relación padre-hijo usa **sub-issues** de GitHub. Todas aparecen solas en el tablero del proyecto [Paso Común](https://github.com/users/murcialito/projects/1) (ver "Sincronización con el tablero").
 
 El número de historia es el número de la issue: "Historia #12". Las historias 0001–0021 de `docs/stories/` se quedan como archivo histórico; las nuevas viven solo en su issue.
 
@@ -46,6 +46,7 @@ Cualquier estado ──► estado:bloqueada ──► (se cierran sus dependenci
 | `estado:en-revision` | Hay PR abierta | Agente de desarrollo |
 | `cambios-pedidos` (en la PR) | La revisión encontró problemas bloqueantes | Agente de revisión |
 | `veto` (en la PR o la issue) | El fundador para el merge automático | El fundador |
+| `pendiente-local` (en la PR) | Tiene tests `fuera_de_ci` (servicios que rechazan a GitHub, como Catastro) por pasar en local; Fusionar espera | El desarrollador; la quita quien lo pasa en local |
 
 ## Cuándo te necesito
 
@@ -102,7 +103,7 @@ Definidos en `.claude/agents/` y lanzados por los workflows de `.github/workflow
 | Claude a demanda | `claude.yml` (del instalador de la app) | Escribes `@claude` en una issue o PR: pregunta o encargo puntual fuera del flujo |
 | — | `desplegar.yml` | Push a `main` (solo si el repo es público) |
 
-**Orden de la cola:** Priority del tablero (P0 → P1 → P2 → sin prioridad) y, dentro, la más antigua. Salta las que tienen dependencias abiertas ("Depende de #N"). Ver `.github/scripts/elegir_historia.sh`.
+**Orden de la cola:** Priority del tablero (P0 → P1 → P2 → sin prioridad) y, dentro, la más antigua. Salta las que tienen dependencias abiertas. Solo cuenta una línea que empieza por `Depende de` (`Depende de: #84, #85`); lo escrito en prosa no cuenta. Ver `.github/scripts/elegir_historia.sh`.
 
 **Historias en paralelo.** Se desarrollan a la vez hasta `HISTORIAS_EN_PARALELO` historias (variable de repo; ahora 2). Cuentan las que están en `estado:en-desarrollo` o `estado:en-revision`. La cola solo junta dos historias si las dos tienen línea `Toca:` y sus zonas no se solapan; una sin `Toca:` va sola. La elección va en serie y reclama la historia al elegirla, así que dos ejecuciones nunca cogen la misma. Fusionar solo fusiona una PR al día con `main`: si va por detrás, la actualiza con `PROJECT_TOKEN` y espera a que CI y la revisión pasen sobre la combinación real.
 
@@ -137,9 +138,11 @@ Desbloqueo: estado:diseno cuando se cierren #18, #19
 
 Cuando todas sus dependencias están cerradas como completadas, le pone el estado de la línea, quita `estado:bloqueada`, lo comenta y lanza el workflow del agente (`disenar.yml`, `refinar.yml` o la cola de `desarrollar.yml`). Una dependencia cerrada como "not planned" no desbloquea: la issue se queda esperando a que lo decidas tú.
 
+En la misma pasada, `desbloquear.yml` cierra los contenedores terminados: épicas, features e historias madre con todas sus sub-issues cerradas. Si después se les añade trabajo, el refinador las reabre.
+
 ## Sincronización con el tablero
 
-Todas las issues se reflejan en el proyecto [Parcela Intel](https://github.com/users/murcialito/projects/1) mediante `sincronizar-tablero.yml`. Este workflow se lanza cuando se abre, cierra, reabre o cambia de etiquetas cualquier issue, y llama a `.github/scripts/sincronizar_tablero.sh`:
+Todas las issues se reflejan en el proyecto [Paso Común](https://github.com/users/murcialito/projects/1) mediante `sincronizar-tablero.yml`. Este workflow se lanza cuando se abre, cierra, reabre o cambia de etiquetas cualquier issue, y llama a `.github/scripts/sincronizar_tablero.sh`:
 
 | Etiqueta o estado de la issue | Columna (Status) |
 | --- | --- |

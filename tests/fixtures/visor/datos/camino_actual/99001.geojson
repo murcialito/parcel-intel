@@ -1,0 +1,89 @@
+{
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      -3.41,
+      40.07
+     ],
+     [
+      -3.4,
+      40.075
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": "camino-sintetico-1",
+   "properties": {
+    "fecha_dato": null,
+    "nombre": null,
+    "procedencia": {
+     "fecha_descarga": "2026-11-26",
+     "fuente": "sintético: fixture de tests de la historia #85 (no son datos reales)",
+     "licencia": "CC BY 4.0",
+     "redistribucion": "publicable",
+     "url": "https://github.com/murcialito/paso-comun"
+    },
+    "tipo": null
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      [
+       -3.43,
+       40.08
+      ],
+      [
+       -3.425,
+       40.085
+      ]
+     ],
+     [
+      [
+       -3.39,
+       40.09
+      ],
+      [
+       -3.385,
+       40.095
+      ]
+     ]
+    ],
+    "type": "MultiLineString"
+   },
+   "id": "camino-sintetico-2",
+   "properties": {
+    "fecha_dato": null,
+    "nombre": null,
+    "procedencia": {
+     "fecha_descarga": "2026-11-26",
+     "fuente": "sintético: fixture de tests de la historia #85 (no son datos reales)",
+     "licencia": "CC BY 4.0",
+     "redistribucion": "publicable",
+     "url": "https://github.com/murcialito/paso-comun"
+    },
+    "tipo": null
+   },
+   "type": "Feature"
+  }
+ ],
+ "properties": {
+  "atribucion": "Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional",
+  "aviso": "cartografía informativa",
+  "capa": "camino_actual",
+  "municipio": "99001",
+  "nombre_municipio": "Municipio sintético A",
+  "procedencia": {
+   "fecha_descarga": "2026-11-26",
+   "fuente": "sintético: fixture de tests de la historia #85 (no son datos reales)",
+   "licencia": "CC BY 4.0",
+   "redistribucion": "publicable",
+   "url": "https://github.com/murcialito/paso-comun"
+  }
+ },
+ "type": "FeatureCollection"
+}

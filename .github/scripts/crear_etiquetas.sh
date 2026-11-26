@@ -2,7 +2,7 @@
 # Crea (o actualiza) las etiquetas del proceso de docs/proceso.md. Idempotente.
 # Uso: .github/scripts/crear_etiquetas.sh [owner/repo]
 set -euo pipefail
-REPO="${1:-murcialito/parcel-intel}"
+REPO="${1:-murcialito/paso-comun}"
 
 etiqueta() { gh label create "$1" -R "$REPO" --color "$2" --description "$3" --force; }
 
@@ -17,6 +17,7 @@ etiqueta "estado:lista"             "0e8a16" "Cumple la Definición de Lista"
 etiqueta "estado:en-desarrollo"     "c5def5" "Un agente la está programando"
 etiqueta "estado:en-revision"       "bfdadc" "PR abierta"
 etiqueta "cambios-pedidos"          "e99695" "La revisión encontró problemas bloqueantes"
+etiqueta "pendiente-local"          "fbca04" "Tests fuera_de_ci por pasar en local: Fusionar espera"
 etiqueta "veto"                     "b60205" "El fundador bloquea el merge automático"
 etiqueta "talla:s"                  "c2e0c6" "Cambio acotado: modelo barato en desarrollo"
 etiqueta "talla:m"                  "fef2c0" "Sigue un patrón existente: modelo intermedio"

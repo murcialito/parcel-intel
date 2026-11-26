@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016  # las variables $x de GraphQL van literales a propósito
 # Migra Parcel Intel a un repo nuevo con el historial purgado, para hacerlo público sin depender
-# de GitHub Support (ADR 0028, docs/runbook-publicacion.md). El repo actual queda privado como
+# de GitHub Support (ADR 0040, docs/runbook-publicacion.md). El repo actual queda privado como
 # archivo de las PRs. Se ejecuta por fases, comprobando cada una antes de la siguiente:
 #
 #   scripts/migrar_a_repo_nuevo.sh <fase> <carpeta-de-trabajo> [--simular]

@@ -22,6 +22,7 @@ from parcel_intel.adapters.livestock_trails import client as livestock_client
 from parcel_intel.adapters.livestock_trails.adapter import LivestockTrailAdapter
 from parcel_intel.adapters.postgis.connection import get_connection
 from parcel_intel.adapters.postgis.rule_repository import PostgisRuleRepository
+from parcel_intel.adapters.published_layers import GeoJsonPublishedLayerSink, PublishedLayerError
 from parcel_intel.adapters.raw_cache import (
     CachedRawFetcher,
     HttpGet,
@@ -44,12 +45,18 @@ from parcel_intel.application.build_municipal_livestock_trail_layers import (
 )
 from parcel_intel.application.build_municipal_road_layers import BuildMunicipalRoadLayersUseCase
 from parcel_intel.application.detect_discrepancies import DetectDiscrepanciesUseCase
+from parcel_intel.application.publish_layers import (
+    DEFAULT_LAYERS,
+    EMPTY_LAYER_REASON,
+    PublishLayersUseCase,
+)
 from parcel_intel.domain.cadastral_road import CadastralRoadLayer
 from parcel_intel.domain.discrepancy_report import LayerStatus
 from parcel_intel.domain.geometry import BBox
 from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
 from parcel_intel.domain.municipal_road_layer import MunicipalRoadLayerBatch
 from parcel_intel.domain.provenance import Provenance
+from parcel_intel.domain.published_layers import PUBLISHED_LAYERS, PublishedLayerId
 from parcel_intel.domain.rule import Rule, WithinDistanceCondition
 from parcel_intel.ports.errors import (
     AreaQueryLimitExceededError,
@@ -73,6 +80,13 @@ Valdelaguna. Configuración del hito, no dominio."""
 
 AMBITO_HITO_BBOX_ETRS89 = (39.98, -3.62, 40.22, -3.15)
 """(lat_min, lon_min, lat_max, lon_max) en EPSG:4258 con el que se pide el WFS del IGN."""
+
+REPOSITORY_URL = "https://github.com/murcialito/paso-comun"
+"""Procedencia del índice de capas publicadas (historia #84)."""
+
+PUBLISH_SIZE_THRESHOLD_BYTES = 3_000_000
+"""Por encima de este peso, `publicar-capas` simplifica la geometría (ADR 0036, umbral de
+producto alineado con #86)."""
 
 
 def _author(args: argparse.Namespace) -> int:
@@ -462,6 +476,90 @@ def _discrepancias(args: argparse.Namespace) -> int:
     return 1 if failed else 0
 
 
+def build_publish_use_case(
+    derived_dir: Path,
+    output_dir: Path,
+    size_threshold_bytes: int = PUBLISH_SIZE_THRESHOLD_BYTES,
+) -> PublishLayersUseCase:
+    """Composition root de `publicar-capas` (historia #84, ADR 0036).
+
+    Lee las mismas capas derivadas que `discrepancias` y escribe en `output_dir`
+    (normalmente `site/datos`). Sin red."""
+    return PublishLayersUseCase(
+        layers=GeoJsonTrailLayerReader(
+            {
+                "via_pecuaria_oficial": derived_dir / "vias_pecuarias",
+                "ign_red_transporte": derived_dir / "camino_actual",
+            }
+        ),
+        sink=GeoJsonPublishedLayerSink(
+            output_dir, REPOSITORY_URL, size_threshold_bytes=size_threshold_bytes
+        ),
+    )
+
+
+_REGENERATE_HINT = (
+    "regenera la capa con vias-pecuarias-municipios --sin-red "
+    "o camino-actual-municipios --sin-red"
+)
+_EMPTY_LAYER_HINT = (
+    "si la capa sigue vacía, regenerarla no basta: la procedencia de la colección "
+    "no es publicable y hay que resolverla en origen"
+)
+
+
+def _publicar_capas(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        print("Indica --municipio <INE> (repetible) o --ambito.", file=sys.stderr)
+        return 2
+    layer_ids: list[PublishedLayerId] = []
+    for layer_id in args.capa or DEFAULT_LAYERS:
+        if layer_id not in layer_ids:
+            layer_ids.append(layer_id)
+    use_case = build_publish_use_case(
+        args.entrada, args.salida, size_threshold_bytes=PUBLISH_SIZE_THRESHOLD_BYTES
+    )
+    try:
+        result = use_case.execute(codes, layer_ids)
+    except TrailLayerFormatError as error:
+        print(
+            f"ERROR fichero corrupto {error.path} (fuente {error.source}): {error.detail}; "
+            "no se ha publicado nada",
+            file=sys.stderr,
+        )
+        return 1
+    except (PublishedLayerError, OSError) as error:
+        print(f"ERROR al publicar: {error}; no se ha publicado nada", file=sys.stderr)
+        return 1
+    for failure in result.failures:
+        hint = ""
+        if failure.reason.startswith("no redistribuible"):
+            hint = f"; {_REGENERATE_HINT}"
+            if EMPTY_LAYER_REASON in failure.reason:
+                hint += f" ({_EMPTY_LAYER_HINT})"
+        print(
+            f"ERROR {failure.layer_id} {failure.municipality_code}: {failure.reason}{hint}",
+            file=sys.stderr,
+        )
+    if result.failures:
+        print(f"No se ha escrito nada en {args.salida}.", file=sys.stderr)
+        return 1
+    for layer_id, code in result.empty:
+        print(f"capa vacía, no se publica: {layer_id} {code}")
+    for published in result.published:
+        print(f"publicada {args.salida / published.path} {published.size_bytes} bytes")
+        if published.simplification is not None:
+            print(
+                f"  simplificada con tolerancia {published.simplification.tolerance_m} m "
+                f"(antes {published.simplification.bytes_before} bytes)"
+            )
+        if published.over_threshold:
+            print("  AVISO: sigue por encima del umbral")
+    return 0
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="parcel_intel.cli.main")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -582,6 +680,41 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio de salida (interno/ y publicable/)",
     )
     discrepancias_parser.set_defaults(func=_discrepancias)
+
+    publicar_parser = subparsers.add_parser(
+        "publicar-capas",
+        help="Publica vías pecuarias y camino actual en site/datos (EPSG:4326, con procedencia)",
+    )
+    publicar_parser.add_argument(
+        "--municipio",
+        type=_municipality_code,
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible)",
+    )
+    publicar_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito"
+    )
+    publicar_parser.add_argument(
+        "--capa",
+        choices=sorted(PUBLISHED_LAYERS),
+        action="append",
+        default=[],
+        help="Capa a publicar (repetible; por defecto, todas)",
+    )
+    publicar_parser.add_argument(
+        "--entrada",
+        type=Path,
+        default=Path("data/derived"),
+        help="Directorio con las capas derivadas (vias_pecuarias/, camino_actual/)",
+    )
+    publicar_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("site/datos"),
+        help="Directorio publicado del sitio",
+    )
+    publicar_parser.set_defaults(func=_publicar_capas)
 
     return parser
 

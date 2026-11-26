@@ -379,3 +379,40 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: el WFS y `Consulta_DNPPP` del Catastro (`ovc.catastro.meh.es`) cortan la conexión (`Connection reset by peer`) desde los runners de GitHub Actions, aunque la raíz responda (400 a un GetCapabilities sin parámetros). Un criterio `[integración]` contra el Catastro real no puede verificarse en el agente; hay que ejecutarlo desde una máquina con acceso.
   - **Aplica a**: BA | implementación.
+## [2026-11-26] Historia #84 — Publicar capas en site/datos
+
+- **Lección**: una puerta "denegar por defecto" (aquí `PublishableLayer` con `layer_provenance`) también rechaza los casos degenerados que nadie miró, y el rechazo sale con el mensaje del caso común. La capa de vías pecuarias **vacía** toma la procedencia del límite del IGN (uso interno) porque no hay consulta de IDEM de la que tomarla. Se rechaza como «no redistribuible» y el mensaje sugiere regenerarla, lo que no arregla nada. Le pasa a Belmonte de Tajo (28019) en los datos reales, así que `publicar-capas --ambito` sale con 1.
+  - **Causa**: el CA13 («capa vacía, no se publica») se probó con una capa vacía sintética con procedencia publicable. Nadie ejecutó el comando sobre la capa vacía real que escribe #83.
+  - **Aplica a**: arquitecto y BA (al fijar el caso "vacío" de una capa que pasa por una puerta de licencia, decir de dónde sale su procedencia en el dato real) | implementación (ejecutar el comando nuevo sobre todos los municipios reales del ámbito, no solo sobre el del criterio, y anotar lo que falle).
+
+- **Lección**: un adapter que empieza a marcar `PUBLIC` en origen rompe tests de otras historias que fijaban "el adapter no marca" (#22 CA5 y CA8) y los literales de procedencia de los escritores (#83 CA3). Se actualiza el literal o se construye el caso sintético con la marca explícita. No se relaja la aserción ni se toca el docstring del criterio.
+  - **Aplica a**: implementación (antes de cambiar qué marca un adapter, `grep` de `Redistribution.` y de `"licencia"` en `tests/acceptance/`).
+
+## [2026-11-26] Historia #54 — Congelar el conjunto de validación
+
+- **Lección**: una historia que congela un conjunto con mínimos fijos (10 casos, 5 en el ámbito) puede quedar por delante de las que lo rellenan: #53 rebajó los mínimos a 6/2 por decisión del fundador y `casos.json` tiene hoy 6 casos y 2 en el ámbito. Se entrega la herramienta (huella, integridad, workflow) pero no `CONGELADO.md`, y la historia pasa a `estado:necesita-fundador`.
+  - **Causa**: el criterio de #54 copia los mínimos del comentario original de #51; la rebaja posterior solo quedó escrita en #53.
+  - **Aplica a**: BA (al rebajar un mínimo en una historia, buscar y actualizar las historias que dependen de él) | implementación (comprobar los recuentos reales de `casos.json` antes de congelar).
+
+- **Lección**: el test de integridad del repo real debe pasar mientras no exista ningún `CONGELADO*.md` (solo valida `casos.json`) y ser estricto en cuanto exista el primero; así no bloquea CI durante la recopilación.
+  - **Aplica a**: implementación.
+
+## [2026-11-26] Historia #85 — Visor estático con Leaflet
+
+- **Lección**: en Leaflet, "texto" no es texto. `bindPopup("…")` y `control.attribution().addAttribution("…")` insertan la cadena como **HTML**. Para mostrar datos o atribuciones como texto plano hay que pasar a `bindPopup` una función que devuelva un nodo construido con `textContent`, y escapar cada atribución antes de `addAttribution`. El diseño decía «texto plano» sin decir cómo lo consigue la librería.
+  - **Aplica a**: implementación (cualquier librería de mapas: leer cómo inserta cada contenido antes de darle datos externos) | review (buscar cadenas pasadas a `bindPopup`, `setContent` o `addAttribution`).
+
+- **Lección**: para probar módulos ES del sitio con `node --test` sin poner `package.json` en `site/` (sería un `.json` sin procedencia), se copian a un directorio temporal junto a un `package.json` `{"type": "module"}`. Renombrarlos a `.mjs` rompe los `import "./x.js"` entre módulos. El DOM se inyecta (`crearVista(document)`), para probarlo con un documento falso que lance en `innerHTML`.
+  - **Aplica a**: implementación (código JS del visor) | arquitecto (al diseñar módulos del navegador, dejar el `document` inyectable).
+
+- **Lección**: en las Actions de los agentes no se puede lanzar un navegador sin cabeza (`chromium`, `google-chrome` piden aprobación). La comprobación en un navegador real queda como paso manual anotado en la PR; los tests cubren el visor con un `L` falso, así que un error de uso de la API real de Leaflet solo se ve en el navegador.
+  - **Aplica a**: implementación (anotar en la PR qué no se pudo ver) | fundador (abrir la URL de Pages tras el despliegue).
+
+## [2026-11-26] Historia #50 — Guardia de curated/** en fusionar.yml
+
+- **Lección**: en las Actions de los agentes `chmod` y `sed -i` sobre ficheros del repo piden aprobación. Los scripts nuevos de `.github/scripts/` se invocan con `bash fichero.sh` (en el workflow y en los tests), no por su ruta, para no depender del bit de ejecución. Y un test que busca `gh pr merge` en `fusionar.yml` encuentra primero el comentario de cabecera: se ancla a la orden real (`gh pr merge "$pr"`).
+  - **Aplica a**: implementación (scripts de shell y tests que leen workflows).
+
+- **Lección**: la lógica de decisión de un workflow (aquí «¿toca `curated/`?» y «¿aprobó el fundador el último commit?») se extrae a scripts que leen stdin; así se prueba con JSON fijo sin red y el YAML solo la invoca.
+  - **Aplica a**: arquitecto | implementación.
+

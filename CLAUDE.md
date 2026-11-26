@@ -1,4 +1,6 @@
-# Parcel Intel
+# Paso Común
+
+Nombre público del proyecto desde el 2026-11-26 (antes «Parcel Intel»). Repo `murcialito/paso-comun`; sitio en `https://murcialito.github.io/paso-comun/`. El paquete Python sigue llamándose `parcel_intel` y no se renombra.
 
 Herramienta abierta y sin ánimo de lucro para la defensa de caminos públicos: reconstruye qué trazados deberían ser públicos (vías pecuarias oficiales, Catastro, cartografía histórica) y señala los tramos donde hoy parecen desaparecer o quedar dentro de una finca cerrada. Principios innegociables: el sistema señala **indicios a verificar**, con confianza y evidencia — nunca ilegalidades ni dictámenes; **nunca se nombra a propietarios**; las reglas propuestas por IA requieren aprobación humana antes de usarse.
 
@@ -83,6 +85,11 @@ uv run python -m parcel_intel.cli.main catastro-caminos ... --sin-red        # s
 # y escribe data/derived/discrepancias/{interno,publicable}/<ine>.geojson (el interno NUNCA se publica). Sin red. Sale con 1 si algún municipio falla.
 uv run python -m parcel_intel.cli.main discrepancias --municipio 28043 [--municipio ...]
 uv run python -m parcel_intel.cli.main discrepancias --ambito                # los 7 municipios del primer hito
+
+# Publicar vías pecuarias y camino actual en site/datos/<capa>/<ine>.geojson (historia #84, ADR 0036): EPSG:4326, cada fichero
+# con su .procedencia.json, e índice site/datos/indice.json. Sin red. Todo o nada: sale con 1 y no escribe si una capa falta o no es publicable.
+uv run python -m parcel_intel.cli.main publicar-capas --municipio 28043 [--municipio ...] [--capa vias_pecuarias|camino_actual]
+uv run python -m parcel_intel.cli.main publicar-capas --ambito
 ```
 
 ## Contexto de negocio (resumen)

@@ -122,6 +122,22 @@ Es decir, el mismo bbox pequeño (parcela real + 2 m) intersecta **tres polígon
 
 **Implicación para el módulo de datación:** la serie histórica real empieza en 1956 y tiene cobertura anual completa desde 2004 — mejor granularidad de la que asumía `docs/vision.md` ("~cada pocos años").
 
+### WMTS (visor, historia #85) — `confirmado`
+
+Mapa base del visor estático (`site/config.js`, ADR 0037). Verificado por el arquitecto y de nuevo por el desarrollador el 2026-11-26, con peticiones reales (`User-Agent: parcel-intel-verificacion/0.1`).
+
+- **Servicio:** WMTS 1.0.0 `https://www.ign.es/wmts/pnoa-ma`, capa `OI.OrthoimageCoverage`, estilo `default`, `tilematrixset=GoogleMapsCompatible` (EPSG:3857, el de Leaflet por defecto), `image/jpeg`, niveles 0-19.
+- **Solo KVP:** el `GetCapabilities` declara `<ows:Value>KVP</ows:Value>` y no trae `ResourceURL` REST. Plantilla usada: `https://www.ign.es/wmts/pnoa-ma?service=WMTS&request=GetTile&version=1.0.0&layer=OI.OrthoimageCoverage&style=default&tilematrixset=GoogleMapsCompatible&format=image/jpeg&tilematrix={z}&tilerow={y}&tilecol={x}`.
+- **Petición real:** `GetCapabilities` → 200 (116.001 bytes en la pasada del arquitecto; 112.782 bytes en la del desarrollador, fixture `tests/fixtures/pnoa/wmts_pnoa_ma_getcapabilities.xml`). `GetTile` z=15 x=16075 y=12392 → `200 image/jpeg`, 22.052 bytes, `geowebcache-tile-bounds` −377904,67 / 4880962,88 − −376681,68 / 4882185,87 (EPSG:3857), casco urbano de Colmenar de Oreja → fixture `tests/fixtures/pnoa/wmts_pnoa_ma_colmenar_z15.jpg` (no se publica en `site/`). z=19 también responde (`200 image/jpeg`).
+- **Cabeceras útiles:** `access-control-allow-origin: *`, `cache-control: max-age=31536000`, servido por CloudFront. Sin clave ni `Referer`.
+- **Licencia:** `ows:AccessConstraints` = `CC BY 4.0 scne.es`; `ows:Fees` = `No se aplican condiciones` (no es la licencia, lección 0021). La licencia es la del documento del IGN (`https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf`), CC BY 4.0, con atribución visible junto a los datos. No se encontró ninguna condición que limite su uso en un visor web público.
+- **Atribución exacta** (tabla de productos del SCNE, `https://www.scne.es/tablaProductos.php`, leída en bruto el 2026-11-26). El servicio combina el PNOA de máxima actualidad a escalas grandes y el mosaico Sentinel-2 a escalas pequeñas:
+  - fila «Ortofotos PNOA anuales», producto `PNOA`, fecha `2023` → `PNOA 2023 CC-BY 4.0 scne.es` (vuelo de julio de 2023 en el ámbito: `GetFeatureInfo` de `OI.MosaicElement` en Colmenar `467400,4441800,467800,4442200` EPSG:25830 → «Fecha 2023-07», repetido el 2026-11-26);
+  - fila «MosaicoSentinel2», fecha `2018-2026` → `MosaicoSentinel2 2018-2026 CC-BY 4.0 ign.es`.
+  Las teselas se muestran sin transformar, así que va la forma sin «Obra derivada de». El visor muestra las dos siempre.
+- **IGN-Base** (`https://www.ign.es/wmts/ign-base`): responde con `CC BY 4.0 scne.es`, pero no se usa (atribución de producto sin verificar; el fundador pidió la ortofoto). Queda como alternativa.
+- **Caducidad del año:** la tabla del SCNE ya lista un vuelo PNOA 2024 con la Comunidad de Madrid entre los organismos, pero el servicio sigue sirviendo 2023-07 en Colmenar. Cuando cambie, el criterio `[integración]` CA10 de `tests/acceptance/test_historia_85.py` falla y hay que actualizar `NOTICE`, este registro y `site/config.js` juntos.
+
 ---
 
 ## BOE
@@ -481,7 +497,7 @@ Historia #35, ADR 0030. Petición real repetida el 2026-11-26 (la primera, el 20
   - Prohíbe la difusión de la información original: no puede difundirse "por Internet ni por ningún otro medio sin su previa transformación".
   - Exige que la transformación no altere ni desnaturalice el contenido, y que el producto no se identifique como "cartografía catastral" ni "información catastral".
   - La información distribuida a terceros "carecerá de fehaciencia" y quien la distribuye soporta las reclamaciones de terceros.
-  - **Consecuencia:** el mapa no puede servir las parcelas catastrales tal cual. Sí puede publicar una capa propia derivada (p. ej. "trazado de camino inferido", que combina la geometría de las parcelas `VT` con otras fuentes), con un nombre que no la confunda con cartografía catastral. Si basta con simplificar o filtrar para que cuente como "transformación" en el sentido del artículo 21 de la Ley de Propiedad Intelectual es una cuestión jurídica abierta: **consultar antes de publicar**.
+  - **Consecuencia:** el mapa no puede servir las parcelas catastrales tal cual. Sí puede publicar una capa propia derivada (p. ej. "trazado de camino inferido", que combina la geometría de las parcelas `VT` con otras fuentes), con un nombre que no la confunda con cartografía catastral. Si basta con simplificar o filtrar para que cuente como "transformación" en el sentido del artículo 21 de la Ley de Propiedad Intelectual es una cuestión jurídica abierta: **consultar antes de publicar** esa geometría. Lo derivado que no reproduce la información original (indicios, señales y candidatos sobre un trazado) sí se publica, con fuente, fecha de consulta y aviso de no fehaciencia (ADR 0041).
 - **Catastro, servicios web de datos no protegidos (`Consulta_DNPPP` y demás de la OVC)** — su ficha de datos.gob.es remite como "Condiciones de uso" a `https://www.catastro.hacienda.gob.es/pdf/ovc/licdescargaES.pdf`, la "Licencia de descarga de productos catastrales" (PDF de 2011, leída el 2026-11-26). Dice lo mismo que la licencia INSPIRE: no se autoriza el uso público ni la difusión de la información original (cláusula 5), y en ningún caso se puede difundir por Internet sin transformarla (cláusula 8). Sí se permite el uso público de la información transformada, citando a la Dirección General del Catastro y la fecha de acceso (cláusula 12). Ante un incumplimiento, Catastro primero requiere que cese el uso, con un plazo de 10 a 15 días; si no se atiende, revoca la licencia y puede aplicar el régimen sancionador del art. 11 de la Ley 37/2007 (cláusulas 26 y 27).
 - **Discrepancia en los catálogos:** el registro de metadatos de IDEE para las parcelas INSPIRE (`ES_SDGC_CP`) declara "CC BY 4.0 DG Catastro", pero también "otras restricciones". La página INSPIRE de Catastro sigue enlazando la licencia v1.0 de 2016, sin mención a CC BY. Mientras Catastro no lo confirme, manda su propia licencia.
 - **Consecuencia para el repo:** las 27 fixtures crudas de `tests/fixtures/catastro/` y `tests/fixtures/caminos/catastro_*` son información original. Por las dos licencias, no pueden quedar accesibles en un repo público. Se sustituyen por fixtures sintéticas (#45) y se purgan del historial (#44, `docs/runbook-publicacion.md`).
@@ -489,7 +505,7 @@ Historia #35, ADR 0030. Petición real repetida el 2026-11-26 (la primera, el 20
 
 ### Catastro — cómo aparecen los caminos en rústico — `confirmado`
 
-> Las respuestas crudas de esta verificación se retiraron del repo y de su historial el 2026-11-26, porque las licencias de Catastro prohíben difundirlas sin transformar (ADR 0035). Lo comprobado sigue descrito aquí; para repetirlo hay que volver a consultar los servicios.
+> Las respuestas crudas de esta verificación se retiraron del repo y de su historial el 2026-11-26, porque las licencias de Catastro prohíben difundirlas sin transformar (ADR 0040). Lo comprobado sigue descrito aquí; para repetirlo hay que volver a consultar los servicios.
 
 La verificación real se hizo contra el servicio el 2026-11-25 (historia 0021): un `GetFeature` al WFS de parcelas sobre 600×600 m de rústico en Colmenar devolvió 51 parcelas. Los caminos son **parcelas propias con número 9000 o superior** dentro de cada polígono (cuatro en esa ventana). `Consulta_DNPPP` sobre cada una devuelve una subparcela de clase **`VT` — "VÍA DE COMUNICACIÓN DE DOMINIO PÚBLICO"** y su superficie; la parcela de control (la 1 del polígono 1) da en cambio `C-` "LABOR O LABRADÍO SECANO". Además, `areaValue` del WFS y `ssp` de DNPPP **pueden diferir** en un mismo camino (en el dato real, 8.595 frente a 8.604 m² en uno de ellos).
 
@@ -548,7 +564,7 @@ Búsqueda del 2026-11-25 en la web general y en el BOCM indexado, por "inventari
 
 ## Planimetría de Colmenar y MTN50 0606: acceso y georreferenciabilidad
 
-Verificado el 2026-11-25 para la [historia #17](https://github.com/murcialito/parcel-intel/issues/17) (feature #11). Pregunta: ¿se pueden obtener la planimetría de Colmenar de Oreja (doc. 280075, 1875) y la hoja MTN50 0606 (1881) a una resolución útil, y georreferenciarlas? Datos en `tests/fixtures/caminos/planimetrias/` (`verificacion.json`, recortes de 1 km, procedencia de las imágenes completas y ficha del Centro de Descargas). Script puntual: `scripts/verificar_planimetrias.py`. Imágenes completas (ventana de 5×5 km, 2000×2000 px, 2,5 m/px) en `data/raw/ign_planimetrias/`, fuera de git, con su `*.provenance.json` (URL exacta, fecha, SHA-256, licencia).
+Verificado el 2026-11-25 para la [historia #17](https://github.com/murcialito/paso-comun/issues/17) (feature #11). Pregunta: ¿se pueden obtener la planimetría de Colmenar de Oreja (doc. 280075, 1875) y la hoja MTN50 0606 (1881) a una resolución útil, y georreferenciarlas? Datos en `tests/fixtures/caminos/planimetrias/` (`verificacion.json`, recortes de 1 km, procedencia de las imágenes completas y ficha del Centro de Descargas). Script puntual: `scripts/verificar_planimetrias.py`. Imágenes completas (ventana de 5×5 km, 2000×2000 px, 2,5 m/px) en `data/raw/ign_planimetrias/`, fuera de git, con su `*.provenance.json` (URL exacta, fecha, SHA-256, licencia).
 
 ### Hallazgos
 
@@ -589,7 +605,7 @@ CC BY 4.0 por la Orden FOM/2807/2015 y la licencia de uso del IGN (ver "Detalle 
 
 ## Vías pecuarias — clasificación y deslinde por municipio (historia #26)
 
-Verificado el 2026-11-25 para la [historia #26](https://github.com/murcialito/parcel-intel/issues/26) (feature #9, pendiente heredada de la historia 0021). Pregunta: para los 7 municipios del ámbito, ¿hay orden de clasificación y deslinde aprobados, y dónde se publican? **Respuesta corta: no se ha podido verificar para ninguno de los 7.** No es que no existan: el canal donde se publican (BOCM) no es consultable por búsqueda desde esta pasada. Las fixtures están en `tests/fixtures/caminos/`.
+Verificado el 2026-11-25 para la [historia #26](https://github.com/murcialito/paso-comun/issues/26) (feature #9, pendiente heredada de la historia 0021). Pregunta: para los 7 municipios del ámbito, ¿hay orden de clasificación y deslinde aprobados, y dónde se publican? **Respuesta corta: no se ha podido verificar para ninguno de los 7.** No es que no existan: el canal donde se publican (BOCM) no es consultable por búsqueda desde esta pasada. Las fixtures están en `tests/fixtures/caminos/`.
 
 ### Canales consultados — `confirmado`
 
@@ -696,7 +712,24 @@ Consulta real del **2026-11-26**, `https://api-features.idee.es/collections/road
 
 ### Licencia y atribución
 
-CC BY 4.0, confirmada en la historia #24 (sección anterior). La capa lleva la atribución «Obra derivada de red de transporte IGN CC-BY 4.0 ign.es», texto fijado por el criterio CA4 de #27; **difiere** de la forma recomendada arriba («Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional») y debe unificarse con el fundador antes de publicar. El fichero lleva además el aviso «cartografía informativa».
+CC BY 4.0, confirmada en la historia #24 (sección anterior). El fichero derivado interno (`data/derived/camino_actual/`) lleva la atribución «Obra derivada de red de transporte IGN CC-BY 4.0 ign.es», texto fijado por el criterio CA4 de #27. El fichero derivado lleva además el aviso «cartografía informativa».
+
+**Unificada al publicar (historia #84, ADR 0036)**: lo publicado en `site/datos/camino_actual/` lleva la atribución de `NOTICE`, «Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional» (ADR 0035: lo que ve el público es `NOTICE`). El fichero derivado interno no cambia.
+
+### Publicación en `site/datos/` (historia #84)
+
+Ejecución real del 2026-11-26: `vias-pecuarias-municipios` y `camino-actual-municipios` con red, y después `publicar-capas --municipio 28043`. Recuentos iguales al oráculo (19 vías pecuarias, #36/#83; 893 tramos, #27). Desde #84 las procedencias del formato común llevan `redistribucion`; los ficheros derivados anteriores se leen como de uso interno y hay que regenerarlos (`--sin-red` basta).
+
+| Fichero | Features | Bytes |
+| --- | ---: | ---: |
+| `site/datos/vias_pecuarias/28043.geojson` | 19 | 82 800 |
+| `site/datos/vias_pecuarias/28043.geojson.procedencia.json` | — | 1 028 |
+| `site/datos/camino_actual/28043.geojson` | 893 | 1 007 584 |
+| `site/datos/camino_actual/28043.geojson.procedencia.json` | — | 1 244 |
+| `site/datos/indice.json` | 1 municipio | 215 |
+| `site/datos/indice.json.procedencia.json` | — | 205 |
+
+Ningún fichero supera el umbral de simplificación (3 000 000 bytes). Belmonte de Tajo (28019) no tiene piezas de vías pecuarias, y su capa vacía lleva la procedencia del límite del IGN (uso interno), así que hoy no se puede publicar. Queda para #86 (ADR 0036, notas de implementación).
 
 ---
 

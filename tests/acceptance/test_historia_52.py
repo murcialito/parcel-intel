@@ -80,10 +80,11 @@ def test_ca6_casos_hito_del_ambito_y_no_sinteticos() -> None:
 
 
 def test_ca9_casos_json_real_cumple_todo_sin_exigir_minimo() -> None:
-    """El `casos.json` real pasa `validar_casos`, todos los casos de esta historia tienen
-    `ambito: "hito"` y `municipio` del ámbito. El test no exige 5 casos."""
+    """El `casos.json` real pasa `validar_casos`; los casos `ambito: "hito"` (los de esta
+    historia) tienen `municipio` del ámbito. El test no exige 5 casos. Desde #53 el fichero
+    también lleva casos `comunidad`, que no se comprueban aquí."""
     datos = _datos()
     assert validar_casos(datos) == []
     for caso in datos["casos"]:
-        assert caso["ambito"] == "hito"
-        assert caso["municipio"] in MUNICIPIOS_HITO
+        if caso["ambito"] == "hito":
+            assert caso["municipio"] in MUNICIPIOS_HITO

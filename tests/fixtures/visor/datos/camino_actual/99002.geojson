@@ -1,0 +1,48 @@
+{
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      -3.36,
+      40.06
+     ],
+     [
+      -3.35,
+      40.065
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": "camino-sintetico-3",
+   "properties": {
+    "fecha_dato": null,
+    "nombre": null,
+    "procedencia": {
+     "fecha_descarga": "2026-11-26",
+     "fuente": "sintético: fixture de tests de la historia #85 (no son datos reales)",
+     "licencia": "CC BY 4.0",
+     "redistribucion": "publicable",
+     "url": "https://github.com/murcialito/paso-comun"
+    },
+    "tipo": null
+   },
+   "type": "Feature"
+  }
+ ],
+ "properties": {
+  "atribucion": "Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional",
+  "aviso": "cartografía informativa",
+  "capa": "camino_actual",
+  "municipio": "99002",
+  "nombre_municipio": "Municipio sintético B",
+  "procedencia": {
+   "fecha_descarga": "2026-11-26",
+   "fuente": "sintético: fixture de tests de la historia #85 (no son datos reales)",
+   "licencia": "CC BY 4.0",
+   "redistribucion": "publicable",
+   "url": "https://github.com/murcialito/paso-comun"
+  }
+ },
+ "type": "FeatureCollection"
+}

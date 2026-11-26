@@ -1,0 +1,131 @@
+{
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      [
+       -3.4,
+       40.08
+      ],
+      [
+       -3.398,
+       40.08
+      ],
+      [
+       -3.398,
+       40.082
+      ],
+      [
+       -3.4,
+       40.082
+      ],
+      [
+       -3.4,
+       40.08
+      ]
+     ]
+    ],
+    "type": "Polygon"
+   },
+   "id": "via-sintetica-1",
+   "properties": {
+    "fecha_dato": null,
+    "nombre": "Cordel sintético de prueba",
+    "procedencia": {
+     "fecha_descarga": "2026-11-26",
+     "fuente": "sintético: fixture de tests de la historia #85 (no son datos reales)",
+     "licencia": "CC BY 4.0",
+     "redistribucion": "publicable",
+     "url": "https://github.com/murcialito/paso-comun"
+    },
+    "tipo": "Cordel"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      [
+       [
+        -3.42,
+        40.09
+       ],
+       [
+        -3.418,
+        40.09
+       ],
+       [
+        -3.418,
+        40.092000000000006
+       ],
+       [
+        -3.42,
+        40.092000000000006
+       ],
+       [
+        -3.42,
+        40.09
+       ]
+      ]
+     ],
+     [
+      [
+       [
+        -3.38,
+        40.1
+       ],
+       [
+        -3.378,
+        40.1
+       ],
+       [
+        -3.378,
+        40.102000000000004
+       ],
+       [
+        -3.38,
+        40.102000000000004
+       ],
+       [
+        -3.38,
+        40.1
+       ]
+      ]
+     ]
+    ],
+    "type": "MultiPolygon"
+   },
+   "id": "via-sintetica-2",
+   "properties": {
+    "fecha_dato": null,
+    "nombre": "Vereda sintética multiparte",
+    "procedencia": {
+     "fecha_descarga": "2026-11-26",
+     "fuente": "sintético: fixture de tests de la historia #85 (no son datos reales)",
+     "licencia": "CC BY 4.0",
+     "redistribucion": "publicable",
+     "url": "https://github.com/murcialito/paso-comun"
+    },
+    "tipo": "Vereda"
+   },
+   "type": "Feature"
+  }
+ ],
+ "properties": {
+  "atribucion": "CC BY 4.0 Comunidad de Madrid",
+  "aviso": "cartografía informativa, no deslinde",
+  "capa": "vias_pecuarias",
+  "municipio": "99001",
+  "nombre_municipio": "Municipio sintético A",
+  "procedencia": {
+   "fecha_descarga": "2026-11-26",
+   "fuente": "sintético: fixture de tests de la historia #85 (no son datos reales)",
+   "licencia": "CC BY 4.0",
+   "redistribucion": "publicable",
+   "url": "https://github.com/murcialito/paso-comun"
+  }
+ },
+ "type": "FeatureCollection"
+}

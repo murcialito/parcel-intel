@@ -1,0 +1,62 @@
+{
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      [
+       -3.3,
+       40.04
+      ],
+      [
+       -3.298,
+       40.04
+      ],
+      [
+       -3.298,
+       40.042
+      ],
+      [
+       -3.3,
+       40.042
+      ],
+      [
+       -3.3,
+       40.04
+      ]
+     ]
+    ],
+    "type": "Polygon"
+   },
+   "id": "via-sintetica-3",
+   "properties": {
+    "fecha_dato": null,
+    "nombre": "Colada sintética",
+    "procedencia": {
+     "fecha_descarga": "2026-11-26",
+     "fuente": "sintético: fixture de tests de la historia #85 (no son datos reales)",
+     "licencia": "CC BY 4.0",
+     "redistribucion": "publicable",
+     "url": "https://github.com/murcialito/paso-comun"
+    },
+    "tipo": "Colada"
+   },
+   "type": "Feature"
+  }
+ ],
+ "properties": {
+  "atribucion": "CC BY 4.0 Comunidad de Madrid",
+  "aviso": "cartografía informativa, no deslinde",
+  "capa": "vias_pecuarias",
+  "municipio": "99004",
+  "nombre_municipio": "Municipio sintético D",
+  "procedencia": {
+   "fecha_descarga": "2026-11-26",
+   "fuente": "sintético: fixture de tests de la historia #85 (no son datos reales)",
+   "licencia": "CC BY 4.0",
+   "redistribucion": "publicable",
+   "url": "https://github.com/murcialito/paso-comun"
+  }
+ },
+ "type": "FeatureCollection"
+}

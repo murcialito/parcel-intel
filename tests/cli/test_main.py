@@ -7,6 +7,7 @@ import requests
 
 from parcel_intel.cli import main
 from parcel_intel.domain.norm import Norm, Provision
+from parcel_intel.domain.published_layers import PublicationResult
 from parcel_intel.domain.rule import (
     AttributeCondition,
     LlmUsage,
@@ -259,3 +260,65 @@ def test_review_reject_exitoso(capsys: pytest.CaptureFixture[str]) -> None:
 
     assert exit_code == 0
     assert _FakeRuleRepository.rejected == ["madrid-proposed-dph_cauce-aaaaaaaa"]
+
+
+
+class _FakePublishUseCase:
+    def __init__(self) -> None:
+        self.calls: list[tuple[list[str], list[str]]] = []
+
+    def execute(self, codes: list[str], layer_ids: list[str]) -> PublicationResult:
+        self.calls.append((list(codes), list(layer_ids)))
+        return PublicationResult(published=(), empty=(), failures=())
+
+
+def _patch_publish(monkeypatch: pytest.MonkeyPatch) -> _FakePublishUseCase:
+    fake = _FakePublishUseCase()
+    monkeypatch.setattr(main, "build_publish_use_case", lambda *args, **kwargs: fake)
+    return fake
+
+
+def test_publicar_capas_sin_municipio_sale_con_2(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fake = _patch_publish(monkeypatch)
+    args = main._build_parser().parse_args(["publicar-capas"])
+
+    assert args.func(args) == 2
+    assert fake.calls == []
+    assert "--ambito" in capsys.readouterr().err
+
+
+def test_publicar_capas_ambito_pide_los_7_municipios_y_ambas_capas(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake = _patch_publish(monkeypatch)
+    args = main._build_parser().parse_args(["publicar-capas", "--ambito", "--municipio", "28043"])
+
+    assert args.func(args) == 0
+    assert fake.calls == [(list(main.AMBITO_HITO_INE), ["vias_pecuarias", "camino_actual"])]
+
+
+def test_publicar_capas_una_capa_sin_repetidos(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake = _patch_publish(monkeypatch)
+    args = main._build_parser().parse_args(
+        [
+            "publicar-capas",
+            "--municipio",
+            "28043",
+            "--municipio",
+            "28043",
+            "--capa",
+            "camino_actual",
+            "--capa",
+            "camino_actual",
+        ]
+    )
+
+    assert args.func(args) == 0
+    assert fake.calls == [(["28043"], ["camino_actual"])]
+
+
+def test_publicar_capas_rechaza_una_capa_desconocida() -> None:
+    with pytest.raises(SystemExit):
+        main._build_parser().parse_args(["publicar-capas", "--ambito", "--capa", "catastro"])

@@ -1,0 +1,18 @@
+{
+ "features": [],
+ "properties": {
+  "atribucion": "CC BY 4.0 Comunidad de Madrid",
+  "aviso": "cartografía informativa, no deslinde",
+  "capa": "vias_pecuarias",
+  "municipio": "99002",
+  "nombre_municipio": "Municipio sintético B",
+  "procedencia": {
+   "fecha_descarga": "2026-11-26",
+   "fuente": "sintético: fixture de tests de la historia #85 (no son datos reales)",
+   "licencia": "CC BY 4.0",
+   "redistribucion": "publicable",
+   "url": "https://github.com/murcialito/paso-comun"
+  }
+ },
+ "type": "FeatureCollection"
+}

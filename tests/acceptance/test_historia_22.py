@@ -142,7 +142,8 @@ def test_ca5_contratos_en_verde_e_informe_por_parcela_sin_cambios() -> None:
     assert len(from_adapter) == 15
     # Historia #36 (CA7): el adapter ya rellena la licencia en origen.
     assert all(t.provenance.license == _LICENSE for t in from_adapter)
-    assert all(t.provenance.redistribution is Redistribution.INTERNAL_ONLY for t in from_adapter)
+    # Historia #84 (ADR 0036): el adapter marca la procedencia `PUBLIC` en origen.
+    assert all(t.provenance.redistribution is Redistribution.PUBLIC for t in from_adapter)
 
 
 def test_ca6_quince_tramos_reales_diez_vias_cinco_anejos_y_multiparte() -> None:
@@ -229,9 +230,16 @@ def test_ca8_licencia_ausente_se_rellena_y_otra_licencia_falla() -> None:
     assert converted.provenance.url == source.provenance.url
     assert converted.provenance.retrieved_at == source.provenance.retrieved_at
 
-    # Sintético: licencia inventada, distinta de la leída en REGISTRY.md.
+    # Sintético: licencia inventada, distinta de la leída en REGISTRY.md. Desde #84 el
+    # adapter marca `PUBLIC` en origen; se parte de una procedencia sin marcar para seguir
+    # comprobando que la conversión no la marca.
     other = dataclasses.replace(
-        source, provenance=dataclasses.replace(source.provenance, license="CC BY-NC 4.0")
+        source,
+        provenance=dataclasses.replace(
+            source.provenance,
+            license="CC BY-NC 4.0",
+            redistribution=Redistribution.INTERNAL_ONLY,
+        ),
     )
     with pytest.raises(InvalidTrailError, match="provenance.license"):
         livestock_trail_to_trail(other)
