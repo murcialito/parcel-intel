@@ -227,3 +227,37 @@ class NoLandClassificationFoundError(Exception):
     def __init__(self, bbox: tuple[float, float, float, float]) -> None:
         super().__init__(f"Ninguna clasificación de suelo encontrada para el bbox: {bbox}")
         self.bbox = bbox
+
+
+class CadastralServiceError(Exception):
+    """El servicio de Catastro respondió con una excepción o con una estructura
+    inesperada -- historia #37. Nunca se cachea ni se devuelve como lista vacía."""
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(f"Respuesta de Catastro no utilizable: {detail}")
+        self.detail = detail
+
+
+class AreaQueryLimitExceededError(Exception):
+    """El bbox pedido supera el límite de área del proveedor (WFS de parcelas de
+    Catastro: "Area of extension out of limits") -- historia #37."""
+
+    def __init__(self, bbox: tuple[float, float, float, float]) -> None:
+        super().__init__(f"El área pedida supera el límite del proveedor: {bbox}")
+        self.bbox = bbox
+
+
+class TruncatedAreaQueryError(Exception):
+    """El proveedor devolvió menos elementos de los que dice haber encontrado
+    (`numberReturned < numberMatched`): usarla perdería parcelas en silencio --
+    historia #37."""
+
+    def __init__(
+        self, bbox: tuple[float, float, float, float], matched: int, returned: int
+    ) -> None:
+        super().__init__(
+            f"Respuesta truncada para {bbox}: encontradas {matched}, devueltas {returned}"
+        )
+        self.bbox = bbox
+        self.matched = matched
+        self.returned = returned
