@@ -169,5 +169,6 @@ jobs:
             echo '```'
           } > comentario.md
           gh pr comment "$pr" -R "$REPO" --body-file comentario.md
-          GH_TOKEN="$PROYECTO_TOKEN" gh pr edit "$pr" -R "$REPO" --add-label cambios-pedidos
+          # API REST de etiquetas: `gh pr edit` pide permisos de Projects (classic) que el token no tiene.
+          GH_TOKEN="$PROYECTO_TOKEN" gh api -X POST "repos/$REPO/issues/$pr/labels" -f "labels[]=cambios-pedidos" --silent
           echo "PR #$pr: CI rojo; se pide corrección."
