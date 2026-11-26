@@ -118,7 +118,8 @@ def _evidence(trail: Trail) -> TrailEvidence:
     )
 
 
-def _zone_coordinates(discrepancy: Discrepancy) -> list[list[list[float]]]:
+def zone_coordinates(discrepancy: Discrepancy) -> list[list[list[float]]]:
+    """Coordenadas de la zona por parte, redondeadas a 0,01 m (para identificadores)."""
     zone = discrepancy.zone
     parts = zone.rings if isinstance(zone, Geometry) else zone.lines
     return [
@@ -138,7 +139,7 @@ def record_id(discrepancy: Discrepancy) -> str:
         "fuente_b": discrepancy.counterpart_source.kind,
         "trail_id": discrepancy.subject.trail_id,
         "counterpart_ids": [ref.trail_id for ref in discrepancy.counterpart_trails],
-        "zona": _zone_coordinates(discrepancy),
+        "zona": zone_coordinates(discrepancy),
     }
     text = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
@@ -212,6 +213,12 @@ def detect_municipal_discrepancies(
         if summary.status is not LayerStatus.AUSENTE:
             raise InconsistentLayersError(f"{summary.source} en `missing` no está AUSENTE")
 
+    names = sorted({layer.municipality_name for layer in layers if layer.municipality_name})
+    if len(names) > 1:
+        raise InconsistentLayersError(
+            f"las capas de {municipality_code} dan nombres de municipio distintos: {names}"
+        )
+
     prepared = [_prepare(layer) for layer in sorted(layers, key=lambda layer: layer.source)]
 
     records: list[DiscrepancyRecord] = []
@@ -240,4 +247,5 @@ def detect_municipal_discrepancies(
         layers=tuple(summaries),
         records=tuple(records),
         redacted=False,
+        municipality_name=names[0] if names else None,
     )

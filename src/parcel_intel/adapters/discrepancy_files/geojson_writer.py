@@ -47,6 +47,7 @@ def _provenance(provenance: Provenance) -> dict[str, object]:
         "url": provenance.url,
         "fecha_descarga": provenance.retrieved_at.isoformat(),
         "licencia": provenance.license,
+        "redistribucion": provenance.redistribution.value,
     }
 
 
@@ -97,6 +98,7 @@ def _measure(measurement: Measurement) -> float:
 def _feature(record: DiscrepancyRecord) -> dict[str, object]:
     discrepancy = record.discrepancy
     measurements = discrepancy.evidence
+    counterpart = discrepancy.counterpart_source
     zone = None if record.zone_redacted else _geometry(discrepancy.zone)
     return {
         "type": "Feature",
@@ -105,11 +107,15 @@ def _feature(record: DiscrepancyRecord) -> dict[str, object]:
         "properties": {
             "tipo": discrepancy.kind,
             "fuente_a": discrepancy.subject.source.kind,
-            "fuente_b": discrepancy.counterpart_source.kind,
+            "fuente_b": counterpart.kind,
+            # Procedencia y fecha común de la capa B (#94): en un AUSENTE_EN_FUENTE no
+            # hay trazado B del que deducirlas, y la ficha pública cita su año.
+            "procedencia_b": _provenance(counterpart.provenance),
+            "fecha_dato_b": counterpart.data_date.isoformat() if counterpart.data_date else None,
             "medidas": {m.name: _measure(m) for m in measurements},
             "confianza": round(discrepancy.confidence, _CONFIDENCE_DECIMALS),
             "evidencia": [
-                {"medida": m.name,"unidad": m.unit, "valor": _measure(m)} for m in measurements
+                {"medida": m.name, "unidad": m.unit, "valor": _measure(m)} for m in measurements
             ],
             "criterio": f"{discrepancy.criterion.identifier}@{discrepancy.criterion.version}",
             "zona_omitida_por_licencia": record.zone_redacted,
@@ -138,6 +144,7 @@ def report_to_geojson_text(report: MunicipalDiscrepancyReport) -> str:
         "crs": _CRS,
         "properties": {
             "municipio": report.municipality_code,
+            "nombre_municipio": report.municipality_name,
             "criterio": report.criterion_id,
             "publicable": report.redacted,
             "aviso": NOTICE,
