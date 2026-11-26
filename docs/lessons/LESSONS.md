@@ -452,3 +452,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: al buscar frases en un ADR tras quitar las negritas (`texto.replace("**", "")`) también se borra el `**` de los globs (`curated/**`). Las cadenas con glob se buscan en el texto sin normalizar.
   - **Aplica a**: implementación (tests que leen documentos Markdown).
 
+## [2026-11-26] Historia #124 — Adapter de ventanas de ortofoto PNOA
+
+- **Lección**: el WMS del IGN responde **200** a todo: una capa inexistente da un `ServiceException` XML y un vuelo sin cobertura da un JPEG blanco. Ningún código de estado distingue el éxito; solo la cabecera JPEG (para no cachear errores) y el tamaño por píxel (para detectar el blanco, que sí se cachea) lo hacen.
+  - **Causa**: ambas respuestas se grabaron como fixtures reales (`window_capa_inexistente_serviceexception.xml`, `window_224_pnoa2010_blanca.jpg`); la blanca a 448 px pesa 0,0073 bytes/píxel, las reales ≥ 0,135.
+  - **Aplica a**: implementación (cualquier adapter nuevo sobre WMS del IGN: validar el cuerpo, no el estado HTTP).
+
