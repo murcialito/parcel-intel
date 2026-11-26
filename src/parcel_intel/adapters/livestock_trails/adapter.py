@@ -1,11 +1,19 @@
+from collections.abc import Callable
 from datetime import UTC, date
 from datetime import datetime as _datetime
+from urllib.parse import urlencode
 
 from parcel_intel.adapters.livestock_trails.client import WFS_URL, HttpGetter, default_http_getter
-from parcel_intel.adapters.livestock_trails.parsing import parse_wfs_livestock_trails
+from parcel_intel.adapters.livestock_trails.parsing import (
+    RawLivestockTrail,
+    parse_number_matched,
+    parse_wfs_livestock_trails,
+)
+from parcel_intel.adapters.raw_cache import CachedRawFetcher
 from parcel_intel.domain.geometry import Geometry, bbox_with_margin
-from parcel_intel.domain.livestock_trail import LivestockTrail
+from parcel_intel.domain.livestock_trail import LIVESTOCK_TRAIL_LICENSE, LivestockTrail
 from parcel_intel.domain.provenance import Provenance
+from parcel_intel.ports.errors import IncompleteWfsResponseError
 
 DEFAULT_MARGIN_M = 2.0
 """Margen por defecto en metros. Mismo criterio que IDEM/`UsoDelSuelo`
@@ -22,14 +30,34 @@ def _today() -> date:
     return _datetime.now(tz=UTC).date()
 
 
+def _parse_and_check(body: bytes, url: str) -> list[RawLivestockTrail]:
+    raw_trails = parse_wfs_livestock_trails(body)
+    matched = parse_number_matched(body)
+    if matched is not None and matched != len(raw_trails):
+        raise IncompleteWfsResponseError(url, matched, len(raw_trails))
+    return raw_trails
+
+
 class LivestockTrailAdapter:
     """Implementa `LivestockTrailPort` contra el WFS de IDEM (workspace
     `Zonas`, Comunidad de Madrid), confirmado en `sources/REGISTRY.md`
-    (ADR 0014). Cliente aislado: no se conecta todavía a ningún caso de
-    uso ni cachea resultados."""
+    (ADR 0014).
 
-    def __init__(self, http_get: HttpGetter = default_http_getter) -> None:
+    Sin `fetcher` se comporta como siempre (una petición directa). Con un
+    `CachedRawFetcher` (ADR 0031) la respuesta cruda se cachea de forma
+    inmutable y `retrieved_at` es la fecha de la descarga original. Una
+    respuesta truncada (`numberMatched` distinto de las features parseadas)
+    lanza `IncompleteWfsResponseError` y no entra en la caché."""
+
+    def __init__(
+        self,
+        http_get: HttpGetter = default_http_getter,
+        fetcher: CachedRawFetcher | None = None,
+        today: Callable[[], date] = _today,
+    ) -> None:
         self._http_get = http_get
+        self._fetcher = fetcher
+        self._today = today
 
     def get_nearby_livestock_trails(
         self, geometry: Geometry, margin_m: float
@@ -42,17 +70,27 @@ class LivestockTrailAdapter:
             "typenames": f"Zonas:{_LAYER_NAME}",
             "bbox": f"{minx},{miny},{maxx},{maxy},EPSG:{geometry.srid}",
         }
-        body = self._http_get(WFS_URL, params)
-        raw_trails = parse_wfs_livestock_trails(body)
+        if self._fetcher is not None:
+            canonical_url = f"{WFS_URL}?{urlencode(sorted(params.items()))}"
+
+            def validate(content: bytes) -> None:
+                _parse_and_check(content, canonical_url)
+
+            response = self._fetcher.fetch(WFS_URL, params, validate=validate)
+            body, url, retrieved_at = response.content, response.url, response.retrieved_at
+        else:
+            body = self._http_get(WFS_URL, params)
+            url = f"{WFS_URL}?" + "&".join(f"{key}={value}" for key, value in params.items())
+            retrieved_at = self._today()
+        raw_trails = _parse_and_check(body, url)
         if not raw_trails:
             return []
 
-        query = "&".join(f"{key}={value}" for key, value in params.items())
         provenance = Provenance(
             source="idem",
-            url=f"{WFS_URL}?{query}",
-            retrieved_at=_today(),
-            license=None,
+            url=url,
+            retrieved_at=retrieved_at,
+            license=LIVESTOCK_TRAIL_LICENSE,
         )
         return [
             LivestockTrail(

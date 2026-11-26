@@ -46,6 +46,13 @@ def _rings_from_feature(feature: ET.Element) -> tuple[Ring, ...]:
     return tuple(rings)
 
 
+def parse_number_matched(xml_bytes: bytes) -> int | None:
+    """`numberMatched` de la `FeatureCollection`, o `None` si falta o no es
+    numérico (p. ej. `unknown`): en ese caso no se puede comprobar el truncado."""
+    raw = ET.fromstring(xml_bytes).get("numberMatched")
+    return int(raw) if raw is not None and raw.isdigit() else None
+
+
 def parse_wfs_livestock_trails(xml_bytes: bytes) -> list[RawLivestockTrail]:
     """Parsea un `GetFeature` de `Zonas:IDEM_MA_VIAS_PECUARIAS` a una lista
     de dicts planos. Una `FeatureCollection` vacía (sin vía pecuaria

@@ -140,7 +140,8 @@ def test_ca5_contratos_en_verde_e_informe_por_parcela_sin_cambios() -> None:
     ]
     from_adapter = _adapter_trails(_COLMENAR)
     assert len(from_adapter) == 15
-    assert all(t.provenance.license is None for t in from_adapter)
+    # Historia #36 (CA7): el adapter ya rellena la licencia en origen.
+    assert all(t.provenance.license == _LICENSE for t in from_adapter)
     assert all(t.provenance.redistribution is Redistribution.INTERNAL_ONLY for t in from_adapter)
 
 
@@ -212,8 +213,13 @@ def test_ca8_licencia_ausente_se_rellena_y_otra_licencia_falla() -> None:
     y `source`, `url` y `retrieved_at` no cambian. Dado uno con otra licencia distinta
     (sintético), cuando se convierte, entonces lanza `InvalidTrailError` y **no** se marca
     `PUBLIC`."""
-    source = _by_code(_adapter_trails(_COLMENAR), "2804303")
-    assert source.provenance.license is None
+    # Historia #36 (CA7): el adapter ya devuelve la licencia; se vuelve a `None` a mano
+    # para seguir cubriendo el relleno de un tramo sin licencia.
+    from_adapter = _by_code(_adapter_trails(_COLMENAR), "2804303")
+    assert from_adapter.provenance.license == _LICENSE
+    source = dataclasses.replace(
+        from_adapter, provenance=dataclasses.replace(from_adapter.provenance, license=None)
+    )
 
     converted = livestock_trail_to_trail(source)
 

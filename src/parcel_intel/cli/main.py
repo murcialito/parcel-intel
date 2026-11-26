@@ -1,22 +1,53 @@
 import argparse
 import sys
+import time
+from collections.abc import Callable
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import requests
 
 from parcel_intel.adapters.deepseek.adapter import DeepSeekAdapter, MissingDeepSeekApiKeyError
 from parcel_intel.adapters.deepseek.client import DeepSeekApiError
+from parcel_intel.adapters.ign_admin_units import IgnAdministrativeUnitsAdapter
+from parcel_intel.adapters.ign_admin_units import client as ign_client
+from parcel_intel.adapters.livestock_trails import client as livestock_client
+from parcel_intel.adapters.livestock_trails.adapter import LivestockTrailAdapter
 from parcel_intel.adapters.postgis.connection import get_connection
 from parcel_intel.adapters.postgis.rule_repository import PostgisRuleRepository
+from parcel_intel.adapters.raw_cache import (
+    CachedRawFetcher,
+    HttpGet,
+    RawCacheCorruptError,
+    RawCacheMissError,
+)
+from parcel_intel.adapters.shapely_geometry import ShapelyPolygonClipper
 from parcel_intel.application.author_rule_proposal import AuthorRuleProposalUseCase
+from parcel_intel.application.build_municipal_livestock_trail_layers import (
+    BuildMunicipalLivestockTrailLayersUseCase,
+)
+from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
+from parcel_intel.domain.provenance import Provenance
 from parcel_intel.domain.rule import Rule, WithinDistanceCondition
 from parcel_intel.ports.errors import (
+    ClippedGeometryHasHolesError,
+    IncompleteWfsResponseError,
     InvalidLlmProposalError,
     InvalidRuleLayerError,
+    MunicipalBoundaryNotFoundError,
+    MunicipalBoundaryUnusableError,
     RuleProposalNotFoundError,
 )
 
 _LAYER_CHOICES = ["dph_cauce", "via_pecuaria", "red_natura_plan"]
+
+AMBITO_HITO_INE = ("28043", "28013", "28052", "28019", "28170", "28180", "28157")
+"""Los 7 municipios del primer hito (REGISTRY.md, "Ámbito del hito"): Colmenar de
+Oreja, Aranjuez, Chinchón, Belmonte de Tajo, Villaconejos, Villarejo de Salvanés y
+Valdelaguna. Configuración del hito, no dominio."""
+
+AMBITO_HITO_BBOX_ETRS89 = (39.98, -3.62, 40.22, -3.15)
+"""(lat_min, lon_min, lat_max, lon_max) en EPSG:4258 con el que se pide el WFS del IGN."""
 
 
 def _author(args: argparse.Namespace) -> int:
@@ -124,6 +155,81 @@ def _review_reject(args: argparse.Namespace) -> int:
     return 0
 
 
+def _today() -> date:
+    return datetime.now(tz=UTC).date()
+
+
+def _format_provenance(provenance: Provenance) -> str:
+    return (
+        f"fuente={provenance.source} url={provenance.url} "
+        f"fecha={provenance.retrieved_at.isoformat()} licencia={provenance.license}"
+    )
+
+
+def _format_layer(layer: MunicipalLivestockTrailLayer) -> str:
+    municipality = layer.municipality
+    lines = [
+        f"{municipality.ine_code} {municipality.name}",
+        f"  aviso: {layer.notice}",
+        f"  límite: {_format_provenance(municipality.provenance)}",
+        f"  piezas: {len(layer.trails)}",
+    ]
+    for piece in layer.trails:
+        source = piece.source
+        lines.append(
+            f"    trail_code={source.trail_code} trail_type={source.trail_type} "
+            f"name={source.name} area_m2={piece.area_m2:.2f} "
+            f"share_of_source={piece.share_of_source * 100:.2f}%"
+        )
+        lines.append(f"      procedencia: {_format_provenance(piece.provenance)}")
+    return "\n".join(lines)
+
+
+def build_municipal_layers(
+    cache_dir: Path,
+    offline: bool,
+    ign_http_get: HttpGet = ign_client.default_http_getter,
+    idem_http_get: HttpGet = livestock_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> tuple[MunicipalLivestockTrailLayer, ...]:
+    """Composition root de la capa de vías pecuarias por municipio (ADR 0032).
+
+    Un `CachedRawFetcher` por fuente sobre el mismo directorio: la clave es la
+    URL completa, así que no colisionan. Con `offline=True` nada llama a la red."""
+    ign_fetcher = CachedRawFetcher(ign_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    idem_fetcher = CachedRawFetcher(idem_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    use_case = BuildMunicipalLivestockTrailLayersUseCase(
+        boundaries=IgnAdministrativeUnitsAdapter(
+            AMBITO_HITO_BBOX_ETRS89, fetcher=ign_fetcher, today=today
+        ),
+        trails=LivestockTrailAdapter(fetcher=idem_fetcher, today=today),
+        clipper=ShapelyPolygonClipper(),
+    )
+    return use_case.execute(AMBITO_HITO_INE)
+
+
+def _vias_pecuarias_municipios(args: argparse.Namespace) -> int:
+    try:
+        layers = build_municipal_layers(args.cache, args.sin_red)
+    except (
+        MunicipalBoundaryNotFoundError,
+        MunicipalBoundaryUnusableError,
+        IncompleteWfsResponseError,
+        ClippedGeometryHasHolesError,
+        RawCacheMissError,
+        RawCacheCorruptError,
+    ) as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    except requests.RequestException as error:
+        print(f"Error de red: {error}", file=sys.stderr)
+        return 1
+    for layer in layers:
+        print(_format_layer(layer))
+    return 0
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="parcel_intel.cli.main")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -152,6 +258,18 @@ def _build_parser() -> argparse.ArgumentParser:
     reject_parser = review_subparsers.add_parser("reject", help="Rechazar una propuesta")
     reject_parser.add_argument("identifier")
     reject_parser.set_defaults(func=_review_reject)
+
+    vias_parser = subparsers.add_parser(
+        "vias-pecuarias-municipios",
+        help="Capa de vías pecuarias recortada al término de cada municipio del ámbito",
+    )
+    vias_parser.add_argument(
+        "--sin-red", action="store_true", help="Solo la caché cruda; falla si falta algo"
+    )
+    vias_parser.add_argument(
+        "--cache", type=Path, default=Path("data/raw"), help="Directorio de la caché cruda"
+    )
+    vias_parser.set_defaults(func=_vias_pecuarias_municipios)
 
     return parser
 

@@ -362,6 +362,27 @@ Verificado por primera vez el 2026-10-16, para la historia 0014 — a diferencia
 
 ---
 
+## Vías pecuarias por municipio del ámbito — recorte con los límites del IGN (historia #36)
+
+Verificado el 2026-11-26. Las 7 respuestas reales de IDEM por bbox del término de cada municipio (margen 2 m, EPSG:25830, mismo KVP que arriba) están en `tests/fixtures/livestock_trails/wfs_getfeature_bbox_municipio_<ine>.xml`. Los límites son los de la fixture recortada del IGN (`caminos/ign_au_ambito_7_municipios.xml`, sección "Límites municipales"). Los números salen de `ShapelyPolygonClipper` con esos datos, no de un cálculo a mano (lección 0017).
+
+| INE | Municipio | `numberMatched` del bbox | Piezas no vacías tras recortar |
+| --- | --- | --- | --- |
+| 28043 | Colmenar de Oreja | 32 | 19 |
+| 28013 | Aranjuez | 33 | 25 |
+| 28052 | Chinchón | 47 | 23 |
+| 28019 | Belmonte de Tajo | 1 | 0 |
+| 28170 | Villaconejos | 11 | 4 |
+| 28180 | Villarejo de Salvanés | 14 | 7 |
+| 28157 | Valdelaguna | 10 | 1 |
+
+- **El bbox trae vecinos**: los 7 bbox devuelven 94 tramos distintos (por `CD_VP`), de los que 27 no tocan ningún término del ámbito (Titulcia y otros municipios colindantes). Recortar es lo que los descarta. Total de piezas: 79.
+- **Tramos con más de una pieza** (cruzan dos o tres términos del ámbito): 11 de 94. Todos los tramos del ámbito de la fixture CQL (los 15 de Colmenar y los 2 de Villaconejos) tienen al menos una pieza no vacía.
+- **Astillas** (áreas de las 79 piezas): mínimo 0,009 m², mediana 21 817,33 m², máximo 627 295,18 m². Menores de 1 m²: 12; menores de 10 m²: 12; menores de 100 m²: 13. Son la diferencia entre la línea municipal que usó IDEM al partir cada vía y la del IGN. No se filtran (umbral de publicación pendiente con el fundador, ADR 0032).
+- **Tramo real elegido para el test de dos municipios**: `2801308`, "Vereda de Colmenar" (`MultiSurface` de 2 partes). Área del original 106 767,37 m²; pieza en Colmenar de Oreja 8 020,96 m² (1 anillo); pieza en Aranjuez 98 746,41 m² (3 anillos); suma igual al original con diferencia < 0,01 m². No cae en ningún otro municipio del ámbito.
+- **Guarda de truncado**: cada respuesta de IDEM trae `numberMatched`; si no coincide con las features parseadas, el adapter lanza `IncompleteWfsResponseError` y no cachea. Las 7 respuestas reales cumplen la guarda (CA5 de #36, integración).
+- **Licencia**: `CC BY 4.0 Comunidad de Madrid`, leída de `AccessConstraints` (sección anterior); el adapter ya la rellena en `Provenance.license`.
+
 ## Red Natura 2000 y espacios protegidos — IDEM, Comunidad de Madrid (Planes de Gestión)
 
 Verificado en profundidad el 2026-10-16, para la historia 0015, a partir de un hallazgo de pasada de la historia 0014 (`Zonas:IDEM_MA_RED_NATURA_PLAN`, mismo workspace `Zonas` del GeoServer de IDEM ya usado para vías pecuarias) — nunca dado por bueno solo por el nombre de la capa, verificado con el mismo rigor que el resto de fuentes.

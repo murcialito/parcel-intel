@@ -266,3 +266,13 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: una historia cuyo criterio exige editar `.github/workflows/*.yml` no la puede completar un agente: el push lo rechaza GitHub (la App no tiene permiso `workflows`). Mismo bloqueo que #19; el refinador debe pedírselo al fundador antes de `estado:lista`, o separar el cambio del workflow en una tarea suya.
   - **Aplica a**: BA y arquitecto (si un CA toca un workflow, marcarlo y adjuntar el parche) | implementación (subir la rama sin el workflow, dejar el parche en la issue y abrir la PR en borrador).
+
+## [2026-11-26] Historia #36 — Recorte y capa de vías pecuarias por municipio
+
+- **Lección**: una librería de terceros sin stubs en el entorno (aquí `shapely`) rompe `uv run mypy` estricto aunque el código sea correcto. La dependencia de tipos (`types-shapely`) va en `[project.optional-dependencies].dev` en la misma PR que la librería, y el adapter que la usa es el único sitio con sus imports.
+  - **Causa**: el diseño pedía añadir `shapely` y a `forbidden_modules` del dominio, pero no mencionaba los stubs; `mypy` falló con `import-untyped` al primer intento.
+  - **Aplica a**: arquitecto (al proponer una dependencia nueva, comprobar si trae tipos) | implementación.
+
+- **Lección**: el oráculo de un Bloque 0 se calcula pasando las respuestas reales grabadas por el propio código de producción (adapter + clipper), no por un recuento aparte con otra lógica. Así el número fijado en el test es el que el código da hoy, y una regresión del recorte cambia el test.
+  - **Causa**: los 94 tramos distintos que traen los 7 bbox (27 sin tocar ningún término del ámbito) y las 79 piezas salieron de ejecutar `LivestockTrailAdapter` y `ShapelyPolygonClipper` sobre las fixtures; un recuento por `CD_MUNI` habría dado otra cifra (56) y habría escondido las astillas de los vecinos.
+  - **Aplica a**: arquitecto e implementación (los números de REGISTRY de una historia de procesamiento salen de ejecutar el pipeline sobre las fixtures reales).

@@ -281,6 +281,16 @@ def ring_signed_area(ring: Ring) -> float:
     return total / 2.0
 
 
+def polygon_area(geometry: Geometry) -> float:
+    """Área de una superficie, en unidades del CRS al cuadrado (m² en EPSG:25830).
+
+    Suma el valor absoluto del área de Gauss de cada anillo: válida porque
+    `Geometry` no modela huecos y sus anillos (partes) no se solapan.
+    `rings=()` da 0.0: es el resultado legítimo de un recorte vacío, no un
+    error (a diferencia de `bbox_with_margin`, aquí no hay `min`/`max`)."""
+    return sum(abs(ring_signed_area(ring)) for ring in geometry.rings)
+
+
 def ring_perimeter(ring: Ring) -> float:
     """Perímetro del anillo, cerrado por índice módulo. Los segmentos de
     longitud 0 (p. ej. el de cierre de un anillo ya cerrado) suman 0."""

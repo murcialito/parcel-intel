@@ -64,6 +64,10 @@ uv run python -m parcel_intel.cli.main author --layer dph_cauce --text ruta/arti
 uv run python -m parcel_intel.cli.main review list
 uv run python -m parcel_intel.cli.main review approve <identifier>
 uv run python -m parcel_intel.cli.main review reject <identifier>
+
+# Capa de vías pecuarias por municipio del ámbito (historia #36): recorte con los límites del IGN
+uv run python -m parcel_intel.cli.main vias-pecuarias-municipios             # descarga y cachea en data/raw
+uv run python -m parcel_intel.cli.main vias-pecuarias-municipios --sin-red   # solo desde la caché
 ```
 
 ## Contexto de negocio (resumen)

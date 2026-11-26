@@ -22,6 +22,16 @@ class MunicipalBoundaryNotFoundError(Exception):
         super().__init__(f"Sin límite municipal para los códigos INE: {', '.join(missing_codes)}")
 
 
+class ClippedGeometryHasHolesError(Exception):
+    """El recorte de dos superficies produjo un polígono con huecos, que
+    `Geometry` no modela: descartarlos en silencio rompería la suma de
+    áreas -- historia #36."""
+
+    def __init__(self, interior_rings: int) -> None:
+        super().__init__(f"El recorte produjo {interior_rings} hueco(s), no modelados")
+        self.interior_rings = interior_rings
+
+
 class IncompleteWfsResponseError(Exception):
     """`numberMatched` de una respuesta WFS no coincide con las features
     parseadas: respuesta truncada o estructura inesperada -- historia #35."""
