@@ -1,6 +1,6 @@
 name: Sincronizar tablero
 
-# Refleja cada issue en el proyecto "Parcela Intel" (users/murcialito/projects/1):
+# Refleja cada issue en el proyecto "Paso Común" (users/murcialito/projects/1):
 # Status según estado:* (o Done al cerrarse), Size según talla:*, el fundador como assignee mientras
 # la issue le espera y Start/Target date reales para el Roadmap (ver el script).
 # Requiere el secret PROJECT_TOKEN (token clásico con permisos "repo" y "project": sin "repo" no ve las issues del repo privado);

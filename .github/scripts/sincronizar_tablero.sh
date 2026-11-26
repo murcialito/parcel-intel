@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016  # las variables $x de GraphQL van literales a propósito
-# Refleja una issue en el proyecto de usuario "Parcela Intel" (users/<owner>/projects/<n>):
+# Refleja una issue en el proyecto de usuario "Paso Común" (users/<owner>/projects/<n>):
 # - la añade si no está;
 # - Status según su etiqueta estado:* (o Done si está cerrada) y Size según talla:*;
 # - Assignees: el fundador mientras tenga estado:necesita-fundador (la vista "Me esperan");

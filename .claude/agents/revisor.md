@@ -52,3 +52,7 @@ Tus permisos solo admiten comandos que **empiezan** por un programa permitido (`
 - para crear varias issues, haz una llamada por issue.
 
 Si algo se deniega, cambia la forma del comando; no lo reintentes igual.
+
+## Tests `fuera_de_ci`
+
+CI no ejecuta los tests marcados `fuera_de_ci`, porque necesitan servicios que rechazan los runners de GitHub, como el WFS de Catastro. Revisa el código y el test como siempre. Si todo lo demás está bien, da `APROBADO` aunque el test aún no se haya pasado: mientras la PR tenga la etiqueta `pendiente-local`, Fusionar no la fusiona. Si la PR tiene tests `fuera_de_ci` y no tiene esa etiqueta, pide `CAMBIOS` para que la pongan.
