@@ -287,7 +287,8 @@ def _ventanas_de_referencia(partes: tuple[tuple[Punto, ...], ...]) -> list[tuple
         if len(parte) < 2:
             continue
         densa: list[Punto] = [parte[0]]
-        for (ax, ay), (bx, by) in zip(parte, parte[1:]):
+        # Pares consecutivos: `strict=False` a propósito (lección de la historia 0017).
+        for (ax, ay), (bx, by) in zip(parte, parte[1:], strict=False):
             largo = math.hypot(bx - ax, by - ay)
             if largo == 0:
                 continue
@@ -312,7 +313,7 @@ def _ventanas_de_referencia(partes: tuple[tuple[Punto, ...], ...]) -> list[tuple
     if len(trozos) > tope:
         return None
 
-    ventanas = []
+    ventanas: list[tuple[int, ...]] = []
     for trozo in trozos:
         xs = [p[0] for p in trozo]
         ys = [p[1] for p in trozo]
@@ -411,7 +412,7 @@ _FILAS_RESUMEN_PNOA = (
 def _atribuciones_del_adr() -> list[str]:
     """Cadenas de atribución del SCNE de la tabla de franjas del ADR §3, con `<año>`
     sustituido por cada vuelo de su fila."""
-    atribuciones = []
+    atribuciones: list[str] = []
     for fila in _filas(_seccion("3. Vuelos")):
         if not fila[0].startswith("`"):
             continue

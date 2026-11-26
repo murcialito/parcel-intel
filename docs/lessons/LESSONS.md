@@ -414,3 +414,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en una medida por muestreo de puntos medios con `<=` (aquí `line_overlap_fraction`, paso 1 m), un oráculo escrito a mano falla si el alcance coincide con la distancia de un punto medio (0,5 m del vértice): ese punto cuenta como cubierto. Al calcular el oráculo, listar los puntos medios cercanos a la frontera y elegir un alcance que no caiga justo en uno, o fijar ese caso límite a propósito en un test propio.
   - **Causa**: un test unitario con alcance 0,5 m esperaba 0,5 y la función dio 0,505: el primer punto medio del segundo segmento quedaba a 0,5 m exactos. La función era correcta; el oráculo no.
   - **Aplica a**: arquitecto e implementación (oráculos de funciones muestreadas).
+
+## [2026-11-26] Historia #120 — ADR de imágenes de comparación
+
+- **Lección**: si un ADR trae una tabla de oráculos y las constantes de las que sale, el test de aceptación no se limita a comprobar propiedades de la tabla (lado múltiplo de 32, píxeles = 2·lado). Recalcula cada fila con una implementación de referencia mínima que **lee las constantes del texto del ADR** y exige igualdad exacta. Así, si alguien cambia una constante (margen, escalón, tope) sin rehacer la tabla, el test falla antes de que #121 programe contra oráculos caducados. La referencia vive solo en el test y no sustituye a la implementación de producción.
+  - **Causa**: el CA10 pedía solo la coherencia con las constantes. Con esa comprobación habría pasado una ventana mal calculada que aun así tuviera un lado válido. Recalcular costó unas 40 líneas, y los seis oráculos del arquitecto cuadraron.
+  - **Aplica a**: implementación (historias de ADR con oráculos) | arquitecto (dar el algoritmo con el detalle suficiente para reimplementarlo: orden, redondeo y desempate).
+
+- **Lección**: en las Actions de los agentes, `sha256sum` sobre un fichero de `/tmp` se deniega, porque solo se permite dentro del repo. Para comprobar el sha256 y los bytes de una respuesta descargada sin guardarla en el repo, usar `python3 -I -c "import hashlib,sys; d=open(sys.argv[1],'rb').read(); print(len(d), hashlib.sha256(d).hexdigest())" /tmp/fichero`.
+  - **Aplica a**: implementación (verificaciones de red cuya respuesta no se versiona).
