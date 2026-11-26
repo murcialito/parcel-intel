@@ -2,7 +2,7 @@
 
 Oct 15, 2026 · revisado Nov 25, 2026 (cambio de rumbo) · @Iñaki
 
-Parcel Intel es una herramienta abierta y sin ánimo de lucro que reconstruye qué trazados deberían ser públicos (vías pecuarias, caminos) y señala los tramos donde hoy parecen haber desaparecido o quedar dentro de una finca cerrada, para que quien defiende esos caminos llegue al ayuntamiento con indicios ordenados y no con sospechas sueltas.
+**Paso Común** es el nombre público del visor y del proyecto (identidad en [`marca/GUIA-DE-MARCA.md`](marca/GUIA-DE-MARCA.md)); el repositorio y el paquete Python `parcel_intel` conservan su nombre. Es una herramienta abierta y sin ánimo de lucro que reconstruye qué trazados deberían ser públicos (vías pecuarias, caminos) y señala los tramos donde hoy parecen haber desaparecido o quedar dentro de una finca cerrada, para que quien defiende esos caminos llegue al ayuntamiento con indicios ordenados y no con sospechas sueltas.
 
 > **Cambio de rumbo (25 nov 2026).** La versión anterior de este documento planteaba un informe de due diligence por referencia catastral para compradores de inmuebles, con suelo rústico como tesis comercial y pisos como segunda fase. Eso queda así: **caminos públicos pasa a ser la fase 1**; el informe de rústico para compradores queda como posible fase posterior; **pisos sale del alcance**. El proyecto deja de tener modelo comercial. La versión anterior está en el historial de git (`git log -- docs/vision.md`). Ver [ADR 0021](adr/0021-cambio-de-rumbo-caminos-publicos-coste-casi-cero.md).
 

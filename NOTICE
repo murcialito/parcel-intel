@@ -61,6 +61,14 @@ de memoria.
 - Atribución declarada por el servicio: `CC BY 4.0 Comunidad de Madrid`.
 - Aviso obligatorio: es cartografía de carácter informativo, no un deslinde.
 
+## Recursos de diseño
+
+- Logo, iconos (favicon, `apple-touch-icon`, `icon-192`, `icon-512`) e imagen social
+  (`og-image.png`) de Paso Común: obra del proyecto Parcel Intel / Paso Común (sistema de
+  diseño del proyecto), bajo CC BY 4.0.
+- URL de licencia: https://creativecommons.org/licenses/by/4.0/deed.es
+- Origen en el repositorio: `docs/design-system/`; guía de marca en `docs/marca/GUIA-DE-MARCA.md`.
+
 ## Software de terceros incluido en el sitio
 
 - Leaflet 1.9.4 (https://leafletjs.com), BSD 2-Clause. Copia en `site/vendor/leaflet/`, con su

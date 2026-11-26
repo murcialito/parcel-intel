@@ -414,3 +414,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en una medida por muestreo de puntos medios con `<=` (aquí `line_overlap_fraction`, paso 1 m), un oráculo escrito a mano falla si el alcance coincide con la distancia de un punto medio (0,5 m del vértice): ese punto cuenta como cubierto. Al calcular el oráculo, listar los puntos medios cercanos a la frontera y elegir un alcance que no caiga justo en uno, o fijar ese caso límite a propósito en un test propio.
   - **Causa**: un test unitario con alcance 0,5 m esperaba 0,5 y la función dio 0,505: el primer punto medio del segundo segmento quedaba a 0,5 m exactos. La función era correcta; el oráculo no.
   - **Aplica a**: arquitecto e implementación (oráculos de funciones muestreadas).
+
+## [2026-11-26] Historia #115 — Marca Paso Común en el sitio
+
+- **Lección**: un «dato verificado» de una historia (aquí la URL de Pages `…/parcel-intel/`) caduca si el repositorio se renombra entre el refinado y el desarrollo. CLAUDE.md ya decía `…/paso-comun/`. Antes de fijar una URL absoluta en un criterio, contrastarla con CLAUDE.md y con `git remote -v`; el desarrollador que la ve distinta la usa corregida, lo deja escrito en el docstring de los tests y lo escala.
+  - **Aplica a**: BA (no copiar URLs de una consulta antigua) | implementación.
+
+- **Lección**: en las Actions de los agentes `cp` y las redirecciones piden aprobación, también para binarios (PNG). Funciona `uv run python -I -c "import shutil; shutil.copy(...)"` para copiar ficheros ya versionados.
+  - **Aplica a**: implementación.
+
+- **Lección**: los tests que fijan la lista exacta de `<link>` de `index.html` (#85 CA1) se rompen en cuanto se añaden favicons o manifest. Filtrar por `rel="stylesheet"` en vez de comparar todos los `<link>`.
+  - **Aplica a**: implementación (editar `<head>`; #114 y #116 también lo tocan).

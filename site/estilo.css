@@ -34,6 +34,7 @@ body {
 a { color: var(--accent); }
 .cabecera { padding: .75rem 1rem; border-bottom: 1px solid var(--line); }
 .cabecera h1 { margin: 0; font-size: 1.4rem; }
+.cabecera .logo { display: block; height: 2rem; min-height: 24px; width: auto; }
 .cabecera p { margin: .25rem 0 0; max-width: 60rem; }
 .visor { flex: 1; display: flex; min-height: 0; }
 .panel {
