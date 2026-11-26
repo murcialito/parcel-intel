@@ -482,3 +482,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: la primera cota (−1.000.000…2.000.000) dejaba pasar los grados; lo cazó un test unitario con lon/lat.
   - **Aplica a**: implementación (lectores de ficheros de entrada con CRS declarado).
 
+## [2026-11-26] Historia #138 — Registro PostGIS de unidades y `sync_unit`
+
+- **Lección**: un test de migración que dice «`down` revierte la última» se rompe en cuanto llega una migración nueva. `test_historia_19::test_ca6` revertía una vez y esperaba que `historic_trail` desapareciera; con la `0006` solo desaparece la columna `unit_id`. Al añadir una migración, buscar con `grep` los tests que llaman a `migrate.down` y actualizarlos.
+  - **Aplica a**: implementación (cualquier migración nueva) | revisión.
+
+- **Lección**: para que `get_unit` devuelva una unidad **igual** a la guardada, cada dato que el dominio repite en dos entidades (`UnitSpec` y `WorkingImage`: tipo, sha256, ancho, alto, fuente) o que no está en la entidad persistida (`image_url` exacta, `image_retrieved_at` de la especificación frente a la fecha real de descarga) necesita su columna o una comprobación previa al SQL. El SQL literal de #20 no tenía `image_url` ni `spec_image_retrieved_at`; se añadieron, y `sync_unit` rechaza con `ValueError` una unidad incoherente en vez de perder un dato en silencio.
+  - **Aplica a**: arquitecto (al fijar un esquema para una ida y vuelta exacta, comparar campo a campo con el dataclass) | implementación.
+
+- **Lección**: en esta sesión no había PostGIS ni permiso para Docker, así que los criterios `[integración: PostGIS]` solo corren en CI. Se cuadró a mano el número de `%s` y de parámetros de cada sentencia (el fallo más probable al no poder ejecutarlas) y se dejó el resto a CI.
+  - **Aplica a**: implementación (si no se puede ejecutar la base, contar placeholders y decir en la PR que no se ejecutó).
+

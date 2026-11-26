@@ -277,7 +277,9 @@ def test_ca6_migracion_crea_y_elimina_la_tabla() -> None:
         migrate.up(conn)
         assert geometry_column(conn) == ("LINESTRING", 25830)
 
-        migrate.down(conn)  # revierte la última: 0005_create_historic_trail
+        migrate.down(conn)  # revierte 0006_create_historic_georeference (#138)
+        assert geometry_column(conn) == ("LINESTRING", 25830)
+        migrate.down(conn)  # revierte 0005_create_historic_trail
         assert geometry_column(conn) is None
 
         migrate.up(conn)

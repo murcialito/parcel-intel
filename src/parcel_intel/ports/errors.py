@@ -202,6 +202,15 @@ class HistoricTrailNotPendingError(Exception):
         self.identifier = identifier
 
 
+class GeoreferenceUnitNotFoundError(Exception):
+    """No existe ninguna unidad georreferenciada con ese `unit_id` -- historia
+    #138, ADR 0044."""
+
+    def __init__(self, unit_id: str) -> None:
+        super().__init__(f"No existe ninguna unidad georreferenciada: {unit_id!r}")
+        self.unit_id = unit_id
+
+
 class TrailLayerUnavailableError(Exception):
     """No hay capa de trazados para esa fuente y municipio -- historia #31,
     ADR 0030. Significa solo "no hay capa" (p. ej. sin fichero derivado en
