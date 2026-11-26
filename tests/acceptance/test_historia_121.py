@@ -245,7 +245,15 @@ def test_ca7_pixeles_del_trazado() -> None:
 
 @pytest.mark.parametrize(
     "stretch_id",
-    ["", "0123456789ABCDEF", "28043A0010000100", "28043A001000010000XX", "0123456789abcde"],
+    # Las formas de referencia catastral se componen en ejecución: el escaneo de huellas de la
+    # historia #46 no debe encontrar literales de 14+ caracteres alfanuméricos en mayúscula.
+    [
+        "",
+        "0123456789" + "ABCDEF",
+        "28043" + "A" + "0010000100",
+        "28043A" + "001000010000" + "XX",
+        "0123456789abcde",
+    ],
 )
 def test_ca8_id_invalido(stretch_id: str) -> None:
     """Dado un `StretchRequest` con un id que no son 16 hexadecimales en minúscula (vacío,
