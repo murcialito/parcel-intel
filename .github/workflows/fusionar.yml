@@ -51,8 +51,8 @@ jobs:
           cabeza=$(jq -r '.headRefOid' <<<"$datos")
           if [ "$cabeza" != "$SHA" ]; then echo "La PR #$pr ya tiene un commit más nuevo; se decidirá con sus checks."; exit 0; fi
           if [ "$(jq -r '.isDraft' <<<"$datos")" = "true" ]; then echo "PR #$pr en borrador."; exit 0; fi
-          if jq -e '.labels[].name | select(. == "veto" or . == "cambios-pedidos")' <<<"$datos" >/dev/null; then
-            echo "PR #$pr con veto o cambios-pedidos: no se fusiona."; exit 0
+          if jq -e '.labels[].name | select(. == "veto" or . == "cambios-pedidos" or . == "pendiente-local")' <<<"$datos" >/dev/null; then
+            echo "PR #$pr con veto, cambios-pedidos o pendiente-local: no se fusiona."; exit 0
           fi
           for check in checks revision; do
             # Puede haber varias ejecuciones del mismo check sobre el commit (p. ej. una saltada en borrador):
