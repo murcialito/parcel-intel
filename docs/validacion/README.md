@@ -43,20 +43,3 @@ uv run pytest tests/validacion tests/acceptance/test_historia_51.py
 
 Los mínimos del conjunto (6 casos, 2 de ellos en el ámbito; la meta de 10/5 se alcanzará con nuevas versiones congeladas) los comprueban las
 historias #52, #53 y #54, no este formato.
-
-## Casos evaluables y no evaluables (`validacion-v2`)
-
-La medición de cobertura (#110, #111) solo puede evaluar los casos que llevan `tramo_linea`. Los
-demás son **«no evaluables»** y la medición los reporta como tales, no como fallos del sistema.
-En `validacion-v2` hay 1 caso evaluable y 5 no evaluables:
-
-| Caso | Estado | Por qué |
-|---|---|---|
-| `aranjuez-camino-de-ocana-a-la-barca` | evaluable | Línea aproximada de ~151 m a partir de la capa pública de vías pecuarias (extremo de la Colada de Toledo y Descansadero Caz de las Aves). Es una aproximación: no sale del polígono de ninguna finca. |
-| `aranjuez-camino-de-las-infantas` | no evaluable | Ninguna cartografía pública consultada permite localizar su trazado con fiabilidad; se añadirá en una versión posterior si se localiza. |
-| `el-escorial-camino-de-monesterio` | no evaluable | Fuera del ámbito del hito: sin capas derivadas. |
-| `tres-cantos-camino-de-la-moraleja` | no evaluable | Fuera del ámbito del hito: sin capas derivadas. |
-| `colmenar-viejo-via-pecuaria-cerro-de-san-pedro` | no evaluable | Fuera del ámbito del hito: sin capas derivadas. |
-| `pozuelo-monte-del-pilar-caminos-vallados` | no evaluable | Fuera del ámbito del hito y sin tramo concreto (varios kilómetros de caminos). |
-
-`tramo_linea` debe dibujar el tramo afectado que describe la fuente, no el camino entero.

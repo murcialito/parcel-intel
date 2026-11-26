@@ -397,14 +397,11 @@ def test_ca12_casos_json_real_sin_candidatos_no_calculable() -> None:
     assert result.evaluable_case_ids == ()
     reasons = [item.reason for item in result.not_evaluable_cases]
     assert len(reasons) == 6
-    # `validacion-v2` (#112): solo el camino de Ocaña a la Barca lleva `tramo_linea`; sin capas
-    # de candidatos queda no evaluable por `sin_capas` y el otro caso del ámbito, `sin_geometria`.
-    assert reasons.count("sin_geometria") == 1
-    assert reasons.count("sin_capas") == 1
+    assert reasons.count("sin_geometria") == 2
     assert reasons.count("fuera_del_ambito") == 4
     assert {
         item.case_id for item in result.not_evaluable_cases if item.reason == "sin_geometria"
-    } == {"aranjuez-camino-de-las-infantas"}
+    } == {"aranjuez-camino-de-las-infantas", "aranjuez-camino-de-ocana-a-la-barca"}
     assert result.coverage is None
     assert result.precision is None
 

@@ -421,7 +421,5 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 ## [2026-11-26] Historia #112 — validacion-v2
 
-- **Lección**: al congelar una versión nueva de `casos.json`, los tests de otras historias que leen el fichero real y asumen el contenido de la versión anterior (aquí #110 CA12 y el adapter `validation_cases`: «ningún caso trae línea») fallan. Buscar con `grep` quién lee `casos.json` antes de editarlo y actualizar esas aserciones al comportamiento nuevo.
-  - **Aplica a**: implementación (cambios de datos congelados).
-- **Lección**: un caso de prensa que no da coordenadas puede no ser localizable con cartografía pública (Las Infantas). No se inventa la línea: queda «no evaluable» y se documenta en el motivo y el README.
-  - **Aplica a**: implementación (casos de validación).
+- **Lección**: una línea de validación no puede dibujarse sobre la misma capa pública que alimenta a los candidatos (vías pecuarias): casaría casi seguro y inflaría la cobertura. Y que un nombre parezca equivalente («Canal de las Aves» ≈ «Caz de las Aves») no es localizar: la fuente de prensa decía que el camino NO conecta con la vía pecuaria. Si la fuente no da trazado ni coordenadas y no hay fuente independiente (ortofoto, plano del deslinde), el caso queda sin `tramo_linea` y, si ninguno del ámbito es localizable, se escala al fundador (CA4).
+  - **Aplica a**: implementación y revisión (casos de validación con geometría).
