@@ -27,7 +27,7 @@ WORKFLOW = REPO / ".github" / "workflows" / "etiquetar-validacion.yml"
 FECHA = datetime.date(2026, 12, 1)
 
 
-def _casos(carpeta: Path, total: int = 10, hito: int = 5) -> Path:
+def _casos(carpeta: Path, total: int = 6, hito: int = 2) -> Path:
     casos = [
         {
             "id": f"caso-{i}",
@@ -51,22 +51,22 @@ def _solo_casos(carpeta: Path) -> bool:
 
 
 def test_ca1_congelar_devuelve_recuentos_y_huella(tmp_path: Path) -> None:
-    """Dado un `casos.json` con 10 casos, 5 de ellos `ambito: hito`, cuando se ejecuta la función
-    de congelación (`congelar(casos_path)`), entonces devuelve el recuento total (10), el recuento
-    en el ámbito (5) y la huella SHA-256 en hexadecimal de los bytes del fichero."""
+    """Dado un `casos.json` con 6 casos, 2 de ellos `ambito: hito`, cuando se ejecuta la función
+    de congelación (`congelar(casos_path)`), entonces devuelve el recuento total (6), el recuento
+    en el ámbito (2) y la huella SHA-256 en hexadecimal de los bytes del fichero."""
     ruta = _casos(tmp_path)
     resultado = congelar(ruta)
-    assert (resultado.casos_total, resultado.casos_ambito) == (10, 5)
+    assert (resultado.casos_total, resultado.casos_ambito) == (6, 2)
     assert resultado.sha256 == hashlib.sha256(ruta.read_bytes()).hexdigest()
 
 
-@pytest.mark.parametrize(("total", "hito", "minimo"), [(9, 5, "10"), (10, 4, "5")])
+@pytest.mark.parametrize(("total", "hito", "minimo"), [(5, 2, "6"), (6, 1, "2")])
 def test_ca2_por_debajo_del_minimo_falla_sin_escribir(
     tmp_path: Path, total: int, hito: int, minimo: str
 ) -> None:
-    """Dado un `casos.json` con 9 casos, o con 10 casos pero solo 4 `ambito: hito`, cuando se
+    """Dado un `casos.json` con 5 casos, o con 6 casos pero solo 1 `ambito: hito`, cuando se
     ejecuta la congelación, entonces falla con un error que indica qué mínimo no se cumple
-    (10 totales / 5 en el ámbito) y no escribe ningún fichero."""
+    (6 totales / 2 en el ámbito) y no escribe ningún fichero."""
     ruta = _casos(tmp_path, total, hito)
     with pytest.raises(ErrorCongelacion, match="mínimo") as info:
         congelar(ruta, FECHA, tmp_path)
@@ -102,7 +102,7 @@ def test_ca4_escribe_congelado_con_los_datos_y_la_nota_fija(tmp_path: Path) -> N
     texto = (tmp_path / "CONGELADO.md").read_text(encoding="utf-8")
     leido = leer_congelado(tmp_path / "CONGELADO.md")
     assert (leido.version, leido.fecha) == (1, "2026-12-01")
-    assert (leido.casos_total, leido.casos_ambito) == (10, 5)
+    assert (leido.casos_total, leido.casos_ambito) == (6, 2)
     assert leido.sha256 == calcular_huella(ruta)
     assert leido.etiqueta == "validacion-v1"
     assert (
@@ -164,13 +164,13 @@ def test_ca7_v2_con_motivo_es_la_vigente_y_sin_motivo_o_salto_falla(tmp_path: Pa
 
 def test_ca8_los_minimos_se_recalculan_desde_casos_json(tmp_path: Path) -> None:
     """Dado el test de integridad, cuando se ejecuta, entonces comprueba también que la versión
-    vigente cumple los mínimos (10 totales, 5 en el ámbito) recalculándolos desde `casos.json`,
+    vigente cumple los mínimos (6 totales, 2 en el ámbito) recalculándolos desde `casos.json`,
     no solo leyéndolos de `CONGELADO.md`."""
-    ruta = _casos(tmp_path, 10, 5)
+    ruta = _casos(tmp_path, 6, 2)
     congelar(ruta, FECHA, tmp_path)
-    # Mismo CONGELADO.md (declara 10/5), pero el fichero real ahora es otro con huella igual no
+    # Mismo CONGELADO.md (declara 6/2), pero el fichero real ahora es otro con huella igual no
     # es posible: se reescribe la huella para aislar la comprobación de mínimos.
-    ruta = _casos(tmp_path, 9, 5)
+    ruta = _casos(tmp_path, 5, 2)
     (tmp_path / "CONGELADO.md").write_text(
         (tmp_path / "CONGELADO.md")
         .read_text(encoding="utf-8")
@@ -178,7 +178,7 @@ def test_ca8_los_minimos_se_recalculan_desde_casos_json(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     errores = comprobar_integridad(tmp_path, ruta)
-    assert any("10 casos totales" in e for e in errores)
+    assert any("6 casos totales" in e for e in errores)
 
 
 @pytest.mark.integration

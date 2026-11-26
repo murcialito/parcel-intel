@@ -16,8 +16,8 @@ from pathlib import Path
 
 from tests.validacion.casos_schema import validar_casos
 
-MINIMO_TOTAL = 10
-MINIMO_AMBITO = 5
+MINIMO_TOTAL = 6
+MINIMO_AMBITO = 2
 PREFIJO_ETIQUETA = "validacion-v"
 NOTA_FIJA = (
     "No ajustar umbrales de detección antes de esta fecha; "

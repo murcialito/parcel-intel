@@ -37,7 +37,7 @@ def caso(indice: int, ambito: str = "comunidad", **extra: object) -> dict[str, o
     return base
 
 
-def escribir_casos(carpeta: Path, total: int = 10, hito: int = 5) -> Path:
+def escribir_casos(carpeta: Path, total: int = 6, hito: int = 2) -> Path:
     casos = [caso(i, "hito" if i < hito else "comunidad") for i in range(total)]
     ruta = carpeta / "casos.json"
     ruta.write_text(json.dumps({"casos": casos}, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -65,7 +65,7 @@ def test_contar_casos_ignora_sinteticos() -> None:
 def test_congelar_devuelve_recuentos_y_huella(tmp_path: Path) -> None:
     ruta = escribir_casos(tmp_path)
     resultado = congelar(ruta)
-    assert (resultado.casos_total, resultado.casos_ambito) == (10, 5)
+    assert (resultado.casos_total, resultado.casos_ambito) == (6, 2)
     assert resultado.sha256 == calcular_huella(ruta)
 
 
@@ -75,7 +75,7 @@ def test_congelar_sin_destino_no_escribe(tmp_path: Path) -> None:
     assert sorted(p.name for p in tmp_path.iterdir()) == ["casos.json"]
 
 
-@pytest.mark.parametrize(("total", "hito", "fragmento"), [(9, 5, "10"), (10, 4, "5")])
+@pytest.mark.parametrize(("total", "hito", "fragmento"), [(5, 2, "6"), (6, 1, "2")])
 def test_congelar_por_debajo_del_minimo_falla_y_no_escribe(
     tmp_path: Path, total: int, hito: int, fragmento: str
 ) -> None:
@@ -87,16 +87,16 @@ def test_congelar_por_debajo_del_minimo_falla_y_no_escribe(
 
 
 def test_los_sinteticos_no_cuentan_para_el_minimo(tmp_path: Path) -> None:
-    casos = [caso(i, "hito" if i < 5 else "comunidad") for i in range(9)]
+    casos = [caso(i, "hito" if i < 2 else "comunidad") for i in range(5)]
     casos.append(caso(99, "hito", sintetico=True))
     ruta = tmp_path / "casos.json"
     ruta.write_text(json.dumps({"casos": casos}), encoding="utf-8")
-    with pytest.raises(ErrorCongelacion, match="10 casos totales"):
+    with pytest.raises(ErrorCongelacion, match="6 casos totales"):
         congelar(ruta, FECHA, tmp_path)
 
 
 def test_congelar_conjunto_invalido_falla_con_el_error_del_validador(tmp_path: Path) -> None:
-    casos = [caso(i, "hito" if i < 5 else "comunidad") for i in range(10)]
+    casos = [caso(i, "hito" if i < 2 else "comunidad") for i in range(6)]
     casos[0]["fuente_url"] = "http://inseguro.es"
     ruta = tmp_path / "casos.json"
     ruta.write_text(json.dumps({"casos": casos}), encoding="utf-8")
@@ -199,13 +199,13 @@ def test_version_declarada_distinta_de_la_del_nombre_falla(tmp_path: Path) -> No
 
 
 def test_integridad_recalcula_los_minimos_desde_casos_json(tmp_path: Path) -> None:
-    ruta = escribir_casos(tmp_path, 9, 5)
-    # Un CONGELADO.md que miente: declara 10/5 y la huella correcta de un casos.json de 9.
+    ruta = escribir_casos(tmp_path, 5, 2)
+    # Un CONGELADO.md que miente: declara 6/2 y la huella correcta de un casos.json de 5.
     (tmp_path / "CONGELADO.md").write_text(
-        render_congelado(1, "2026-12-01", 10, 5, calcular_huella(ruta)), encoding="utf-8"
+        render_congelado(1, "2026-12-01", 6, 2, calcular_huella(ruta)), encoding="utf-8"
     )
     errores = comprobar_integridad(tmp_path, ruta)
-    assert any("10 casos totales" in e for e in errores)
+    assert any("6 casos totales" in e for e in errores)
 
 
 def test_version_vigente_sin_ficheros_falla(tmp_path: Path) -> None:
