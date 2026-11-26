@@ -84,7 +84,7 @@ Detalle, citas de licencia y fixtures en `src/parcel_intel/sources/REGISTRY.md`,
 | Fuente | Aporta al hito | Resolución / fechas en el ámbito | Licencia | Uso |
 | --- | --- | --- | --- | --- |
 | Vías pecuarias — IDEM | Trazados oficiales (polígonos de franja) | Ficha de 2014; sin fecha por tramo | CC BY 4.0 Comunidad de Madrid (declarada en el servicio) | Publicar, como cartografía informativa, no deslinde |
-| Catastro INSPIRE | Caminos como parcelas `9xxx`, clase `VT` "vía de comunicación de dominio público" (confirmado en Colmenar) | Actualización semestral (según Catastro) | Licencia propia de 2016: prohíbe difundir el dato original sin transformarlo y llamar "cartografía catastral" a lo derivado | Interno; publicar solo una capa derivada propia, tras consulta jurídica |
+| Catastro INSPIRE | Caminos como parcelas `9xxx`, clase `VT` "vía de comunicación de dominio público" (confirmado en Colmenar) | Actualización semestral (según Catastro) | Licencia propia de 2016: prohíbe difundir el dato original sin transformarlo y llamar "cartografía catastral" a lo derivado | Interno; no se publica por ahora. Una capa derivada propia solo tras consulta jurídica |
 | PNOA actual | Estado actual del trazado | 25 cm, vuelo de julio de 2023; Madrid se vuela cada 3 años | CC BY 4.0 (Orden FOM/2807/2015) | Publicar |
 | PNOA histórico | Cuándo desaparece un trazado | 1956-57 (50 cm), 1997-2003, 2006, 2009 (50 cm), 2011-2023 cada 3 años (25 cm). Hueco 1957-1997: sin ortofoto en el servicio | CC BY 4.0 | Publicar |
 | Planimetrías del IGN (1870-1880) | Caminos de hace 150 años | Los 7 municipios del ámbito tienen planimetría; imagen sin georreferenciar | CC BY 4.0 | Publicar como imagen de referencia |
@@ -93,7 +93,7 @@ Detalle, citas de licencia y fixtures en `src/parcel_intel/sources/REGISTRY.md`,
 | Inventario municipal de caminos | Fuente más fuerte de titularidad | **No hay ninguno publicado** en los 7 municipios (web y BOCM) | — | Pedirlo por transparencia (Ley 19/2013) |
 | PNOA LiDAR | Posible señal de cierres | 3.ª cobertura volada en 2024 sobre Colmenar | CC BY 4.0 (asumido) | Interno; utilidad sin demostrar |
 | Ortofoto propia de la Comunidad de Madrid | Imagen más reciente que el PNOA | 2019 a 50 cm confirmada; la de 2025 a 25 cm aparece en el visor pero no en el servicio | Sin verificar | No usar hasta verificar |
-| OpenStreetMap | Estado declarado (caminos, `access=private`, barreras) | Sin conteo (Overpass saturado) | ODbL, compartir igual | Interno, como señal |
+| OpenStreetMap | Estado declarado (caminos, `access=private`, barreras) | Sin conteo (Overpass saturado) | ODbL, compartir igual | Interno, como señal; no se publica por ahora |
 
 **Lo que cambia para el diseño:**
 
@@ -138,7 +138,7 @@ El mayor riesgo sigue siendo de confianza, ahora con otro destinatario: un falso
 
 - [ ] Si una capa derivada de Catastro (trazado de camino inferido) cuenta como "transformación" según su licencia de 2016 y se puede publicar.
 - [x] Licencia del código: Apache-2.0 (decisión del fundador, 2026-11-25; ver historia #42).
-- [ ] Licencia de los datos derivados publicados (condicionada por las licencias de las fuentes, en especial si entra OpenStreetMap con ODbL).
+- [x] Licencia de los datos derivados publicados: CC BY 4.0, con atribución visible por capa y procedencia (decisión del fundador, 2026-11-25; ver `NOTICE` e historia #43). Catastro y OpenStreetMap: no se publica por ahora.
 - [ ] Si el mapa muestra la referencia catastral de la finca donde queda un candidato, o solo el tramo.
 - [ ] Método de detección de "candidato a corte" (ver hito, punto b).
 - [ ] Dónde se aloja el mapa estático.

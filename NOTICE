@@ -1,0 +1,70 @@
+# NOTICE — licencias y atribuciones
+
+Este fichero dice qué datos puede publicar Parcel Intel, bajo qué licencia y con qué
+atribución. Las citas de licencia y los textos de atribución salen de
+`src/parcel_intel/sources/REGISTRY.md` (sección «Fuentes del primer hito de caminos
+públicos»). Si un texto no consta allí, se marca «pendiente de verificar» y no se completa
+de memoria.
+
+## Licencias
+
+- **Código**: Apache License 2.0. Texto completo en `LICENSE`.
+- **Datos derivados publicados**: Creative Commons Atribución 4.0 Internacional (CC BY 4.0),
+  decisión del fundador de 2026-11-25. Cada capa publicada lleva su atribución visible junto
+  a los datos y su procedencia (fuente, URL, fecha de descarga y licencia).
+
+## Fuentes que pueden publicarse
+
+### IGN/CNIG — ortofotos PNOA (actual e histórico)
+
+- Licencia: CC BY 4.0 (Orden FOM/2807/2015).
+- URL de licencia: https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf
+- Atribución declarada por el servicio: `CC BY 4.0 scne.es`.
+- Formato de obra derivada con producto y fecha: pendiente de verificar (REGISTRY no cita
+  el texto exacto para estas capas).
+
+### IGN/CNIG — planimetrías del IGN (1870-1950)
+
+- Licencia: CC BY 4.0 (Orden FOM/2807/2015).
+- URL de licencia: https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf
+- Atribución: `Obra derivada de Planimetrías 1870-1950 CC-BY 4.0 © Instituto Geográfico Nacional de España`
+
+### IGN/CNIG — primera edición del MTN50 y del MTN25
+
+- Licencia: CC BY 4.0 (Orden FOM/2807/2015).
+- URL de licencia: https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf
+- Atribución del MTN50: `Obra derivada de Primera edición MTN50 1875-1968 CC-BY 4.0 © Instituto Geográfico Nacional de España`
+- Atribución del MTN25: pendiente de verificar.
+
+### IGN/CNIG — Red de transporte (roadlink)
+
+- Licencia: CC BY 4.0 (Orden FOM/2807/2015).
+- URL de licencia: https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf
+- Atribución: `Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional`
+
+### IGN/CNIG — unidades administrativas (límites municipales)
+
+- Licencia: CC BY 4.0, declarada por el servicio.
+- URL de licencia: https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf
+- Atribución declarada por el servicio: `CC BY 4.0 ign.es`.
+- Formato de obra derivada con producto y fecha: pendiente de verificar.
+
+### Comunidad de Madrid — Vías pecuarias (IDEM)
+
+- Licencia: CC BY 4.0 Comunidad de Madrid, declarada por el servicio WMS del espacio de
+  trabajo `Zonas` del GeoServer de IDEM (https://idem.comunidad.madrid/geoidem/). No hay
+  documento de licencia aparte.
+- Atribución declarada por el servicio: `CC BY 4.0 Comunidad de Madrid`.
+- Aviso obligatorio: es cartografía de carácter informativo, no un deslinde.
+
+## Fuentes no publicadas
+
+### Catastro (INSPIRE)
+
+- Solo de uso interno. No se publica en bruto ni en ninguna capa derivada.
+- Sus capas derivadas no se publican hasta tener consulta jurídica sobre la licencia de 2016
+  (https://www.catastro.hacienda.gob.es/webinspire/documentos/Licencia.pdf).
+
+### OpenStreetMap (ODbL)
+
+- Licencia ODbL: no entra en el mapa por ahora.

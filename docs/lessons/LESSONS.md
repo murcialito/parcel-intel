@@ -256,6 +256,21 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el identificador de un registro derivado de un criterio solo cambia con lo que entra en su hash. Un test "cambia si cambian los datos" debe variar un dato que esté en el hash (aquí la zona), no una medida (distancia) que no lo está.
   - **Aplica a**: implementación (al escribir el test de un identificador por contenido, comprobar qué campos entran en él).
 
+## [2026-11-26] Historia #43 — NOTICE de atribuciones por capa y ADR de licencias
+
+- **Lección**: al escribir una lista de fuentes "que pueden publicarse" en un criterio o en un fichero público, derivarla de la tabla de resumen del registro (`REGISTRY.md`, columna «Conclusión» = **Publicar**), no de la lista que trae la historia de memoria. La historia nombraba cuatro familias; el registro marca seis filas «Publicar» (incluye planimetrías y MTN50, que la historia omitía).
+  - **Causa**: el CA1 enumeraba «red de transporte, unidades administrativas, PNOA; vías pecuarias IDEM», pero el CA6 exige que toda fuente «Publicar» del registro aparezca en `NOTICE`. Seguir la lista literal de la historia habría dejado el test de coherencia en rojo, o peor, un mapa que publica planimetrías sin atribución visible.
+  - **Aplica a**: BA (al redactar «lista cada fuente que puede…», referirse a la columna de conclusión del registro y no repetir la lista de memoria) | implementación (un test de coherencia entre registro y documento público debe mapear cada fila «Publicar» explícitamente y fallar si aparece una sin mapear).
+
+- **Lección**: una historia que pide «el ADR NNNN» debe comprobar antes que ese número no esté ya ocupado. Aquí el CA5 pedía el ADR 0024, que ya es «merge-por-workflow-no-por-agente», una decisión distinta y aceptada.
+  - **Causa**: la historia se redactó sin consultar `docs/adr/`. Reutilizar el número exigía reescribir un ADR aceptado. Se redactó el ADR con el siguiente número libre, se dejó el test de CA5 con el número literal (falla) y el conflicto se escaló al fundador en lugar de decidirlo por cuenta propia. Resolución: ADR 0035 y test de CA5 por sufijo.
+  - **Aplica a**: BA y arquitecto (al citar un número de ADR en un criterio, comprobar `ls docs/adr/` y el siguiente libre) | implementación (no reasignar un número ocupado en silencio; el criterio se escribe literal y el conflicto se escala).
+  - **Segunda parte (misma historia, tras fusionar `main`)**: el 0032 que eligió el fundador lo ocupó #36 mientras la PR estaba en borrador. El merge dejó dos ADR con el mismo número. Se movió el ADR de #43 al siguiente libre (0035) y se escaló. Al fusionar `main` en una rama con ADR nuevos, recomprobar la numeración en el mismo merge.
+  - **Aplica a**: implementación (tras cada merge de `main`, `ls docs/adr/` y buscar números duplicados antes de subir la rama).
+
+- **Lección**: al escribir atribuciones y licencias en un documento público, distinguir lo que consta literalmente en la fuente de lo que solo se infiere del formato. Solo se citaron como textuales las atribuciones que el registro trae completas (roadlink, planimetrías, MTN50); para PNOA y unidades administrativas el registro solo declara `CC BY 4.0 scne.es` / `ign.es`, y el formato «Obra derivada de <producto> <fecha>» queda «pendiente de verificar».
+  - **Aplica a**: implementación (si el texto de atribución de una capa no consta completo en el registro, marcarlo «pendiente de verificar» en el documento y no completarlo con el patrón del ejemplo).
+
 ## [2026-11-26] Historia #44 — Purga del historial de git
 
 - **Lección**: los tests de scripts de shell que dependen de una herramienta de operador (aquí `git-filter-repo`) se saltan en CI si el job no la instala, y los agentes no pueden tocar `.github/workflows/`. Un salto silencioso deja los criterios sin verificar en CI. Anotar en la PR que corren solo con la herramienta instalada, y pedir al fundador la línea `pip install git-filter-repo` en `ci.yml`.
