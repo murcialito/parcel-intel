@@ -12,11 +12,14 @@ from parcel_intel.domain.discrepancy_criterion import CRITERION, SourceKind
 from parcel_intel.domain.geometry import MultiLineGeometry
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.domain.public_card import (
+    CATASTRO_ATTRIBUTION,
+    SOURCE_POLICY,
     UNKNOWN_YEAR,
     banned_words_in,
     build_card,
     confidence_level,
 )
+from parcel_intel.domain.published_layers import PUBLISHED_LAYERS
 
 
 def _source(kind: SourceKind, data_date: date | None) -> SourceRef:
@@ -70,3 +73,22 @@ def test_confianza_fuera_de_rango_falla() -> None:
 def test_banned_words_ignora_tildes_y_mayusculas() -> None:
     assert banned_words_in("USURPACION y titularidad") == ("usurpación", "titular")
     assert banned_words_in("Indicio a verificar") == ()
+
+
+def test_la_red_del_ign_esta_verificada_con_la_atribucion_de_su_capa() -> None:
+    """#94 (ADR 0044 §5): licencia confirmada en #24; misma atribución que la capa publicada.
+    Se fija con un test y no con un import, para no acoplar los dos módulos."""
+    policy = SOURCE_POLICY["ign_red_transporte"]
+    assert policy.redistribution_verified
+    assert policy.attribution == PUBLISHED_LAYERS["camino_actual"].attribution
+
+
+def test_la_atribucion_de_catastro_cumple_el_adr_0041() -> None:
+    text = SOURCE_POLICY["catastro_vt"].attribution
+    assert text == CATASTRO_ATTRIBUTION
+    assert "Dirección General del Catastro" in text
+    assert "fecha" in text and "carece de fehaciencia" in text
+    assert "puede haber cambiado" in text
+    lowered = text.casefold()
+    assert "cartografía catastral" not in lowered and "información catastral" not in lowered
+    assert banned_words_in(text) == ()
