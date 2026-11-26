@@ -53,7 +53,9 @@ jobs:
             echo "PR #$pr con veto o cambios-pedidos: no se fusiona."; exit 0
           fi
           for check in checks revision; do
-            estado=$(jq -r --arg c "$check" '[.statusCheckRollup[] | select(.name == $c)][0].conclusion // "PENDIENTE"' <<<"$datos")
+            # Puede haber varias ejecuciones del mismo check sobre el commit (p. ej. una saltada en borrador):
+            # manda la más reciente.
+            estado=$(jq -r --arg c "$check" '[.statusCheckRollup[] | select(.name == $c)] | sort_by(.startedAt // "") | last | .conclusion // "PENDIENTE"' <<<"$datos")
             if [ "$estado" != "SUCCESS" ]; then echo "Check '$check' en $estado: se espera."; exit 0; fi
           done
 
