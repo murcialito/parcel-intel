@@ -46,8 +46,8 @@ def test_parse_rural_reference_ok_y_compact_ida_y_vuelta() -> None:
         9101,
     )
     assert ref.compact == "28043A99109101"
-    ceros = parse_rural_reference("28043A00100001")  # ceros a la izquierda
-    assert ceros is not None and ceros.compact == "28043A00100001"
+    ceros = parse_rural_reference("28043A00109101")  # ceros a la izquierda
+    assert ceros is not None and ceros.compact == "28043A00109101"
 
 
 @pytest.mark.parametrize(
