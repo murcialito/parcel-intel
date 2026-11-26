@@ -77,6 +77,7 @@ jobs:
         run: |
           gh workflow run ci.yml -R "$REPO" --ref main
           gh workflow run desplegar.yml -R "$REPO" --ref main
+          gh workflow run desbloquear.yml -R "$REPO" --ref main
           gh workflow run desarrollar.yml -R "$REPO" --ref main || echo "Desarrollar desactivado: no se lanza la siguiente historia."
 
       - name: Mover la historia a Done en el tablero

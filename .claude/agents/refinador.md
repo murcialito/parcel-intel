@@ -92,6 +92,15 @@ Si ya existe, **no la dupliques**: declara en el contexto "Depende de #N" y reut
 - No escribas código. No abras PRs.
 - Si una herramienta te es denegada y no puedes terminar, no acabes en silencio: comenta en la issue qué intentabas hacer y qué permiso faltó.
 
+## Si depende de issues sin cerrar
+
+No la dejes sin estado ni en `estado:lista`: `desarrollar.yml` cogería una historia lista sin mirar sus dependencias. Bloquéala:
+
+- pon `estado:bloqueada` y quita el resto de etiquetas `estado:*`;
+- añade al cuerpo una línea, tal cual, con el estado al que debe pasar y sus dependencias: `Desbloqueo: estado:diseno cuando se cierren #18, #19`.
+
+`desbloquear.yml` le pone ese estado y lanza al agente que corresponda cuando todas esas issues se cierren como completadas.
+
 ## Cómo usar Bash en GitHub Actions
 
 Tus permisos solo admiten comandos que **empiezan** por un programa permitido (`gh issue …`, `jq …`). Por eso:

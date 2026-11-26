@@ -1,0 +1,33 @@
+name: Desbloquear
+
+# Pasa al estado declarado las issues con estado:bloqueada cuyas dependencias ya se cerraron
+# (línea "Desbloqueo: estado:<x> cuando se cierren #a, #b" en el cuerpo). Sin LLM: solo gh.
+# Lo lanza Fusionar tras cada merge (sus cierres con GITHUB_TOKEN no disparan "issues: closed"),
+# un cierre manual, o a mano. Una pasada diaria por si se escapa algo.
+
+on:
+  issues:
+    types: [closed]
+  workflow_dispatch:
+  schedule:
+    - cron: "23 6 * * *"
+
+concurrency:
+  group: desbloquear
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+  actions: write
+
+jobs:
+  desbloquear:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: .github/scripts/desbloquear.sh

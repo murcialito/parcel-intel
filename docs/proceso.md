@@ -28,6 +28,8 @@ estado:refinar ──► estado:necesita-fundador ──► (respondes) ──�
                                                     │
                                                     ▼
           estado:en-desarrollo ──► estado:en-revision ──► (merge) ──► issue cerrada
+
+Cualquier estado ──► estado:bloqueada ──► (se cierran sus dependencias) ──► el estado de su línea "Desbloqueo"
                                         │      ▲
                                         ▼      │
                                    cambios-pedidos
@@ -38,6 +40,7 @@ estado:refinar ──► estado:necesita-fundador ──► (respondes) ──�
 | `estado:refinar` | El agente de refinamiento debe trabajarla | El fundador (o el agente al crear hijas) |
 | `estado:necesita-fundador` | Hay preguntas para el fundador en el último comentario | Agente de refinamiento, o desarrollo/revisión si se atascan |
 | `estado:diseno` | Historia grande o con decisión nueva: la diseña el arquitecto | Agente de refinamiento |
+| `estado:bloqueada` | Espera a que se cierren las issues de su línea `Desbloqueo: estado:<x> cuando se cierren #a, #b` | Cualquier agente; la quita `desbloquear.yml` |
 | `estado:lista` | Cumple la Definición de Lista | Agente de refinamiento o arquitecto |
 | `estado:en-desarrollo` | Un agente la está programando | Agente de desarrollo |
 | `estado:en-revision` | Hay PR abierta | Agente de desarrollo |
@@ -112,13 +115,29 @@ Por defecto: barato = `claude-haiku-5-5`, intermedio = `claude-sonnet-5-5`, capa
 
 La revisión nunca usa el modelo barato: es la última barrera antes del merge automático. Si el desarrollo de una `talla:s` falla, el reintento sube sola a `talla:m`.
 
+## Dependencias entre issues
+
+Una issue que no puede avanzar hasta que se cierren otras lleva `estado:bloqueada` y una línea en el cuerpo:
+
+```
+Desbloqueo: estado:diseno cuando se cierren #18, #19
+```
+
+`desbloquear.yml` (`.github/scripts/desbloquear.sh`, sin LLM) comprueba las bloqueadas:
+
+- tras cada merge, porque lo lanza `fusionar.yml`;
+- cuando cierras una issue a mano;
+- una vez al día, por si se escapa algo.
+
+Cuando todas sus dependencias están cerradas como completadas, le pone el estado de la línea, quita `estado:bloqueada`, lo comenta y lanza el workflow del agente (`disenar.yml`, `refinar.yml` o la cola de `desarrollar.yml`). Una dependencia cerrada como "not planned" no desbloquea: la issue se queda esperando a que lo decidas tú.
+
 ## Sincronización con el tablero
 
 Todas las issues se reflejan en el proyecto [Parcela Intel](https://github.com/users/murcialito/projects/1) mediante `sincronizar-tablero.yml`. Este workflow se lanza cuando se abre, cierra, reabre o cambia de etiquetas cualquier issue, y llama a `.github/scripts/sincronizar_tablero.sh`:
 
 | Etiqueta o estado de la issue | Columna (Status) |
 | --- | --- |
-| Sin estado, `estado:refinar` o `estado:diseno` | Backlog |
+| Sin estado, `estado:refinar`, `estado:diseno` o `estado:bloqueada` | Backlog |
 | `estado:necesita-fundador` | **Necesita al fundador** (lo que te espera) |
 | `estado:lista` | Ready |
 | `estado:en-desarrollo` | In progress |
