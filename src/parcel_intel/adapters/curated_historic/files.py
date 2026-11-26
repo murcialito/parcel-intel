@@ -15,7 +15,7 @@ import json
 import re
 from datetime import date, datetime
 from pathlib import Path
-from typing import TypedDict, TypeVar, get_args
+from typing import TypedDict, get_args
 
 from parcel_intel.domain.digitization import DigitizedTrail, InvalidDigitizationError, TrailKind
 from parcel_intel.domain.georeferencing import (
@@ -71,8 +71,6 @@ _DATE_PRECISIONS: tuple[DatePrecision, ...] = get_args(DatePrecision)
 _IMAGE_KINDS: tuple[WorkingImageKind, ...] = get_args(WorkingImageKind)
 _TRAIL_KINDS: tuple[TrailKind, ...] = get_args(TrailKind)
 
-_T = TypeVar("_T", bound=str)
-
 
 class UnitImageFile(TypedDict):
     kind: WorkingImageKind
@@ -102,7 +100,7 @@ class UnitFile(TypedDict):
 # -- utilidades de validación --------------------------------------------------
 
 
-def _choice(value: object, options: tuple[_T, ...], what: str) -> _T:
+def _choice[T: str](value: object, options: tuple[T, ...], what: str) -> T:
     for option in options:
         if value == option:
             return option

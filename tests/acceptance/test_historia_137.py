@@ -146,7 +146,8 @@ def test_ca1_imagen_en_cache_no_usa_red(tmp_path: Path) -> None:
     `280075-w1.provenance.json`), cuando se llama dos veces a `IgnHistoricImageAdapter.fetch(spec)`,
     entonces el `HttpGet` doble registra 0 llamadas y el `WorkingImage` lleva `sha256` =
     `80222cbcd74130a4d9624537232a6c8b9683b66b18cf3cf2a0acf2fe65430dd1`, 500 × 500, `image/png`,
-    `retrieved_at` del sidecar y `license = "CC-BY 4.0 © Instituto Geográfico Nacional de España"`."""
+    `retrieved_at` del sidecar y
+    `license = "CC-BY 4.0 © Instituto Geográfico Nacional de España"`."""
     cache = tmp_path / "cache"
     _populate_cache(cache)
     http = FakeHttp(b"no debe llamarse")
@@ -166,9 +167,9 @@ def test_ca1_imagen_en_cache_no_usa_red(tmp_path: Path) -> None:
 
 def test_ca2_cache_vacia_descarga_y_escribe_cuerpo_y_sidecar(tmp_path: Path) -> None:
     """Dada una caché vacía y un `HttpGet` doble que devuelve los bytes del recorte, cuando se llama
-    a `fetch`, entonces se escriben el cuerpo y el sidecar con `fuente`, `url` (la de `unidad.json`),
-    `fecha_descarga` (reloj inyectado), `licencia`, `sha256`, `formato`, `ancho_px`, `alto_px` y
-    `crs`. Una segunda llamada no usa la red."""
+    a `fetch`, entonces se escriben el cuerpo y el sidecar con `fuente`, `url` (la de
+    `unidad.json`), `fecha_descarga` (reloj inyectado), `licencia`, `sha256`, `formato`,
+    `ancho_px`, `alto_px` y `crs`. Una segunda llamada no usa la red."""
     cache = tmp_path / "cache"
     body = RECORTE.read_bytes()
     http = FakeHttp(body)
@@ -365,8 +366,8 @@ def _trail_cases() -> list[tuple[str, Callable[[dict[str, object]], None]]]:
 def test_ca8_trazados_fuera_del_formato_cerrado_se_rechazan(
     tmp_path: Path, reason: str, edit: Callable[[dict[str, object]], None]
 ) -> None:
-    """Dado un `trazados.geojson` modificado en `tmp_path` con una propiedad `propietario`, una clave
-    `id` en una feature, una clave `crs` de primer nivel, `review: "pendiente"`, una geometría
+    """Dado un `trazados.geojson` modificado en `tmp_path` con una propiedad `propietario`, una
+    clave `id` en una feature, una clave `crs` de primer nivel, `review: "pendiente"`, una geometría
     `MultiLineString` o un `trail_id` repetido, cuando se llama a `read_trails`, entonces cada caso
     lanza `InvalidDigitizationError` con motivo y no devuelve ningún trazado."""
     root = _copy_unit(tmp_path)
@@ -424,8 +425,6 @@ def test_ca10_unidad_json_fuera_del_formato_cerrado_se_rechaza(tmp_path: Path) -
     """Dado un `unidad.json` con una clave de más o de menos, o un `unit_id` distinto del nombre del
     directorio, cuando se llama a `read_unit`, entonces se rechaza. Si falta el directorio, lanza
     `CuratedUnitNotFoundError`."""
-    path_of = lambda root: root / UNIT_ID / "unidad.json"  # noqa: E731
-
     def extra(data: dict[str, object]) -> None:
         data["propietario"] = "X"
 
@@ -447,7 +446,7 @@ def test_ca10_unidad_json_fuera_del_formato_cerrado_se_rechaza(tmp_path: Path) -
         ("otro_unit_id", other_id),
     ):
         root = _copy_unit(tmp_path / name)
-        _edit_json(path_of(root), edit)
+        _edit_json(root / UNIT_ID / "unidad.json", edit)
         with pytest.raises(ValueError, match=r".+"):
             CuratedHistoricFiles(root).read_unit(UNIT_ID)
 
@@ -481,7 +480,9 @@ def test_ca12_integracion_wms_real_devuelve_png_500x500(tmp_path: Path) -> None:
 
     spec = _spec()
     cache = tmp_path / "cache"
-    adapter = IgnHistoricImageAdapter(cache, default_http_get, clock=date.today, offline=False)
+    adapter = IgnHistoricImageAdapter(
+        cache, default_http_get, clock=lambda: date.today(), offline=False
+    )
     try:
         image = adapter.fetch(spec)
     except RawImageMismatchError as error:
@@ -492,5 +493,9 @@ def test_ca12_integracion_wms_real_devuelve_png_500x500(tmp_path: Path) -> None:
     assert (image.width_px, image.height_px) == (500, 500)
     assert image.format == "image/png"
     assert (cache / f"{UNIT_ID}.provenance.json").exists()
-    offline = IgnHistoricImageAdapter(cache, FakeHttp(b"x"), clock=date.today, offline=True)
+    offline_http = FakeHttp(b"x")
+    offline = IgnHistoricImageAdapter(
+        cache, offline_http, clock=lambda: date.today(), offline=True
+    )
     assert offline.fetch(spec) == image
+    assert offline_http.calls == []

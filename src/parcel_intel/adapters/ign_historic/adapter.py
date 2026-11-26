@@ -17,7 +17,7 @@ import time
 from collections.abc import Callable, Mapping
 from datetime import date
 from pathlib import Path
-from typing import Protocol
+from typing import Literal, Protocol
 
 import requests
 
@@ -29,7 +29,7 @@ USER_AGENT = "parcel-intel-verificacion/0.1"  # el WMS rechaza el de `requests` 
 MAX_ATTEMPTS = 3
 _BACKOFF_SECONDS = (2.0, 4.0)
 _PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
-_PNG_MIME = "image/png"
+_PNG_MIME: Literal["image/png"] = "image/png"
 _CRS = "EPSG:25830"
 _SIDECAR_KEYS = frozenset(
     {
@@ -128,13 +128,16 @@ class IgnHistoricImageAdapter:
         sha256 = hashlib.sha256(content).hexdigest()
         if sha256 != sidecar["sha256"]:
             raise RawImageMismatchError(
-                spec.unit_id, f"el cuerpo ({sha256}) no coincide con su sidecar ({sidecar['sha256']})"
+                spec.unit_id,
+                f"el cuerpo ({sha256}) no coincide con su sidecar ({sidecar['sha256']})",
             )
         self._check_against_spec(spec, content, sha256)
         try:
             retrieved_at = date.fromisoformat(str(sidecar["fecha_descarga"]))
         except ValueError as exc:
-            raise RawImageMismatchError(spec.unit_id, "fecha_descarga del sidecar no válida") from exc
+            raise RawImageMismatchError(
+                spec.unit_id, "fecha_descarga del sidecar no válida"
+            ) from exc
         return self._working_image(spec, content, sha256, retrieved_at)
 
     @staticmethod
