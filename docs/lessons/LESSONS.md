@@ -390,3 +390,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el test de integridad del repo real debe pasar mientras no exista ningún `CONGELADO*.md` (solo valida `casos.json`) y ser estricto en cuanto exista el primero; así no bloquea CI durante la recopilación.
   - **Aplica a**: implementación.
 
+## [2026-11-26] Historia #85 — Visor estático con Leaflet
+
+- **Lección**: en Leaflet, "texto" no es texto. `bindPopup("…")` y `control.attribution().addAttribution("…")` insertan la cadena como **HTML**. Para mostrar datos o atribuciones como texto plano hay que pasar a `bindPopup` una función que devuelva un nodo construido con `textContent`, y escapar cada atribución antes de `addAttribution`. El diseño decía «texto plano» sin decir cómo lo consigue la librería.
+  - **Aplica a**: implementación (cualquier librería de mapas: leer cómo inserta cada contenido antes de darle datos externos) | review (buscar cadenas pasadas a `bindPopup`, `setContent` o `addAttribution`).
+
+- **Lección**: para probar módulos ES del sitio con `node --test` sin poner `package.json` en `site/` (sería un `.json` sin procedencia), se copian a un directorio temporal junto a un `package.json` `{"type": "module"}`. Renombrarlos a `.mjs` rompe los `import "./x.js"` entre módulos. El DOM se inyecta (`crearVista(document)`), para probarlo con un documento falso que lance en `innerHTML`.
+  - **Aplica a**: implementación (código JS del visor) | arquitecto (al diseñar módulos del navegador, dejar el `document` inyectable).
+
+- **Lección**: en las Actions de los agentes no se puede lanzar un navegador sin cabeza (`chromium`, `google-chrome` piden aprobación). La comprobación en un navegador real queda como paso manual anotado en la PR; los tests cubren el visor con un `L` falso, así que un error de uso de la API real de Leaflet solo se ve en el navegador.
+  - **Aplica a**: implementación (anotar en la PR qué no se pudo ver) | fundador (abrir la URL de Pages tras el despliegue).
+

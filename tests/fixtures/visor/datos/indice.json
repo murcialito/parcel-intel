@@ -1,0 +1,60 @@
+{
+ "municipios": [
+  {
+   "bbox": [
+    -3.43,
+    40.07,
+    -3.378,
+    40.102
+   ],
+   "capas": {
+    "camino_actual": "camino_actual/99001.geojson",
+    "vias_pecuarias": "vias_pecuarias/99001.geojson"
+   },
+   "ine": "99001",
+   "nombre": "Municipio sintético A"
+  },
+  {
+   "bbox": [
+    -3.37,
+    40.05,
+    -3.34,
+    40.07
+   ],
+   "capas": {
+    "camino_actual": "camino_actual/99002.geojson",
+    "vias_pecuarias": "vias_pecuarias/99002.geojson"
+   },
+   "ine": "99002",
+   "nombre": "Municipio sintético B"
+  },
+  {
+   "bbox": [
+    -3.51,
+    40.11,
+    -3.48,
+    40.13
+   ],
+   "capas": {
+    "camino_actual": "camino_actual/99003.geojson",
+    "vias_pecuarias": "vias_pecuarias/99003.geojson"
+   },
+   "ine": "99003",
+   "nombre": "Municipio sintético C"
+  },
+  {
+   "bbox": [
+    -3.31,
+    40.03,
+    -3.29,
+    40.05
+   ],
+   "capas": {
+    "camino_actual": "camino_actual/99004.geojson",
+    "vias_pecuarias": "vias_pecuarias/99004.geojson"
+   },
+   "ine": "99004",
+   "nombre": "Municipio sintético D"
+  }
+ ]
+}
