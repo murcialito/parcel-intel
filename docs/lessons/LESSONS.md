@@ -401,3 +401,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en las Actions de los agentes no se puede lanzar un navegador sin cabeza (`chromium`, `google-chrome` piden aprobación). La comprobación en un navegador real queda como paso manual anotado en la PR; los tests cubren el visor con un `L` falso, así que un error de uso de la API real de Leaflet solo se ve en el navegador.
   - **Aplica a**: implementación (anotar en la PR qué no se pudo ver) | fundador (abrir la URL de Pages tras el despliegue).
 
+## [2026-11-26] Historia #50 — Guardia de curated/** en fusionar.yml
+
+- **Lección**: en las Actions de los agentes `chmod` y `sed -i` sobre ficheros del repo piden aprobación. Los scripts nuevos de `.github/scripts/` se invocan con `bash fichero.sh` (en el workflow y en los tests), no por su ruta, para no depender del bit de ejecución. Y un test que busca `gh pr merge` en `fusionar.yml` encuentra primero el comentario de cabecera: se ancla a la orden real (`gh pr merge "$pr"`).
+  - **Aplica a**: implementación (scripts de shell y tests que leen workflows).
+
+- **Lección**: la lógica de decisión de un workflow (aquí «¿toca `curated/`?» y «¿aprobó el fundador el último commit?») se extrae a scripts que leen stdin; así se prueba con JSON fijo sin red y el YAML solo la invoca.
+  - **Aplica a**: arquitecto | implementación.
+
