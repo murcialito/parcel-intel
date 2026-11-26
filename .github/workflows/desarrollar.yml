@@ -221,6 +221,11 @@ jobs:
           ISSUE=$(sed -nE 's#^claude/historia-([0-9]+).*#\1#p' <<<"$RAMA")
           echo "modelo=$(.github/scripts/modelo.sh desarrollo "$ISSUE")" >> "$GITHUB_OUTPUT"
 
+      - name: Instrucciones del agente desde main
+        # La rama de la PR puede ser anterior a cambios en las instrucciones (p. ej. «CI: CAMBIOS»):
+        # el agente las lee siempre de main.
+        run: git show origin/main:.claude/agents/desarrollador.md > "$RUNNER_TEMP/desarrollador.md"
+
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -230,7 +235,8 @@ jobs:
             PR: #${{ github.event.pull_request.number }}
             RAMA: ${{ github.event.pull_request.head.ref }}
 
-            Actúa como el agente definido en .claude/agents/desarrollador.md, sección
+            Actúa como el agente definido en ${{ runner.temp }}/desarrollador.md (la versión de main de
+            .claude/agents/desarrollador.md; la copia de la rama puede estar desfasada), sección
             "Si te llaman para corregir", sobre la PR #${{ github.event.pull_request.number }}.
             Trabaja en la rama ${{ github.event.pull_request.head.ref }}, que ya está en el checkout.
           claude_args: |
