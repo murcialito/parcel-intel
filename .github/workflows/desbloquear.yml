@@ -3,7 +3,8 @@ name: Desbloquear
 # Pasa al estado declarado las issues con estado:bloqueada cuyas dependencias ya se cerraron
 # (línea "Desbloqueo: estado:<x> cuando se cierren #a, #b" en el cuerpo). Sin LLM: solo gh.
 # Lo lanza Fusionar tras cada merge (sus cierres con GITHUB_TOKEN no disparan "issues: closed"),
-# un cierre manual, o a mano. Una pasada diaria por si se escapa algo.
+# un cierre manual, o a mano. Una pasada diaria por si se escapa algo; esa pasada (y la manual)
+# también relanza las PRs de agentes que hayan quedado en conflicto con main.
 
 on:
   issues:
@@ -20,6 +21,7 @@ permissions:
   contents: read
   issues: write
   actions: write
+  pull-requests: read
 
 jobs:
   desbloquear:
@@ -31,3 +33,9 @@ jobs:
           PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
           REPO: ${{ github.repository }}
         run: .github/scripts/desbloquear.sh
+      - name: PRs de agentes en conflicto con main
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: .github/scripts/ramas_en_conflicto.sh

@@ -82,6 +82,14 @@ jobs:
           gh workflow run desbloquear.yml -R "$REPO" --ref main
           gh workflow run desarrollar.yml -R "$REPO" --ref main || echo "Desarrollar desactivado: no se lanza la siguiente historia."
 
+      - name: Actualizar las PRs de agentes que este merge deja en conflicto
+        if: steps.fusion.outputs.fusionada == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: .github/scripts/ramas_en_conflicto.sh
+
       - name: Mover la historia a Done en el tablero
         continue-on-error: true  # el tablero es un reflejo; no tumba un merge ya hecho
         if: steps.fusion.outputs.fusionada == 'true' && steps.fusion.outputs.historia != ''

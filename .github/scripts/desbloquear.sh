@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Desbloquea las issues con estado:bloqueada cuyas dependencias ya están cerradas como completadas.
+# shellcheck disable=SC2016  # las variables $x de GraphQL van literales a propósito
+# Desbloquea las issues con estado:bloqueada cuyas dependencias ya están cerradas como completadas
+# (o, si la dependencia es una historia madre, cuando todas sus hijas están cerradas).
 # Cada issue bloqueada declara en su cuerpo una línea así:
 #   Desbloqueo: estado:diseno cuando se cierren #18, #19
 # Al desbloquear pone ese estado, quita estado:bloqueada, comenta y lanza el workflow que le toca
@@ -18,8 +20,18 @@ for n in $(gh issue list -R "$REPO" --state open --label estado:bloqueada --limi
 
   pendientes=""
   for d in $deps; do
-    estado=$(gh issue view "$d" -R "$REPO" --json state,stateReason --jq '"\(.state) \(.stateReason)"')
-    [ "$estado" = "CLOSED COMPLETED" ] || pendientes="$pendientes #$d"
+    # Hecha si se cerró como completada, o si es una historia madre con todas sus hijas cerradas
+    # (una madre no se cierra sola al terminar sus hijas).
+    hecha=$(gh api graphql -f query='
+      query($o: String!, $r: String!, $n: Int!) {
+        repository(owner: $o, name: $r) {
+          issue(number: $n) { state stateReason subIssues(first: 100) { totalCount nodes { state } } }
+        }
+      }' -f o="${REPO%/*}" -f r="${REPO#*/}" -F n="$d" \
+      --jq '.data.repository.issue
+            | (.state == "CLOSED" and .stateReason == "COMPLETED")
+              or (.subIssues.totalCount > 0 and ([.subIssues.nodes[].state] | index("OPEN") == null))')
+    [ "$hecha" = "true" ] || pendientes="$pendientes #$d"
   done
   if [ -n "$pendientes" ]; then echo "#$n sigue bloqueada por$pendientes."; continue; fi
 

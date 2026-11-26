@@ -1,0 +1,2 @@
+# Cada historia añade lecciones al final: al fusionar ramas se conservan las dos versiones.
+docs/lessons/LESSONS.md merge=union

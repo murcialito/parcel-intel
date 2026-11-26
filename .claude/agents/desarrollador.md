@@ -43,6 +43,15 @@ Lee `CLAUDE.md` (las reglas de arquitectura son innegociables), `docs/proceso.md
   - comenta en la issue mencionando a @murcialito con el resumen del atasco;
   - pon `estado:necesita-fundador` en la issue y `veto` en la PR.
 
+## Si tu PR está en conflicto con main
+
+GitHub no ejecuta CI ni la revisión de una PR con conflictos, así que `actualizar-rama.yml` te llama para desbloquearla:
+
+1. `git fetch origin main` y `git merge origin/main` (merge, nunca rebase ni push forzado: la rama ya está publicada).
+2. Resuelve cada conflicto conservando la intención de los dos lados. En `docs/lessons/LESSONS.md` quedan las lecciones de ambos. Si un conflicto exige decidir algo de diseño, no lo resuelvas: comenta en la issue mencionando a @murcialito y para.
+3. Ejecuta los cinco comandos de "Cómo trabajas", paso 6, y deja todo en verde.
+4. Haz commit del merge y `git push` a la misma rama. CI y la revisión vuelven a correr solos.
+
 ## Si te atascas
 
 Si un criterio no se puede cumplir tal como está escrito, no lo reinterpretes por tu cuenta:
