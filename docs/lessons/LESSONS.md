@@ -506,4 +506,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: en esta sesión no había PostGIS ni permiso para Docker, así que los criterios `[integración: PostGIS]` solo corren en CI. Se cuadró a mano el número de `%s` y de parámetros de cada sentencia (el fallo más probable al no poder ejecutarlas) y se dejó el resto a CI.
   - **Aplica a**: implementación (si no se puede ejecutar la base, contar placeholders y decir en la PR que no se ejecutó).
+## [2026-11-26] Historia #137 — Entrada curada y caché de la imagen de trabajo
+
+- **Lección**: el sha256 de un fichero versionado solo es estable si git no toca sus finales de línea. `.gitattributes` marca `curated/historico/**` y la fixture como `-text` (CA11), y la lectura del CSV calcula el hash sobre los **bytes** del fichero, no sobre el texto decodificado: con BOM o CRLF el hash cambia a propósito, porque eso es lo que vio quien aprobó. Un test que mezcla las dos cosas (BOM → mismo contenido, otro sha256) lo documenta.
+  - **Aplica a**: implementación (cualquier fichero cuyo hash se copie a otro sitio como firma de «lo que vi»).
+
+- **Lección**: en un borde de validación estricta, los helpers que extraen un campo tipado (`_text`, `_integer`, `_choice`) evitan `cast` y `type: ignore` y dejan que mypy compruebe el `TypedDict` de salida. Para un `Literal` cerrado, `options: tuple[T, ...] = get_args(Literal)` más `_choice` devuelve el literal ya estrechado. Y un `lambda` asignado a una variable en un test cuenta como función sin tipar para `mypy` estricto (`no-untyped-call`): se escribe inline o como `def`.
+  - **Aplica a**: implementación (nuevos lectores de ficheros de formato cerrado).
+
+- **Lección**: el WMS de minutas del IGN devolvió byte a byte el mismo PNG (sha256 idéntico) del recorte versionado en #17 al día siguiente, así que un hash declarado en `unidad.json` es una comprobación realista y no un falso positivo. Aun así, el adapter trata cualquier diferencia como `RawImageMismatchError` y no escribe nada: los puntos de control se tomaron sobre aquella imagen.
+  - **Aplica a**: implementación (adapters de imágenes con hash declarado) | review.
 

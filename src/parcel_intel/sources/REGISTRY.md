@@ -621,6 +621,7 @@ Verificado el 2026-11-25 para la [historia #17](https://github.com/murcialito/pa
 | Puntos de control reconocibles hoy | `asumido` | 6 por imagen (cruce radial norte, iglesia, Plaza Mayor, ermita de San Juan, cementerio, ermita del Cristo); 3 con coordenada leída a ojo en el PNOA (±25 a 30 m), 3 `sin coordenada`. Los 3 con coordenada están a menos de 600 m entre sí: sirven para medir el desajuste local, no para ajustar toda la hoja |
 | Desajuste local MTN50 frente a PNOA en el casco | `asumido` | 15 a 60 m a ojo; no medido con rigor |
 | Ficha MTN50 0606 en el Centro de Descargas (tamaño, píxeles del original) | `bloqueado` | No se abrió en esta historia; queda para la de georreferenciación |
+| Unidad `280075-w1` de la fixture (historia #137): el `GetMap` de la ventana `466200,4439450,467200,4440450` a 500 × 500 px | `confirmado` | Verificado el 2026-11-26 con `User-Agent: parcel-intel-verificacion/0.1`: `200 image/png`, 428.157 B, sha256 `80222cbc…30dd1`, **idéntico** al del recorte versionado `planimetria_colmenar_280075_recorte_casco_2mpx.png`. El render es estable entre descargas. CA12 de #137 lo vuelve a comprobar (`pytest -m integration tests/acceptance/test_historia_137.py`); si algún día cambia, `RawImageMismatchError` es el comportamiento correcto |
 
 ### Licencia y atribución exacta
 

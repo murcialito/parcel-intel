@@ -260,3 +260,36 @@ class OrthophotoNotCoveredError(Exception):
     def __init__(self, vintage: HistoricalVintage) -> None:
         super().__init__(f"El vuelo {vintage!r} no cubre la ventana pedida")
         self.vintage = vintage
+
+
+class RawImageMismatchError(Exception):
+    """La imagen de trabajo de una unidad no es la que declara `unidad.json`:
+    otro sha256, otras dimensiones o un sidecar que no cuadra con su cuerpo --
+    historia #137, ADR 0043. Nunca se usa una imagen distinta de la declarada:
+    los puntos de control se tomaron sobre aquella."""
+
+    def __init__(self, unit_id: str, detail: str) -> None:
+        super().__init__(f"Imagen de trabajo de {unit_id} no coincide con la declarada: {detail}")
+        self.unit_id = unit_id
+        self.detail = detail
+
+
+class WorkingImageUnavailableError(Exception):
+    """No hay imagen de trabajo en la caché y no se puede (o no se debe)
+    descargar: modo sin red, o una unidad `original_cnig`, cuya descarga pasa
+    por un captcha y la hace una persona -- historia #137."""
+
+    def __init__(self, unit_id: str, detail: str) -> None:
+        super().__init__(f"Imagen de trabajo de {unit_id} no disponible: {detail}")
+        self.unit_id = unit_id
+        self.detail = detail
+
+
+class CuratedUnitNotFoundError(Exception):
+    """Falta el directorio de una unidad en `curated/historico/` o alguno de
+    sus tres ficheros -- historia #137."""
+
+    def __init__(self, unit_id: str, detail: str) -> None:
+        super().__init__(f"Sin entrada curada para la unidad {unit_id}: {detail}")
+        self.unit_id = unit_id
+        self.detail = detail

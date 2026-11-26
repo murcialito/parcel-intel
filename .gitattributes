@@ -1,2 +1,5 @@
 # Cada historia añade lecciones al final: al fusionar ramas se conservan las dos versiones.
 docs/lessons/LESSONS.md merge=union
+# Los finales de línea cambiarían el sha256 de puntos_control.csv y caducarían las aprobaciones (ADR 0043).
+curated/historico/** -text
+tests/fixtures/caminos/planimetrias/historico/** -text
