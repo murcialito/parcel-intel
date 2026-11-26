@@ -1,0 +1,112 @@
+name: Corregir
+
+# El desarrollador corrige su PR cuando tiene la etiqueta cambios-pedidos: la pone el revisor
+# («Revisión: CAMBIOS») o Fusionar cuando falla CI («CI: CAMBIOS»).
+# Se lanza por workflow_dispatch desde desarrollar.yml, y no directamente por el evento de etiqueta.
+# Con pull_request, el workflow sale de la versión de la PR. Si difiere del de main,
+# claude-code-action se salta en silencio con éxito, y la corrección no hacía nada (#86).
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "Número de la PR con cambios-pedidos"
+        required: true
+
+concurrency:
+  group: corregir-${{ inputs.pr }}
+  cancel-in-progress: false
+
+jobs:
+  corregir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ inputs.pr }}
+        run: |
+          datos=$(gh pr view "$PR" -R "$REPO" --json headRefName,headRefOid,state,labels)
+          rama=$(jq -r .headRefName <<<"$datos")
+          case "$rama" in claude/*) ;; *) echo "::error::La PR #$PR no es de un agente ($rama)."; exit 1 ;; esac
+          [ "$(jq -r .state <<<"$datos")" = "OPEN" ] || { echo "::error::La PR #$PR no está abierta."; exit 1; }
+          if jq -e '.labels[].name | select(. == "veto")' <<<"$datos" >/dev/null; then echo "::error::La PR #$PR tiene veto."; exit 1; fi
+          echo "rama=$rama" >> "$GITHUB_OUTPUT"
+          echo "cabeza=$(jq -r .headRefOid <<<"$datos")" >> "$GITHUB_OUTPUT"
+          echo "historia=$(sed -nE 's#^claude/historia-([0-9]+).*#\1#p' <<<"$rama")" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr.outputs.rama }}
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v6
+
+      - run: uv sync --frozen --extra dev
+
+      - id: modelo
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          MODELO_BARATO: ${{ vars.MODELO_BARATO }}
+          MODELO_INTERMEDIO: ${{ vars.MODELO_INTERMEDIO }}
+          MODELO_CAPAZ: ${{ vars.MODELO_CAPAZ }}
+          ISSUE: ${{ steps.pr.outputs.historia }}
+        run: echo "modelo=$(.github/scripts/modelo.sh desarrollo "$ISSUE")" >> "$GITHUB_OUTPUT"
+
+      - name: Instrucciones del agente desde main
+        # La rama puede ser anterior a cambios en las instrucciones: el agente las lee de main.
+        run: git show origin/main:.claude/agents/desarrollador.md > "$RUNNER_TEMP/desarrollador.md"
+
+      - id: agente
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_bots: "claude[bot],github-actions[bot]"  # github-actions: lo lanza desarrollar.yml
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR: #${{ inputs.pr }}
+            RAMA: ${{ steps.pr.outputs.rama }}
+
+            Actúa como el agente definido en ${{ runner.temp }}/desarrollador.md (la versión de main de
+            .claude/agents/desarrollador.md; la copia de la rama puede estar desfasada), sección
+            "Si te llaman para corregir", sobre la PR #${{ inputs.pr }}.
+            Trabaja en la rama ${{ steps.pr.outputs.rama }}, que ya está en el checkout.
+          claude_args: |
+            --model ${{ steps.modelo.outputs.modelo }}
+            --max-turns 150
+            --allowedTools "WebSearch,WebFetch,Read,Glob,Grep,Edit,Write,Bash(uv:*),Bash(git:*),Bash(gh:*),Bash(python3:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
+            --disallowedTools "Bash(gh pr merge:*),Bash(gh api:*)"
+
+      - name: Guardar transcripción del agente
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: transcripcion-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/claude-execution-output.json
+          retention-days: 3
+          if-no-files-found: ignore
+
+      - name: Avisar si la corrección no cambió nada
+        # Que el agente acabe sin commits nuevos y con cambios-pedidos puesto es un atasco silencioso:
+        # se deja constancia para que la revisión horaria (o el fundador) lo vea.
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ inputs.pr }}
+          ANTES: ${{ steps.pr.outputs.cabeza }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          datos=$(gh pr view "$PR" -R "$REPO" --json headRefOid,labels)
+          if [ "$(jq -r .headRefOid <<<"$datos")" = "$ANTES" ] && jq -e '.labels[].name | select(. == "cambios-pedidos")' <<<"$datos" >/dev/null; then
+            gh pr comment "$PR" -R "$REPO" --body "Corrección sin cambios: el agente terminó sin commits nuevos y la etiqueta \`cambios-pedidos\` sigue puesta ($RUN_URL)."
+            echo "::warning::Corrección sin cambios en la PR #$PR."
+          fi
