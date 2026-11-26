@@ -10,7 +10,7 @@ Decidido el 2026-11-25 ([ADR 0022](adr/0022-backlog-en-github-agentes-en-actions
 | Feature | `tipo:feature` | Una capacidad entregable dentro de la épica | El agente de refinamiento la parte en historias |
 | Historia | `tipo:historia` | Un incremento que cabe en una PR y se puede probar | Es lo que se desarrolla |
 
-Las tres son issues del repo. La relación padre-hijo usa **sub-issues** de GitHub. Todas aparecen solas en el tablero del proyecto [Parcela Intel](https://github.com/users/murcialito/projects/1) (ver "Sincronización con el tablero").
+Las tres son issues del repo. La relación padre-hijo usa **sub-issues** de GitHub. Todas aparecen solas en el tablero del proyecto [Paso Común](https://github.com/users/murcialito/projects/1) (ver "Sincronización con el tablero").
 
 El número de historia es el número de la issue: "Historia #12". Las historias 0001–0021 de `docs/stories/` se quedan como archivo histórico; las nuevas viven solo en su issue.
 
@@ -141,7 +141,7 @@ En la misma pasada, `desbloquear.yml` cierra los contenedores terminados: épica
 
 ## Sincronización con el tablero
 
-Todas las issues se reflejan en el proyecto [Parcela Intel](https://github.com/users/murcialito/projects/1) mediante `sincronizar-tablero.yml`. Este workflow se lanza cuando se abre, cierra, reabre o cambia de etiquetas cualquier issue, y llama a `.github/scripts/sincronizar_tablero.sh`:
+Todas las issues se reflejan en el proyecto [Paso Común](https://github.com/users/murcialito/projects/1) mediante `sincronizar-tablero.yml`. Este workflow se lanza cuando se abre, cierra, reabre o cambia de etiquetas cualquier issue, y llama a `.github/scripts/sincronizar_tablero.sh`:
 
 | Etiqueta o estado de la issue | Columna (Status) |
 | --- | --- |
