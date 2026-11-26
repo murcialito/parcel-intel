@@ -362,3 +362,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: `uv run pytest -m acceptance`, escrito literalmente, pisa el `addopts = "-m 'not integration'"` de `pyproject.toml` y ejecuta también los tests `[integración]` contra la red real (tarda más de 2 minutos). Sin red, usar `-m "acceptance and not integration"`.
   - **Aplica a**: implementación.
+
+## [2026-11-26] Historia #52 — Casos de caminos cerrados del ámbito
+
+- **Lección**: `WebFetch` no lee los PDF con texto codificado por glifos (actas de pleno, BOCM): devuelve el binario. El PDF queda guardado en `tool-results/`; sin `pdftotext` ni librerías, basta `python -I` con `zlib` para descomprimir los flujos y aplicar los `ToUnicode` de cada fuente. Para el BOCM es más rápido la versión HTML `https://www.bocm.es/bocm-AAAAMMDD-N`.
+  - **Causa**: las actas de comisión salen con texto parcialmente corrupto (letras sustituidas): sirven para localizar un punto, no para citar.
+  - **Aplica a**: implementación.
+
+- **Lección**: antes de atribuir un camino a un municipio, comprobar que el homónimo no es otro: el «Colmenar» de una búsqueda era Colmenar Viejo (Vado de la Tabla), no Colmenar de Oreja (lección 0021 otra vez).
+  - **Aplica a**: implementación | BA.
