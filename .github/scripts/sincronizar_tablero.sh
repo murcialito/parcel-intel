@@ -12,6 +12,7 @@
 # Idempotente: se puede llamar con cualquier evento.
 # Entradas por entorno: GH_TOKEN (permiso project), REPO_TOKEN (lectura y asignación en el repo;
 # si falta, GH_TOKEN), OWNER, PROJECT_NUMBER, REPO, ISSUE (número).
+# Opcionales: TABLERO_CACHE (carpeta de caché compartida), SIN_PADRES=1 (no recalcula los padres).
 set -euo pipefail
 
 if [ -z "${GH_TOKEN:-}" ]; then
@@ -21,8 +22,8 @@ fi
 
 repo_gh() { GH_TOKEN="${REPO_TOKEN:-$GH_TOKEN}" gh "$@"; }
 HOY=$(date -u +%F)
-CACHE=$(mktemp -d)
-trap 'rm -rf "$CACHE"' EXIT
+# TABLERO_CACHE permite compartir la caché entre llamadas de una pasada completa.
+if [ -n "${TABLERO_CACHE:-}" ]; then CACHE="$TABLERO_CACHE"; else CACHE=$(mktemp -d); trap 'rm -rf "$CACHE"' EXIT; fi
 
 # Datos de una issue (cacheados en esta ejecución).
 issue() {
@@ -177,7 +178,9 @@ rango=$(sincronizar_fechas "$ISSUE" "$item_id")
 echo "Issue #$ISSUE → Status '$columna'${talla:+, Size '$talla'}, fechas $rango."
 
 # --- Sus padres, hasta la épica --------------------------------------------------------------
-padre=$(jq -r '.parent.number // empty' <<<"$datos")
+# En una pasada completa (SIN_PADRES=1) cada padre se sincroniza en su propio turno.
+padre=""
+[ -z "${SIN_PADRES:-}" ] && padre=$(jq -r '.parent.number // empty' <<<"$datos")
 while [ -n "$padre" ]; do
   echo "  padre #$padre → fechas $(sincronizar_fechas "$padre" "$(item_de "$padre")")."
   padre=$(issue "$padre" | jq -r '.parent.number // empty')

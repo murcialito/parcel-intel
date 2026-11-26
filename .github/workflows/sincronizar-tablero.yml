@@ -39,6 +39,8 @@ jobs:
           ISSUE: ${{ github.event.issue.number || inputs.issue }}
         run: |
           if [ -n "$ISSUE" ]; then exec .github/scripts/sincronizar_tablero.sh; fi
+          export TABLERO_CACHE="$RUNNER_TEMP/tablero" SIN_PADRES=1
+          mkdir -p "$TABLERO_CACHE"
           for n in $(GH_TOKEN="$REPO_TOKEN" gh issue list -R "$REPO" --state all --limit 500 --json number --jq '.[].number'); do
             ISSUE=$n .github/scripts/sincronizar_tablero.sh
           done
