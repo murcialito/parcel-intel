@@ -21,7 +21,11 @@ CAMPOS_OBLIGATORIOS: tuple[str, ...] = (
     "tramo_descripcion",
     "cierre_fecha_aproximada",
 )
-CAMPOS_OPCIONALES: tuple[str, ...] = ("tramo_linea", "sintetico")
+CAMPOS_OPCIONALES: tuple[str, ...] = ("tramo_linea", "sintetico", "cierre_fecha_tipo", "nota_fecha")
+
+# `explicita`: la fuente da la fecha del cierre (valor por defecto si el campo falta).
+# `documentado_desde`: fecha de la fuente más antigua que documenta un cierre ya existente.
+CIERRE_FECHA_TIPOS: frozenset[str] = frozenset({"explicita", "documentado_desde"})
 
 FUENTES_TIPO: frozenset[str] = frozenset({"prensa", "asociación", "resolución", "otra"})
 AMBITOS: frozenset[str] = frozenset({"hito", "comunidad"})
@@ -89,6 +93,7 @@ def _validar_caso(caso: object, posicion: int, ids_vistos: set[str]) -> list[str
 
     if "tramo_linea" in caso:
         errores.extend(_errores_tramo_linea(caso["tramo_linea"], et))
+    errores.extend(_errores_fecha_tipo(caso, et))
     if "sintetico" in caso and not isinstance(caso["sintetico"], bool):
         errores.append(f"{et}: 'sintetico' debe ser true o false")
     return errores
@@ -139,6 +144,20 @@ def _errores_de_valores(caso: dict[object, object], et: str, ids_vistos: set[str
                 errores.append(f"{et}: el campo '{clave}' contiene una referencia catastral")
             if _PATRON_SOCIEDAD.search(texto):
                 errores.append(f"{et}: el campo '{clave}' contiene un nombre de sociedad")
+    return errores
+
+
+def _errores_fecha_tipo(caso: dict[object, object], et: str) -> list[str]:
+    errores: list[str] = []
+    tipo = caso.get("cierre_fecha_tipo", "explicita")
+    if tipo not in CIERRE_FECHA_TIPOS:
+        errores.append(
+            f"{et}: 'cierre_fecha_tipo' no válido: debe ser explicita o documentado_desde"
+        )
+    if "nota_fecha" in caso and _texto(caso["nota_fecha"]) is None:
+        errores.append(f"{et}: 'nota_fecha' debe ser texto no vacío")
+    if tipo == "documentado_desde" and _texto(caso.get("nota_fecha")) is None:
+        errores.append(f"{et}: 'cierre_fecha_tipo' documentado_desde exige 'nota_fecha'")
     return errores
 
 

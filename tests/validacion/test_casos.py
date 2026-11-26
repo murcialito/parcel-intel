@@ -52,3 +52,46 @@ def test_tramo_linea_valido_no_da_errores() -> None:
     caso = _caso()
     caso["tramo_linea"] = [[430000, 4450000], [431000, 4451000], [432000, 4450500]]
     assert validar_casos({"casos": [caso]}) == []
+
+
+def test_cierre_fecha_tipo_ausente_se_trata_como_explicita() -> None:
+    assert validar_casos({"casos": [_caso()]}) == []
+
+
+def test_cierre_fecha_tipo_explicita_es_valido() -> None:
+    caso = _caso()
+    caso["cierre_fecha_tipo"] = "explicita"
+    assert validar_casos({"casos": [caso]}) == []
+
+
+def test_cierre_fecha_tipo_desconocido_es_error() -> None:
+    caso = _caso()
+    caso["cierre_fecha_tipo"] = "aproximada"
+    errores = validar_casos({"casos": [caso]})
+    assert any("cierre_fecha_tipo" in e for e in errores)
+
+
+def test_documentado_desde_sin_nota_fecha_es_error() -> None:
+    caso = _caso()
+    caso["cierre_fecha_tipo"] = "documentado_desde"
+    errores = validar_casos({"casos": [caso]})
+    assert any("nota_fecha" in e for e in errores)
+
+
+def test_documentado_desde_con_nota_fecha_es_valido() -> None:
+    caso = _caso()
+    caso["cierre_fecha_tipo"] = "documentado_desde"
+    caso["nota_fecha"] = "Fecha de la nota de prensa citada como fuente."
+    assert validar_casos({"casos": [caso]}) == []
+
+
+def test_nota_fecha_vacia_es_error() -> None:
+    caso = _caso()
+    caso["nota_fecha"] = "  "
+    assert validar_casos({"casos": [caso]}) != []
+
+
+def test_nota_fecha_se_revisa_contra_sociedades() -> None:
+    caso = _caso()
+    caso["nota_fecha"] = "según Fulana S.L."
+    assert validar_casos({"casos": [caso]}) != []

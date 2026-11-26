@@ -17,6 +17,8 @@ El fichero es un objeto con una lista `casos`. Cada caso tiene estos campos:
 | `tramo_descripcion` | sí | Descripción neutra del tramo, p. ej. «camino entre X e Y, paraje Z». |
 | `cierre_fecha_aproximada` | sí | Fecha aproximada del cierre: `AAAA`, `AAAA-MM` o `AAAA-MM-DD`. |
 | `tramo_linea` | no | Línea aproximada en EPSG:25830: lista de al menos 2 puntos `[x, y]`, abierta. Nunca un polígono de parcela. |
+| `cierre_fecha_tipo` | no | `explicita` (la fuente da la fecha del cierre; valor por defecto si falta) o `documentado_desde` (fecha de la fuente más antigua que documenta el cierre; el cierre fue anterior o simultáneo). |
+| `nota_fecha` | sí si `documentado_desde` | Texto neutro que dice qué documento da la fecha. |
 | `sintetico` | no | `true` solo para casos de prueba del validador; no cuentan en los recuentos. |
 
 ## Reglas
@@ -26,6 +28,8 @@ El fichero es un objeto con una lista `casos`. Cada caso tiene estos campos:
 - **Sin referencias catastrales de fincas.** Campos como `propietario`, `titular`,
   `referencia_catastral` o `refcat` son error, y las referencias de 14 o 20 caracteres también
   en el texto.
+- **Fecha aproximada, nunca inventada.** Si ninguna fuente da la fecha del corte, el caso lleva
+  `cierre_fecha_tipo: documentado_desde` y la fecha de la fuente más antigua que lo documenta.
 - **La fuente es el único respaldo.** El proyecto no afirma nada propio sobre el caso.
 - **Trazabilidad.** Cada caso enlaza a su fuente y tiene fecha de consulta.
 
