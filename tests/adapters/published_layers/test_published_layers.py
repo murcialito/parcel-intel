@@ -116,6 +116,22 @@ def test_indice_ordenado_por_nombre_y_codigo() -> None:
     assert provenance["url"] == "https://example.invalid/repo"
 
 
+def test_indice_ordena_nombres_con_tilde_junto_a_su_letra() -> None:
+    bbox = (-3.5, 40.0, -3.4, 40.1)
+    entries = [
+        IndexEntry("camino_actual", "28001", "Zarzalejo", bbox, "2026-11-01"),
+        IndexEntry("camino_actual", "28002", "Álamo", bbox, "2026-11-01"),
+        IndexEntry("camino_actual", "28003", "Belmonte", bbox, "2026-11-01"),
+        IndexEntry("camino_actual", "28004", "Alameda", bbox, "2026-11-01"),
+    ]
+
+    index, _ = build_index(entries, "u")
+
+    municipios = index["municipios"]
+    assert isinstance(municipios, list)
+    assert [m["nombre"] for m in municipios] == ["Alameda", "Álamo", "Belmonte", "Zarzalejo"]
+
+
 def test_indice_falla_si_un_municipio_tiene_dos_nombres() -> None:
     entries = [
         IndexEntry("camino_actual", "28001", "A", (0, 0, 1, 1), "2026-11-01"),
@@ -175,6 +191,32 @@ def test_sink_con_un_fichero_publicado_ilegible_no_escribe_nada(tmp_path: Path) 
         )
 
     assert sorted(p.name for p in tmp_path.rglob("*") if p.is_file()) == ["28001.geojson"]
+
+
+def test_sink_repara_un_fichero_ilegible_al_republicarlo(tmp_path: Path) -> None:
+    # Diseño de #84, §2: el índice sale de los ficheros que NO se van a reemplazar;
+    # el que se reemplaza no se lee, así que estar corrupto no bloquea su reparación.
+    broken = tmp_path / "vias_pecuarias" / "28001.geojson"
+    broken.parent.mkdir(parents=True)
+    broken.write_text("{roto", encoding="utf-8")
+    sink = GeoJsonPublishedLayerSink(tmp_path, "u")
+
+    sink.publish(
+        [
+            _publication(
+                "vias_pecuarias",
+                (_trail(Geometry(rings=(_square(),), srid=25830)),),
+                code="28001",
+                name="Uno",
+            )
+        ]
+    )
+
+    document = json.loads(broken.read_text(encoding="utf-8"))
+    assert document["properties"]["municipio"] == "28001"
+    assert len(document["features"]) == 1
+    index = json.loads((tmp_path / "indice.json").read_text(encoding="utf-8"))
+    assert "28001" in json.dumps(index)
 
 
 def test_sink_rechaza_un_trazado_sin_geometria_sin_escribir(tmp_path: Path) -> None:

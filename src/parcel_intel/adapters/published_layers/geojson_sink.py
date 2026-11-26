@@ -190,11 +190,7 @@ class GeoJsonPublishedLayerSink:
             return ()
         serialized = [self._serialize(publication) for publication in publications]
         new_keys = {(item.entry.layer_id, item.entry.municipality_code) for item in serialized}
-        entries = [item.entry for item in serialized] + [
-            entry
-            for entry in self._existing_entries()
-            if (entry.layer_id, entry.municipality_code) not in new_keys
-        ]
+        entries = [item.entry for item in serialized] + self._existing_entries(skip=new_keys)
         index, index_provenance = build_index(entries, self._repository_url)
         index_text = dump_compact(index)
         index_provenance_text = dump_provenance(index_provenance)
@@ -246,7 +242,12 @@ class GeoJsonPublishedLayerSink:
             entry=entry,
         )
 
-    def _existing_entries(self) -> list[IndexEntry]:
+    def _existing_entries(self, skip: set[tuple[str, str]]) -> list[IndexEntry]:
+        """Entradas del índice de los ficheros ya publicados que no se van a reemplazar.
+
+        Los `(capa, ine)` de `skip` no se leen: así un fichero publicado ilegible
+        se repara volviendo a publicarlo (Diseño de #84, §2).
+        """
         entries: list[IndexEntry] = []
         for layer_id in sorted(PUBLISHED_LAYERS):
             directory = self._directory / layer_id
@@ -255,6 +256,8 @@ class GeoJsonPublishedLayerSink:
             for path in sorted(directory.iterdir()):
                 match = _MUNICIPALITY_FILE_RE.fullmatch(path.name)
                 if match is None or not path.is_file():
+                    continue
+                if (layer_id, match.group(1)) in skip:
                     continue
                 try:
                     document = json.loads(path.read_text(encoding="utf-8"))

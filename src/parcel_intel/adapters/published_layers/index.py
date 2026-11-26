@@ -7,6 +7,7 @@ todas). Se construye siempre entero a partir de los GeoJSON publicados, sin fech
 generación.
 """
 
+import unicodedata
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 
@@ -25,6 +26,12 @@ class IndexEntry:
     municipality_name: str
     bbox: tuple[float, float, float, float]
     retrieved_at: str  # ISO, `fecha_descarga` de la procedencia de la capa
+
+
+def _collation_key(name: str) -> str:
+    """Orden alfabético sin depender del locale: «Ávila» va con la A, no al final."""
+    decomposed = unicodedata.normalize("NFD", name.casefold())
+    return "".join(char for char in decomposed if not unicodedata.combining(char))
 
 
 def _positions(value: object) -> Iterator[tuple[float, float]]:
@@ -107,7 +114,9 @@ def build_index(
                 },
             }
         )
-    municipalities.sort(key=lambda item: (str(item["nombre"]), str(item["ine"])))
+    municipalities.sort(
+        key=lambda item: (_collation_key(str(item["nombre"])), str(item["ine"]))
+    )
     all_entries = [entry for group in by_code.values() for entry in group]
     provenance: dict[str, object] = {
         "fuente": INDEX_SOURCE,

@@ -22,6 +22,7 @@ from parcel_intel.ports.published_layer_sink import PublishedLayerSink
 from parcel_intel.ports.trail_layer import MunicipalTrailLayerPort
 
 DEFAULT_LAYERS: tuple[PublishedLayerId, ...] = ("vias_pecuarias", "camino_actual")
+EMPTY_LAYER_REASON = "capa vacía con procedencia no publicable"
 
 
 class PublishLayersUseCase:
@@ -55,11 +56,14 @@ class PublishLayersUseCase:
                     )
                 except NotRedistributableError as error:
                     provenance = error.provenance
+                    # Sin trazados, lo rechazado es la procedencia de la colección:
+                    # regenerar la capa no lo arregla, así que se dice explícitamente.
+                    what = EMPTY_LAYER_REASON if not layer.trails else "procedencia"
                     failures.append(
                         PublicationFailure(
                             layer_id,
                             code,
-                            f"no redistribuible: procedencia '{provenance.source}' "
+                            f"no redistribuible: {what} '{provenance.source}' "
                             f"({provenance.url}) marcada "
                             f"'{provenance.redistribution.value}'",
                         )

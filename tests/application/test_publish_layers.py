@@ -195,3 +195,23 @@ def test_no_redistribuible_nombra_la_procedencia() -> None:
     assert reason.startswith("no redistribuible")
     assert "https://example.invalid/interna" in reason
     assert "solo_uso_interno" in reason
+    # Capa vacía: lo rechazado es la procedencia de la colección (regenerar no sirve).
+    assert "capa vacía con procedencia no publicable" in reason
+
+
+def test_no_redistribuible_con_trazados_no_dice_capa_vacia() -> None:
+    internal = Provenance("idem", "https://example.invalid/interna", date(2026, 11, 26), "x")
+    sink = _Sink()
+    layers = _Layers(
+        {
+            (VP, "28001"): TrailLayer(VP, "28001", internal, (_trail(VP, "28001"),), "M"),
+            (RT, "28001"): _layer(RT, "28001"),
+        }
+    )
+
+    result = PublishLayersUseCase(layers, sink).execute(["28001"])
+
+    assert sink.calls == []
+    reason = result.failures[0].reason
+    assert reason.startswith("no redistribuible: procedencia ")
+    assert "capa vacía" not in reason
