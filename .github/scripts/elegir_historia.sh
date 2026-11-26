@@ -25,12 +25,18 @@ toca() {
     | tr ',;' '\n\n' | tr -d '`*' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//; s#/+$##' | grep -v '^$' || true
 }
 
+# Puntos calientes compartidos: casi toda historia los toca, sus conflictos son triviales (se añaden
+# líneas) y los resuelve Actualizar rama; Fusionar exige además la PR al día con main antes de fusionar.
+COMPARTIDAS='^(src/parcel_intel/cli/main\.py|src/parcel_intel/ports/errors\.py|src/parcel_intel/sources/REGISTRY\.md|NOTICE|CLAUDE\.md|docs/lessons/LESSONS\.md)$'
+
 # solapan <zonas-a> <zonas-b>: 0 si alguna zona de una contiene a (o es) alguna de la otra.
 solapan() {
   local a b
   while read -r a; do
     while read -r b; do
       [ -z "$a" ] || [ -z "$b" ] && continue
+      [[ "$a" =~ $COMPARTIDAS ]] && continue
+      [[ "$b" =~ $COMPARTIDAS ]] && continue
       if [ "$a" = "$b" ] || [[ "$a" == "$b"/* ]] || [[ "$b" == "$a"/* ]]; then return 0; fi
     done <<<"$2"
   done <<<"$1"
