@@ -45,6 +45,7 @@ from parcel_intel.ports.errors import (
 )
 from tests.caminos_catastro_support import (
     CONTROL_REF,
+    DNPPP_NOT_FOUND,
     HG_DESCRIPTION,
     ROAD_REFS,
     TODAY,
@@ -395,6 +396,62 @@ def test_ca12_una_dnppp_sin_datos_no_aborta_el_lote() -> None:
     assert [r.cadastral_reference for r in layer.roads] == ["28043A99109101", "28043A99209201"]
     with pytest.raises(ParcelNotFoundError):
         land_use.get_land_use(_ref("28043A99109102"))
+
+
+def test_ca13_la_respuesta_lerr_se_cachea_y_se_repite_sin_red(tmp_path: Path) -> None:
+    """CA13. Dada una respuesta **sintética** de `Consulta_DNPPP` con el error `lerr` («NO EXISTE
+    NINGÚN INMUEBLE CON LOS PARÁMETROS INDICADOS», nombrada como sintética en el test) para una
+    referencia ≥9000 y un fetcher con caché, cuando se consulta con red, entonces se lanza
+    `ParcelNotFoundError`, la respuesta `lerr` **queda cacheada** y la parcela queda en
+    `unclassified`; y cuando se vuelve a consultar con `--sin-red` sobre esa misma caché,
+    entonces se lanza el mismo `ParcelNotFoundError` (no `RawCacheMissError`), sin tocar la red y
+    sin cambiar los ficheros de la caché. Sigue sin cachearse ninguna otra respuesta de error
+    (CA8 y CA9 no cambian: `ExceptionReport` y truncadas no se guardan).
+    """
+    sin_datos = "28043A99109102"
+    # Respuesta SINTÉTICA `lerr` (la fija FixtureCatastroHttp.DNPPP_NOT_FOUND, con «(SINTÉTICA)»).
+    lerr_sintetica = DNPPP_NOT_FOUND
+    assert b"<lerr>" in lerr_sintetica and "SINTÉTICA".encode() in lerr_sintetica
+    cache = tmp_path / "cache"
+
+    def adapter(http: FixtureCatastroHttp, offline: bool) -> CatastroAreaAdapter:
+        fetcher = CachedRawFetcher(
+            http, cache, lambda: TODAY, sleep=lambda _s: None, offline=offline
+        )
+        return CatastroAreaAdapter("MADRID", "COLMENAR DE OREJA", fetcher)
+
+    def huellas() -> dict[str, str]:
+        return {
+            str(p.relative_to(cache)): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in sorted(cache.rglob("*"))
+            if p.is_file()
+        }
+
+    def ejecutar(adaptador: CatastroAreaAdapter) -> CadastralRoadLayer:
+        caso = BuildCadastralRoadLayerUseCase(
+            FixtureParcelsPort(fixture_parcels()), adaptador, tile_side_m=900.0
+        )
+        return caso.execute(MUNICIPALITY, WINDOW)
+
+    con_red = FixtureCatastroHttp(dnppp={sin_datos: lerr_sintetica})
+    adapter_con_red = adapter(con_red, offline=False)
+    with pytest.raises(ParcelNotFoundError):
+        adapter_con_red.get_land_use(_ref(sin_datos))
+    primera = ejecutar(adapter(con_red, offline=False))
+    assert primera.unclassified == (sin_datos,)
+    assert len(primera.roads) == 3
+    antes = huellas()
+    assert antes  # la respuesta `lerr` quedó cacheada junto a las demás
+
+    sin_red = FixtureCatastroHttp()
+    adapter_sin_red = adapter(sin_red, offline=True)
+    with pytest.raises(ParcelNotFoundError):
+        adapter_sin_red.get_land_use(_ref(sin_datos))
+    segunda = ejecutar(adapter(sin_red, offline=True))
+    assert segunda == primera
+    assert segunda.unclassified == (sin_datos,)
+    assert sin_red.calls == []
+    assert huellas() == antes
 
 
 def _ref(compact: str) -> RuralCadastralReference:

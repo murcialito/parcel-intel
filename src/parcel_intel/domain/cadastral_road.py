@@ -104,7 +104,8 @@ class CadastralRoadLayer:
     bbox: BBox
     roads: tuple[CadastralRoad, ...]  # ordenados por referencia
     tiles: int
-    parcels_seen: int  # únicas y del municipio
+    # únicas, del municipio y de referencia rústica (14 caracteres); se descartan las urbanas
+    parcels_seen: int
     road_number_candidates: int  # de ellas, número >= 9000
     excluded: tuple[tuple[str, tuple[str, ...]], ...]  # (referencia, clases) de 9xxx no VT
     unclassified: tuple[str, ...]  # 9xxx sin respuesta de DNPPP
