@@ -21,6 +21,8 @@ class ProvenanceModel(_Model):
     url: str = Field(min_length=1)
     fecha_descarga: date
     licencia: str = Field(min_length=1)
+    # Ausente = solo uso interno (denegar por defecto, #84); otro valor es error de formato.
+    redistribucion: Literal["publicable", "solo_uso_interno"] | None = None
 
 
 # Un punto puede llevar Z (LineString 3D del IGN); el lector la descarta.
@@ -82,6 +84,8 @@ class CollectionPropertiesModel(_Model):
     municipio: str
     procedencia: ProvenanceModel
     aviso: str | None = None
+    nombre_municipio: str | None = None
+    procedencia_limite: ProvenanceModel | None = None
 
 
 class LayerFileModel(_Model):

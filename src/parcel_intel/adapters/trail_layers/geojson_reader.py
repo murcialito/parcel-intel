@@ -24,7 +24,7 @@ from parcel_intel.adapters.trail_layers.models import (
 )
 from parcel_intel.domain.discrepancy_report import TrailLayer
 from parcel_intel.domain.geometry import Geometry, Line, MultiLineGeometry, Ring, TrailShape
-from parcel_intel.domain.provenance import Provenance
+from parcel_intel.domain.provenance import Provenance, Redistribution
 from parcel_intel.domain.trail import METRIC_SRID, InvalidTrailError, SourceKind, Trail
 from parcel_intel.ports.errors import TrailLayerUnavailableError
 
@@ -48,6 +48,12 @@ def _provenance(model: ProvenanceModel) -> Provenance:
         url=model.url,
         retrieved_at=model.fecha_descarga,
         license=model.licencia,
+        # Sin marca: solo uso interno (ficheros escritos antes de #84).
+        redistribution=(
+            Redistribution(model.redistribucion)
+            if model.redistribucion is not None
+            else Redistribution.INTERNAL_ONLY
+        ),
     )
 
 
@@ -162,6 +168,12 @@ class GeoJsonTrailLayerReader:
             municipality_code=municipality_code,
             provenance=layer_provenance,
             trails=tuple(trails),
+            municipality_name=model.properties.nombre_municipio or None,
+            boundary_provenance=(
+                _provenance(model.properties.procedencia_limite)
+                if model.properties.procedencia_limite is not None
+                else None
+            ),
         )
 
 
