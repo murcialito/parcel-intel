@@ -414,3 +414,18 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en una medida por muestreo de puntos medios con `<=` (aquí `line_overlap_fraction`, paso 1 m), un oráculo escrito a mano falla si el alcance coincide con la distancia de un punto medio (0,5 m del vértice): ese punto cuenta como cubierto. Al calcular el oráculo, listar los puntos medios cercanos a la frontera y elegir un alcance que no caiga justo en uno, o fijar ese caso límite a propósito en un test propio.
   - **Causa**: un test unitario con alcance 0,5 m esperaba 0,5 y la función dio 0,505: el primer punto medio del segundo segmento quedaba a 0,5 m exactos. La función era correcta; el oráculo no.
   - **Aplica a**: arquitecto e implementación (oráculos de funciones muestreadas).
+
+## [2026-11-26] Historia #114 — Tokens de diseño y tipografía Atkinson Hyperlegible
+
+- **Lección**: un `unicode-range` declarado en un CSS de diseño no prueba que la fuente tenga esos glifos. `tokens.css` anuncia U+2190-2193 (flechas) para Atkinson Hyperlegible Next y Mono, pero la versión oficial 2.001 no los trae (tampoco U+00AD ni U+00B5). Se comprueba sobre el TTF completo con `fontTools` antes de fijar un criterio de cobertura, y el volcado de codepoints de cada WOFF2 se guarda junto a él.
+  - **Causa**: el CA2 pedía que las dos Next cubrieran `←↑→↓`. El test, que lee el volcado, falla y la historia se escala al fundador. No se inventaron glifos.
+  - **Aplica a**: BA y arquitecto (un criterio de cobertura de glifos se calcula con la fuente real antes de `estado:lista`) | implementación (no relajar el criterio en silencio).
+
+- **Lección**: los tokens de color del sistema de diseño no cubren todo criterio de contraste. `--color-line-strong` da 1,98:1 (claro) y 2,87:1 (oscuro) frente a `--color-bg`, por debajo del 3:1 de WCAG para bordes de controles. En el visor el borde de `.campo select` usa `--color-muted`, y `line-strong` queda para separadores decorativos. #116 debe tenerlo en cuenta al diseñar componentes.
+  - **Aplica a**: arquitecto e implementación (calcular el contraste de cada token antes de asignarlo a un control).
+
+- **Lección**: al añadir una hoja de estilo a `index.html`, el test de #85 que fijaba la lista exacta de hojas (`hojas == [...]`) se actualiza con el literal nuevo y un comentario; no se relaja.
+  - **Aplica a**: implementación (`grep` de `index.html`/`estilo.css` en `tests/acceptance/` antes de cambiar el HTML).
+
+- **Lección**: en las Actions de los agentes `cp`, `rm` y `mkdir` fuera del repo piden aprobación; los ficheros se copian con `Read` + `Write` y los temporales de descarga se dejan dentro del repo sin añadirlos (`git add` por ruta).
+  - **Aplica a**: implementación.

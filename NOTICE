@@ -65,6 +65,9 @@ de memoria.
 
 - Leaflet 1.9.4 (https://leafletjs.com), BSD 2-Clause. Copia en `site/vendor/leaflet/`, con su
   licencia en `site/vendor/leaflet/LICENSE`.
+- Atkinson Hyperlegible Next y Mono 2.001 (Braille Institute, https://github.com/googlefonts/atkinson-hyperlegible-next),
+  SIL Open Font License 1.1. Subconjunto latino en WOFF2 en `site/fonts/`, con su licencia en
+  `site/fonts/OFL.txt` y su procedencia en `site/fonts/PROCEDENCIA.md`.
 
 ## Fuentes no publicadas
 
