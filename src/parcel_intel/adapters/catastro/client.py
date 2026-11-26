@@ -1,3 +1,5 @@
+import time
+from collections.abc import Callable
 from typing import Protocol
 
 import requests
@@ -10,6 +12,10 @@ DNPPP_URL = (
 )
 _CRS_URN = "urn:ogc:def:crs:EPSG::25830"
 _READ_TIMEOUT_S = 180
+# Esperas entre reintentos ante cortes de red: Catastro tiene caídas breves (2026-11-27, medianoche:
+# 2 de 3 conexiones agotaban los 10 s de conexión). Un recorrido de ~1300 peticiones no debe caer
+# por una sola.
+_REINTENTOS_S = (5.0, 15.0, 45.0)
 
 
 def wfs_getfeature_params(
@@ -38,9 +44,37 @@ class HttpGetter(Protocol):
     def __call__(self, url: str, params: dict[str, str]) -> bytes: ...
 
 
-def default_http_getter(url: str, params: dict[str, str]) -> bytes:
-    # Lectura amplia: una tesela de 900 m del casco de Colmenar (3,6 MB) tarda unos 45 s
-    # (medido el 2026-11-26); con 30 s, el recorrido de un término entero fallaba en ella.
-    response = requests.get(url, params=params, timeout=(10, _READ_TIMEOUT_S))
-    response.raise_for_status()
-    return response.content
+class _RespuestaHttp(Protocol):
+    """Lo que el cliente usa de una respuesta HTTP (lo cumple `requests.Response`)."""
+
+    @property
+    def content(self) -> bytes: ...
+
+    def raise_for_status(self) -> None: ...
+
+
+def default_http_getter(
+    url: str,
+    params: dict[str, str],
+    *,
+    sleep: Callable[[float], None] = time.sleep,
+    get: Callable[..., _RespuestaHttp] = requests.get,
+) -> bytes:
+    """GET a Catastro con reintentos ante cortes de conexión o de tiempo.
+
+    Solo reintenta errores de red (`ConnectionError`, `Timeout`). Un 4xx o 5xx con respuesta del
+    servidor sale al primer intento: no es un corte y repetirlo no lo arregla.
+    """
+    for espera in (*_REINTENTOS_S, None):
+        try:
+            # Lectura amplia: una tesela de 900 m del casco de Colmenar (3,6 MB) tarda unos 45 s
+            # (medido el 2026-11-26); con 30 s, el recorrido de un término entero fallaba en ella.
+            response = get(url, params=params, timeout=(10, _READ_TIMEOUT_S))
+        except (requests.ConnectionError, requests.Timeout):
+            if espera is None:
+                raise
+            sleep(espera)
+            continue
+        response.raise_for_status()
+        return response.content
+    raise AssertionError("inalcanzable")  # pragma: no cover
