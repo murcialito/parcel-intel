@@ -232,6 +232,15 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el fixture de `roadlink` de la historia de fuentes estaba en EPSG:4326 y con todos los tramos `fictitious="true"`; un adapter que pide `crs`/`bbox-crs` EPSG:25830 necesita su propio fixture grabado en ese CRS. El caso `fictitious="false"` no apareció en la ventana real de Colmenar y se cubre con un test sintético etiquetado como tal.
   - **Aplica a**: implementación (al reutilizar un fixture de una historia de fuentes, comprobar que CRS y parámetros coinciden con los que pedirá el adapter).
 
+## [2026-11-26] Historia #35 — Límites municipales del IGN
+
+- **Lección**: el bbox de una parcela catastral no es un buen testigo de que un punto esté dentro de un término municipal. El límite del IGN y la parcela del Catastro son dos geometrías oficiales distintas, y una parcela pegada a una linde puede tener esquinas de su bbox al otro lado.
+  - **Causa**: el CA2 pedía que las cuatro esquinas del bbox de la parcela REFCAT-RETIRADA cayeran dentro de Villaconejos. La esquina noroeste cae a 106,5 m dentro de Chinchón y 7 de los 72 vértices de la parcela quedan fuera del término del IGN. No es un cambio de ejes (los errores de ejes darían kilómetros, y la parcela de Colmenar cae bien). El criterio se escribió sin calcular el resultado con los datos reales.
+  - **Aplica a**: BA y arquitecto (un criterio que fija "estos puntos caen dentro de esta geometría" se calcula con los datos reales antes de pasar a `estado:lista`, como ya exige la lección de la historia 0017) | implementación (si un criterio no se cumple con los datos reales, no se reinterpreta: se comenta y se pasa a `estado:necesita-fundador`).
+
+- **Lección**: cuando una historia de diseño propone una pieza de infraestructura y otra historia la fusiona antes de que esta se desarrolle, el desarrollador la reutiliza y lo anota en el ADR en lugar de seguir el diseño al pie de la letra. Aquí `CachedRawFetcher` (#34) sustituyó a la `RawResponseCache` de #23; la guarda de truncado se pasa como `validate` para que una respuesta incompleta no entre en la caché inmutable.
+  - **Aplica a**: implementación (releer los comentarios de coordinación de la issue y `git log` antes de crear un módulo que el diseño da por nuevo).
+
 ## [2026-11-26] Historia #22 — Trazado común `Trail`
 
 - **Lección**: al mover un símbolo de un módulo a otro y querer que siga importable desde el sitio antiguo, importarlo con alias explícito (`from parcel_intel.domain.trail import SourceKind as SourceKind`). Con `mypy` estricto (`no_implicit_reexport`), un `import` normal no re-exporta y todos los que lo importaban del módulo antiguo fallan.

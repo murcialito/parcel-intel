@@ -422,6 +422,19 @@ Conclusión por capa: **publicar** (puede salir en el mapa público), **interno*
 | Valdelaguna | 28157 | Madrid | 5 (linde corta, pero real) |
 | Noblejas, Ontígola, Villarrubia de Santiago, Ocaña | 45115, 45123, 45195, 45121 | Castilla-La Mancha | fuera del hito |
 
+### Límites municipales — IGN unidades administrativas — `confirmado`
+
+Historia #35, ADR 0030. Petición real repetida el 2026-11-26 (la primera, el 2026-11-25): `GET https://www.ign.es/wfs-inspire/unidades-administrativas?service=WFS&version=2.0.0&request=GetFeature&typeNames=au:AdministrativeUnit&bbox=39.98,-3.62,40.22,-3.15,urn:ogc:def:crs:EPSG::4258&count=200` → `200`, 27 MB, `numberMatched=32`, `numberReturned=32`. Recorte de esa respuesta en `tests/fixtures/caminos/ign_au_ambito_7_municipios.xml` (cabecera + los 7 municipios del ámbito + Titulcia; `numberMatched`/`numberReturned` reescritos a 8, y así lo dice el comentario XML del fichero).
+
+- **Orden de ejes**: `bbox` con `urn:ogc:def:crs:EPSG::4258` va en **latitud, longitud**, y `posList` también (`39.322647 -2.663458`). Con el bbox en EPSG:25830 el orden es E,N (nota de #29, probado el 2026-11-25: en N,E devuelve `numberMatched=0` sin error).
+- **Nivel**: los municipios son `nationalLevel` `…/AdministrativeHierarchyLevel/4thOrder`; provincia y comunidad (`3rdOrder`, `2ndOrder`, `1stOrder`) vienen en la misma respuesta y se descartan.
+- **Código INE**: `au:nationalCode` tiene 11 dígitos; el INE son los 5 últimos (`34132828043` → `28043`). El nombre es el primer `gn:text`.
+- **Geometría**: `gml:MultiSurface` con un único `gml:Polygon` y **ningún `gml:interior`** en los 7 municipios del ámbito (contado con `grep -o`, no `grep -c`); sí hay `gml:interior` en la Comunidad de Madrid y en la provincia (niveles 2.º y 3.º).
+- **Sin huecos entre los 7**: Colmenar de Oreja y Villaconejos comparten 38 vértices exactos en EPSG:4258 y siguen compartiendo 38 tras reproyectar a EPSG:25830 con un único `Transformer` de `pyproj`, sin `always_xy` (entrada `(lat, lon)`).
+- **Licencia**: `CC BY 4.0 ign.es`, la declarada en el `GetCapabilities` y en las condiciones de uso del IGN (sección «Detalle de licencias»). Atribución al publicar: la de esa sección.
+- **Ámbito**: 28043, 28013, 28052, 28019, 28170, 28180, 28157.
+- **Límite municipal ≠ linde catastral**: la parcela REFCAT-RETIRADA (Catastro) tiene 7 de sus 72 vértices fuera del término de Villaconejos según el límite del IGN (65 dentro). El vértice noroeste de su bbox cae a 106,5 m dentro de Chinchón. Los dos son geometrías oficiales distintas: no usar el bbox de una parcela como prueba de pertenencia a un término.
+
 ### Resumen
 
 | Fuente | Resolución / escala | Fechas o frecuencia en el ámbito | Licencia | Conclusión |

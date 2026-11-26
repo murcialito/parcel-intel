@@ -1,3 +1,6 @@
+from collections.abc import Sequence
+
+
 class RoadNetworkError(Exception):
     """La respuesta del servicio de red de transporte (`roadlink`) no es
     utilizable: error HTTP, JSON malformado, estructura inesperada o
@@ -6,6 +9,40 @@ class RoadNetworkError(Exception):
 
     def __init__(self, detail: str) -> None:
         super().__init__(f"Respuesta de la red de transporte no utilizable: {detail}")
+        self.detail = detail
+
+
+class MunicipalBoundaryNotFoundError(Exception):
+    """Alguno de los códigos INE pedidos no está en la respuesta del servicio
+    de unidades administrativas -- historia #35. Nunca se devuelve una lista
+    parcial de límites."""
+
+    def __init__(self, missing_codes: Sequence[str]) -> None:
+        self.missing_codes = tuple(missing_codes)
+        super().__init__(f"Sin límite municipal para los códigos INE: {', '.join(missing_codes)}")
+
+
+class IncompleteWfsResponseError(Exception):
+    """`numberMatched` de una respuesta WFS no coincide con las features
+    parseadas: respuesta truncada o estructura inesperada -- historia #35."""
+
+    def __init__(self, url: str, number_matched: int, number_parsed: int) -> None:
+        super().__init__(
+            f"Respuesta WFS incompleta: numberMatched={number_matched} pero se parsearon "
+            f"{number_parsed} features ({url})"
+        )
+        self.url = url
+        self.number_matched = number_matched
+        self.number_parsed = number_parsed
+
+
+class MunicipalBoundaryUnusableError(Exception):
+    """La respuesta del servicio de unidades administrativas no es utilizable:
+    error HTTP, XML malformado, estructura inesperada o un municipio pedido
+    con huecos (`gml:interior`, no modelados) -- historia #35."""
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(f"Límites municipales no utilizables: {detail}")
         self.detail = detail
 
 
