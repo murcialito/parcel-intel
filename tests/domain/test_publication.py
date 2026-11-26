@@ -26,7 +26,7 @@ def _item(redistribution: Redistribution) -> _Item:
 
 
 def test_capa_vacia_se_admite() -> None:
-    layer = PublishableLayer(name="vacia", items=())
+    layer: PublishableLayer[_Item] = PublishableLayer(name="vacia", items=())
 
     assert layer.items == ()
 
@@ -34,7 +34,10 @@ def test_capa_vacia_se_admite() -> None:
 def test_items_se_guardan_como_tupla_aunque_entre_un_generador() -> None:
     items = (_item(Redistribution.PUBLIC) for _ in range(2))
 
-    layer = PublishableLayer(name="gen", items=items)  # type: ignore[arg-type]
+    layer: PublishableLayer[_Item] = PublishableLayer(
+        name="gen",
+        items=items,  # type: ignore[arg-type]
+    )
 
     assert isinstance(layer.items, tuple)
     assert len(layer.items) == 2
