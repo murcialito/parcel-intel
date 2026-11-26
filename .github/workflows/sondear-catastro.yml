@@ -1,0 +1,39 @@
+name: Sondear Catastro
+
+# Comprueba si el WFS de Catastro responde desde los runners de GitHub Actions. El 2026-11-26 cortaba
+# las conexiones de GetFeature (`Connection reset by peer`, #37), y por eso existen el marcador
+# `fuera_de_ci` y la etiqueta `pendiente-local`. Si vuelve a responder, se pueden retirar.
+# Solo lectura: tres peticiones GET y un resumen. No usa tokens ni escribe nada.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sondear:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Peticiones al WFS de parcelas
+        run: |
+          U="https://ovc.catastro.meh.es/INSPIRE/wfsCP.aspx"
+          URN="urn:ogc:def:crs:EPSG::25830"
+          sondear() {  # sondear <nombre> <curl args…>
+            local nombre="$1"; shift
+            local salida
+            if salida=$(curl -s -o /dev/null --max-time 90 -w "HTTP %{http_code}, %{time_total} s, %{size_download} B" "$@" 2>&1); then
+              echo "- $nombre: $salida"
+            else
+              echo "- $nombre: fallo de conexión (curl $?)"
+            fi
+          }
+          {
+            echo "### Catastro desde GitHub Actions ($(date -u +%FT%TZ))"
+            sondear "Raíz" "$U"
+            sondear "GetCapabilities" "$U?service=WFS&request=GetCapabilities"
+            sondear "GetFeature, tesela de 900 m en Colmenar" -G "$U" \
+              --data-urlencode service=WFS --data-urlencode version=2.0.0 \
+              --data-urlencode request=GetFeature --data-urlencode typenames=cp:CadastralParcel \
+              --data-urlencode "srsname=$URN" --data-urlencode "bbox=449341,4442906,450241,4443806,$URN"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
