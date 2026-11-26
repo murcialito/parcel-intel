@@ -100,6 +100,8 @@ Definidos en `.claude/agents/` y lanzados por los workflows de `.github/workflow
 | Claude a demanda | `claude.yml` (del instalador de la app) | Escribes `@claude` en una issue o PR: pregunta o encargo puntual fuera del flujo |
 | — | `desplegar.yml` | Push a `main` (solo si el repo es público) |
 
+**Orden de la cola:** Priority del tablero (P0 → P1 → P2 → sin prioridad) y, dentro, la más antigua. Salta las que tienen dependencias abiertas ("Depende de #N"). Ver `.github/scripts/elegir_historia.sh`.
+
 **Una historia a la vez.** El desarrollo va en serie para evitar conflictos entre PRs: si ya hay una historia `estado:en-desarrollo` o `estado:en-revision`, la siguiente `estado:lista` espera a la pasada horaria.
 
 ## Talla, arquitecto y modelos por tarea
@@ -146,7 +148,7 @@ Todas las issues se reflejan en el proyecto [Parcela Intel](https://github.com/u
 | `estado:en-revision` | In review |
 | Cerrada | Done |
 
-`talla:s`, `talla:m` y `talla:l` se copian al campo Size del proyecto (S, M, L). Priority lo pones tú si quieres: los agentes no lo tocan.
+`talla:s`, `talla:m` y `talla:l` se copian al campo Size del proyecto (S, M, L). **Priority** la pones tú, y los agentes no la tocan. Es tu palanca sobre la cola: `desarrollar.yml` coge primero las P0, luego P1, P2 y las que no tienen prioridad, y dentro de cada grupo la más antigua.
 
 Además:
 

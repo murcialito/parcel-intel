@@ -30,36 +30,16 @@ jobs:
     outputs:
       historia: ${{ steps.elegir.outputs.historia }}
     steps:
+      - uses: actions/checkout@v4
       - id: elegir
         env:
           GH_TOKEN: ${{ github.token }}
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          PROJECT_NUMBER: "1"
           REPO: ${{ github.repository }}
-        run: |
-          ocupadas=0
-          for estado in estado:en-desarrollo estado:en-revision; do
-            n=$(gh issue list -R "$REPO" --state open --label "tipo:historia" --label "$estado" --json number --jq 'length')
-            ocupadas=$((ocupadas + n))
-          done
-          if [ "$ocupadas" -gt 0 ]; then
-            echo "Ya hay una historia en desarrollo o revisión; se espera a la siguiente pasada."
-            exit 0
-          fi
-          # La más antigua cuyas dependencias ("Depende de #N" en el cuerpo) estén todas cerradas.
-          historia=""
-          for n in $(gh issue list -R "$REPO" --state open --label "tipo:historia" --label "estado:lista" \
-                       --limit 200 --json number,createdAt --jq 'sort_by(.createdAt) | .[].number'); do
-            deps=$(gh issue view "$n" -R "$REPO" --json body --jq .body \
-                     | grep -iE 'depende de' | grep -oE '#[0-9]+' | tr -d '#' | sort -un || true)
-            abiertas=""
-            for d in $deps; do
-              [ "$d" = "$n" ] && continue
-              [ "$(gh issue view "$d" -R "$REPO" --json state --jq .state 2>/dev/null || echo CLOSED)" = "OPEN" ] && abiertas="$abiertas #$d"
-            done
-            if [ -n "$abiertas" ]; then echo "#$n espera a$abiertas."; continue; fi
-            historia=$n; break
-          done
-          echo "historia=$historia" >> "$GITHUB_OUTPUT"
-          echo "Historia elegida: ${historia:-ninguna}"
+        # Priority del tablero, luego antigüedad; salta las que tienen dependencias abiertas.
+        run: echo "historia=$(.github/scripts/elegir_historia.sh)" >> "$GITHUB_OUTPUT"
 
   desarrollar:
     needs: seleccionar
