@@ -13,17 +13,24 @@ on:
   workflow_run:
     workflows: [CI, Revisar]
     types: [completed]
+  # Una aprobación del fundador llega después de CI y Revisar: reevalúa sin intervención (ADR 0024, enmienda).
+  pull_request_review:
+    types: [submitted]
 
 concurrency:
-  group: fusionar-${{ github.event.workflow_run.head_branch }}
+  group: fusionar-${{ github.event.workflow_run.head_branch || github.event.pull_request.head.ref }}
   cancel-in-progress: false
 
 jobs:
   fusionar:
     if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'pull_request' &&
-      startsWith(github.event.workflow_run.head_branch, 'claude/')
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'pull_request' &&
+       startsWith(github.event.workflow_run.head_branch, 'claude/')) ||
+      (github.event_name == 'pull_request_review' &&
+       github.event.review.state == 'approved' &&
+       startsWith(github.event.pull_request.head.ref, 'claude/'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -33,21 +40,25 @@ jobs:
       checks: read
       statuses: read
     steps:
+      # Siempre main: con pull_request_review el checkout por defecto sería el código de la PR, y los
+      # scripts de la guardia (.github/scripts/) los podría cambiar la propia PR que se evalúa.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
 
       - name: Comprobar condiciones y fusionar
         id: fusion
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          RAMA: ${{ github.event.workflow_run.head_branch }}
-          SHA: ${{ github.event.workflow_run.head_sha }}
+          RAMA: ${{ github.event.workflow_run.head_branch || github.event.pull_request.head.ref }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha }}
           PROYECTO_TOKEN: ${{ secrets.PROJECT_TOKEN }}
         run: |
           pr=$(gh pr list -R "$REPO" --head "$RAMA" --state open --json number --jq '.[0].number // empty')
           if [ -z "$pr" ]; then echo "No hay PR abierta para $RAMA (ya fusionada o cerrada)."; exit 0; fi
 
-          datos=$(gh pr view "$pr" -R "$REPO" --json headRefOid,isDraft,labels,statusCheckRollup,closingIssuesReferences)
+          datos=$(gh pr view "$pr" -R "$REPO" --json headRefOid,isDraft,labels,statusCheckRollup,closingIssuesReferences,reviews)
           cabeza=$(jq -r '.headRefOid' <<<"$datos")
           if [ "$cabeza" != "$SHA" ]; then echo "La PR #$pr ya tiene un commit más nuevo; se decidirá con sus checks."; exit 0; fi
           if [ "$(jq -r '.isDraft' <<<"$datos")" = "true" ]; then echo "PR #$pr en borrador."; exit 0; fi
@@ -60,6 +71,17 @@ jobs:
             estado=$(jq -r --arg c "$check" '[.statusCheckRollup[] | select(.name == $c)] | sort_by(.startedAt // "") | last | .conclusion // "PENDIENTE"' <<<"$datos")
             if [ "$estado" != "SUCCESS" ]; then echo "Check '$check' en $estado: se espera."; exit 0; fi
           done
+
+          # Guardia de curated/** (ADR 0024, enmienda): las aprobaciones humanas de trazados históricos
+          # las da el fundador. Si la PR toca curated/, hace falta su review APPROVED sobre este commit.
+          # Ficheros por la API REST paginada (gh pr view --json files se corta en 100), contando el
+          # nombre anterior de los renombrados, para que nada en curated/ se escape.
+          ficheros=$(gh api --paginate "repos/$REPO/pulls/$pr/files" --jq '.[] | {path: .filename}, (select(.previous_filename) | {path: .previous_filename})' | jq -s '{files: .}')
+          if jq -r '.files[].path' <<<"$ficheros" | bash .github/scripts/toca_curated.sh; then
+            if ! bash .github/scripts/aprobada_por_fundador.sh <<<"$datos"; then
+              echo "PR #$pr toca curated/**: falta la aprobación de murcialito sobre ${SHA:0:7}; no se fusiona."; exit 0
+            fi
+          fi
 
           # Con varias historias en paralelo, otra PR puede haber entrado en main después de que corriera
           # el CI de esta: sus checks no cubren la combinación real. Si va por detrás de main, se pone al

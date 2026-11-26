@@ -29,10 +29,11 @@ Al fallar `gh pr merge --auto`, el agente desarrollador fusionó directamente: l
 Lo que entra en `curated/**` son aprobaciones humanas de trazados históricos. Si lo fusionara el flujo normal, un agente (el revisor) aprobaría lo que otro agente escribió, y nada propuesto por una máquina debe usarse sin aprobación humana. Se protege en dos capas:
 
 1. **`.github/CODEOWNERS`**: `curated/** @murcialito`. Con la protección de rama «Require review from Code Owners» (paso manual del fundador, abajo) GitHub lo exige por sí mismo.
-2. **Guardia en `fusionar.yml`**, que funciona aunque la protección no esté activada (en un repo privado sin plan de pago no lo está). Tras comprobar `checks` y `revision`, obtiene `gh pr view --json files,reviews,headRefOid`:
+2. **Guardia en `fusionar.yml`**, que funciona aunque la protección no esté activada (en un repo privado sin plan de pago no lo está). Tras comprobar `checks` y `revision`, toma las reviews y el `headRefOid` de `gh pr view`, y la lista de ficheros de la API REST paginada (`gh pr view --json files` se corta en 100), incluido el nombre anterior de los renombrados:
    - `.github/scripts/toca_curated.sh` recibe las rutas cambiadas por stdin y sale con 0 si alguna empieza por `curated/` (`docs/curated/x` o `curated-notas.md` no cuentan);
    - si toca `curated/`, `.github/scripts/aprobada_por_fundador.sh` exige una review `APPROVED` de `murcialito` cuyo `commit.oid` sea el `headRefOid`. Sin ella, no fusiona y lo registra en el log. Un commit nuevo invalida la aprobación anterior;
    - si no toca `curated/`, el comportamiento no cambia.
+   - el job hace checkout de `main` siempre. Con `pull_request_review`, el checkout por defecto sería el código de la propia PR, y una PR podría cambiar los scripts de la guardia para que siempre aprueben. El fundador lo añadió al aplicar el parche, que un agente no puede empujar porque toca un workflow.
 3. `fusionar.yml` añade el disparador `pull_request_review: [submitted]` para reevaluar sin intervención cuando el fundador aprueba después de que CI y Revisar hayan terminado. En ese evento rama y SHA salen de `github.event.pull_request`.
 
 **Pasos manuales del fundador** (no bloquean el desarrollo): Settings → Branches → regla sobre `main` con «Require review from Code Owners», si el plan lo permite. Solo afecta a las PRs que tocan `curated/**`.
