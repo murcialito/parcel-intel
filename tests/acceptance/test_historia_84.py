@@ -712,5 +712,6 @@ def test_ca15_integracion_colmenar_real_19_vias_y_893_tramos(tmp_path: Path) -> 
         for layer_id in LAYERS:
             sidecar = datos / layer_id / "28043.geojson.procedencia.json"
             assert construir_sitio._check_provenance(sidecar) == []
-        index = _load(datos / "indice.json")
-        assert [entry["ine"] for entry in index["municipios"]] == ["28043"]
+        ines = [entry["ine"] for entry in _load(datos / "indice.json")["municipios"]]
+        # Desde #86 el sitio versionado publica el ámbito completo; la temporal, solo Colmenar.
+        assert ines == ["28043"] if datos == salida else "28043" in ines
