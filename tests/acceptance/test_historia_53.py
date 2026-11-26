@@ -23,13 +23,19 @@ def _casos() -> list[dict[str, object]]:
     return datos["casos"]
 
 
+# Mínimos rebajados por decisión del fundador (2026-11-26, issue #53). El objetivo sigue siendo
+# 10 casos en total y 5 con `ambito: hito`; se amplía más adelante y este test NO lo exige.
+MINIMO_TOTAL = 6
+MINIMO_HITO = 2
+
+
 def test_ca3_el_conjunto_cumple_los_minimos() -> None:
-    """Dado `casos.json` por debajo del mínimo, cuando se completa, entonces el fichero tiene
-    al menos 10 casos en total y al menos 5 con `ambito: hito`; los añadidos aquí tienen
-    `ambito: comunidad`."""
+    """Dado `casos.json` tras #52 por debajo del objetivo 10/5, cuando se completa, entonces el
+    fichero tiene al menos 6 casos en total y al menos 2 con `ambito: hito`; los añadidos aquí
+    tienen `ambito: comunidad`."""
     casos = [c for c in _casos() if c.get("sintetico") is not True]
-    assert len(casos) >= 10
-    assert sum(1 for c in casos if c["ambito"] == "hito") >= 5
+    assert len(casos) >= MINIMO_TOTAL
+    assert sum(1 for c in casos if c["ambito"] == "hito") >= MINIMO_HITO
 
 
 def test_ca3_los_casos_hito_son_del_ambito_y_los_demas_comunidad() -> None:
