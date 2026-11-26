@@ -68,13 +68,13 @@ def _notice(title: str) -> BulletinNotice:
 
 
 def test_render_con_edificios_incluye_tabla_y_svg() -> None:
-    parcel = make_parcel(cadastral_reference="REFCAT-RETIRADA", area_m2=707.0)
+    parcel = make_parcel(cadastral_reference="9900201ZZ0000S", area_m2=707.0)
     building = make_building(area_m2=152.0, construction_year=1980)
     report = ParcelReport(parcel=parcel, buildings=(building,))
 
     html = render_parcel_report_html(_enrich(report))
 
-    assert "REFCAT-RETIRADA" in html
+    assert "9900201ZZ0000S" in html
     assert "707 m²" in html
     assert "152 m²" in html
     assert "1980" in html

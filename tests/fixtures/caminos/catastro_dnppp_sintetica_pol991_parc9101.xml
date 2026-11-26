@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FIXTURE SINTÉTICA generada por tests/fixtures/generate_catastro.py (historia #45). No es una respuesta de Catastro ni cartografía catastral. -->
+<consulta_dnp xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.catastro.meh.es/">
+  <control>
+    <cudnp>1</cudnp>
+    <cucul>1</cucul>
+  </control>
+  <bico>
+    <bi>
+      <idbi>
+        <cn>RU</cn>
+        <rc>
+          <pc1>28043A9</pc1>
+          <pc2>9109101</pc2>
+          <car>0000</car>
+          <cc1>Z</cc1>
+          <cc2>Z</cc2>
+        </rc>
+      </idbi>
+      <dt>
+        <loine>
+          <cp>28</cp>
+          <cm>43</cm>
+        </loine>
+        <cmc>43</cmc>
+        <np>MADRID</np>
+        <nm>COLMENAR DE OREJA</nm>
+        <locs>
+          <lors>
+            <lorus>
+              <czc>0</czc>
+              <cpp>
+                <cpo>991</cpo>
+                <cpa>9101</cpa>
+              </cpp>
+              <npa>PARAJE SINTETICO</npa>
+              <cpaj>999</cpaj>
+            </lorus>
+          </lors>
+        </locs>
+      </dt>
+      <ldt>Polígono 991 Parcela 9101 PARAJE SINTETICO. COLMENAR DE OREJA (MADRID)</ldt>
+      <debi>
+        <luso>Agrario</luso>
+        <sfc>0</sfc>
+      </debi>
+    </bi>
+    <lspr>
+      <spr>
+        <cspr>0</cspr>
+        <dspr>
+          <ccc>VT</ccc>
+          <dcc>VÍA DE COMUNICACIÓN DE DOMINIO PÚBLICO</dcc>
+          <ip>00</ip>
+          <ssp>6011</ssp>
+        </dspr>
+      </spr>
+    </lspr>
+  </bico>
+</consulta_dnp>

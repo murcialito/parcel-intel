@@ -14,7 +14,7 @@ def make_provenance(source: str = "catastro") -> Provenance:
 
 
 def make_parcel(
-    cadastral_reference: str = "REFCAT-RETIRADA",
+    cadastral_reference: str = "99043A90100001",
     municipality: str = "COLMENAR DE OREJA",
     rings: tuple[tuple[tuple[float, float], ...], ...] = (_SQUARE_RING,),
     area_m2: float = 100.0,
@@ -29,7 +29,7 @@ def make_parcel(
 
 
 def make_building(
-    cadastral_reference: str = "REFCAT-RETIRADA",
+    cadastral_reference: str = "9900201ZZ0000S",
     rings: tuple[tuple[tuple[float, float], ...], ...] = (_SQUARE_RING,),
     area_m2: float = 50.0,
     construction_year: int | None = 1980,

@@ -76,8 +76,9 @@ distancia entre la parcela de Villaconejos y un cauce real como oráculo exacto 
   `--check` y el test de CA1 detectan la deriva.
 - La historia #46 reutiliza el generador para `tests/fixtures/caminos/catastro_*` y añade la
   plantilla DNPPP; los polígonos 991 y 992 del municipio 28043 quedan reservados para ella.
-- Quedan fuera los literales de referencias reales en código que no lee fixtures y el texto de
-  REGISTRY y los ADR. Se valorarán en #39.
+- Los literales de referencias reales en código que no lee fixtures, en REGISTRY y en los ADR
+  quedaron fuera de #45; se resolvieron en #46, que los sustituyó por referencias sintéticas de
+  provincia 99 (la misma real da siempre la misma sintética) y amplió el test de huellas.
 
 ## Alternativas descartadas
 
@@ -87,3 +88,21 @@ distancia entre la parcela de Villaconejos y un cauce real como oráculo exacto 
   franja inferior de la envolvente. Es un oráculo trivial (lección de la historia 0017).
 - Reconstruir los tests de otras fuentes con geometrías a mano, sin Catastro: posible, pero multiplica
   el diff y pierde el recorrido completo parser de Catastro → adapter de otra fuente.
+
+## Anexo (historia #46): fixtures de caminos de Catastro
+
+### Contexto
+`tests/fixtures/caminos/catastro_*` (una WFS de parcelas de 600×600 m con 51 parcelas y cinco `Consulta_DNPPP`) eran respuestas crudas de Catastro grabadas en la historia 0021. Ningún test las consumía aún; #37 y #28 iban a fijar sobre ellas oráculos con referencias y superficies reales.
+
+### Decisión
+- Se sustituyen por seis fixtures sintéticas generadas por plantilla con el mismo generador (módulo `tests/fixtures/generate_caminos.py`, función `generate(out_dir)`), sin leer las originales: un teselado de 20 rectángulos de 600×600 m con origen (469000, 4439000) en EPSG:25830, municipio 28043, polígonos 991 y 992, cuatro parcelas ≥9000 de clase `VT` y una de control `C-`.
+- Los polígonos 991 y 992 de 28043 quedan reservados para estas fixtures; ningún otro generador los usa.
+- Se conservan las propiedades del dato real que importan a los consumidores: numeración ≥9000 de los caminos, clase `VT` solo en DNPPP, `areaValue` del WFS distinto de `ssp` de DNPPP en dos caminos, un anillo exterior por parcela en sentido horario, codificación ISO-8859-1 de la WFS.
+- Los nombres de fichero llevan `sintetica` y no codifican polígonos ni parcelas reales.
+- Las huellas (hash) de las 51 referencias y de todos los vértices originales se añaden a `tests/fixtures/catastro_huellas_reales.json` (clave nueva `vertices`); un test recorre `tests/`, `docs/` y `src/` buscándolas.
+- El punto de entrada de #45 (`python -m tests.fixtures.generate_catastro`) genera también `caminos/` cuando se usa el directorio por defecto; con `--destino` solo escribe `catastro/`.
+
+### Consecuencias
+- Los oráculos de #37 y #28 se expresan sobre las referencias sintéticas (20 parcelas, 4 caminos `28043A99109101`, `…09102`, `28043A99209201`, `…09202`).
+- Los casos con `gml:interior`, multiparte o clase `HG` se añaden como filas nuevas del generador, no como respuestas grabadas.
+- `REGISTRY.md` conserva las conclusiones de la verificación real (fecha 2026-11-25) sin citar referencias reales.

@@ -30,7 +30,7 @@ Hasta ahora ningún dato del proyecto se publicaba, así que nada distinguía lo
 ### Umbrales y criterios de producto (a revisar con el fundador si hace falta)
 
 - Una parcela ≥ 9000 cuenta como camino si **al menos una** de sus subparcelas es `VT`. Las clases de todas sus subparcelas se guardan en `land_use_classes` para que la comparación vea los casos mixtos (p. ej. `VT` + `HG`).
-- `area_m2` es el `areaValue` del WFS, no la superficie de la subparcela de DNPPP (difieren: 8595 frente a 8604 m² en `REFCAT-RETIRADA`).
+- `area_m2` es el `areaValue` del WFS, no la superficie de la subparcela de DNPPP (difieren en el dato real, de unos 9 m² en un camino; las fixtures sintéticas de #46 lo reproducen con 6000 frente a 6011 m² en `28043A99109101`).
 - Teselas de 900 m y 1 s de pausa entre peticiones reales.
 
 ## Consecuencias

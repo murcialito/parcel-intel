@@ -21,7 +21,7 @@ Esta historia no reabre la 0003: reutiliza `parcel`/`building` tal cual están, 
 - [x] HTML idéntico entre primera y segunda petición (`render_parcel_report_html` comparado byte a byte en `test_segunda_peticion_no_llama_a_catastro_y_sirve_el_mismo_html`), incluido `provenance.retrieved_at` original.
 - [x] Referencia distinta no comparte caché (`test_referencias_distintas_no_comparten_cache`): la segunda referencia sigue llamando a Catastro con normalidad.
 - [x] Resultado negativo (`ParcelNotFoundError`) no se persiste y la siguiente petición reintenta Catastro desde cero (`test_parcela_no_encontrada_no_se_cachea_y_reintenta_catastro_la_proxima_vez`).
-- [x] Caso no trivial cubierto: `test_segunda_peticion_no_llama_a_catastro_y_sirve_el_mismo_html` usa la parcela urbana real `REFCAT-RETIRADA` con su edificio de 3 anillos (cuerpo + 2 anexos).
+- [x] Caso no trivial cubierto: `test_segunda_peticion_no_llama_a_catastro_y_sirve_el_mismo_html` usa la parcela urbana real `9900201ZZ0000S` con su edificio de 3 anillos (cuerpo + 2 anexos).
 - [x] `uv run pytest` → 30 passed / 10 deselected; `uv run pytest -m integration` → 10 passed, contra PostGIS real.
 - [x] Ciclo completo de Docker ejecutado de verdad (`down -v`, `up`, esperar `postgis_version()`, reaplicar migraciones, repetir suite de integración) — encontró un hallazgo nuevo, no solo confirmó lo ya sabido: incluso tras `postgis_version()` funcionando, hubo un corte de conexión adicional breve justo después (`OperationalError: server closed the connection unexpectedly`), documentado en `infra/README.md`.
 - [x] `uv run mypy`, `uv run ruff check .`, `uv run lint-imports` en verde.

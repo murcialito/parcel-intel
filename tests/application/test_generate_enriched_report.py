@@ -328,7 +328,7 @@ def test_todas_las_fuentes_disponibles_componen_el_informe_enriquecido() -> None
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.orthophoto is not None
     assert enriched.ndvi_summary is not None
@@ -361,7 +361,7 @@ def test_fallo_de_idem_no_impide_el_resto_del_informe() -> None:
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.land_classifications is None
     assert enriched.orthophoto is not None
@@ -386,7 +386,7 @@ def test_fallo_de_hidrografia_no_impide_el_resto_del_informe() -> None:
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.watercourses is None
     assert enriched.land_classifications == (_land_classification(),)
@@ -410,7 +410,7 @@ def test_sin_cauces_cercanos_devuelve_tupla_vacia_no_none() -> None:
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.watercourses == ()
 
@@ -432,7 +432,7 @@ def test_fallo_de_peligrosidad_inundacion_no_impide_el_resto_del_informe() -> No
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.flood_hazard is None
     assert enriched.land_classifications == (_land_classification(),)
@@ -456,7 +456,7 @@ def test_fallo_de_pnoa_no_impide_el_resto_del_informe() -> None:
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.orthophoto is None
     assert enriched.ndvi_summary is not None
@@ -486,7 +486,7 @@ def test_fallo_de_sentinel2_no_impide_el_resto_del_informe() -> None:
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.orthophoto is not None
     assert enriched.ndvi_summary is None
@@ -511,7 +511,7 @@ def test_fallo_de_boe_no_impide_el_resto_del_informe() -> None:
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.orthophoto is not None
     assert enriched.ndvi_summary is not None
@@ -536,7 +536,7 @@ def test_fallo_de_bocm_no_impide_el_resto_del_informe() -> None:
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.orthophoto is not None
     assert enriched.ndvi_summary is not None
@@ -561,7 +561,7 @@ def test_boletin_sin_coincidencias_devuelve_tupla_vacia_no_none() -> None:
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.boe_notices == ()
     assert enriched.bocm_notices == ()
@@ -586,7 +586,7 @@ def test_dia_consultado_es_el_today_inyectado_no_la_fecha_real() -> None:
         today=lambda: date(2020, 1, 1),
     )
 
-    use_case.execute("REFCAT-RETIRADA")
+    use_case.execute("99043A90100001")
 
     assert boe_port.calls == ["20200101"]
     assert bocm_port.calls == ["20200101"]
@@ -609,7 +609,7 @@ def test_fallo_de_vias_pecuarias_no_impide_el_resto_del_informe() -> None:
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.livestock_trails is None
     assert enriched.protected_areas == (_protected_area(),)
@@ -633,7 +633,7 @@ def test_sin_vias_pecuarias_cercanas_devuelve_tupla_vacia_no_none() -> None:
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.livestock_trails == ()
 
@@ -655,7 +655,7 @@ def test_fallo_de_red_natura_no_impide_el_resto_del_informe() -> None:
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.protected_areas is None
     assert enriched.livestock_trails == (_livestock_trail(),)
@@ -678,6 +678,6 @@ def test_sin_espacios_protegidos_cercanos_devuelve_tupla_vacia_no_none() -> None
         today=_fixed_today,
     )
 
-    enriched = use_case.execute("REFCAT-RETIRADA")
+    enriched = use_case.execute("99043A90100001")
 
     assert enriched.protected_areas == ()

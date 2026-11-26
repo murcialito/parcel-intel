@@ -304,7 +304,8 @@ def test_ca5_runbook_contiene_los_apartados_exigidos() -> None:
         "--tags",
         "re-clonado",
     ]
-    posiciones = [texto.index(f) for f in orden]
+    inicio_pasos = texto.index("## Pasos")
+    posiciones = [texto.index(f, inicio_pasos) for f in orden]
     assert posiciones == sorted(posiciones), dict(zip(orden, posiciones, strict=True))
     # Purga en GitHub.
     for fragmento in ("GitHub Support", "refs/pull/", "forks", "artefactos", "cachés de Actions"):

@@ -235,7 +235,7 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 ## [2026-11-26] Historia #35 — Límites municipales del IGN
 
 - **Lección**: el bbox de una parcela catastral no es un buen testigo de que un punto esté dentro de un término municipal. El límite del IGN y la parcela del Catastro son dos geometrías oficiales distintas, y una parcela pegada a una linde puede tener esquinas de su bbox al otro lado.
-  - **Causa**: el CA2 pedía que las cuatro esquinas del bbox de la parcela REFCAT-RETIRADA cayeran dentro de Villaconejos. La esquina noroeste cae a 106,5 m dentro de Chinchón y 7 de los 72 vértices de la parcela quedan fuera del término del IGN. No es un cambio de ejes (los errores de ejes darían kilómetros, y la parcela de Colmenar cae bien). El criterio se escribió sin calcular el resultado con los datos reales.
+  - **Causa**: el CA2 pedía que las cuatro esquinas del bbox de la parcela 99170A90100001 cayeran dentro de Villaconejos. La esquina noroeste cae a 106,5 m dentro de Chinchón y 7 de los 72 vértices de la parcela quedan fuera del término del IGN. No es un cambio de ejes (los errores de ejes darían kilómetros, y la parcela de Colmenar cae bien). El criterio se escribió sin calcular el resultado con los datos reales.
   - **Aplica a**: BA y arquitecto (un criterio que fija "estos puntos caen dentro de esta geometría" se calcula con los datos reales antes de pasar a `estado:lista`, como ya exige la lección de la historia 0017) | implementación (si un criterio no se cumple con los datos reales, no se reinterpreta: se comenta y se pasa a `estado:necesita-fundador`).
 
 - **Lección**: cuando una historia de diseño propone una pieza de infraestructura y otra historia la fusiona antes de que esta se desarrolle, el desarrollador la reutiliza y lo anota en el ADR en lugar de seguir el diseño al pie de la letra. Aquí `CachedRawFetcher` (#34) sustituyó a la `RawResponseCache` de #23; la guarda de truncado se pasa como `validate` para que una respuesta incompleta no entre en la caché inmutable.
@@ -326,5 +326,19 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: implementación (al diseñar claves de un fichero publicable con test de "sin titularidad").
 
 - **Lección**: las constantes de fuente en los tests (`VIA = "via_pecuaria_oficial"`) se tipan `SourceKind`; sin anotación mypy las infiere `str` y rechaza cada llamada al port.
+  - **Aplica a**: implementación.
+
+## [2026-11-26] Historia #46 — Fixtures sintéticas de caminos de Catastro
+
+- **Lección**: una fixture cruda grabada "para más adelante" sin ningún test que la consuma también tiene que entrar en la purga y no da ninguna cobertura. Antes de grabar una respuesta real, la historia dice qué test la consume.
+  - **Causa**: las seis `tests/fixtures/caminos/catastro_*` de la historia 0021 no las leía ningún test; solo las citaba `REGISTRY.md`. Sustituirlas no exigió adaptar tests, sino escribir los que fijan su contrato (20 parcelas, 4 caminos, `ssp` distinto de `areaValue`).
+  - **Aplica a**: BA y arquitecto (al pedir una grabación real, nombrar el test que la usará) | implementación.
+
+- **Lección**: un criterio que prohíbe "toda huella de lo original en `tests/`, `docs/` y `src/`" choca con una decisión previa del ADR que deja fuera los literales de referencias en código que no lee fixtures. Las referencias de las parcelas canónicas del MVP (polígono 1, parcela 1 de Colmenar y de Villaconejos) salen como literal en unos 140 sitios (tests de API y repositorio, ADR e historias archivadas, `REGISTRY.md`). Antes de pasar a `estado:lista` un CA de escaneo global, ejecutar el escáner con las huellas actuales y ver qué encuentra.
+  - **Causa**: el CA7 de #46 y la consecuencia del ADR 0033 ("quedan fuera los literales… se valorarán en #39") se contradicen. Se dejó el test literal (falla solo por referencias; ningún vértice coincide) y se escaló al fundador en lugar de añadir una lista de excepciones por cuenta propia.
+  - **Aplica a**: BA y arquitecto (un CA de "no queda ninguna X en el repo" se prueba antes de `estado:lista`) | implementación (no relajar el criterio en silencio).
+  - **Resolución**: el fundador eligió sustituir los literales (28 ficheros, mapa fijo real → sintética de provincia 99, misma real = misma sintética). Las huellas ya contenían las referencias, así que bastó el escáner existente; los tests que comprueban "no hay referencias reales" comparan huellas, nunca literales partidos en dos cadenas.
+
+- **Lección**: al fusionar `main` en una rama puede romperse un test de otra historia que comprueba el orden de menciones en un documento que `main` acaba de ampliar (`test_historia_44` CA5 con el runbook). Acotar la búsqueda a la sección que el criterio nombra en vez de al documento entero.
   - **Aplica a**: implementación.
 

@@ -366,15 +366,15 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
 
 
 def test_informe_de_parcela_existente_devuelve_html_200(client: TestClient) -> None:
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
-    assert "REFCAT-RETIRADA" in response.text
+    assert "99043A90100001" in response.text
 
 
 def test_municipio_no_soportado_devuelve_404(client: TestClient) -> None:
-    response = client.get("/reports/madrid-capital/REFCAT-RETIRADA")
+    response = client.get("/reports/madrid-capital/99043A90100001")
 
     assert response.status_code == 404
     assert "madrid-capital" in response.json()["detail"]
@@ -397,7 +397,7 @@ def test_parcela_no_encontrada_devuelve_404(client: TestClient) -> None:
 
 
 def test_informe_servido_desde_cache_no_llama_a_catastro(client: TestClient) -> None:
-    parcel = make_parcel(cadastral_reference="REFCAT-RETIRADA")
+    parcel = make_parcel(cadastral_reference="99043A90100001")
     _FakeRepository.cached_report = ParcelReport(parcel=parcel, buildings=())
 
     def _falla_si_se_llama(self: object, cadastral_reference: str) -> Parcel:
@@ -406,12 +406,12 @@ def test_informe_servido_desde_cache_no_llama_a_catastro(client: TestClient) -> 
     original_get_parcel = _FakeCatastroAdapter.get_parcel
     _FakeCatastroAdapter.get_parcel = _falla_si_se_llama  # type: ignore[method-assign]
     try:
-        response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+        response = client.get("/reports/colmenar-de-oreja/99043A90100001")
     finally:
         _FakeCatastroAdapter.get_parcel = original_get_parcel  # type: ignore[method-assign]
 
     assert response.status_code == 200
-    assert "REFCAT-RETIRADA" in response.text
+    assert "99043A90100001" in response.text
 
 
 def test_postgis_no_disponible_devuelve_503(
@@ -422,13 +422,13 @@ def test_postgis_no_disponible_devuelve_503(
 
     monkeypatch.setattr(main, "get_connection", _conexion_rota)
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 503
 
 
 def test_informe_incluye_evidencia_de_las_nueve_fuentes_nuevas(client: TestClient) -> None:
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "data:image/jpeg;base64," in response.text  # PNOA
@@ -452,91 +452,91 @@ def test_informe_incluye_evidencia_de_las_nueve_fuentes_nuevas(client: TestClien
 def test_fallo_de_pnoa_no_tumba_el_informe(client: TestClient) -> None:
     _FakePnoaAdapter.behavior = "fails"
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "Ortofoto actual (PNOA) no disponible." in response.text
-    assert "REFCAT-RETIRADA" in response.text
+    assert "99043A90100001" in response.text
 
 
 def test_fallo_de_sentinel2_no_tumba_el_informe(client: TestClient) -> None:
     _FakeSentinel2Adapter.behavior = "fails"
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "Resumen NDVI (Sentinel-2) no disponible." in response.text
-    assert "REFCAT-RETIRADA" in response.text
+    assert "99043A90100001" in response.text
 
 
 def test_fallo_de_boe_no_tumba_el_informe(client: TestClient) -> None:
     _FakeBoeAdapter.behavior = "fails"
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "BOE no disponible." in response.text
-    assert "REFCAT-RETIRADA" in response.text
+    assert "99043A90100001" in response.text
 
 
 def test_fallo_de_bocm_no_tumba_el_informe(client: TestClient) -> None:
     _FakeBocmAdapter.behavior = "fails"
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "BOCM no disponible." in response.text
-    assert "REFCAT-RETIRADA" in response.text
+    assert "99043A90100001" in response.text
 
 
 def test_fallo_de_idem_no_tumba_el_informe(client: TestClient) -> None:
     _FakeIdemAdapter.behavior = "fails"
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "Clasificación de suelo (IDEM) no disponible." in response.text
-    assert "REFCAT-RETIRADA" in response.text
+    assert "99043A90100001" in response.text
 
 
 def test_fallo_de_hidrografia_no_tumba_el_informe(client: TestClient) -> None:
     _FakeHydrographyAdapter.behavior = "fails"
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "Cursos de agua (hidrografía) no disponible." in response.text
-    assert "REFCAT-RETIRADA" in response.text
+    assert "99043A90100001" in response.text
 
 
 def test_fallo_de_peligrosidad_inundacion_no_tumba_el_informe(client: TestClient) -> None:
     _FakeFloodHazardAdapter.behavior = "fails"
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "Peligrosidad por inundación no disponible." in response.text
-    assert "REFCAT-RETIRADA" in response.text
+    assert "99043A90100001" in response.text
 
 
 def test_fallo_de_vias_pecuarias_no_tumba_el_informe(client: TestClient) -> None:
     _FakeLivestockTrailAdapter.behavior = "fails"
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "Vías pecuarias (IDEM) no disponible." in response.text
-    assert "REFCAT-RETIRADA" in response.text
+    assert "99043A90100001" in response.text
 
 
 def test_fallo_de_red_natura_no_tumba_el_informe(client: TestClient) -> None:
     _FakeProtectedAreaAdapter.behavior = "fails"
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "Espacios protegidos Red Natura 2000 (IDEM) no disponible." in response.text
-    assert "REFCAT-RETIRADA" in response.text
+    assert "99043A90100001" in response.text
 
 
 # --- Historia 0020: reglas aprobadas desde la tabla `rule` ---
@@ -585,7 +585,7 @@ def test_regla_aprobada_duplicada_de_la_tabla_no_produce_dos_hallazgos(
         _regla_equivalente_a_la_hardcoded_de_cauces("madrid-proposed-dph_cauce-test1234")
     ]
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert response.text.count("Distancia a curso de agua") == 1
@@ -611,7 +611,7 @@ def test_regla_aprobada_distinta_no_se_deduplica(client: TestClient) -> None:
     )
     _FakeRuleRepository.approved_rules = [distinta]
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "requires_authorization" in response.text
@@ -621,7 +621,7 @@ def test_regla_aprobada_distinta_no_se_deduplica(client: TestClient) -> None:
 def test_sin_reglas_aprobadas_en_bd_no_hay_aviso_ni_diferencia(client: TestClient) -> None:
     _FakeRuleRepository.approved_rules = []
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "Catálogo de reglas de autoría no disponible" not in response.text
@@ -632,7 +632,7 @@ def test_fallo_al_leer_tabla_rule_muestra_aviso_visible_y_no_tumba_el_informe(
 ) -> None:
     _FakeRuleRepository.raises = psycopg.errors.UndefinedTable("relation rule does not exist")
 
-    response = client.get("/reports/colmenar-de-oreja/REFCAT-RETIRADA")
+    response = client.get("/reports/colmenar-de-oreja/99043A90100001")
 
     assert response.status_code == 200
     assert "Catálogo de reglas de autoría no disponible" in response.text

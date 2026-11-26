@@ -43,7 +43,7 @@ _FRAGMENTOS_PROHIBIDOS: tuple[str, ...] = ("propietar", "titular", "catastral", 
 _PATRON_ID = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 _PATRON_FECHA_ISO = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _PATRON_CIERRE = re.compile(r"^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$")
-# Referencia catastral de 14 caracteres (p. ej. REFCAT-RETIRADA) o de 20 (…0000AQ).
+# Referencia catastral de 14 caracteres (p. ej. 99043A90100001) o de 20 (…0000AQ).
 _PATRON_REF_CATASTRAL = re.compile(
     r"(?<![0-9A-Za-z])[0-9]{5}[A-Z][0-9]{8}(?:[0-9]{4}[A-Z]{2})?(?![0-9A-Za-z])"
 )

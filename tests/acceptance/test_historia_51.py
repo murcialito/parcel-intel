@@ -101,15 +101,15 @@ def test_ca3_campo_fuera_de_lista_es_error_y_nombra_titularidad() -> None:
 def test_ca4_referencia_catastral_o_sociedad_en_texto_es_error_sin_falsos_positivos() -> None:
     """Dado un caso cuyo texto (cualquier valor de cadena salvo `fuente_url`) contiene una
     referencia catastral (14 o 20 caracteres alfanuméricos con el patrón de Catastro, p. ej.
-    `REFCAT-RETIRADA` o `REFCAT-RETIRADA`) o un patrón de sociedad (`S.L.`, `S.A.`,
+    `99043A90100001` o `99043A901000010000AQ`) o un patrón de sociedad (`S.L.`, `S.A.`,
     `S.L.U.`, `SL`, `SA` como palabra suelta en mayúsculas), cuando se valida, entonces es
     error. Un caso con una descripción neutra normal ("camino entre X e Y, paraje Z") no
     genera falsos positivos."""
     assert validar_casos(_doc(_caso_valido())) == []
 
     textos_con_dato = [
-        "camino entre la finca de REFCAT-RETIRADA y el arroyo",
-        "camino entre la finca de REFCAT-RETIRADA y el arroyo",
+        "camino entre la finca de 99043A90100001 y el arroyo",
+        "camino entre la finca de 99043A901000010000AQ y el arroyo",
         "cerrado por Promociones Ejemplo S.L.",
         "cerrado por Promociones Ejemplo S.A.",
         "cerrado por Promociones Ejemplo S.L.U.",

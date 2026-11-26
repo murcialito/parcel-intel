@@ -714,8 +714,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     if check:
         args.remove("--check")
     directory = FIXTURES_DIR
+    # Con el directorio por defecto se generan también las fixtures de `caminos/` (#46);
+    # con `--destino` solo las de Catastro (las de caminos tienen su propio directorio).
+    with_caminos = True
     if len(args) == 2 and args[0] == "--destino":
         directory = Path(args[1])
+        with_caminos = False
         args = []
     if args:
         print(
@@ -723,15 +727,21 @@ def main(argv: Sequence[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 2
+    from tests.fixtures import generate_caminos  # import diferido: ese módulo importa este
+
     expected = build_all()
     if check:
         problems = _differences(directory, expected)
+        if with_caminos:
+            problems += generate_caminos.differences(generate_caminos.CAMINOS_DIR)
         for problem in problems:
             print(problem, file=sys.stderr)
         return 1 if problems else 0
     directory.mkdir(parents=True, exist_ok=True)
     for name, content in expected.items():
         (directory / name).write_bytes(content)
+    if with_caminos:
+        generate_caminos.generate(generate_caminos.CAMINOS_DIR)
     return 0
 
 

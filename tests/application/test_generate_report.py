@@ -62,12 +62,12 @@ def test_cache_miss_consulta_los_ports_y_guarda_el_resultado() -> None:
         parcel_port=parcel_port, building_port=building_port, repository=repository
     )
 
-    report = use_case.execute("REFCAT-RETIRADA")
+    report = use_case.execute("99043A90100001")
 
     assert report.parcel == parcel
     assert report.buildings == (building,)
-    assert parcel_port.requested_references == ["REFCAT-RETIRADA"]
-    assert building_port.requested_references == ["REFCAT-RETIRADA"]
+    assert parcel_port.requested_references == ["99043A90100001"]
+    assert building_port.requested_references == ["99043A90100001"]
     assert repository.saved_reports == [report]
 
 
@@ -81,7 +81,7 @@ def test_cache_hit_no_consulta_los_ports() -> None:
         parcel_port=parcel_port, building_port=building_port, repository=repository
     )
 
-    report = use_case.execute("REFCAT-RETIRADA")
+    report = use_case.execute("99043A90100001")
 
     assert report == cached_report
     assert parcel_port.requested_references == []
@@ -97,7 +97,7 @@ def test_sin_edificios_devuelve_tupla_vacia_y_se_cachea_igual() -> None:
         repository=FakeRepository(cached_report=None),
     )
 
-    report = use_case.execute("REFCAT-RETIRADA")
+    report = use_case.execute("99043A90100001")
 
     assert report.buildings == ()
 

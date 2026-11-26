@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 import re
 import xml.etree.ElementTree as ET
@@ -281,15 +282,16 @@ def test_ca5_los_tests_que_dependian_de_valores_concretos_usan_los_sinteticos() 
         3,
     )
 
-    # Referencias de las respuestas originales: se reconstruyen para no citarlas aquí.
-    originales = {"28043A00" + "100001", "28170A00" + "100001", "28043A03" + "700001"}
-    originales.add("7262205" + "VK5376S")
+    # Referencias de las respuestas originales: solo se comparan sus huellas, sin citarlas.
+    originales = set(json.loads(HUELLAS.read_text(encoding="utf-8"))["referencias"])
     for path in TESTS_DIR.rglob("*.py"):
         module = ast.parse(path.read_text(encoding="utf-8"))
         if not _functions_reading_catastro(module):
             continue
         for literal in _code_strings(module):
-            assert not any(ref in literal for ref in originales), f"{path}: {literal}"
+            for candidato in re.findall(r"(?<![0-9A-Za-z])[0-9A-Z]{14}(?![0-9A-Za-z])", literal):
+                huella = hashlib.sha256(candidato.encode("utf-8")).hexdigest()
+                assert huella not in originales, f"{path}: {literal}"
 
 
 def test_ca6_registry_documenta_fixtures_sinteticas() -> None:

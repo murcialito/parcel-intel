@@ -32,7 +32,8 @@ ALGORITHM = "sha256"
 NORMALIZATION = (
     "referencias: nationalCadastralReference, localId, reference, sufijo de gml:id de "
     "CadastralParcel/Building y pc1+pc2, recortadas a 14 caracteres; anillos: cada "
-    "gml:posList como ' '.join(f'{float(v):.2f}' for v in texto.split())"
+    "gml:posList como ' '.join(f'{float(v):.2f}' for v in texto.split()); vértices (historia "
+    "#46): cada par x y de un gml:posList como f'{float(x):.2f} {float(y):.2f}'"
 )
 
 _GML_ID = "{http://www.opengis.net/gml/3.2}id"
@@ -88,18 +89,37 @@ def ring_fingerprints(xml_bytes: bytes) -> set[str]:
     }
 
 
-def fingerprints_of_directory(directory: Path) -> dict[str, object]:
+def normalize_vertex(x: str, y: str) -> str:
+    return f"{float(x):.2f} {float(y):.2f}"
+
+
+def vertex_fingerprints(xml_bytes: bytes) -> set[str]:
+    """SHA-256 (hex) de cada vértice (`x y`, dos decimales) de cada `gml:posList` (historia #46)."""
+    root = ET.fromstring(xml_bytes)
+    result: set[str] = set()
+    for element in root.iter():
+        if _local_name(element.tag) == "posList" and element.text and element.text.strip():
+            values = element.text.split()
+            pairs = zip(values[::2], values[1::2], strict=False)
+            result |= {_sha256(normalize_vertex(x, y)) for x, y in pairs}
+    return result
+
+
+def fingerprints_of_directory(directory: Path, pattern: str = "*.xml") -> dict[str, object]:
     references: set[str] = set()
     rings: set[str] = set()
-    for path in sorted(directory.glob("*.xml")):
+    vertices: set[str] = set()
+    for path in sorted(directory.glob(pattern)):
         body = path.read_bytes()
         references |= reference_fingerprints(body)
         rings |= ring_fingerprints(body)
+        vertices |= vertex_fingerprints(body)
     return {
         "algoritmo": ALGORITHM,
         "normalizacion": NORMALIZATION,
         "referencias": sorted(references),
         "anillos": sorted(rings),
+        "vertices": sorted(vertices),
     }
 
 

@@ -36,7 +36,7 @@ Varias decisiones técnicas no tienen ADR previo y deben decidirlas el arquitect
 ### Bloque 3 — Verificación con datos reales del dominio — CERRADO 2026-10-15
 
 - [x] Test de integración (`tests/adapters/postgis/test_repository_integration.py`, `pytestmark = pytest.mark.integration`) contra el PostGIS real del Bloque 1: inserta una `Parcel` y dos `Building`, lee de vuelta y compara `cadastral_reference`, `area_m2`, `origin`, `provenance` y SRID.
-- [x] Cubre explícitamente el caso multi-parte: uno de los `Building` insertados tiene `Geometry` con 2 anillos (cuerpo principal + anexo, mismo patrón real que el edificio `REFCAT-RETIRADA` de la historia 0002); la lectura conserva ambos anillos.
+- [x] Cubre explícitamente el caso multi-parte: uno de los `Building` insertados tiene `Geometry` con 2 anillos (cuerpo principal + anexo, mismo patrón real que el edificio `9900201ZZ0000S` de la historia 0002); la lectura conserva ambos anillos.
 - [x] Insertar un `Building` con `parcel_reference` inexistente lanza `psycopg.errors.ForeignKeyViolation` — verificado con una llamada real a la base de datos, no simulado.
 - [x] `uv run pytest` (sin argumentos) excluye los tests de integración por defecto (`addopts = "-m 'not integration'"`); `uv run pytest -m integration` los ejecuta aparte. Verificado: 27 passed / 4 deselected en el primer caso, 4 passed / 27 deselected en el segundo.
 - [x] `uv run mypy` y `uv run ruff check .` en verde sobre el código nuevo.

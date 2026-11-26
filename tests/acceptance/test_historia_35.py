@@ -103,8 +103,8 @@ def _centroid(fixture: str) -> tuple[float, float]:
 
 def test_ca2_centroides_catastrales_caen_en_su_municipio(tmp_path: Path) -> None:
     """Dados los límites reproyectados de Colmenar de Oreja y Villaconejos, cuando se comprueban
-    los centroides catastrales de la parcela REFCAT-RETIRADA (`467588.74, 4442023.74`) y de la
-    REFCAT-RETIRADA (`454720.29, 4441476.87`), ambos en EPSG:25830 y tomados de las fixtures
+    los centroides catastrales de la parcela 99043A90100001 (`467588.74, 4442023.74`) y de la
+    99170A90100001 (`454720.29, 4441476.87`), ambos en EPSG:25830 y tomados de las fixtures
     `Consulta_CPMRC`, entonces el primero cae dentro de Colmenar y fuera de Villaconejos, y el
     segundo al revés. Así se detectaría un cambio de ejes lat/lon."""
     by_code = {b.ine_code: b.geometry for b in _boundaries(tmp_path)}
