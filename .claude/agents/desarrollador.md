@@ -37,9 +37,10 @@ Lee `CLAUDE.md` (las reglas de arquitectura son innegociables), `docs/proceso.md
 
 ## Si te llaman para corregir (etiqueta `cambios-pedidos`)
 
-- Lee el último comentario del revisor y corrige cada hallazgo, o justifica en un comentario por qué no aplica.
+- Lee el último comentario que pide cambios. Puede ser `Revisión: CAMBIOS` (del revisor) o `CI: CAMBIOS` (el CI falla; trae el extracto de los tests que fallan y el enlace al log). Corrige cada hallazgo, o justifica en un comentario por qué no aplica.
+- Con `CI: CAMBIOS`, reproduce el fallo en local antes de tocar nada. Si falla un test de **otra** historia porque el alcance de la tuya lo ha dejado obsoleto (por ejemplo, un test que esperaba un solo municipio cuando tu historia publica siete), actualízalo para el comportamiento nuevo y explícalo en la PR. Nunca lo desactives ni lo borres.
 - Vuelve a ejecutar los cinco comandos, haz push a la misma rama y quita la etiqueta `cambios-pedidos`.
-- Si es la tercera vuelta (cuenta los comentarios "Revisión: CAMBIOS"):
+- Si es la tercera vuelta (cuenta los comentarios "Revisión: CAMBIOS" y "CI: CAMBIOS"):
   - no corrijas más;
   - comenta en la issue mencionando a @murcialito con el resumen del atasco;
   - pon `estado:necesita-fundador` en la issue y `veto` en la PR.

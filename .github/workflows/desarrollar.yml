@@ -150,6 +150,29 @@ jobs:
             fi
           fi
 
+      - name: Devolver a la cola una historia sin terminar
+        # El agente puede acabar "bien" dejando la historia a medias (p. ej. tras guardar el avance en
+        # una PR en borrador). Si sigue en estado:en-desarrollo, ocuparía un hueco para siempre: vuelve
+        # a la cola y el siguiente intento continúa sobre la rama. Al tercer intento, al fundador.
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if ! gh issue view "$HISTORIA" -R "$REPO" --json labels --jq '.labels[].name' | grep -qx 'estado:en-desarrollo'; then
+            echo "#$HISTORIA avanzó de estado."; exit 0
+          fi
+          intentos=$(gh issue view "$HISTORIA" -R "$REPO" --json comments \
+            --jq '[.comments[].body | select(startswith("Historia sin terminar"))] | length')
+          if [ "$intentos" -ge 2 ]; then
+            gh issue comment "$HISTORIA" -R "$REPO" --body "Historia sin terminar por tercera vez: $RUN_URL. @${{ github.repository_owner }}, necesito que mires si hay que partirla o aclarar algo."
+            gh issue edit "$HISTORIA" -R "$REPO" --remove-label "estado:en-desarrollo" --add-label "estado:necesita-fundador"
+          else
+            gh issue comment "$HISTORIA" -R "$REPO" --body "Historia sin terminar: el agente acabó con la historia aún en desarrollo ($RUN_URL). Vuelve a la cola; el siguiente intento continúa sobre su rama y su PR en borrador."
+            gh issue edit "$HISTORIA" -R "$REPO" --remove-label "estado:en-desarrollo" --add-label "estado:lista"
+          fi
+
       - name: Seguir con la cola
         # Si el agente bloqueó la historia, la devolvió a la cola o pidió ayuda, queda un hueco libre que
         # nadie llenaría hasta el próximo merge (el cron horario de GitHub no es fiable). El selector
