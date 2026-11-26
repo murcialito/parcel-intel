@@ -696,7 +696,24 @@ Consulta real del **2026-11-26**, `https://api-features.idee.es/collections/road
 
 ### Licencia y atribución
 
-CC BY 4.0, confirmada en la historia #24 (sección anterior). La capa lleva la atribución «Obra derivada de red de transporte IGN CC-BY 4.0 ign.es», texto fijado por el criterio CA4 de #27; **difiere** de la forma recomendada arriba («Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional») y debe unificarse con el fundador antes de publicar. El fichero lleva además el aviso «cartografía informativa».
+CC BY 4.0, confirmada en la historia #24 (sección anterior). El fichero derivado interno (`data/derived/camino_actual/`) lleva la atribución «Obra derivada de red de transporte IGN CC-BY 4.0 ign.es», texto fijado por el criterio CA4 de #27. El fichero derivado lleva además el aviso «cartografía informativa».
+
+**Unificada al publicar (historia #84, ADR 0036)**: lo publicado en `site/datos/camino_actual/` lleva la atribución de `NOTICE`, «Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional» (ADR 0035: lo que ve el público es `NOTICE`). El fichero derivado interno no cambia.
+
+### Publicación en `site/datos/` (historia #84)
+
+Ejecución real del 2026-11-26: `vias-pecuarias-municipios` y `camino-actual-municipios` con red, y después `publicar-capas --municipio 28043`. Recuentos iguales al oráculo (19 vías pecuarias, #36/#83; 893 tramos, #27). Desde #84 las procedencias del formato común llevan `redistribucion`; los ficheros derivados anteriores se leen como de uso interno y hay que regenerarlos (`--sin-red` basta).
+
+| Fichero | Features | Bytes |
+| --- | ---: | ---: |
+| `site/datos/vias_pecuarias/28043.geojson` | 19 | 82 800 |
+| `site/datos/vias_pecuarias/28043.geojson.procedencia.json` | — | 1 028 |
+| `site/datos/camino_actual/28043.geojson` | 893 | 1 007 584 |
+| `site/datos/camino_actual/28043.geojson.procedencia.json` | — | 1 244 |
+| `site/datos/indice.json` | 1 municipio | 215 |
+| `site/datos/indice.json.procedencia.json` | — | 205 |
+
+Ningún fichero supera el umbral de simplificación (3 000 000 bytes). Belmonte de Tajo (28019) no tiene piezas de vías pecuarias, y su capa vacía lleva la procedencia del límite del IGN (uso interno), así que hoy no se puede publicar. Queda para #86 (ADR 0036, notas de implementación).
 
 ---
 

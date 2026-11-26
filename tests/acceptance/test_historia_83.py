@@ -123,6 +123,8 @@ def test_ca3_cada_feature_lleva_id_estable_propiedades_y_procedencia_propia(
                 "url": piece.provenance.url,
                 "fecha_descarga": piece.provenance.retrieved_at.isoformat(),
                 "licencia": piece.provenance.license,
+                # Historia #84 (ADR 0036): la marca de redistribución viaja con el dato.
+                "redistribucion": "publicable",
             }
             assert not any(
                 word in key for key in props for word in ("propiet", "titular", "owner")

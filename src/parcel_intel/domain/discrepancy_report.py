@@ -29,6 +29,8 @@ class TrailLayer:
     municipality_code: str
     provenance: Provenance  # procedencia de la capa (fichero derivado)
     trails: tuple[Trail, ...]
+    municipality_name: str | None = None  # `nombre_municipio` del fichero (#84)
+    boundary_provenance: Provenance | None = None  # `procedencia_limite` del fichero (#84)
 
 
 @dataclass(frozen=True)

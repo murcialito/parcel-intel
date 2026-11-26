@@ -12,7 +12,7 @@ from parcel_intel.adapters.livestock_trails.parsing import (
 from parcel_intel.adapters.raw_cache import CachedRawFetcher
 from parcel_intel.domain.geometry import Geometry, bbox_with_margin
 from parcel_intel.domain.livestock_trail import LIVESTOCK_TRAIL_LICENSE, LivestockTrail
-from parcel_intel.domain.provenance import Provenance
+from parcel_intel.domain.provenance import Provenance, Redistribution
 from parcel_intel.ports.errors import IncompleteWfsResponseError
 
 DEFAULT_MARGIN_M = 2.0
@@ -91,6 +91,8 @@ class LivestockTrailAdapter:
             url=url,
             retrieved_at=retrieved_at,
             license=LIVESTOCK_TRAIL_LICENSE,
+            # CC BY 4.0 Comunidad de Madrid, REGISTRY.md «Publicar»
+            redistribution=Redistribution.PUBLIC,
         )
         return [
             LivestockTrail(

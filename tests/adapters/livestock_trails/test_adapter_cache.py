@@ -7,6 +7,7 @@ from parcel_intel.adapters.livestock_trails.adapter import DEFAULT_MARGIN_M, Liv
 from parcel_intel.adapters.livestock_trails.parsing import parse_number_matched
 from parcel_intel.adapters.raw_cache import CachedRawFetcher, RawCacheMissError
 from parcel_intel.domain.geometry import Geometry
+from parcel_intel.domain.provenance import Redistribution
 from parcel_intel.ports.errors import IncompleteWfsResponseError
 from tests.adapters.livestock_trails.helpers import FIXTURES_DIR
 
@@ -67,6 +68,8 @@ def test_la_licencia_y_la_url_completa_vienen_en_la_procedencia() -> None:
 
     assert {t.provenance.license for t in trails} == {"CC BY 4.0 Comunidad de Madrid"}
     assert "bbox=" in trails[0].provenance.url
+    # Historia #84: el adapter marca la procedencia publicable en origen (ADR 0028).
+    assert {t.provenance.redistribution for t in trails} == {Redistribution.PUBLIC}
 
 
 def test_numbermatched_real_coincide_con_las_features_parseadas() -> None:

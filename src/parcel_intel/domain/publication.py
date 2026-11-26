@@ -22,14 +22,24 @@ class NotRedistributableError(Exception):
 
 
 @dataclass(frozen=True)
-class PublishableLayer:
-    """Capa lista para publicar. Falla al construirse si algún elemento no es `PUBLIC`."""
+class PublishableLayer[T: HasProvenance]:
+    """Capa lista para publicar. Falla al construirse si algún elemento, o la
+    procedencia de la capa si se da, no es `PUBLIC` (ADR 0028 y #84).
+
+    `layer_provenance` es la procedencia de la colección: con ella, una capa
+    vacía cuya procedencia es interna tampoco pasa la puerta."""
 
     name: str
-    items: tuple[HasProvenance, ...]
+    items: tuple[T, ...]
+    layer_provenance: Provenance | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "items", tuple(self.items))
+        if (
+            self.layer_provenance is not None
+            and self.layer_provenance.redistribution is not Redistribution.PUBLIC
+        ):
+            raise NotRedistributableError(self.name, self.layer_provenance)
         for item in self.items:
             if item.provenance.redistribution is not Redistribution.PUBLIC:
                 raise NotRedistributableError(self.name, item.provenance)

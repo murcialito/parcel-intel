@@ -9,6 +9,7 @@ import pytest
 from parcel_intel.adapters.trail_layers import GeoJsonTrailLayerReader, TrailLayerFormatError
 from parcel_intel.domain.discrepancy_report import TrailLayer
 from parcel_intel.domain.geometry import Geometry, MultiLineGeometry
+from parcel_intel.domain.provenance import Redistribution
 from parcel_intel.domain.trail import SourceKind
 
 VIA: SourceKind = "via_pecuaria_oficial"
@@ -112,3 +113,58 @@ def test_el_municipio_del_fichero_debe_coincidir_con_el_pedido(tmp_path: Path) -
 def test_un_codigo_ine_no_valido_no_toca_el_sistema_de_ficheros(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="5 dígitos"):
         GeoJsonTrailLayerReader({VIA: tmp_path}).get_layer(VIA, "../etc")
+
+
+def _write_collection(directory: Path, properties: dict[str, object]) -> None:
+    document = {
+        "type": "FeatureCollection",
+        "crs": {"type": "name", "properties": {"name": "EPSG:25830"}},
+        "properties": {"fuente": VIA, "municipio": "28043", **properties},
+        "features": [
+            _feature(
+                "P",
+                {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 0]]]},
+                procedencia={**_PROVENANCE, "redistribucion": "solo_uso_interno"},
+            )
+        ],
+    }
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "28043.geojson").write_text(json.dumps(document), encoding="utf-8")
+
+
+def test_lee_marca_nombre_de_municipio_y_procedencia_del_limite(tmp_path: Path) -> None:
+    _write_collection(
+        tmp_path,
+        {
+            "procedencia": {**_PROVENANCE, "redistribucion": "publicable"},
+            "nombre_municipio": "Colmenar de Oreja",
+            "procedencia_limite": {**_PROVENANCE, "fuente": "LIMITE SINTÉTICO"},
+        },
+    )
+
+    layer = GeoJsonTrailLayerReader({VIA: tmp_path}).get_layer(VIA, "28043")
+
+    assert layer.provenance.redistribution is Redistribution.PUBLIC
+    # La marca de cada feature es la suya, no la de la colección.
+    assert layer.trails[0].provenance.redistribution is Redistribution.INTERNAL_ONLY
+    assert layer.municipality_name == "Colmenar de Oreja"
+    assert layer.boundary_provenance is not None
+    assert layer.boundary_provenance.source == "LIMITE SINTÉTICO"
+    assert layer.boundary_provenance.redistribution is Redistribution.INTERNAL_ONLY
+
+
+def test_sin_nombre_ni_limite_quedan_en_none(tmp_path: Path) -> None:
+    _write_collection(tmp_path, {"procedencia": _PROVENANCE})
+
+    layer = GeoJsonTrailLayerReader({VIA: tmp_path}).get_layer(VIA, "28043")
+
+    assert layer.municipality_name is None
+    assert layer.boundary_provenance is None
+    assert layer.provenance.redistribution is Redistribution.INTERNAL_ONLY
+
+
+def test_marca_desconocida_es_error_de_formato(tmp_path: Path) -> None:
+    _write_collection(tmp_path, {"procedencia": {**_PROVENANCE, "redistribucion": "PUBLIC"}})
+
+    with pytest.raises(TrailLayerFormatError, match="redistribucion"):
+        GeoJsonTrailLayerReader({VIA: tmp_path}).get_layer(VIA, "28043")

@@ -20,6 +20,8 @@ def provenance_properties(provenance: Provenance) -> dict[str, object]:
         "url": provenance.url,
         "fecha_descarga": provenance.retrieved_at.isoformat(),
         "licencia": provenance.license,
+        # Marca de redistribución (#84, ADR 0036): viaja con el dato y la reconstruye el lector.
+        "redistribucion": provenance.redistribution.value,
     }
 
 
