@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016  # las variables $x de GraphQL van literales a propósito
 # Elige la siguiente historia de la cola de desarrollo y escribe su número en stdout (vacío si no hay).
-# - Si ya hay una historia en estado:en-desarrollo o estado:en-revision, no elige ninguna.
+# - Hasta HISTORIAS_EN_PARALELO historias a la vez en estado:en-desarrollo o estado:en-revision (por
+#   defecto 1). Con alguna en curso, solo se elige otra si las dos declaran su línea "Toca:" (zonas del
+#   código que modifican) y no se solapan; una historia sin "Toca:" va sola.
 # - Candidatas: historias abiertas con estado:lista.
 # - Orden: Priority del tablero (P0, P1, P2, sin prioridad) y, dentro de cada una, la más antigua.
 # - Salta las que tienen dependencias abiertas ("Depende de #N" en el cuerpo). Las épicas, features y
@@ -14,12 +16,42 @@ set -euo pipefail
 
 log() { echo "$*" >&2; }
 
-for estado in estado:en-desarrollo estado:en-revision; do
-  [ -n "${IGNORAR_OCUPADAS:-}" ] && break  # solo para probar el orden a mano
-  if [ "$(gh issue list -R "$REPO" --state open --label tipo:historia --label "$estado" --json number --jq length)" -gt 0 ]; then
-    log "Ya hay una historia en $estado; se espera a que termine."
-    exit 0
-  fi
+LIMITE=${HISTORIAS_EN_PARALELO:-1}
+
+# toca <issue>: zonas de su línea "Toca:" (una por línea, sin comillas ni barra final); vacío si no la tiene.
+toca() {
+  gh issue view "$1" -R "$REPO" --json body --jq .body \
+    | grep -m1 -iE '^[-*_ ]*Toca[*_ ]*:' | sed -E 's/^[^:]*:[*_ ]*//' \
+    | tr ',;' '\n\n' | tr -d '`*' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//; s#/+$##' | grep -v '^$' || true
+}
+
+# solapan <zonas-a> <zonas-b>: 0 si alguna zona de una contiene a (o es) alguna de la otra.
+solapan() {
+  local a b
+  while read -r a; do
+    while read -r b; do
+      [ -z "$a" ] || [ -z "$b" ] && continue
+      if [ "$a" = "$b" ] || [[ "$a" == "$b"/* ]] || [[ "$b" == "$a"/* ]]; then return 0; fi
+    done <<<"$2"
+  done <<<"$1"
+  return 1
+}
+
+en_curso=""
+if [ -z "${IGNORAR_OCUPADAS:-}" ]; then
+  en_curso=$( { gh issue list -R "$REPO" --state open --label tipo:historia --label estado:en-desarrollo --json number --jq '.[].number'
+                gh issue list -R "$REPO" --state open --label tipo:historia --label estado:en-revision --json number --jq '.[].number'; } | sort -un)
+fi
+ocupadas=$(grep -c . <<<"$en_curso" || true)
+if [ "$ocupadas" -ge "$LIMITE" ]; then
+  log "Hay $ocupadas historia(s) en curso y el límite es $LIMITE: se espera."
+  exit 0
+fi
+zonas_en_curso=""
+for n in $en_curso; do
+  z=$(toca "$n")
+  if [ -z "$z" ]; then log "#$n está en curso sin línea Toca: va sola, se espera."; exit 0; fi
+  zonas_en_curso+="$z"$'\n'
 done
 
 prioridades='{}'
@@ -95,6 +127,11 @@ while read -r n prio; do
     [ "$bloquea" = "true" ] && abiertas="$abiertas #$d"
   done
   if [ -n "$abiertas" ]; then log "#$n ${prio:-sin prioridad} espera a$abiertas."; continue; fi
+  if [ "$ocupadas" -gt 0 ]; then
+    z=$(toca "$n")
+    if [ -z "$z" ]; then log "#$n no tiene línea Toca: no puede ir en paralelo."; continue; fi
+    if solapan "$z" "$zonas_en_curso"; then log "#$n toca zonas de una historia en curso."; continue; fi
+  fi
   log "Historia elegida: #$n (${prio:-sin prioridad})."
   echo "$n"
   exit 0

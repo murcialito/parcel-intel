@@ -55,9 +55,20 @@ Por qué ahora, qué existe ya (archivos, ports, ADRs), qué fuentes usa y su es
 ## Diseño
 Ports, entidades y adapters que se tocan o crean. ADR propuesto si hay decisión nueva.
 
+Toca: `ruta/de/directorio/`, `ruta/de/fichero.py`, …
+
 ## Fuera de alcance
 …
 ```
+
+## Línea "Toca:" (obligatoria en toda historia lista)
+
+Pueden desarrollarse dos historias a la vez, y la cola solo las junta si sus zonas no se solapan. Escribe en la sección Diseño una línea `Toca:` con los directorios o ficheros que la historia va a crear o modificar, separados por comas. Por ejemplo: `Toca: src/parcel_intel/adapters/ign/, tests/adapters/ign/, docs/adr/`.
+
+- Sé concreto: `src/parcel_intel/adapters/ign/` mejor que `src/`. Una zona demasiado amplia impide el paralelo.
+- Incluye los tests, las fixtures y los docs que la historia escribe. `docs/lessons/LESSONS.md` no hace falta: se fusiona sin conflictos.
+- Al partir una feature, reparte el trabajo para que las historias hermanas toquen zonas distintas cuando sea posible.
+- Una historia sin línea `Toca:` se desarrolla sola, sin otra en paralelo.
 
 ## Talla (obligatoria en toda historia)
 

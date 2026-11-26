@@ -68,6 +68,7 @@ Una historia pasa a `estado:lista` solo si:
 - Tiene historia ("Como… quiero… para…"), contexto y **criterios de aceptación en formato Dado / Cuando / Entonces**, numerados (CA1, CA2…).
 - Cada criterio es comprobable **sin red** con fixtures grabadas, o está marcado `[integración]` y dice qué fuente real toca.
 - Las fuentes que usa están verificadas en `REGISTRY.md`. Si no, la primera historia es la de verificación.
+- Tiene una línea `Toca:` con las zonas del código que creará o modificará; sin ella se desarrolla sola, sin paralelo.
 - Tiene talla (`talla:s`, `talla:m` o `talla:l`). Las `talla:l`, y cualquiera con decisión de arquitectura o proveedor nuevo, han pasado por el arquitecto: la sección `## Diseño` y el ADR propuesto están en la issue.
 - No quedan preguntas abiertas para el fundador.
 - Cabe en una PR revisable (orientativo: menos de ~600 líneas de producción).
@@ -103,7 +104,7 @@ Definidos en `.claude/agents/` y lanzados por los workflows de `.github/workflow
 
 **Orden de la cola:** Priority del tablero (P0 → P1 → P2 → sin prioridad) y, dentro, la más antigua. Salta las que tienen dependencias abiertas ("Depende de #N"). Ver `.github/scripts/elegir_historia.sh`.
 
-**Una historia a la vez.** El desarrollo va en serie para evitar conflictos entre PRs: si ya hay una historia `estado:en-desarrollo` o `estado:en-revision`, la siguiente `estado:lista` espera a la pasada horaria.
+**Historias en paralelo.** Se desarrollan a la vez hasta `HISTORIAS_EN_PARALELO` historias (variable de repo; ahora 2). Cuentan las que están en `estado:en-desarrollo` o `estado:en-revision`. La cola solo junta dos historias si las dos tienen línea `Toca:` y sus zonas no se solapan; una sin `Toca:` va sola. La elección va en serie y reclama la historia al elegirla, así que dos ejecuciones nunca cogen la misma. Fusionar solo fusiona una PR al día con `main`: si va por detrás, la actualiza con `PROJECT_TOKEN` y espera a que CI y la revisión pasen sobre la combinación real.
 
 ## Talla, arquitecto y modelos por tarea
 

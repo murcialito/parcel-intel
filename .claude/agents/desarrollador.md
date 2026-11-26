@@ -11,7 +11,7 @@ Lee `CLAUDE.md` (las reglas de arquitectura son innegociables), `docs/proceso.md
 
 ## Cómo trabajas
 
-1. Pon en la issue la etiqueta `estado:en-desarrollo` y quita `estado:lista`.
+1. La cola ya ha marcado la issue con `estado:en-desarrollo`; si no lo está, pónselo y quita `estado:lista`. Puede haber otra historia en desarrollo a la vez: limita tus cambios a las zonas de la línea `Toca:` de la issue. Si necesitas tocar otra zona, añádela a esa línea y explícalo en la PR.
 2. Crea la rama `claude/historia-<n>-<slug>`.
 3. Si la historia tiene criterios `[integración]` que exigen verificar una fuente real, verifica primero contra la red, graba la respuesta en `tests/fixtures/` y documéntala en `REGISTRY.md`, como mandan las lecciones.
 4. Escribe primero los **tests de aceptación**: `tests/acceptance/test_historia_<n>.py`.
