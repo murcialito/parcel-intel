@@ -140,7 +140,7 @@ El mayor riesgo sigue siendo de confianza, ahora con otro destinatario: un falso
 - [x] Licencia del código: Apache-2.0 (decisión del fundador, 2026-11-25; ver historia #42).
 - [x] Licencia de los datos derivados publicados: CC BY 4.0, con atribución visible por capa y procedencia (decisión del fundador, 2026-11-25; ver `NOTICE` e historia #43). Catastro y OpenStreetMap: no se publica por ahora.
 - [ ] Si el mapa muestra la referencia catastral de la finca donde queda un candidato, o solo el tramo.
-- [ ] Método de detección de "candidato a corte" (ver hito, punto b).
+- [x] Método de detección de "candidato a corte" (ver hito, punto b): discrepancia con el camino actual más señales por muestra combinadas en «O», empezando por la señal de Catastro `parcela_no_camino` (2026-11-26; ver ADR 0039 e historia #109).
 - [ ] Dónde se aloja el mapa estático.
 - [ ] Cómo se reciben y moderan los avisos ciudadanos con foto (después del hito).
 
