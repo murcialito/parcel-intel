@@ -26,9 +26,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Construir
-        run: |
-          mkdir -p _site
-          cp -R site/. _site/
+        run: python3 scripts/construir_sitio.py site _site
 
       - uses: actions/configure-pages@v5
 
