@@ -72,6 +72,11 @@ uv run python -m parcel_intel.cli.main vias-pecuarias-municipios --sin-red   # s
 # Capa de camino actual (red del IGN sin asfaltar) por municipio, en data/derived/camino_actual/<ine>.geojson (historia #27)
 uv run python -m parcel_intel.cli.main camino-actual-municipios              # descarga y cachea en data/raw
 uv run python -m parcel_intel.cli.main camino-actual-municipios --sin-red    # solo desde la caché
+
+# Discrepancias entre capas de trazados por municipio (historia #32): lee data/derived/{vias_pecuarias,camino_actual,catastro_caminos}/<ine>.geojson
+# y escribe data/derived/discrepancias/{interno,publicable}/<ine>.geojson (el interno NUNCA se publica). Sin red. Sale con 1 si algún municipio falla.
+uv run python -m parcel_intel.cli.main discrepancias --municipio 28043 [--municipio ...]
+uv run python -m parcel_intel.cli.main discrepancias --ambito                # los 7 municipios del primer hito
 ```
 
 ## Contexto de negocio (resumen)

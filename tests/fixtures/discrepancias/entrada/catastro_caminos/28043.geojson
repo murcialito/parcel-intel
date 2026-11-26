@@ -1,0 +1,32 @@
+{
+ "type": "FeatureCollection",
+ "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::25830"}},
+ "properties": {
+  "fuente": "catastro_vt",
+  "municipio": "28043",
+  "procedencia": {
+   "fuente": "SINTÉTICO capa de caminos de Catastro",
+   "url": "https://example.invalid/catastro_caminos",
+   "fecha_descarga": "2026-11-26",
+   "licencia": "SINTÉTICA, solo para pruebas (trátese como no redistribuible)"
+  },
+  "aviso": "SINTÉTICO: capa inventada para pruebas, no es cartografía real."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "C-1",
+   "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [200, 0], [200, 20], [0, 20], [0, 0]]]},
+   "properties": {"fecha_dato": "2025-01-01"}
+  },
+  {
+   "type": "Feature",
+   "id": "C-2",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [[[0, 2000], [200, 2000], [200, 2020], [0, 2020], [0, 2000]]]
+   },
+   "properties": {"fecha_dato": "2025-01-01"}
+  }
+ ]
+}

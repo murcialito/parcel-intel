@@ -1,0 +1,23 @@
+{
+ "type": "FeatureCollection",
+ "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::25830"}},
+ "properties": {
+  "fuente": "ign_red_transporte",
+  "municipio": "28045",
+  "procedencia": {
+   "fuente": "SINTÉTICO capa de camino actual",
+   "url": "https://example.invalid/camino_actual",
+   "fecha_descarga": "2026-11-26",
+   "licencia": "SINTÉTICA, solo para pruebas"
+  },
+  "aviso": "SINTÉTICO: capa inventada para pruebas, no es cartografía real."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "R-9",
+   "geometry": {"type": "LineString", "coordinates": [[0, 10], [200, 10]]},
+   "properties": {"fecha_dato": "2020-05-01"}
+  }
+ ]
+}

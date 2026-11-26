@@ -1,6 +1,7 @@
 import argparse
 import sys
 import time
+from collections import Counter
 from collections.abc import Callable
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -9,6 +10,7 @@ import requests
 
 from parcel_intel.adapters.deepseek.adapter import DeepSeekAdapter, MissingDeepSeekApiKeyError
 from parcel_intel.adapters.deepseek.client import DeepSeekApiError
+from parcel_intel.adapters.discrepancy_files import GeoJsonDiscrepancyWriter
 from parcel_intel.adapters.ign_admin_units import IgnAdministrativeUnitsAdapter
 from parcel_intel.adapters.ign_admin_units import client as ign_client
 from parcel_intel.adapters.livestock_trails import client as livestock_client
@@ -25,11 +27,14 @@ from parcel_intel.adapters.road_layer_files import GeoJsonRoadLayerWriter
 from parcel_intel.adapters.road_network import client as roadlink_client
 from parcel_intel.adapters.road_network.adapter import RoadNetworkAdapter
 from parcel_intel.adapters.shapely_geometry import ShapelyLineClipper, ShapelyPolygonClipper
+from parcel_intel.adapters.trail_layers import GeoJsonTrailLayerReader, TrailLayerFormatError
 from parcel_intel.application.author_rule_proposal import AuthorRuleProposalUseCase
 from parcel_intel.application.build_municipal_livestock_trail_layers import (
     BuildMunicipalLivestockTrailLayersUseCase,
 )
 from parcel_intel.application.build_municipal_road_layers import BuildMunicipalRoadLayersUseCase
+from parcel_intel.application.detect_discrepancies import DetectDiscrepanciesUseCase
+from parcel_intel.domain.discrepancy_report import LayerStatus
 from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
 from parcel_intel.domain.municipal_road_layer import MunicipalRoadLayerBatch
 from parcel_intel.domain.provenance import Provenance
@@ -291,6 +296,65 @@ def _camino_actual_municipios(args: argparse.Namespace) -> int:
     return 1 if batch.failures else 0
 
 
+def build_discrepancy_use_case(derived_dir: Path, output_dir: Path) -> DetectDiscrepanciesUseCase:
+    """Composition root de la detección de discrepancias (historia #32).
+
+    Lee las capas derivadas de `derived_dir` y escribe el interno y el publicable
+    bajo `output_dir`. Sin red ni LLM. El histórico no tiene ruta todavía: cuenta
+    como fuente ausente."""
+    return DetectDiscrepanciesUseCase(
+        layers=GeoJsonTrailLayerReader(
+            {
+                "via_pecuaria_oficial": derived_dir / "vias_pecuarias",
+                "ign_red_transporte": derived_dir / "camino_actual",
+                "catastro_vt": derived_dir / "catastro_caminos",
+            }
+        ),
+        internal_sink=GeoJsonDiscrepancyWriter(output_dir / "interno", publishable=False),
+        public_sink=GeoJsonDiscrepancyWriter(output_dir / "publicable", publishable=True),
+    )
+
+
+def _municipality_code(value: str) -> str:
+    if not (len(value) == 5 and value.isdigit()):
+        raise argparse.ArgumentTypeError(f"código INE de 5 dígitos esperado: {value!r}")
+    return value
+
+
+def _discrepancias(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        print("Indica --municipio <INE> (repetible) o --ambito.", file=sys.stderr)
+        return 2
+    use_case = build_discrepancy_use_case(args.entrada, args.salida)
+    failed = False
+    for code in codes:
+        started = time.monotonic()
+        try:
+            report = use_case.execute(code)
+        except TrailLayerFormatError as error:
+            print(
+                f"FALLO {code}: fuente={error.source} fichero={error.path}: {error.detail}",
+                file=sys.stderr,
+            )
+            failed = True
+            continue
+        except Exception as error:  # un municipio roto no frena el lote
+            print(f"FALLO {code}: {type(error).__name__}: {error}", file=sys.stderr)
+            failed = True
+            continue
+        by_kind = Counter(record.discrepancy.kind for record in report.records)
+        summary = ", ".join(f"{kind}={by_kind[kind]}" for kind in sorted(by_kind)) or "ninguna"
+        absent = [layer.source for layer in report.layers if layer.status is LayerStatus.AUSENTE]
+        print(
+            f"{code}: {len(report.records)} discrepancias ({summary}); "
+            f"capas ausentes: {', '.join(absent) or 'ninguna'}; "
+            f"{time.monotonic() - started:.1f} s -> {args.salida}"
+        )
+    return 1 if failed else 0
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="parcel_intel.cli.main")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -349,6 +413,34 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio de los ficheros <codigo_ine>.geojson",
     )
     camino_parser.set_defaults(func=_camino_actual_municipios)
+
+    discrepancias_parser = subparsers.add_parser(
+        "discrepancias",
+        help="Discrepancias entre las capas de trazados de uno o varios municipios, en GeoJSON",
+    )
+    discrepancias_parser.add_argument(
+        "--municipio",
+        type=_municipality_code,
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible)",
+    )
+    discrepancias_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito"
+    )
+    discrepancias_parser.add_argument(
+        "--entrada",
+        type=Path,
+        default=Path("data/derived"),
+        help="Directorio con las capas derivadas (vias_pecuarias/, camino_actual/, ...)",
+    )
+    discrepancias_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("data/derived/discrepancias"),
+        help="Directorio de salida (interno/ y publicable/)",
+    )
+    discrepancias_parser.set_defaults(func=_discrepancias)
 
     return parser
 

@@ -1,0 +1,23 @@
+{
+ "type": "FeatureCollection",
+ "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::25830"}},
+ "properties": {
+  "fuente": "via_pecuaria_oficial",
+  "municipio": "28045",
+  "procedencia": {
+   "fuente": "SINTÉTICO capa de vías pecuarias",
+   "url": "https://example.invalid/vias_pecuarias",
+   "fecha_descarga": "2026-11-26",
+   "licencia": "SINTÉTICA, solo para pruebas"
+  },
+  "aviso": "SINTÉTICO: capa inventada para pruebas, no es cartografía real."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "VP-9",
+   "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [200, 0], [200, 20], [0, 20], [0, 0]]]},
+   "properties": {"fecha_dato": "2014-01-01"}
+  }
+ ]
+}

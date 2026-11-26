@@ -302,3 +302,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: "sin tramos" no es "sin procedencia". Un port que devuelve `list[...]` pierde la procedencia de la consulta cuando la lista está vacía, y un fichero válido de cero elementos (CA3) sigue necesitando fuente, URL, fecha y licencia. El port devuelve un resultado con la procedencia aparte.
   - **Aplica a**: arquitecto (al diseñar un port de consulta cuya salida se publica con procedencia, devolverla también en el caso vacío).
 
+## [2026-11-26] Historia #32 — Lote de discrepancias desde la CLI
+
+- **Lección**: un diseño que fija "el productor escribe el formato común" no garantiza que el productor lo escriba. #36 (vías pecuarias) solo imprime por pantalla y no deja `data/derived/vias_pecuarias/`; el lote de #32 lo trata como fuente ausente y su criterio `[integración]` (CA11) pide una capa que ningún comando genera hoy. Antes de pasar a `estado:lista` una historia que consume ficheros, comprobar con `grep` que existe el comando que los escribe.
+  - **Aplica a**: BA y arquitecto (un "Depende de #N cerrada" no es "el fichero existe") | implementación (comprobarlo al empezar y anotarlo en la PR).
+
+- **Lección**: una clave de salida con una palabra sensible por casualidad (`nombre` para el nombre de una medida) rompe un test que busca nombres de persona y, peor, invita a leer el fichero como si los llevara. Se llama `medida`, y el test prohíbe la palabra entera en claves y valores.
+  - **Aplica a**: implementación (al diseñar claves de un fichero publicable con test de "sin titularidad").
+
+- **Lección**: las constantes de fuente en los tests (`VIA = "via_pecuaria_oficial"`) se tipan `SourceKind`; sin anotación mypy las infiere `str` y rechaza cada llamada al port.
+  - **Aplica a**: implementación.
+
