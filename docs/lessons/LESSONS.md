@@ -401,3 +401,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en las Actions de los agentes no se puede lanzar un navegador sin cabeza (`chromium`, `google-chrome` piden aprobación). La comprobación en un navegador real queda como paso manual anotado en la PR; los tests cubren el visor con un `L` falso, así que un error de uso de la API real de Leaflet solo se ve en el navegador.
   - **Aplica a**: implementación (anotar en la PR qué no se pudo ver) | fundador (abrir la URL de Pages tras el despliegue).
 
+## [2026-11-26] Historia #86 — Publicar el ámbito completo y vigilar el peso
+
+- **Lección**: una puerta "denegar por defecto" que también mira lo vacío bloquea ejecuciones enteras por un caso sin datos. Si una capa no tiene elementos, no hay nada que redistribuir: se omite antes de la puerta y se declara en la salida. El dominio sigue siendo estricto; la decisión vive en el caso de uso y se prueba con el caso real (Belmonte de Tajo).
+  - **Aplica a**: arquitecto (al añadir una validación sobre una colección, decidir qué pasa con la colección vacía) | implementación (ejecutar el comando sobre TODO el ámbito real antes de dar la historia por buena: un municipio atípico solo sale así).
+

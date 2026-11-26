@@ -333,8 +333,10 @@ def test_ca5_toda_publicacion_pasa_por_publishable_layer(tmp_path: Path) -> None
     result = PublishLayersUseCase(_Layers(), _Sink()).execute(["28997"])
 
     assert calls == []
-    assert [f.layer_id for f in result.failures] == ["vias_pecuarias", "camino_actual"]
+    # Desde #86 la capa vacía no publica nada y se omite antes de la puerta (Belmonte de Tajo).
+    assert [f.layer_id for f in result.failures] == ["vias_pecuarias"]
     assert all(f.reason.startswith("no redistribuible") for f in result.failures)
+    assert result.empty == (("camino_actual", "28997"),)
 
 
 def test_ca6_capa_inexistente_o_corrupta_sale_con_1_sin_tocar_nada(
