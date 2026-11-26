@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 
+from parcel_intel.adapters.catastro import client as catastro_client
 from parcel_intel.adapters.catastro.area_adapter import (
     CATASTRO_INSPIRE_LICENSE,
     CATASTRO_WFS_TILE_SIDE_M,
@@ -293,11 +294,32 @@ def test_ca7_catastro_real_de_colmenar_se_cachea_y_se_repite_sin_red(tmp_path: P
     assert segunda == primera
     assert huellas() == antes
 
+    # El WFS no recorta la geometría al bbox (base de la deduplicación de CA3): dos bboxes
+    # solapados devuelven la misma geometría para una parcela que cruza el borde del primero.
+    fetcher = CachedRawFetcher(
+        catastro_client.default_http_getter, tmp_path / "solape", lambda: TODAY
+    )
+    adapter = CatastroAreaAdapter("MADRID", "COLMENAR DE OREJA", fetcher)
+    ventana_a = (467000.0, 4441500.0, 467600.0, 4442100.0)
+    ventana_b = (467300.0, 4441500.0, 467900.0, 4442100.0)
+    en_b = {p.cadastral_reference: p for p in adapter.get_parcels_in_bbox(ventana_b)}
+    cruzan = 0
+    for parcela in adapter.get_parcels_in_bbox(ventana_a):
+        xs = [x for anillo in parcela.geometry.rings for x, _y in anillo]
+        otra = en_b.get(parcela.cadastral_reference)
+        if otra is not None and max(xs) > ventana_a[2]:
+            cruzan += 1
+            assert otra.geometry == parcela.geometry, "el WFS recorta la geometría al bbox"
+    assert cruzan >= 1, "ninguna parcela cruza el borde de la ventana: elegir otra ventana"
+
     texto = REGISTRY.read_text(encoding="utf-8")
     seccion = texto[texto.index("#### Capa interna de caminos de Catastro") :]
     seccion = seccion[: seccion.index("\n### ")]
     assert "449341" in seccion and "4442906" in seccion
     assert not re.search(r"\b\d{5}[A-Z]\d{8}", seccion)
+    assert "Geometría en teselas contiguas: **idéntica**" in seccion
+    for recuento in ("caminos de clase `VT`", "excluidas por tener otra clase", "sin clasificar"):
+        assert recuento in seccion
 
 
 def _fetcher(tmp_path: Path, wfs: bytes) -> tuple[CatastroAreaAdapter, Path]:

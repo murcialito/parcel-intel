@@ -570,6 +570,8 @@ Comando `catastro-caminos` para Colmenar de Oreja (`28043`), con el bbox del té
   - **505 caminos de clase `VT`**, con 424,0 ha en total;
   - 475 excluidas por tener otra clase;
   - 8 sin clasificar, por `lerr`.
+  - El recuento de la pasada final con CA13 es 988; el «980» de un comentario anterior era el de la primera pasada (sin CA13).
+- Geometría en teselas contiguas: **pendiente** (la comprueba CA7 con dos bboxes solapados de 600 m en el casco; quien lo pase en local sustituye «pendiente» por **idéntica** o **recortada**, sin referencias). Si sale «recortada», la deduplicación de CA3 no vale: parar y comentar en la issue.
 
 ### PNOA — vuelos reales sobre el ámbito — `confirmado`
 
