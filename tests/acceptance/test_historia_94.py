@@ -671,10 +671,8 @@ def test_ca15_datos_reales_de_colmenar_en_el_repo() -> None:
         assert banned_words_in(json.dumps(feature, ensure_ascii=False)) == ()
     (entry,) = [m for m in _load(SITE_DATOS / "indice.json")["municipios"] if m["ine"] == "28043"]
     assert entry["capas"]["discrepancias"] == "discrepancias/28043.geojson"
-    # Solo Colmenar: el resto del ámbito es de #96.
-    assert sorted(p.name for p in (SITE_DATOS / "discrepancias").glob("*.geojson")) == [
-        "28043.geojson"
-    ]
+    # Colmenar sigue publicado; el resto del ámbito lo publica #96 (su test lo comprueba).
+    assert "28043.geojson" in {p.name for p in (SITE_DATOS / "discrepancias").glob("*.geojson")}
 
 
 # --- Informe sintético para la ida y vuelta (CA14) -----------------------------------------
