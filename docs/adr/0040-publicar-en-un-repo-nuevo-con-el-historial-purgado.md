@@ -1,7 +1,8 @@
-# ADR 0035 — Publicar en un repo nuevo con el historial purgado
+# ADR 0040 — Publicar en un repo nuevo con el historial purgado
 
 - Estado: aceptada
 - Fecha: 2026-11-26
+- Nota: se escribió como 0035 y se renumeró a 0040, porque ese número ya lo ocupaba el ADR de licencias (`0035-licencias-codigo-y-datos-publicados-notice.md`).
 - Cambia: el camino de `docs/runbook-publicacion.md` (historia #44), que reescribía el repo actual con push forzado
 
 ## Contexto

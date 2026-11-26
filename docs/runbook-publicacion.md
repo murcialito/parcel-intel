@@ -9,7 +9,7 @@ Historia #44 (feature #39, épica #2). Autorización del fundador (en #39): rees
 Esta historia solo entrega las herramientas y este documento. **La ejecución la hace el fundador**, después de que se fusione #38 (fixtures sintéticas que sustituyen a las originales en el árbol de trabajo).
 
 
-> **Camino elegido: repo nuevo ([ADR 0035](adr/0035-publicar-en-un-repo-nuevo-con-el-historial-purgado.md)).**
+> **Camino elegido: repo nuevo ([ADR 0040](adr/0040-publicar-en-un-repo-nuevo-con-el-historial-purgado.md)).**
 > No se hace push forzado sobre este repo, para no depender de GitHub Support con `refs/pull/*`. Se ejecuta `scripts/migrar_a_repo_nuevo.sh` por fases: `preparar`, `archivar`, `crear`, `numerar`, `restaurar`, `activar` (tras guardar los secrets) y `publicar`. La fase `preparar` purga **por contenido**. Las fixtures sintéticas (#45 y #46) comparten ruta con las respuestas reales, así que una purga por rutas también las borraría. Se quitan del historial todas las versiones que han estado en `tests/fixtures/catastro/` o `tests/fixtures/caminos/catastro_*`, salvo las de `main`. Antes, se comprueba que las de `main` no llevan referencias catastrales reales, y después se verifica de forma independiente (en el ensayo: el historial original da 41 rastros y el purgado, 0). Los dos scripts de purga por rutas de la sección "Pasos" no se usan en este camino. Las secciones "Pasos" (5 a 7), "Purga en GitHub" y "Rollback" quedan como referencia del camino descartado.
 
 ## Requisitos de la herramienta
