@@ -476,4 +476,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: un oráculo de `numpy.linalg.lstsq` sobre una afín casi exacta coincide con el cálculo con coordenadas centradas dentro de ~1e-10 m, así que `abs=1e-9` es correcto pero justo. Al cambiar la escala de la figura en un test (p. ej. multiplicar los píxeles por 100) hay que mantener los objetivos dentro del rango de EPSG:25830 que valida `ControlPoint`.
   - **Aplica a**: implementación (tests de escala sobre `fit_affine`).
+## [2026-11-26] Historia #122 — Comando imagenes-comparacion
+
+- **Lección**: para rechazar un GeoJSON «fuera de EPSG:25830» no basta con leer el miembro `crs`: un fichero que declara 25830 pero trae grados (`-3.6, 40.1`) pasa. Hay que acotar además las coordenadas al rango de UTM 30N (este 100.000–900.000 m). Y con mypy estricto, los tests no pueden leer `main.ManifestTooLargeError` y similares: se importan de su módulo, no de `cli.main`.
+  - **Causa**: la primera cota (−1.000.000…2.000.000) dejaba pasar los grados; lo cazó un test unitario con lon/lat.
+  - **Aplica a**: implementación (lectores de ficheros de entrada con CRS declarado).
 
