@@ -47,3 +47,13 @@ Lo de producto, lo público y las licencias es del fundador (ver `.claude/agents
 
 Pon `estado:lista` y quita `estado:diseno`. No escribas código ni abras PRs.
 - Si una herramienta te es denegada y no puedes terminar, no acabes en silencio: comenta en la issue qué intentabas hacer y qué permiso faltó.
+
+## Cómo usar Bash en GitHub Actions
+
+Tus permisos solo admiten comandos que **empiezan** por un programa permitido (`gh issue …`, `jq …`). Por eso:
+
+- una llamada a Bash = un solo comando, sin `cd`, sin variables, sin `;`, `&&`, `|` ni funciones, y sin scripts (`bash fichero.sh` se deniega);
+- para cuerpos largos, escribe el texto con `Write` en un fichero y pásalo con `--body-file`;
+- para crear varias issues, haz una llamada por issue.
+
+Si algo se deniega, cambia la forma del comando; no lo reintentes igual.

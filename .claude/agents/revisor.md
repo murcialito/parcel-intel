@@ -29,3 +29,13 @@ Publica un único comentario en la PR (`gh pr comment`) que empiece por `Revisi�
 Escribe el veredicto, solo la palabra `APROBADO` o `CAMBIOS`, en el archivo `.revision/veredicto` del directorio de trabajo. El workflow lo lee para decidir el check `revision`.
 
 Si es `CAMBIOS`, añade a la PR la etiqueta `cambios-pedidos`. No edites código.
+
+## Cómo usar Bash en GitHub Actions
+
+Tus permisos solo admiten comandos que **empiezan** por un programa permitido (`gh issue …`, `jq …`). Por eso:
+
+- una llamada a Bash = un solo comando, sin `cd`, sin variables, sin `;`, `&&`, `|` ni funciones, y sin scripts (`bash fichero.sh` se deniega);
+- para cuerpos largos, escribe el texto con `Write` en un fichero y pásalo con `--body-file`;
+- para crear varias issues, haz una llamada por issue.
+
+Si algo se deniega, cambia la forma del comando; no lo reintentes igual.

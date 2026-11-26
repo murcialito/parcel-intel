@@ -8,14 +8,20 @@ on:
     types: [labeled]
   issue_comment:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: "Número de issue a retomar (relee sus comentarios)"
+        required: true
 
 concurrency:
-  group: refinar-${{ github.event.issue.number }}
+  group: refinar-${{ github.event.issue.number || inputs.issue }}
   cancel-in-progress: false
 
 jobs:
   refinar:
     if: >-
+      github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'issues' && github.event.label.name == 'estado:refinar') ||
       (github.event_name == 'issue_comment' &&
        !github.event.issue.pull_request &&
@@ -23,6 +29,8 @@ jobs:
        contains(github.event.issue.labels.*.name, 'estado:necesita-fundador'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      NUM: ${{ github.event.issue.number || inputs.issue }}
     permissions:
       contents: read
       issues: write
@@ -37,8 +45,15 @@ jobs:
           MODELO_BARATO: ${{ vars.MODELO_BARATO }}
           MODELO_INTERMEDIO: ${{ vars.MODELO_INTERMEDIO }}
           MODELO_CAPAZ: ${{ vars.MODELO_CAPAZ }}
-          ISSUE: ${{ github.event.issue.number }}
-        run: echo "modelo=$(.github/scripts/modelo.sh refinar "$ISSUE")" >> "$GITHUB_OUTPUT"
+        run: echo "modelo=$(.github/scripts/modelo.sh refinar "$NUM")" >> "$GITHUB_OUTPUT"
+
+      - name: Foto de la issue antes del agente
+        id: antes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "foto=$(gh issue view "$NUM" -R "$REPO" --json labels,comments --jq '"\([.labels[].name]|sort|join(","))|\(.comments|length)"')" >> "$GITHUB_OUTPUT"
 
       - uses: anthropics/claude-code-action@v1
         with:
@@ -46,11 +61,14 @@ jobs:
           allowed_bots: "claude[bot]"
           prompt: |
             REPO: ${{ github.repository }}
-            ISSUE: #${{ github.event.issue.number }}
+            ISSUE: #${{ env.NUM }}
             EVENTO: ${{ github.event_name }}
 
             Actúa como el agente definido en .claude/agents/refinador.md y sigue sus
-            instrucciones al pie de la letra sobre la issue #${{ github.event.issue.number }}.
+            instrucciones al pie de la letra sobre la issue #${{ env.NUM }}.
+
+            Si el evento es workflow_dispatch, es un reintento: relee los comentarios y
+            retoma donde se quedó (si el fundador ya respondió, aplica su respuesta).
 
             Si el evento es un comentario, es la respuesta del fundador a tus preguntas:
             incorpórala, quita la etiqueta estado:necesita-fundador y decide de nuevo
@@ -72,15 +90,25 @@ jobs:
           retention-days: 3
           if-no-files-found: ignore
 
-      - name: Comprobar que el agente cambió el estado
+      - name: Comprobar que el agente avanzó
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          ISSUE: ${{ github.event.issue.number }}
+          ANTES: ${{ steps.antes.outputs.foto }}
+          SALIDA: ${{ runner.temp }}/claude-execution-output.json
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          if gh issue view "$ISSUE" -R "$REPO" --json labels --jq '.labels[].name' | grep -qx 'estado:refinar'; then
-            gh issue comment "$ISSUE" -R "$REPO" --body "El agente terminó sin cambiar el estado de la issue (sigue en \`estado:refinar\`): $RUN_URL. Para reintentar, quita y vuelve a poner la etiqueta."
-            echo "::error::El agente no cambió el estado (estado:refinar)."
+          despues=$(gh issue view "$NUM" -R "$REPO" --json labels,comments --jq '"\([.labels[].name]|sort|join(","))|\(.comments|length)"')
+          etiquetas=${despues%|*}
+          motivo=""
+          if tr ',' '\n' <<<"$etiquetas" | grep -qx 'estado:refinar'; then
+            motivo="sigue en \`estado:refinar\`"
+          elif [ "$despues" = "$ANTES" ]; then
+            motivo="no cambió etiquetas ni comentó"
+          fi
+          if [ -n "$motivo" ]; then
+            negados=$(jq -r '[.[] | select(.type == "result") | .permission_denials[]?.tool_name] | length' "$SALIDA" 2>/dev/null || echo "?")
+            gh issue comment "$NUM" -R "$REPO" --body "El agente terminó sin avanzar ($motivo; herramientas denegadas: $negados): $RUN_URL. Para reintentar: Actions → Refinar → Run workflow con esta issue."
+            echo "::error::El agente no avanzó: $motivo."
             exit 1
           fi

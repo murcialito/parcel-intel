@@ -52,3 +52,13 @@ Si un criterio no se puede cumplir tal como está escrito, no lo reinterpretes p
 - abre la PR como borrador con lo que tengas.
 
 Nunca desactives un test, un check de mypy o el contrato de capas para pasar CI.
+
+## Cómo usar Bash en GitHub Actions
+
+Tus permisos solo admiten comandos que **empiezan** por un programa permitido (`gh issue …`, `jq …`). Por eso:
+
+- una llamada a Bash = un solo comando, sin `cd`, sin variables, sin `;`, `&&`, `|` ni funciones, y sin scripts (`bash fichero.sh` se deniega);
+- para cuerpos largos, escribe el texto con `Write` en un fichero y pásalo con `--body-file`;
+- para crear varias issues, haz una llamada por issue.
+
+Si algo se deniega, cambia la forma del comando; no lo reintentes igual.
