@@ -231,3 +231,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: el fixture de `roadlink` de la historia de fuentes estaba en EPSG:4326 y con todos los tramos `fictitious="true"`; un adapter que pide `crs`/`bbox-crs` EPSG:25830 necesita su propio fixture grabado en ese CRS. El caso `fictitious="false"` no apareció en la ventana real de Colmenar y se cubre con un test sintético etiquetado como tal.
   - **Aplica a**: implementación (al reutilizar un fixture de una historia de fuentes, comprobar que CRS y parámetros coinciden con los que pedirá el adapter).
+
+## [2026-11-26] Historia #22 — Trazado común `Trail`
+
+- **Lección**: al mover un símbolo de un módulo a otro y querer que siga importable desde el sitio antiguo, importarlo con alias explícito (`from parcel_intel.domain.trail import SourceKind as SourceKind`). Con `mypy` estricto (`no_implicit_reexport`), un `import` normal no re-exporta y todos los que lo importaban del módulo antiguo fallan.
+  - **Causa**: #22 movió `SourceKind` de `discrepancy_criterion` a `trail` (ADR 0029) sin tocar los tests de #14 ni `public_card`/`discrepancy`, que lo siguen importando de `discrepancy_criterion`.
+  - **Aplica a**: implementación (antes de mover un tipo, `grep` de sus importadores; dejar el alias explícito y un test `is` que fije que es el mismo objeto).

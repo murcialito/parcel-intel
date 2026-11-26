@@ -12,16 +12,9 @@ import math
 from collections.abc import Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Literal
 
-SourceKind = Literal[
-    "via_pecuaria_oficial",  # IDEM Zonas:IDEM_MA_VIAS_PECUARIAS
-    "catastro_vt",  # parcelas 9xxx con subparcela VT
-    "ign_red_transporte",  # roadlink, OGC API Features
-    "planimetria_historica",  # planimetrías/minutas IGN 1870-1880, vectorizadas
-    "mtn50_historico",  # MTN50 1.ª edición (1881…), vectorizado
-]
-# PNOA no figura: es referencia visual, no trazado (REGISTRY.md, historia 0021).
+# Vocabulario único de fuentes: se define en `trail.py` (historia #22, ADR 0029).
+from parcel_intel.domain.trail import SourceKind as SourceKind
 
 
 @dataclass(frozen=True)
