@@ -9,6 +9,7 @@ DNPPP_URL = (
     "http://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/Consulta_DNPPP"
 )
 _CRS_URN = "urn:ogc:def:crs:EPSG::25830"
+_READ_TIMEOUT_S = 180
 
 
 def wfs_getfeature_params(
@@ -38,6 +39,8 @@ class HttpGetter(Protocol):
 
 
 def default_http_getter(url: str, params: dict[str, str]) -> bytes:
-    response = requests.get(url, params=params, timeout=30)
+    # Lectura amplia: una tesela de 900 m del casco de Colmenar (3,6 MB) tarda unos 45 s
+    # (medido el 2026-11-26); con 30 s, el recorrido de un término entero fallaba en ella.
+    response = requests.get(url, params=params, timeout=(10, _READ_TIMEOUT_S))
     response.raise_for_status()
     return response.content

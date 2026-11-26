@@ -258,6 +258,7 @@ def test_ca6_ningun_campo_es_de_titularidad() -> None:
 
 
 @pytest.mark.integration
+@pytest.mark.fuera_de_ci  # el WFS de Catastro rechaza los runners de GitHub (HTTP 400)
 def test_ca7_catastro_real_de_colmenar_se_cachea_y_se_repite_sin_red(tmp_path: Path) -> None:
     """CA7. [integración] Dado Colmenar de Oreja (código de Catastro `28043`) y el bbox de su
     término, obtenido del WFS de unidades administrativas del IGN con el orden de ejes E,N en
