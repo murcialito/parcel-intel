@@ -7,16 +7,26 @@ todas). Se construye siempre entero a partir de los GeoJSON publicados, sin fech
 generación.
 """
 
+import json
+import re
 import unicodedata
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
+from pathlib import Path
 
+from parcel_intel.domain.published_layers import INDEXED_LAYER_IDS
+
+PROVENANCE_SUFFIX = ".procedencia.json"
+INDEX_FILENAME = "indice.json"
 INDEX_SOURCE = "Parcel Intel, índice de capas publicadas"
 INDEX_LICENSE = "CC BY 4.0"
 
 
 class PublishedLayerError(ValueError):
     """Un fichero publicado (o por publicar) no se puede usar; no se escribe nada."""
+
+
+_MUNICIPALITY_FILE_RE = re.compile(r"(\d{5})\.geojson")
 
 
 @dataclass(frozen=True)
@@ -126,3 +136,31 @@ def build_index(
         "redistribucion": "publicable",
     }
     return {"municipios": municipalities}, provenance
+
+
+def read_existing_entries(directory: Path, skip: set[tuple[str, str]]) -> list[IndexEntry]:
+    """Entradas del índice de los ficheros ya publicados en `directory` que no se van
+    a reemplazar, en todas las capas de `INDEXED_LAYER_IDS` (#94: así `publicar-capas`
+    no borra `discrepancias` del índice, ni al revés).
+
+    Los `(capa, ine)` de `skip` no se leen: así un fichero publicado ilegible se repara
+    volviendo a publicarlo (Diseño de #84, §2).
+    """
+    entries: list[IndexEntry] = []
+    for layer_id in INDEXED_LAYER_IDS:
+        layer_directory = directory / layer_id
+        if not layer_directory.is_dir():
+            continue
+        for path in sorted(layer_directory.iterdir()):
+            match = _MUNICIPALITY_FILE_RE.fullmatch(path.name)
+            if match is None or not path.is_file():
+                continue
+            if (layer_id, match.group(1)) in skip:
+                continue
+            try:
+                document = json.loads(path.read_text(encoding="utf-8"))
+                entries.append(entry_from_document(layer_id, match.group(1), document))
+            except (OSError, UnicodeDecodeError, ValueError) as error:
+                # `PublishedLayerError` es un `ValueError`, como el de JSON ilegible.
+                raise PublishedLayerError(f"fichero publicado ilegible {path}: {error}") from error
+    return entries

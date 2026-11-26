@@ -84,6 +84,12 @@ uv run python -m parcel_intel.cli.main discrepancias --ambito                # l
 # con su .procedencia.json, e índice site/datos/indice.json. Sin red. Todo o nada: sale con 1 y no escribe si una capa falta o no es publicable.
 uv run python -m parcel_intel.cli.main publicar-capas --municipio 28043 [--municipio ...] [--capa vias_pecuarias|camino_actual]
 uv run python -m parcel_intel.cli.main publicar-capas --ambito
+
+# Publicar los indicios de discrepancia en site/datos/discrepancias/<ine>.geojson con la ficha de #16 (historia #94, ADR 0044): lee
+# data/derived/discrepancias/publicable/<ine>.geojson (regenerarlo con `discrepancias` si es anterior a #94), EPSG:4326, cada fichero con su
+# .procedencia.json, y el índice. Sin red. Todo o nada: sale con 1 y no escribe si un municipio falta o no es publicable; uno sin indicios publicables se informa como vacío.
+uv run python -m parcel_intel.cli.main publicar-discrepancias --municipio 28043 [--municipio ...]
+uv run python -m parcel_intel.cli.main publicar-discrepancias --ambito
 ```
 
 ## Contexto de negocio (resumen)

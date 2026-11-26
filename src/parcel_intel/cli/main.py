@@ -10,14 +10,22 @@ import requests
 
 from parcel_intel.adapters.deepseek.adapter import DeepSeekAdapter, MissingDeepSeekApiKeyError
 from parcel_intel.adapters.deepseek.client import DeepSeekApiError
-from parcel_intel.adapters.discrepancy_files import GeoJsonDiscrepancyWriter
+from parcel_intel.adapters.discrepancy_files import (
+    DiscrepancyFileFormatError,
+    GeoJsonDiscrepancyReportReader,
+    GeoJsonDiscrepancyWriter,
+)
 from parcel_intel.adapters.ign_admin_units import IgnAdministrativeUnitsAdapter
 from parcel_intel.adapters.ign_admin_units import client as ign_client
 from parcel_intel.adapters.livestock_trails import client as livestock_client
 from parcel_intel.adapters.livestock_trails.adapter import LivestockTrailAdapter
 from parcel_intel.adapters.postgis.connection import get_connection
 from parcel_intel.adapters.postgis.rule_repository import PostgisRuleRepository
-from parcel_intel.adapters.published_layers import GeoJsonPublishedLayerSink, PublishedLayerError
+from parcel_intel.adapters.published_layers import (
+    GeoJsonPublishedDiscrepancySink,
+    GeoJsonPublishedLayerSink,
+    PublishedLayerError,
+)
 from parcel_intel.adapters.raw_cache import (
     CachedRawFetcher,
     HttpGet,
@@ -39,14 +47,17 @@ from parcel_intel.application.build_municipal_livestock_trail_layers import (
 )
 from parcel_intel.application.build_municipal_road_layers import BuildMunicipalRoadLayersUseCase
 from parcel_intel.application.detect_discrepancies import DetectDiscrepanciesUseCase
+from parcel_intel.application.publish_discrepancies import PublishDiscrepanciesUseCase
 from parcel_intel.application.publish_layers import (
     DEFAULT_LAYERS,
     PublishLayersUseCase,
 )
+from parcel_intel.domain.discrepancy import DiscrepancyKind
 from parcel_intel.domain.discrepancy_report import LayerStatus
 from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
 from parcel_intel.domain.municipal_road_layer import MunicipalRoadLayerBatch
 from parcel_intel.domain.provenance import Provenance
+from parcel_intel.domain.published_discrepancy import OmittedByLicense
 from parcel_intel.domain.published_layers import PUBLISHED_LAYERS, PublishedLayerId
 from parcel_intel.domain.rule import Rule, WithinDistanceCondition
 from parcel_intel.ports.errors import (
@@ -462,6 +473,79 @@ def _publicar_capas(args: argparse.Namespace) -> int:
     return 0
 
 
+def build_publish_discrepancies_use_case(
+    input_dir: Path,
+    output_dir: Path,
+    size_threshold_bytes: int = PUBLISH_SIZE_THRESHOLD_BYTES,
+) -> PublishDiscrepanciesUseCase:
+    """Composition root de `publicar-discrepancias` (historia #94, ADR 0044).
+
+    Lee el fichero publicable de `discrepancias` en `input_dir` y escribe en
+    `output_dir` (normalmente `site/datos`). Sin red ni LLM."""
+    return PublishDiscrepanciesUseCase(
+        reports=GeoJsonDiscrepancyReportReader(input_dir),
+        sink=GeoJsonPublishedDiscrepancySink(
+            output_dir, REPOSITORY_URL, size_threshold_bytes=size_threshold_bytes
+        ),
+    )
+
+
+_INDICIO_KINDS: tuple[DiscrepancyKind, ...] = ("AUSENTE_EN_FUENTE", "DESPLAZAMIENTO", "SOLAPE")
+
+
+def _format_omitted(omitted: OmittedByLicense) -> str:
+    return (
+        f"omitidos por licencia {omitted.total} "
+        f"(lado A: {omitted.subject}, contraparte: {omitted.counterpart})"
+    )
+
+
+def _publicar_discrepancias(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        print("Indica --municipio <INE> (repetible) o --ambito.", file=sys.stderr)
+        return 2
+    use_case = build_publish_discrepancies_use_case(args.entrada, args.salida)
+    try:
+        result = use_case.execute(codes)
+    except DiscrepancyFileFormatError as error:
+        print(f"ERROR fichero corrupto {error.path}: {error.detail}", file=sys.stderr)
+        print(f"No se ha escrito nada en {args.salida}.", file=sys.stderr)
+        return 1
+    except (PublishedLayerError, OSError) as error:
+        print(f"ERROR al publicar: {error}", file=sys.stderr)
+        print(f"No se ha escrito nada en {args.salida}.", file=sys.stderr)
+        return 1
+    for failure in result.failures:
+        print(f"ERROR {failure.municipality_code}: {failure.reason}", file=sys.stderr)
+    if result.failures:
+        print(f"No se ha escrito nada en {args.salida}.", file=sys.stderr)
+        return 1
+    omitted = dict(result.omitted)
+    for code in result.empty:
+        print(f"sin indicios publicables, no se publica: {code}; {_format_omitted(omitted[code])}")
+        previous = args.salida / "discrepancias" / f"{code}.geojson"
+        if previous.is_file():
+            print(
+                f"  AVISO: sigue publicado el fichero anterior {previous}; "
+                "bórralo a mano si procede"
+            )
+    kinds = dict(result.kinds)
+    for published in result.published:
+        by_kind = Counter(kinds[published.municipality_code])
+        total = sum(by_kind.values())
+        summary = ", ".join(f"{kind}={by_kind[kind]}" for kind in _INDICIO_KINDS)
+        print(
+            f"publicado {args.salida / published.path} {published.size_bytes} bytes: "
+            f"{total} indicios ({summary}); "
+            f"{_format_omitted(omitted[published.municipality_code])}"
+        )
+        if published.over_threshold:
+            print("  AVISO: por encima del umbral de peso (ver #96)")
+    return 0
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="parcel_intel.cli.main")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -589,6 +673,34 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio publicado del sitio",
     )
     publicar_parser.set_defaults(func=_publicar_capas)
+
+    indicios_parser = subparsers.add_parser(
+        "publicar-discrepancias",
+        help="Publica los indicios de discrepancia en site/datos (EPSG:4326, con su ficha)",
+    )
+    indicios_parser.add_argument(
+        "--municipio",
+        type=_municipality_code,
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible)",
+    )
+    indicios_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito"
+    )
+    indicios_parser.add_argument(
+        "--entrada",
+        type=Path,
+        default=Path("data/derived/discrepancias/publicable"),
+        help="Directorio con los ficheros publicables de `discrepancias`",
+    )
+    indicios_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("site/datos"),
+        help="Directorio publicado del sitio",
+    )
+    indicios_parser.set_defaults(func=_publicar_discrepancias)
 
     return parser
 

@@ -260,6 +260,14 @@ def test_ca4_atribuciones_literales_de_notice_y_visibles_con_su_capa(tmp_path: P
     assert sidecars
     for sidecar in sidecars:
         atribucion = json.loads(sidecar.read_text(encoding="utf-8"))["atribucion"]
+        if sidecar.parent.name == "discrepancias":
+            # #94 (ADR 0044): la capa de indicios cita la atribución de cada fuente de su
+            # evidencia (lista). Cada una contiene un literal de capa de config.js o consta
+            # literalmente en NOTICE (Catastro, ADR 0041); la muestra el visor de #95.
+            assert isinstance(atribucion, list) and atribucion, sidecar.name
+            for texto in atribucion:
+                assert any(c in texto for c in capas) or f"`{texto}`" in notice, texto
+            continue
         assert atribucion in capas, f"{sidecar.name}: {atribucion}"
     # Las atribuciones no están escritas en el HTML (si no, no desaparecerían con su capa).
     html = (SITE / "index.html").read_text(encoding="utf-8")
@@ -322,6 +330,18 @@ def test_ca7_solo_mapa_js_usa_leaflet() -> None:
 
 
 _FEATURE_PROPS = {"nombre", "tipo", "fecha_dato", "procedencia"}
+# Lista blanca de la capa de indicios (#94, ADR 0044 §2): la ficha de #16, sin nombres.
+_INDICIO_PROPS = {
+    "tipo",
+    "etiqueta",
+    "texto",
+    "aviso",
+    "confianza",
+    "evidencia",
+    "criterio",
+    "descripcion_criterio",
+    "aviso_omision",
+}
 _PROHIBIDAS = re.compile(r"catastr|titular|propietari|refcat|referencia_catastral", re.IGNORECASE)
 
 
@@ -344,8 +364,9 @@ def _comprobar_datos(datos: Path) -> None:
             coleccion = json.loads(geojson.read_text(encoding="utf-8"))
         except ValueError:
             continue  # el JSON roto sintético de CA9
+        permitidas = _INDICIO_PROPS if geojson.parent.name == "discrepancias" else _FEATURE_PROPS
         for feature in coleccion["features"]:
-            assert set(feature["properties"]) <= _FEATURE_PROPS, geojson
+            assert set(feature["properties"]) <= permitidas, geojson
         for clave in re.findall(r'"([^"]+)"\s*:', geojson.read_text(encoding="utf-8")):
             assert not _PROHIBIDAS.search(clave), f"{geojson.name}: clave {clave}"
 
