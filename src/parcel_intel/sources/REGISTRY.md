@@ -575,14 +575,14 @@ Comando `catastro-caminos` para Colmenar de Oreja (`28043`), con el bbox del té
 
 - **Pasada con red:** 312 teselas WFS de 900 m y 988 consultas `Consulta_DNPPP`, en 44 min 44 s. Una tesela del casco de Colmenar pesa unos 3,6 MB y tarda unos 45 s: el tiempo de lectura es de 180 s.
 - **Hallazgo:** Catastro es incoherente. El WFS devuelve parcelas ≥ 9000 que `Consulta_DNPPP` no reconoce (`lerr`: «NO EXISTE NINGÚN INMUEBLE CON LOS PARÁMETROS INDICADOS»). Esas parcelas quedan como `unclassified`. La respuesta `lerr` es determinista y se cachea, para que `--sin-red` repita el resultado.
-- **Resultado agregado** (CA7 en verde el 2026-11-26; la repetición `--sin-red` da la misma capa y no cambia la caché):
+- **Resultado agregado** (pasada con red en verde el 2026-11-26, repetida el 2026-11-27 con reintentos ante cortes de red: los mismos números; la repetición `--sin-red` da la misma capa y no cambia la caché):
   - 12 452 parcelas del municipio vistas;
   - 988 con número ≥ 9000;
   - **505 caminos de clase `VT`**, con 424,0 ha en total;
   - 475 excluidas por tener otra clase;
   - 8 sin clasificar, por `lerr`.
   - El recuento de la pasada final con CA13 es 988; el «980» de un comentario anterior era el de la primera pasada (sin CA13).
-- Geometría en teselas contiguas: **pendiente** (la comprueba CA7 con dos bboxes solapados de 600 m en el casco; quien lo pase en local sustituye «pendiente» por **idéntica** o **recortada**, sin referencias). Si sale «recortada», la deduplicación de CA3 no vale: parar y comentar en la issue.
+- Geometría en teselas contiguas: **idéntica**. Comprobado en local el 2026-11-27: con dos bboxes solapados de 600 m en el casco, cada parcela que cruza el borde del primero llega con la misma geometría en los dos. El WFS no recorta al bbox, así que la deduplicación por referencia de CA3 es válida.
 
 ### PNOA — vuelos reales sobre el ámbito — `confirmado`
 
