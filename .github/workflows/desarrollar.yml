@@ -4,7 +4,7 @@ name: Desarrollar
 # - "seleccionar" (en serie) elige la siguiente historia lista que no se solape con las que están en
 #   curso, la marca estado:en-desarrollo y, si queda hueco, se relanza para llenarlo;
 # - "desarrollar" la implementa y abre la PR (la fusiona fusionar.yml, nunca el agente);
-# - "corregir" atiende la etiqueta cambios-pedidos que pone el revisor.
+# - "corregir" atiende la etiqueta cambios-pedidos lanzando corregir.yml desde main.
 
 on:
   issues:
@@ -184,66 +184,19 @@ jobs:
         run: gh workflow run desarrollar.yml -R "$REPO" --ref main
 
   corregir:
+    # Solo lanza corregir.yml desde main. Este job se ejecuta con el workflow de la versión de la PR,
+    # y claude-code-action se salta en silencio si no coincide con main: aquí no hay agente.
     if: >-
       github.event_name == 'pull_request' &&
       github.event.label.name == 'cambios-pedidos' &&
       startsWith(github.event.pull_request.head.ref, 'claude/') &&
       !contains(github.event.pull_request.labels.*.name, 'veto')
     runs-on: ubuntu-latest
-    timeout-minutes: 90
-    concurrency:
-      group: corregir-${{ github.event.pull_request.number }}
-      cancel-in-progress: false
     permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-      id-token: write
+      actions: write
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 0
-
-      - uses: astral-sh/setup-uv@v6
-
-      - run: uv sync --frozen --extra dev
-
-      - id: modelo
-        env:
+      - env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          MODELO_BARATO: ${{ vars.MODELO_BARATO }}
-          MODELO_INTERMEDIO: ${{ vars.MODELO_INTERMEDIO }}
-          MODELO_CAPAZ: ${{ vars.MODELO_CAPAZ }}
-          RAMA: ${{ github.event.pull_request.head.ref }}
-        run: |
-          ISSUE=$(sed -nE 's#^claude/historia-([0-9]+).*#\1#p' <<<"$RAMA")
-          echo "modelo=$(.github/scripts/modelo.sh desarrollo "$ISSUE")" >> "$GITHUB_OUTPUT"
-
-      - uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          allowed_bots: "claude[bot],github-actions[bot]"  # github-actions: lanzamientos de Fusionar y Desbloquear
-          prompt: |
-            REPO: ${{ github.repository }}
-            PR: #${{ github.event.pull_request.number }}
-            RAMA: ${{ github.event.pull_request.head.ref }}
-
-            Actúa como el agente definido en .claude/agents/desarrollador.md, sección
-            "Si te llaman para corregir", sobre la PR #${{ github.event.pull_request.number }}.
-            Trabaja en la rama ${{ github.event.pull_request.head.ref }}, que ya está en el checkout.
-          claude_args: |
-            --model ${{ steps.modelo.outputs.modelo }}
-            --max-turns 150
-            --allowedTools "WebSearch,WebFetch,Read,Glob,Grep,Edit,Write,Bash(uv:*),Bash(git:*),Bash(gh:*),Bash(python3:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
-            --disallowedTools "Bash(gh pr merge:*),Bash(gh api:*)"
-
-      - name: Guardar transcripción del agente
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: transcripcion-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/claude-execution-output.json
-          retention-days: 3
-          if-no-files-found: ignore
+          PR: ${{ github.event.pull_request.number }}
+        run: gh workflow run corregir.yml -R "$REPO" --ref main -f pr="$PR"

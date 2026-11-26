@@ -408,6 +408,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en las Actions de los agentes no se puede lanzar un navegador sin cabeza (`chromium`, `google-chrome` piden aprobación). La comprobación en un navegador real queda como paso manual anotado en la PR; los tests cubren el visor con un `L` falso, así que un error de uso de la API real de Leaflet solo se ve en el navegador.
   - **Aplica a**: implementación (anotar en la PR qué no se pudo ver) | fundador (abrir la URL de Pages tras el despliegue).
 
+## [2026-11-26] Historia #86 — Publicar el ámbito completo y vigilar el peso
+
+- **Lección**: una puerta "denegar por defecto" que también mira lo vacío bloquea ejecuciones enteras por un caso sin datos. Si una capa no tiene elementos, no hay nada que redistribuir: se omite antes de la puerta y se declara en la salida. El dominio sigue siendo estricto; la decisión vive en el caso de uso y se prueba con el caso real (Belmonte de Tajo).
+  - **Aplica a**: arquitecto (al añadir una validación sobre una colección, decidir qué pasa con la colección vacía) | implementación (ejecutar el comando sobre TODO el ámbito real antes de dar la historia por buena: un municipio atípico solo sale así).
 ## [2026-11-26] Historia #50 — Guardia de curated/** en fusionar.yml
 
 - **Lección**: en las Actions de los agentes `chmod` y `sed -i` sobre ficheros del repo piden aprobación. Los scripts nuevos de `.github/scripts/` se invocan con `bash fichero.sh` (en el workflow y en los tests), no por su ruta, para no depender del bit de ejecución. Y un test que busca `gh pr merge` en `fusionar.yml` encuentra primero el comentario de cabecera: se ancla a la orden real (`gh pr merge "$pr"`).
@@ -421,4 +425,33 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: una respuesta de error determinista de una fuente (aquí `lerr` de `Consulta_DNPPP`: «no existe ningún inmueble») se cachea igual que una buena; si no, `--sin-red` no puede repetir la pasada con red. La validación previa a la caché solo rechaza lo transitorio (excepciones de servicio, truncados) y el error de dominio se relanza al leer.
   - **Causa**: el WFS de Catastro devuelve parcelas ≥ 9000 que DNPPP no reconoce; sin cachear el `lerr`, la repetición sin red falló con `RawCacheMissError`.
   - **Aplica a**: implementación (adapters con `CachedRawFetcher`) | arquitecto.
+## [2026-11-26] Historia #110 — Arnés de evaluación de candidatos
+
+- **Lección**: en una medida por muestreo de puntos medios con `<=` (aquí `line_overlap_fraction`, paso 1 m), un oráculo escrito a mano falla si el alcance coincide con la distancia de un punto medio (0,5 m del vértice): ese punto cuenta como cubierto. Al calcular el oráculo, listar los puntos medios cercanos a la frontera y elegir un alcance que no caiga justo en uno, o fijar ese caso límite a propósito en un test propio.
+  - **Causa**: un test unitario con alcance 0,5 m esperaba 0,5 y la función dio 0,505: el primer punto medio del segundo segmento quedaba a 0,5 m exactos. La función era correcta; el oráculo no.
+  - **Aplica a**: arquitecto e implementación (oráculos de funciones muestreadas).
+
+## [2026-11-26] Historia #120 — ADR de imágenes de comparación
+
+- **Lección**: si un ADR trae una tabla de oráculos y las constantes de las que sale, el test de aceptación no se limita a comprobar propiedades de la tabla (lado múltiplo de 32, píxeles = 2·lado). Recalcula cada fila con una implementación de referencia mínima que **lee las constantes del texto del ADR** y exige igualdad exacta. Así, si alguien cambia una constante (margen, escalón, tope) sin rehacer la tabla, el test falla antes de que #121 programe contra oráculos caducados. La referencia vive solo en el test y no sustituye a la implementación de producción.
+  - **Causa**: el CA10 pedía solo la coherencia con las constantes. Con esa comprobación habría pasado una ventana mal calculada que aun así tuviera un lado válido. Recalcular costó unas 40 líneas, y los seis oráculos del arquitecto cuadraron.
+  - **Aplica a**: implementación (historias de ADR con oráculos) | arquitecto (dar el algoritmo con el detalle suficiente para reimplementarlo: orden, redondeo y desempate).
+
+- **Lección**: en las Actions de los agentes, `sha256sum` sobre un fichero de `/tmp` se deniega, porque solo se permite dentro del repo. Para comprobar el sha256 y los bytes de una respuesta descargada sin guardarla en el repo, usar `python3 -I -c "import hashlib,sys; d=open(sys.argv[1],'rb').read(); print(len(d), hashlib.sha256(d).hexdigest())" /tmp/fichero`.
+  - **Aplica a**: implementación (verificaciones de red cuya respuesta no se versiona).
+
+## [2026-11-26] Historia #126 — Entidad CutCandidate y método de combinación
+
+- **Lección**: no ejecutes `ruff format .` sobre todo el repo: la versión de ruff local reformatea medio repo (incluidos bloques de código de los ADR, que rompen tests que leen sus textos literales). CI solo exige `ruff check`. Formatea solo los ficheros nuevos (`ruff format <ruta>`) y revisa `git status` antes de commitear.
+  - **Causa**: al formatear `.` se tocaron 44 ficheros ajenos a la historia y falló `test_historia_109` (que busca una línea exacta del ADR 0039). Se revirtió con `git checkout` de lo ajeno.
+  - **Aplica a**: implementación.
+
+- **Lección**: al fundir rachas por distancia entre piezas (`GAP_M`), basta comparar piezas con `segment_distance` y un prefiltro de bbox; el coste es cuadrático por trazado, aceptable con rachas de decenas de muestras. Si se calibra `GAP_M` o `SAMPLE_STEP_M`, revisar ese coste.
+  - **Aplica a**: implementación (al calibrar el método con #100).
+
+## [2026-11-26] Historia #121 — Caso de uso de imágenes de comparación
+
+- **Lección**: el trozo de puntos de `comparison_windows` se corta por `max(ancho, alto)`, no por longitud: una diagonal de 1500 m (2121 m de recorrido) cabe en 4 ventanas y no es `tramo_demasiado_largo`. Para probar el tope, usar un tramo cuyo lado mayor supere ~1,6 km en proyección.
+  - **Causa**: el primer test unitario esperaba `None` con una diagonal de 1500×1500 m y salieron 4 ventanas. El código seguía el ADR; el oráculo mental era erróneo.
+  - **Aplica a**: implementación (tests de topes por tamaño de ventana).
 

@@ -1,7 +1,7 @@
 from typing import Protocol
 
 from parcel_intel.domain.geometry import Geometry
-from parcel_intel.domain.orthophoto import HistoricalVintage, Orthophoto
+from parcel_intel.domain.orthophoto import HistoricalVintage, Orthophoto, OrthophotoWindow
 
 
 class OrthophotoPort(Protocol):
@@ -17,4 +17,14 @@ class OrthophotoPort(Protocol):
 
     def get_historical_orthophoto(
         self, geometry: Geometry, margin_m: float, vintage: HistoricalVintage
+    ) -> Orthophoto: ...
+
+
+class OrthophotoWindowPort(Protocol):
+    """Capacidad: recorte exacto (bbox entero y píxeles) de la ortofoto de un
+    vuelo concreto -- ADR 0042 §2. Lanza `OrthophotoNotCoveredError` si el
+    vuelo no cubre la ventana; cualquier otra excepción es un fallo real."""
+
+    def get_orthophoto_window(
+        self, window: OrthophotoWindow, vintage: HistoricalVintage
     ) -> Orthophoto: ...

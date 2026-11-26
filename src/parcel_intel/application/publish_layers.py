@@ -1,9 +1,8 @@
 """Caso de uso: publicar las capas de trazados de uno o varios municipios (historia #84).
 
-Toda capa pasa por `PublishableLayer` (ADR 0028) antes de llegar al sink, también
-las vacías (se valida la procedencia de la colección antes de mirar si hay
-trazados). Todo o nada: si una capa pedida falla, no se llama al sink y no se
-escribe nada.
+Toda capa con trazados pasa por `PublishableLayer` (ADR 0028) antes de llegar al
+sink. Las vacías se omiten antes de la puerta: no publican datos.
+Todo o nada: si una capa pedida falla, no se llama al sink y no se escribe nada.
 """
 
 from collections.abc import Sequence
@@ -22,7 +21,6 @@ from parcel_intel.ports.published_layer_sink import PublishedLayerSink
 from parcel_intel.ports.trail_layer import MunicipalTrailLayerPort
 
 DEFAULT_LAYERS: tuple[PublishedLayerId, ...] = ("vias_pecuarias", "camino_actual")
-EMPTY_LAYER_REASON = "capa vacía con procedencia no publicable"
 
 
 class PublishLayersUseCase:
@@ -48,6 +46,11 @@ class PublishLayersUseCase:
                 except TrailLayerUnavailableError as error:
                     failures.append(PublicationFailure(layer_id, code, f"sin capa: {error.reason}"))
                     continue
+                if not layer.trails:
+                    # Una capa sin trazados no publica ningún dato (historia #86): no
+                    # pasa por la puerta, su procedencia de colección no se redistribuye.
+                    empty.append((layer_id, code))
+                    continue
                 try:
                     content = PublishableLayer[Trail](
                         name=f"{layer_id}/{code}",
@@ -56,14 +59,11 @@ class PublishLayersUseCase:
                     )
                 except NotRedistributableError as error:
                     provenance = error.provenance
-                    # Sin trazados, lo rechazado es la procedencia de la colección:
-                    # regenerar la capa no lo arregla, así que se dice explícitamente.
-                    what = EMPTY_LAYER_REASON if not layer.trails else "procedencia"
                     failures.append(
                         PublicationFailure(
                             layer_id,
                             code,
-                            f"no redistribuible: {what} '{provenance.source}' "
+                            f"no redistribuible: procedencia '{provenance.source}' "
                             f"({provenance.url}) marcada "
                             f"'{provenance.redistribution.value}'",
                         )
@@ -85,9 +85,6 @@ class PublishLayersUseCase:
                             layer_id, code, "capa sin nombre de municipio; regenerarla"
                         )
                     )
-                    continue
-                if not content.items:
-                    empty.append((layer_id, code))
                     continue
                 publications.append(
                     TrailLayerPublication(

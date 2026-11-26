@@ -138,6 +138,35 @@ Mapa base del visor estático (`site/config.js`, ADR 0037). Verificado por el ar
 - **IGN-Base** (`https://www.ign.es/wmts/ign-base`): responde con `CC BY 4.0 scne.es`, pero no se usa (atribución de producto sin verificar; el fundador pidió la ortofoto). Queda como alternativa.
 - **Caducidad del año:** la tabla del SCNE ya lista un vuelo PNOA 2024 con la Comunidad de Madrid entre los organismos, pero el servicio sigue sirviendo 2023-07 en Colmenar. Cuando cambie, el criterio `[integración]` CA10 de `tests/acceptance/test_historia_85.py` falla y hay que actualizar `NOTICE`, este registro y `site/config.js` juntos.
 
+### Imágenes de comparación (historia #120, ADR 0042) — `confirmado`
+
+Verificación para el ADR 0042 (ventanas de un tramo y franjas de vuelo). Peticiones reales del 2026-11-26 con `User-Agent: parcel-intel-verificacion/0.1`, hechas por el arquitecto y repetidas por el desarrollador (`PNOA2023` y `PNOA2010`, 20:26 UTC) con el mismo resultado. Las respuestas **no se versionan**: las fixtures del adapter de ventanas las grabará su propia historia (ADR 0042 §8).
+
+- **Ventana**: rural de Colmenar de Oreja, `bbox=467344,4441744,467856,4442256` (EPSG:25830, 512 m de lado), `width=height=1024` (0,5 m por píxel), `format=image/jpeg`, WMS 1.3.0.
+- **URL canónica** (la que construye `CachedRawFetcher`, parámetros ordenados y codificados), probada tal cual: `https://www.ign.es/wms/pnoa-historico?bbox=467344%2C4441744%2C467856%2C4442256&crs=EPSG%3A25830&format=image%2Fjpeg&height=1024&layers=PNOA2023&request=GetMap&service=WMS&styles=&version=1.3.0&width=1024`. Las demás filas cambian solo `layers` (y la del servicio actual, la URL base `https://www.ign.es/wms-inspire/pnoa-ma`).
+
+| Servicio y capa | Respuesta | Bytes | sha256 |
+| --- | --- | --- | --- |
+| `pnoa-historico` `PNOA2023` | 200 `image/jpeg`, empieza por `ff d8` | 243.158 | `a68b31370c9c6ab19329be1a712136698930262b824a823a29bbf54c88ea621b` (idéntico en las dos peticiones del arquitecto, con la URL canónica y en la repetición del desarrollador) |
+| `pnoa-ma` `OI.OrthoimageCoverage` | 200 `image/jpeg` | 228.719 | no anotado |
+| `pnoa-historico` `PNOA2017` | 200 `image/jpeg` | 167.525 | no anotado |
+| `pnoa-historico` `PNOA2009` | 200 `image/jpeg` | 238.891 | no anotado |
+| `pnoa-historico` `SIGPAC` | 200 `image/jpeg` | 155.801 | no anotado |
+| `pnoa-historico` `OLISTAT` | 200 `image/jpeg` | 140.609 | no anotado |
+| `pnoa-historico` `AMS_1956-1957` | 200 `image/jpeg`, caminos de 1956 visibles | 158.660 | no anotado |
+| `pnoa-historico` `PNOA2010` (sin vuelo sobre Madrid) | 200 `image/jpeg`, imagen **blanca**, sin error | 6.427 | no anotado |
+| `pnoa-historico` `PNOA2023`, ventana de 200 m `467500,4441900,467700,4442100` a 400 px | 200 `image/jpeg` | 41.968 | no anotado |
+
+- **Respuestas sin cobertura**: el WMS no da error cuando el vuelo no cubre la ventana; devuelve una imagen blanca. `PNOA2010` a 1024 px pesa 6.427 bytes; la fixture ya existente `tests/fixtures/pnoa/getmap_colmenar_2004.jpg` (`PNOA2004`, 512 px) es también blanca, de 1.819 bytes. Bytes por píxel: imágenes blancas 0,0061–0,0069; imágenes reales 0,061–0,262 (la más baja, el AMS a 512 px de la fixture de parcela, 16.099 bytes). De ahí el umbral `< 0,02` bytes por píxel del ADR 0042 §3. Los vuelos `Interministerial_1973-1986` y `Nacional_1981-1986` dan un `GetMap` transparente de 334 bytes (sección «PNOA — vuelos reales sobre el ámbito»).
+- **Cabeceras** de `pnoa-historico` (`GetMap` de `PNOA2023`): `content-type: image/jpeg`, `access-control-allow-origin: *`, `cache-control: max-age=31536000`, `expires` a un año, servido por CloudFront (`x-cache`, `via`). Sin clave ni `Referer`. Un `<img>` no necesita CORS; si se dibujase en un `canvas`, también valdría.
+- **Capas**: el `GetCapabilities` histórico (fixture `wms_pnoa_historico_getcapabilities.xml`) trae, además de `PNOA2004`…`PNOA2024`, `AMS_1956-1957`, `Interministerial_1973-1986` y `Nacional_1981-1986`, las capas `SIGPAC` y `OLISTAT`, que se usan en la franja 1997-2003.
+- **Atribuciones literales del SCNE** de cada vuelo usado (tabla de productos, `https://www.scne.es/tablaProductos.php`, leída en bruto el 2026-11-26). Con la imagen remuestreada y el trazado encima, el visor y el dossier las muestran precedidas de «Obra derivada de» (ADR 0042 §5):
+  - `Orto-AMS 1956-1957 CC-BY 4.0 ejercito.defensa.gob.es` — **el AMS no es del IGN**: su atribución nombra al Centro Geográfico del Ejército de Tierra;
+  - `Orto-SIGPAC 1997-2003 CC-BY 4.0 scne.es`;
+  - `Orto-OLISTAT 1997-1999 CC-BY 4.0 scne.es`;
+  - `PNOA 2006 CC-BY 4.0 scne.es`, `PNOA 2009 CC-BY 4.0 scne.es`, `PNOA 2011 CC-BY 4.0 scne.es`, `PNOA 2014 CC-BY 4.0 scne.es`, `PNOA 2017 CC-BY 4.0 scne.es`, `PNOA 2020 CC-BY 4.0 scne.es` y `PNOA 2023 CC-BY 4.0 scne.es`.
+- **Sin fuentes nuevas ni licencias nuevas**: todo es PNOA (actual e histórico), CC BY 4.0, ya en la tabla resumen de licencias, que no cambia (`NOTICE`, historia #43). `NOTICE` recogerá estas atribuciones cuando se publique la primera imagen (#103).
+
 ---
 
 ## BOE
@@ -737,7 +766,7 @@ Ejecución real del 2026-11-26: `vias-pecuarias-municipios` y `camino-actual-mun
 | `site/datos/indice.json` | 1 municipio | 215 |
 | `site/datos/indice.json.procedencia.json` | — | 205 |
 
-Ningún fichero supera el umbral de simplificación (3 000 000 bytes). Belmonte de Tajo (28019) no tiene piezas de vías pecuarias, y su capa vacía lleva la procedencia del límite del IGN (uso interno), así que hoy no se puede publicar. Queda para #86 (ADR 0036, notas de implementación).
+Ningún fichero supera el umbral de simplificación (3 000 000 bytes). Belmonte de Tajo (28019) no tiene piezas de vías pecuarias, y su capa vacía no se publica (resuelto en #86, ADR 0036). El ámbito completo se publicó en #86: 13 capas, ninguna sobre el umbral.
 
 ---
 

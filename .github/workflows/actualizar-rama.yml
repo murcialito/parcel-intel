@@ -59,6 +59,11 @@ jobs:
           ISSUE: ${{ steps.pr.outputs.historia }}
         run: echo "modelo=$(.github/scripts/modelo.sh desarrollo "$ISSUE")" >> "$GITHUB_OUTPUT"
 
+      - name: Instrucciones del agente desde main
+        # La rama de la PR puede ser anterior a cambios en las instrucciones (p. ej. «CI: CAMBIOS»):
+        # el agente las lee siempre de main.
+        run: git show origin/main:.claude/agents/desarrollador.md > "$RUNNER_TEMP/desarrollador.md"
+
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -68,7 +73,8 @@ jobs:
             PR: #${{ inputs.pr }}
             RAMA: ${{ steps.pr.outputs.rama }}
 
-            Actúa como el agente definido en .claude/agents/desarrollador.md, sección
+            Actúa como el agente definido en ${{ runner.temp }}/desarrollador.md (la versión de main de
+            .claude/agents/desarrollador.md; la copia de la rama puede estar desfasada), sección
             "Si tu PR está en conflicto con main", sobre la PR #${{ inputs.pr }}.
             La rama ${{ steps.pr.outputs.rama }} ya está en el checkout.
           claude_args: |

@@ -134,6 +134,11 @@ def _segment_distance(p1: Point, p2: Point, p3: Point, p4: Point) -> float:
     )
 
 
+def segment_distance(p1: Point, p2: Point, p3: Point, p4: Point) -> float:
+    """Distancia mínima entre los segmentos `p1`-`p2` y `p3`-`p4` (0 si se cruzan)."""
+    return _segment_distance(p1, p2, p3, p4)
+
+
 def point_in_ring(point: Point, ring: Ring) -> bool:
     """Ray casting estándar: punto dentro del anillo (polígono simple).
 
