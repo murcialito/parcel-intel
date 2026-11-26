@@ -489,6 +489,8 @@ Historia #35, ADR 0030. Petición real repetida el 2026-11-26 (la primera, el 20
 
 ### Catastro — cómo aparecen los caminos en rústico — `confirmado`
 
+> Las respuestas crudas citadas en esta sección (`catastro_wfsCP_colmenar_rustica_bbox600m.xml` y `catastro_dnppp_colmenar_pol*_parc*.xml`) se retiraron del repo y de su historial el 2026-11-26, porque las licencias de Catastro prohíben difundirlas sin transformar (ADR 0035). Lo comprobado sigue descrito aquí; para repetirlo hay que volver a consultar los servicios.
+
 `GetFeature` real al WFS de parcelas sobre 600×600 m de rústico en Colmenar (`catastro_wfsCP_colmenar_rustica_bbox600m.xml`, 51 parcelas). Los caminos son **parcelas propias con número 9000 o superior** dentro de cada polígono: `REFCAT-RETIRADA`, `…09007`, `REFCAT-RETIRADA`, `…09004`. `Consulta_DNPPP` sobre cada una (`catastro_dnppp_colmenar_pol*_parc*.xml`) devuelve paraje **"DESCUENTO"**, subparcela de clase **`VT` — "VÍA DE COMUNICACIÓN DE DOMINIO PÚBLICO"** y su superficie (p. ej. 8.604 m² en la 1/9001). La parcela de control 1/1 da en cambio `C-` "LABOR O LABRADÍO SECANO".
 
 - Implicación: el filtro "camino según Catastro" es `parcela ≥ 9000` más la clase `VT`, que se comprueba contra `Consulta_DNPPP` (el WFS no trae el uso).
