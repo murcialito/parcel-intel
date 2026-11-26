@@ -371,3 +371,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: antes de atribuir un camino a un municipio, comprobar que el homónimo no es otro: el «Colmenar» de una búsqueda era Colmenar Viejo (Vado de la Tabla), no Colmenar de Oreja (lección 0021 otra vez).
   - **Aplica a**: implementación | BA.
+
+## [2026-11-26] Historia #37 — Capa interna de caminos de Catastro
+
+- **Lección**: las referencias "de ejemplo" sintéticas pueden coincidir con una referencia real: `28043A00100001` (ceros a la izquierda en un test) casó con una huella de `tests/fixtures/catastro_huellas_reales.json` y rompió `test_historia_46::test_ca7`. Para tests de formato usar números ≥9000 (`28043A00109101`), que son los de la tabla sintética, y correr `uv run pytest` entero antes de la PR.
+  - **Aplica a**: implementación.
+
+- **Lección**: el WFS y `Consulta_DNPPP` del Catastro (`ovc.catastro.meh.es`) cortan la conexión (`Connection reset by peer`) desde los runners de GitHub Actions, aunque la raíz responda (400 a un GetCapabilities sin parámetros). Un criterio `[integración]` contra el Catastro real no puede verificarse en el agente; hay que ejecutarlo desde una máquina con acceso.
+  - **Aplica a**: BA | implementación.
