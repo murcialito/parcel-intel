@@ -469,6 +469,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: ambas respuestas se grabaron como fixtures reales (`window_capa_inexistente_serviceexception.xml`, `window_224_pnoa2010_blanca.jpg`); la blanca a 448 px pesa 0,0073 bytes/píxel, las reales ≥ 0,135.
   - **Aplica a**: implementación (cualquier adapter nuevo sobre WMS del IGN: validar el cuerpo, no el estado HTTP).
 
+## [2026-11-26] Historia #96 — Publicar indicios del ámbito y comprobar peso y lenguaje
+
+- **Lección**: regenerar `data/derived/` con red y volver a publicar es determinista: los ficheros de Colmenar salieron byte a byte iguales a los ya commiteados y las capas de #86 no cambiaron, así que el diff de datos es solo lo nuevo. Cuando un test de una historia anterior fija «solo existe X» sobre datos que la siguiente amplía (el CA15 de #94 exigía solo `28043.geojson`), se relaja a «X sigue ahí» y la historia nueva fija el conjunto completo.
+  - **Aplica a**: implementación (tests que congelan un conjunto de ficheros publicados) | arquitecto (al partir una publicación en dos historias, decir qué test de la primera deja de valer).
 ## [2026-11-26] Historia #95 — El visor dibuja indicios y muestra su ficha
 
 - **Lección**: para probar que un aviso «siempre está», no basta con la ficha del caso feliz: se pasa por la función pura de la ficha cada forma rota (`null`, `{}`, sin `texto`, `evidencia` que no es lista, aviso vacío) y se comprueba el aviso en el nodo resultante. El literal fijo de `config.js` se compara además con el aviso del fichero publicado y con `NOTICE`, para que no diverjan.
