@@ -106,7 +106,7 @@ Definidos en `.claude/agents/` y lanzados por los workflows de `.github/workflow
 
 **Orden de la cola:** Priority del tablero (P0 → P1 → P2 → sin prioridad) y, dentro, la más antigua. Salta las que tienen dependencias abiertas. Solo cuenta una línea que empieza por `Depende de` (`Depende de: #84, #85`); lo escrito en prosa no cuenta. Ver `.github/scripts/elegir_historia.sh`.
 
-**Historias en paralelo.** Se desarrollan a la vez hasta `HISTORIAS_EN_PARALELO` historias (variable de repo; ahora 2). Cuentan las que están en `estado:en-desarrollo` o `estado:en-revision`. La cola solo junta dos historias si las dos tienen línea `Toca:` y sus zonas no se solapan; una sin `Toca:` va sola. La elección va en serie y reclama la historia al elegirla, así que dos ejecuciones nunca cogen la misma. Fusionar solo fusiona una PR al día con `main`: si va por detrás, la actualiza con `PROJECT_TOKEN` y espera a que CI y la revisión pasen sobre la combinación real.
+**Historias en paralelo.** Se desarrollan a la vez hasta `HISTORIAS_EN_PARALELO` historias (variable de repo; ahora 2). Solo ocupan hueco las que están en `estado:en-desarrollo`. Las que están en revisión no lo ocupan, porque la revisión y el CI no necesitan agente de desarrollo, pero sus zonas `Toca:` siguen contando para el solape. La cola solo junta dos historias si las dos tienen línea `Toca:` y sus zonas no se solapan; una sin `Toca:` va sola. La elección va en serie y reclama la historia al elegirla, así que dos ejecuciones nunca cogen la misma. Fusionar solo fusiona una PR al día con `main`: si va por detrás, la actualiza con `PROJECT_TOKEN` y espera a que CI y la revisión pasen sobre la combinación real.
 
 ## Talla, arquitecto y modelos por tarea
 
