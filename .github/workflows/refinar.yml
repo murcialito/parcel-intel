@@ -13,6 +13,9 @@ on:
       issue:
         description: "Número de issue a retomar (relee sus comentarios)"
         required: true
+      nota:
+        description: "Indicación para el agente (opcional)"
+        required: false
 
 concurrency:
   group: refinar-${{ github.event.issue.number || inputs.issue }}
@@ -69,6 +72,7 @@ jobs:
 
             Si el evento es workflow_dispatch, es un reintento: relee los comentarios y
             retoma donde se quedó (si el fundador ya respondió, aplica su respuesta).
+            Indicación de quien lo relanza (puede estar vacía): ${{ inputs.nota }}
 
             Si el evento es un comentario, es la respuesta del fundador a tus preguntas:
             incorpórala, quita la etiqueta estado:necesita-fundador y decide de nuevo
@@ -79,7 +83,7 @@ jobs:
           claude_args: |
             --model ${{ steps.modelo.outputs.modelo }}
             --max-turns 40
-            --allowedTools "Read,Glob,Grep,Write,Bash(gh issue:*),Bash(gh api:*),Bash(gh label:*),Bash(git log:*),Bash(curl:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
+            --allowedTools "WebSearch,WebFetch,Read,Glob,Grep,Write,Bash(gh issue:*),Bash(gh api:*),Bash(gh label:*),Bash(git log:*),Bash(curl:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
 
       - name: Guardar transcripción del agente
         if: always()

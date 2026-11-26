@@ -55,6 +55,8 @@ Solo en estos casos. Siempre con un comentario en la issue que te menciona, así
 2. **Acción externa en nombre del proyecto**: p. ej. solicitudes de transparencia a ayuntamientos, contactar con asociaciones.
 3. **Atasco**: una historia vuelve de revisión 3 veces, o un test de aceptación no se puede cumplir tal como está escrito.
 
+No te preguntan cómo encontrar o verificar fuentes: los agentes buscan y leen en la web (`WebSearch`, `WebFetch`) con las reglas del ADR 0027.
+
 **Para responder:** contesta en la issue con un comentario. Tu comentario vuelve a lanzar el refinamiento. No hace falta cambiar etiquetas.
 
 **Para empezar algo nuevo:** crea una issue con `tipo:epica`, `tipo:feature` o `tipo:historia` y la etiqueta `estado:refinar`. Basta con una frase.

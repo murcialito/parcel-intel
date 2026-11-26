@@ -51,7 +51,7 @@ jobs:
           claude_args: |
             --model ${{ steps.modelo.outputs.modelo }}
             --max-turns 60
-            --allowedTools "Read,Glob,Grep,Write,Bash(gh issue:*),Bash(gh api:*),Bash(git log:*),Bash(curl:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
+            --allowedTools "WebSearch,WebFetch,Read,Glob,Grep,Write,Bash(gh issue:*),Bash(gh api:*),Bash(git log:*),Bash(curl:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
 
       - name: Guardar transcripción del agente
         if: always()
