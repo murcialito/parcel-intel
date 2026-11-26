@@ -120,3 +120,42 @@ def parse_wfs_buildings(xml_bytes: bytes) -> list[RawBuilding]:
 
 def geometry_from_rings(rings: tuple[Ring, ...]) -> Geometry:
     return Geometry(rings=rings, srid=_CRS_25830)
+
+
+class RawSubparcel(TypedDict):
+    class_code: str
+    description: str
+    area_m2: float
+
+
+class RawDnppp(TypedDict):
+    paraje: str | None
+    subparcels: tuple[RawSubparcel, ...]
+
+
+def parse_dnppp(xml_bytes: bytes, reference: str) -> RawDnppp:
+    """Extrae paraje y subparcelas (clase, descripción, superficie) de `Consulta_DNPPP`.
+
+    Solo lee los datos de cultivo (`lspr/spr/dspr`) y el paraje (`npa`); no toca
+    ningún dato de titularidad. Lanza `ParcelNotFoundError` si el servicio
+    responde con un error de control (`lerr`).
+    """
+    root = ET.fromstring(xml_bytes)
+    ns = {"c": _CATASTRO_NS}
+    if root.find(".//c:lerr/c:err/c:des", ns) is not None:
+        raise ParcelNotFoundError(reference)
+    paraje_el = root.find(".//c:dt//c:npa", ns)
+    paraje = paraje_el.text.strip() if paraje_el is not None and paraje_el.text else None
+    subparcels: list[RawSubparcel] = []
+    for dspr in root.iterfind(".//c:lspr/c:spr/c:dspr", ns):
+        code = dspr.findtext("c:ccc", default="", namespaces=ns).strip()
+        description = dspr.findtext("c:dcc", default="", namespaces=ns).strip()
+        ssp = dspr.findtext("c:ssp", default="", namespaces=ns).strip()
+        subparcels.append(
+            {
+                "class_code": code,
+                "description": description,
+                "area_m2": float(ssp) if ssp else 0.0,
+            }
+        )
+    return {"paraje": paraje, "subparcels": tuple(subparcels)}

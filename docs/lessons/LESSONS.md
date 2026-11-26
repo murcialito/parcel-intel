@@ -343,6 +343,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: implementación.
 
 
+## [2026-11-26] Historia #28 — Arroyos (`HG`) frente a caminos (`VT`) en parcelas 9xxx
+
+- **Lección**: en las parcelas ≥ 9000 de Catastro, ni el número ni el paraje bastan para decir «camino». Hay `VT` con paraje `DESCUENTO` o `NO INFORMADO`, `HG` (arroyo, barranco, río) con `NO INFORMADO`, `I-` improductivo con paraje `CAMINO`, y parcelas ≥ 9000 con cultivos ordinarios. Manda la clase de subparcela, y todas las subparcelas deben ser `VT`.
+  - **Causa**: la verificación de #28 cruzó los cauces de IDEE con las parcelas ≥ 9000 de Colmenar y Villaconejos. Un primer intento con nombres de municipio inventados dio respuestas vacías en 20 de 47 parcelas; los códigos INE de los vecinos hay que sacarlos del dato, no de memoria. El servicio también devuelve la `Ñ` mal codificada (`CA¥ADA`).
+  - **Aplica a**: implementación (filtros sobre Catastro: clase, no paraje; no comparar parajes por igualdad) | BA (un criterio que verifica contra el servicio sin versionar respuestas se cumple con un script local y una sección de `REGISTRY.md` con recuentos y canales, y su test lee esa sección).
+
 ## [2026-11-26] Migración a repo público — fallo de CI por un cambio de documentación
 
 - **Lección**: hay tests que leen documentos. Por ejemplo, `test_historia_44` comprueba el orden de los pasos de `docs/runbook-publicacion.md`. Un cambio "solo de docs" empujado a `main` sin ejecutar `uv run pytest` dejó CI en rojo en `main` y en la PR en curso (#46), que lo heredó al fusionar con `main`. Antes de empujar cualquier cambio, aunque solo toque `.md`, se ejecutan los cinco comandos.
