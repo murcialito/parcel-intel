@@ -22,6 +22,7 @@ from parcel_intel.domain.provenance import Provenance, Redistribution
 from parcel_intel.ports.errors import (
     AreaQueryLimitExceededError,
     CadastralServiceError,
+    ParcelNotFoundError,
     TruncatedAreaQueryError,
 )
 
@@ -91,11 +92,15 @@ class CatastroAreaAdapter:
         }
 
         def validate(content: bytes) -> None:
-            # `ParcelNotFoundError` si Catastro responde con `lerr`: no se cachea.
-            parse_dnppp(content, reference.compact)
+            # Una respuesta `lerr` («no existe ningún inmueble») es válida y determinista:
+            # se cachea, para que `--sin-red` repita el resultado. Se relanza al leer.
+            try:
+                parse_dnppp(content, reference.compact)
+            except ParcelNotFoundError:
+                pass
 
         response = self._fetcher.fetch(DNPPP_URL, params, validate=validate)
-        raw = parse_dnppp(response.content, reference.compact)
+        raw = parse_dnppp(response.content, reference.compact)  # `lerr` -> ParcelNotFoundError
         return RuralParcelLandUse(
             reference=reference.compact,
             subparcels=tuple(

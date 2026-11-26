@@ -67,13 +67,17 @@ def test_uso_de_una_parcela_rustica(tmp_path: Path) -> None:
     assert uso.provenance.redistribution is Redistribution.INTERNAL_ONLY
 
 
-def test_dnppp_sin_datos_lanza_y_no_se_cachea(tmp_path: Path) -> None:
+def test_dnppp_sin_datos_lanza_se_cachea_y_sin_red_lanza_lo_mismo(tmp_path: Path) -> None:
     reference = parse_rural_reference("28043A99109999")
     assert reference is not None
-    adapter = _adapter(tmp_path, FixtureCatastroHttp())
+    http = FixtureCatastroHttp()
     with pytest.raises(ParcelNotFoundError):
-        adapter.get_land_use(reference)
-    assert not any(p.is_file() for p in (tmp_path / "cache").rglob("*"))
+        _adapter(tmp_path, http).get_land_use(reference)
+    assert any(p.is_file() for p in (tmp_path / "cache").rglob("*"))
+    sin_red = _adapter(tmp_path, FixtureCatastroHttp(), offline=True)
+    with pytest.raises(ParcelNotFoundError):
+        sin_red.get_land_use(reference)
+    assert len(http.calls) == 1
 
 
 def test_otra_excepcion_del_wfs_es_un_error_y_no_se_cachea(tmp_path: Path) -> None:

@@ -416,3 +416,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: la lógica de decisión de un workflow (aquí «¿toca `curated/`?» y «¿aprobó el fundador el último commit?») se extrae a scripts que leen stdin; así se prueba con JSON fijo sin red y el YAML solo la invoca.
   - **Aplica a**: arquitecto | implementación.
 
+## [2026-11-26] Historia #37 — Capa interna de caminos de Catastro
+
+- **Lección**: una respuesta de error determinista de una fuente (aquí `lerr` de `Consulta_DNPPP`: «no existe ningún inmueble») se cachea igual que una buena; si no, `--sin-red` no puede repetir la pasada con red. La validación previa a la caché solo rechaza lo transitorio (excepciones de servicio, truncados) y el error de dominio se relanza al leer.
+  - **Causa**: el WFS de Catastro devuelve parcelas ≥ 9000 que DNPPP no reconoce; sin cachear el `lerr`, la repetición sin red falló con `RawCacheMissError`.
+  - **Aplica a**: implementación (adapters con `CachedRawFetcher`) | arquitecto.
+
