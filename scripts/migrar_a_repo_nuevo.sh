@@ -112,7 +112,9 @@ verificar() {  # verificar <repo> <fichero-de-blobs>: 0 si no queda rastro
   return "$fallos"
 }
 
-visibilidad() { gh repo view "$OWNER/$1" --json visibility --jq .visibility 2>/dev/null || echo NO_EXISTE; }
+visibilidad() {  # PRIVATE, PUBLIC o NO_EXISTE. Tras renombrar, GitHub redirige el nombre viejo: se compara el nombre real.
+  gh api "repos/$OWNER/$1" --jq "if .name == \"$1\" then (.visibility | ascii_upcase) else \"NO_EXISTE\" end" 2>/dev/null || echo NO_EXISTE
+}
 
 numero_mas_alto() {  # del repo dado, contando issues y PRs
   gh api graphql -f query='
