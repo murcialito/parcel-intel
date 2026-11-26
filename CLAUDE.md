@@ -90,6 +90,12 @@ uv run python -m parcel_intel.cli.main publicar-capas --ambito
 # .procedencia.json, y el índice. Sin red. Todo o nada: sale con 1 y no escribe si un municipio falta o no es publicable; uno sin indicios publicables se informa como vacío.
 uv run python -m parcel_intel.cli.main publicar-discrepancias --municipio 28043 [--municipio ...]
 uv run python -m parcel_intel.cli.main publicar-discrepancias --ambito
+
+# Imágenes de comparación de los tramos de un municipio (historia #122, ADR 0042): descarga y comprueba las ortofotos en la caché cruda
+# data/raw y escribe el manifiesto INTERNO data/derived/comparacion/<ine>.json (URL canónica, sha256, atribución, píxeles del trazo). Entrada:
+# GeoJSON de tramos en EPSG:25830 con properties.id de 16 hexadecimales. Nada va a site/. Todo o nada: sale con 1 y no escribe si una franja
+# falla, si hay más de 400 ventanas (antes de pedir nada) o si el manifiesto pasa de 3.000.000 bytes. --sin-red: solo desde la caché.
+uv run python -m parcel_intel.cli.main imagenes-comparacion --municipio 28043 --tramos ruta/tramos.geojson [--sin-red] [--cache data/raw]
 ```
 
 ## Contexto de negocio (resumen)
