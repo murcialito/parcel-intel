@@ -436,3 +436,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: al fundir rachas por distancia entre piezas (`GAP_M`), basta comparar piezas con `segment_distance` y un prefiltro de bbox; el coste es cuadrático por trazado, aceptable con rachas de decenas de muestras. Si se calibra `GAP_M` o `SAMPLE_STEP_M`, revisar ese coste.
   - **Aplica a**: implementación (al calibrar el método con #100).
+
+## [2026-11-26] Historia #121 — Caso de uso de imágenes de comparación
+
+- **Lección**: el trozo de puntos de `comparison_windows` se corta por `max(ancho, alto)`, no por longitud: una diagonal de 1500 m (2121 m de recorrido) cabe en 4 ventanas y no es `tramo_demasiado_largo`. Para probar el tope, usar un tramo cuyo lado mayor supere ~1,6 km en proyección.
+  - **Causa**: el primer test unitario esperaba `None` con una diagonal de 1500×1500 m y salieron 4 ventanas. El código seguía el ADR; el oráculo mental era erróneo.
+  - **Aplica a**: implementación (tests de topes por tamaño de ventana).
+
