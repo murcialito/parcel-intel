@@ -58,7 +58,8 @@ jobs:
         run: |
           echo "foto=$(gh issue view "$NUM" -R "$REPO" --json labels,comments --jq '"\([.labels[].name]|sort|join(","))|\(.comments|length)"')" >> "$GITHUB_OUTPUT"
 
-      - uses: anthropics/claude-code-action@v1
+      - id: agente
+        uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           allowed_bots: "claude[bot],github-actions[bot]"  # github-actions: lanzamientos de Fusionar y Desbloquear
@@ -82,7 +83,7 @@ jobs:
             lanzar este workflow.
           claude_args: |
             --model ${{ steps.modelo.outputs.modelo }}
-            --max-turns 40
+            --max-turns 60
             --allowedTools "WebSearch,WebFetch,Read,Glob,Grep,Write,Bash(gh issue:*),Bash(gh api:*),Bash(gh label:*),Bash(git log:*),Bash(curl:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
 
       - name: Guardar transcripción del agente
@@ -95,7 +96,9 @@ jobs:
           if-no-files-found: ignore
 
       - name: Comprobar que el agente avanzó
+        if: always()
         env:
+          AGENTE: ${{ steps.agente.outcome }}
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           ANTES: ${{ steps.antes.outputs.foto }}
@@ -110,6 +113,7 @@ jobs:
           elif [ "$despues" = "$ANTES" ]; then
             motivo="no cambió etiquetas ni comentó"
           fi
+          if [ "$AGENTE" = "failure" ] && [ -n "$motivo" ]; then motivo="el agente falló, p. ej. sin turnos; $motivo"; fi
           if [ -n "$motivo" ]; then
             negados=$(jq -r '[.[] | select(.type == "result") | .permission_denials[]?.tool_name] | length' "$SALIDA" 2>/dev/null || echo "?")
             gh issue comment "$NUM" -R "$REPO" --body "El agente terminó sin avanzar ($motivo; herramientas denegadas: $negados): $RUN_URL. Para reintentar: Actions → Refinar → Run workflow con esta issue."
