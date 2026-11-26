@@ -371,3 +371,13 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: antes de atribuir un camino a un municipio, comprobar que el homónimo no es otro: el «Colmenar» de una búsqueda era Colmenar Viejo (Vado de la Tabla), no Colmenar de Oreja (lección 0021 otra vez).
   - **Aplica a**: implementación | BA.
+
+## [2026-11-26] Historia #84 — Publicar capas en site/datos
+
+- **Lección**: una puerta "denegar por defecto" (aquí `PublishableLayer` con `layer_provenance`) también rechaza los casos degenerados que nadie miró, y el rechazo sale con el mensaje del caso común. La capa de vías pecuarias **vacía** toma la procedencia del límite del IGN (uso interno) porque no hay consulta de IDEM de la que tomarla. Se rechaza como «no redistribuible» y el mensaje sugiere regenerarla, lo que no arregla nada. Le pasa a Belmonte de Tajo (28019) en los datos reales, así que `publicar-capas --ambito` sale con 1.
+  - **Causa**: el CA13 («capa vacía, no se publica») se probó con una capa vacía sintética con procedencia publicable. Nadie ejecutó el comando sobre la capa vacía real que escribe #83.
+  - **Aplica a**: arquitecto y BA (al fijar el caso "vacío" de una capa que pasa por una puerta de licencia, decir de dónde sale su procedencia en el dato real) | implementación (ejecutar el comando nuevo sobre todos los municipios reales del ámbito, no solo sobre el del criterio, y anotar lo que falle).
+
+- **Lección**: un adapter que empieza a marcar `PUBLIC` en origen rompe tests de otras historias que fijaban "el adapter no marca" (#22 CA5 y CA8) y los literales de procedencia de los escritores (#83 CA3). Se actualiza el literal o se construye el caso sintético con la marca explícita. No se relaja la aserción ni se toca el docstring del criterio.
+  - **Aplica a**: implementación (antes de cambiar qué marca un adapter, `grep` de `Redistribution.` y de `"licencia"` en `tests/acceptance/`).
+

@@ -77,6 +77,11 @@ uv run python -m parcel_intel.cli.main camino-actual-municipios --sin-red    # s
 # y escribe data/derived/discrepancias/{interno,publicable}/<ine>.geojson (el interno NUNCA se publica). Sin red. Sale con 1 si algún municipio falla.
 uv run python -m parcel_intel.cli.main discrepancias --municipio 28043 [--municipio ...]
 uv run python -m parcel_intel.cli.main discrepancias --ambito                # los 7 municipios del primer hito
+
+# Publicar vías pecuarias y camino actual en site/datos/<capa>/<ine>.geojson (historia #84, ADR 0036): EPSG:4326, cada fichero
+# con su .procedencia.json, e índice site/datos/indice.json. Sin red. Todo o nada: sale con 1 y no escribe si una capa falta o no es publicable.
+uv run python -m parcel_intel.cli.main publicar-capas --municipio 28043 [--municipio ...] [--capa vias_pecuarias|camino_actual]
+uv run python -m parcel_intel.cli.main publicar-capas --ambito
 ```
 
 ## Contexto de negocio (resumen)
