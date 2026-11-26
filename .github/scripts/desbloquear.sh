@@ -4,7 +4,8 @@
 # (o, si la dependencia es una historia madre, cuando todas sus hijas están cerradas).
 # Cada issue bloqueada declara en su cuerpo una línea así:
 #   Desbloqueo: estado:diseno cuando se cierren #18, #19
-# Al desbloquear pone ese estado, quita estado:bloqueada, comenta y lanza el workflow que le toca
+# Al desbloquear pone ese estado, quita estado:bloqueada, comenta y lanza el workflow que le toca.
+# Además cierra los contenedores (épica, feature, historia madre) con todas sus sub-issues cerradas.
 # (las etiquetas puestas con GITHUB_TOKEN no disparan workflows por sí solas).
 # Entradas por entorno: GH_TOKEN (issues y actions), REPO; opcional PROJECT_TOKEN para el tablero.
 set -euo pipefail
@@ -48,4 +49,20 @@ for n in $(gh issue list -R "$REPO" --state open --label estado:bloqueada --limi
       .github/scripts/sincronizar_tablero.sh || echo "::warning::No se pudo sincronizar #$n con el tablero."
   fi
   echo "#$n desbloqueada → $destino."
+done
+
+# Contenedores terminados: una épica, feature o historia madre con todas sus sub-issues cerradas se
+# cierra (GitHub no lo hace solo). Si luego se le añade trabajo, el refinador la reabre.
+for n in $(gh api graphql --paginate -f query='
+    query($o: String!, $r: String!, $endCursor: String) {
+      repository(owner: $o, name: $r) {
+        issues(first: 100, after: $endCursor, states: OPEN) {
+          pageInfo { hasNextPage endCursor }
+          nodes { number subIssuesSummary { total completed } }
+        }
+      }
+    }' -f o="${REPO%/*}" -f r="${REPO#*/}" \
+    --jq '.data.repository.issues.nodes[] | select(.subIssuesSummary.total > 0 and .subIssuesSummary.completed == .subIssuesSummary.total) | .number'); do
+  gh issue close "$n" -R "$REPO" --reason completed --comment "Todas sus sub-issues están cerradas: se cierra." >/dev/null
+  echo "#$n cerrada: contenedor terminado."
 done

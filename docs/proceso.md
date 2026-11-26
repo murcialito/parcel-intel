@@ -137,6 +137,8 @@ Desbloqueo: estado:diseno cuando se cierren #18, #19
 
 Cuando todas sus dependencias están cerradas como completadas, le pone el estado de la línea, quita `estado:bloqueada`, lo comenta y lanza el workflow del agente (`disenar.yml`, `refinar.yml` o la cola de `desarrollar.yml`). Una dependencia cerrada como "not planned" no desbloquea: la issue se queda esperando a que lo decidas tú.
 
+En la misma pasada, `desbloquear.yml` cierra los contenedores terminados: épicas, features e historias madre con todas sus sub-issues cerradas. Si después se les añade trabajo, el refinador las reabre.
+
 ## Sincronización con el tablero
 
 Todas las issues se reflejan en el proyecto [Parcela Intel](https://github.com/users/murcialito/projects/1) mediante `sincronizar-tablero.yml`. Este workflow se lanza cuando se abre, cierra, reabre o cambia de etiquetas cualquier issue, y llama a `.github/scripts/sincronizar_tablero.sh`:
