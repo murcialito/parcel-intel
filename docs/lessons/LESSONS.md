@@ -469,3 +469,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: ambas respuestas se grabaron como fixtures reales (`window_capa_inexistente_serviceexception.xml`, `window_224_pnoa2010_blanca.jpg`); la blanca a 448 px pesa 0,0073 bytes/píxel, las reales ≥ 0,135.
   - **Aplica a**: implementación (cualquier adapter nuevo sobre WMS del IGN: validar el cuerpo, no el estado HTTP).
 
+## [2026-11-26] Historia #95 — El visor dibuja indicios y muestra su ficha
+
+- **Lección**: para probar que un aviso «siempre está», no basta con la ficha del caso feliz: se pasa por la función pura de la ficha cada forma rota (`null`, `{}`, sin `texto`, `evidencia` que no es lista, aviso vacío) y se comprueba el aviso en el nodo resultante. El literal fijo de `config.js` se compara además con el aviso del fichero publicado y con `NOTICE`, para que no diverjan.
+  - **Aplica a**: implementación (JS del visor) | revisor (cualquier texto legal obligatorio en una ficha).
+
+- **Lección**: los tests estáticos de #85 escanean todo el JS propio en busca de `//` seguidos de texto (URLs externas), también dentro de comentarios. Escribir `https://` en `vista.js` rompe CA1 de #85; el enlace seguro se comprueba con la expresión regular `/^https:\/\/\S/` y los comentarios evitan la cadena literal.
+  - **Aplica a**: implementación (módulos del visor).
+
+- **Lección**: `tests/acceptance/test_historia_46.py` busca en `tests/` cadenas de 14 caracteres alfanuméricos y las compara con huellas de referencias catastrales reales. Una referencia «inventada» con forma plausible puede ser real (p. ej. polígono 1, parcela 1 de un municipio del ámbito). En fixtures usar prefijos de municipio inexistentes (`99999`).
+  - **Aplica a**: implementación (fixtures con referencias catastrales falsas).
+

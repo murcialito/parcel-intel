@@ -250,7 +250,8 @@ def test_ca4_atribuciones_literales_de_notice_y_visibles_con_su_capa(tmp_path: P
     notice = NOTICE.read_text(encoding="utf-8")
     registry = REGISTRY.read_text(encoding="utf-8")
     capas, base = _literales_config()
-    assert len(capas) == 2 and len(base) == 2, (capas, base)
+    # Tres capas desde #95 (vías pecuarias, camino actual e indicios de discrepancia).
+    assert len(capas) == 3 and len(base) == 2, (capas, base)
     for texto in capas + base:
         assert f"`{texto}`" in notice, f"no consta literalmente en NOTICE: {texto}"
     for texto in base:
@@ -568,7 +569,7 @@ def test_ca15_accesibilidad_de_index_html() -> None:
     assert raiz and raiz[0].get("lang") == "es"
     etiquetas = {a.get("for") for t, a in tags if t == "label"}
     controles = [(t, a) for t, a in tags if t in ("select", "input", "button", "textarea")]
-    assert len(controles) == 3, controles
+    assert len(controles) == 4, controles  # selector + tres capas (la de indicios, de #95)
     for tag, attrs in controles:
         assert tag in ("select", "input"), tag
         if tag == "input":
