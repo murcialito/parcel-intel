@@ -50,9 +50,36 @@ export const CONFIG = Object.freeze({
       tipo: "linea",
       estilo: Object.freeze({ color: "#fde047", weight: 3, opacity: 0.95 }),
     }),
+    // Historia #95: indicios de discrepancia publicados por #94 (ADR 0044). Nace apagada: un
+    // indicio no debe ser lo primero que se lea del mapa. Trazo discontinuo para no confundirla
+    // con una vía pecuaria ni con el camino actual.
+    Object.freeze({
+      id: "discrepancias",
+      titulo: "Indicios a verificar (no son un dictamen)",
+      fuente: "Parcel Intel, indicios de discrepancia entre trazados",
+      atribucion: "Indicios elaborados por Paso Común a partir de las fuentes que cita cada ficha",
+      propiedadNombre: null,
+      tipo: "indicio",
+      visibleInicial: false,
+      estilo: Object.freeze({
+        color: "#7c3aed",
+        weight: 3,
+        opacity: 1,
+        dashArray: "8 6",
+        fillColor: "#a78bfa",
+        fillOpacity: 0.2,
+      }),
+    }),
   ]),
 
   textos: Object.freeze({
+    sinIndicios: "sin indicios publicados",
+    anioNoDeclarado: "año no declarado",
+    fichaNoDisponible: "ficha no disponible",
+    // Copia literal del aviso de #16 (ficha pública; también en cada feature y en el sidecar de
+    // `datos/discrepancias/`). Un test lo compara con el fichero publicado.
+    avisoIndicio:
+      "Esto no es un dictamen ni afirma que haya ninguna irregularidad. Es un indicio automático, con la confianza indicada, que debe contrastarse con la administración competente.",
     sinTrazados: "sin trazados de esta capa en el municipio",
     errorCapa: "no se pudo cargar",
     cargando: "cargando…",
