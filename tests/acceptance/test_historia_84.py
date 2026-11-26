@@ -333,8 +333,10 @@ def test_ca5_toda_publicacion_pasa_por_publishable_layer(tmp_path: Path) -> None
     result = PublishLayersUseCase(_Layers(), _Sink()).execute(["28997"])
 
     assert calls == []
-    assert [f.layer_id for f in result.failures] == ["vias_pecuarias", "camino_actual"]
+    # Desde #86 la capa vacía no publica nada y se omite antes de la puerta (Belmonte de Tajo).
+    assert [f.layer_id for f in result.failures] == ["vias_pecuarias"]
     assert all(f.reason.startswith("no redistribuible") for f in result.failures)
+    assert result.empty == (("camino_actual", "28997"),)
 
 
 def test_ca6_capa_inexistente_o_corrupta_sale_con_1_sin_tocar_nada(
@@ -710,5 +712,6 @@ def test_ca15_integracion_colmenar_real_19_vias_y_893_tramos(tmp_path: Path) -> 
         for layer_id in LAYERS:
             sidecar = datos / layer_id / "28043.geojson.procedencia.json"
             assert construir_sitio._check_provenance(sidecar) == []
-        index = _load(datos / "indice.json")
-        assert [entry["ine"] for entry in index["municipios"]] == ["28043"]
+        ines = [entry["ine"] for entry in _load(datos / "indice.json")["municipios"]]
+        # Desde #86 el sitio versionado publica el ámbito completo; la temporal, solo Colmenar.
+        assert ines == ["28043"] if datos == salida else "28043" in ines

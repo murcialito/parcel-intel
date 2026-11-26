@@ -178,8 +178,10 @@ def test_capa_de_otra_fuente_es_fallo() -> None:
     assert "ign_red_transporte" in result.failures[0].reason
 
 
-def test_no_redistribuible_nombra_la_procedencia() -> None:
-    internal = Provenance("idem", "https://example.invalid/interna", date(2026, 11, 26), "x")
+def test_capa_vacia_con_procedencia_interna_se_omite_sin_fallo() -> None:
+    """Belmonte de Tajo (historia #86): sin trazados no se publica nada y la
+    procedencia de la colección (el límite del IGN) no es motivo de fallo."""
+    internal = Provenance("ign", "https://example.invalid/limite", date(2026, 11, 26), "x")
     sink = _Sink()
     layers = _Layers(
         {
@@ -190,16 +192,12 @@ def test_no_redistribuible_nombra_la_procedencia() -> None:
 
     result = PublishLayersUseCase(layers, sink).execute(["28001"])
 
-    assert sink.calls == []
-    reason = result.failures[0].reason
-    assert reason.startswith("no redistribuible")
-    assert "https://example.invalid/interna" in reason
-    assert "solo_uso_interno" in reason
-    # Capa vacía: lo rechazado es la procedencia de la colección (regenerar no sirve).
-    assert "capa vacía con procedencia no publicable" in reason
+    assert result.failures == ()
+    assert result.empty == (("vias_pecuarias", "28001"),)
+    assert [p.spec.layer_id for p in sink.calls[0]] == ["camino_actual"]
 
 
-def test_no_redistribuible_con_trazados_no_dice_capa_vacia() -> None:
+def test_no_redistribuible_nombra_la_procedencia() -> None:
     internal = Provenance("idem", "https://example.invalid/interna", date(2026, 11, 26), "x")
     sink = _Sink()
     layers = _Layers(
@@ -214,4 +212,5 @@ def test_no_redistribuible_con_trazados_no_dice_capa_vacia() -> None:
     assert sink.calls == []
     reason = result.failures[0].reason
     assert reason.startswith("no redistribuible: procedencia ")
-    assert "capa vacía" not in reason
+    assert "https://example.invalid/interna" in reason
+    assert "solo_uso_interno" in reason

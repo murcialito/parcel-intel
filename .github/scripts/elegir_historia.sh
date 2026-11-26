@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016  # las variables $x de GraphQL van literales a propósito
 # Elige la siguiente historia de la cola de desarrollo y escribe su número en stdout (vacío si no hay).
-# - Hasta HISTORIAS_EN_PARALELO historias a la vez en estado:en-desarrollo o estado:en-revision (por
-#   defecto 1). Con alguna en curso, solo se elige otra si las dos declaran su línea "Toca:" (zonas del
+# - Hasta HISTORIAS_EN_PARALELO historias a la vez en estado:en-desarrollo (por defecto 1). Las que
+#   están en revisión no ocupan hueco, pero sus zonas cuentan para el solape. Con alguna en curso, solo se elige otra si las dos declaran su línea "Toca:" (zonas del
 #   código que modifican) y no se solapan; una historia sin "Toca:" va sola.
 # - Candidatas: historias abiertas con estado:lista.
 # - Orden: Priority del tablero (P0, P1, P2, sin prioridad) y, dentro de cada una, la más antigua.
@@ -44,14 +44,17 @@ solapan() {
   return 1
 }
 
+en_desarrollo=""
 en_curso=""
 if [ -z "${IGNORAR_OCUPADAS:-}" ]; then
-  en_curso=$( { gh issue list -R "$REPO" --state open --label tipo:historia --label estado:en-desarrollo --json number --jq '.[].number'
-                gh issue list -R "$REPO" --state open --label tipo:historia --label estado:en-revision --json number --jq '.[].number'; } | sort -un)
+  en_desarrollo=$(gh issue list -R "$REPO" --state open --label tipo:historia --label estado:en-desarrollo --json number --jq '.[].number' | sort -un)
+  # Las de revisión no ocupan hueco de desarrollo, pero sus zonas cuentan: su PR sigue abierta.
+  en_curso=$( { echo "$en_desarrollo"
+                gh issue list -R "$REPO" --state open --label tipo:historia --label estado:en-revision --json number --jq '.[].number'; } | grep . | sort -un || true)
 fi
-ocupadas=$(grep -c . <<<"$en_curso" || true)
+ocupadas=$(grep -c . <<<"$en_desarrollo" || true)
 if [ "$ocupadas" -ge "$LIMITE" ]; then
-  log "Hay $ocupadas historia(s) en curso y el límite es $LIMITE: se espera."
+  log "Hay $ocupadas historia(s) en desarrollo y el límite es $LIMITE: se espera."
   exit 0
 fi
 zonas_en_curso=""
@@ -136,7 +139,7 @@ while read -r n prio; do
     [ "$bloquea" = "true" ] && abiertas="$abiertas #$d"
   done
   if [ -n "$abiertas" ]; then log "#$n ${prio:-sin prioridad} espera a$abiertas."; continue; fi
-  if [ "$ocupadas" -gt 0 ]; then
+  if [ -n "$en_curso" ]; then
     z=$(toca "$n")
     if [ -z "$z" ]; then log "#$n no tiene línea Toca: no puede ir en paralelo."; continue; fi
     if solapan "$z" "$zonas_en_curso"; then log "#$n toca zonas de una historia en curso."; continue; fi

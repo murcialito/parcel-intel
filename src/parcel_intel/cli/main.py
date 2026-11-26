@@ -41,7 +41,6 @@ from parcel_intel.application.build_municipal_road_layers import BuildMunicipalR
 from parcel_intel.application.detect_discrepancies import DetectDiscrepanciesUseCase
 from parcel_intel.application.publish_layers import (
     DEFAULT_LAYERS,
-    EMPTY_LAYER_REASON,
     PublishLayersUseCase,
 )
 from parcel_intel.domain.discrepancy_report import LayerStatus
@@ -411,10 +410,6 @@ _REGENERATE_HINT = (
     "regenera la capa con vias-pecuarias-municipios --sin-red "
     "o camino-actual-municipios --sin-red"
 )
-_EMPTY_LAYER_HINT = (
-    "si la capa sigue vacía, regenerarla no basta: la procedencia de la colección "
-    "no es publicable y hay que resolverla en origen"
-)
 
 
 def _publicar_capas(args: argparse.Namespace) -> int:
@@ -446,8 +441,6 @@ def _publicar_capas(args: argparse.Namespace) -> int:
         hint = ""
         if failure.reason.startswith("no redistribuible"):
             hint = f"; {_REGENERATE_HINT}"
-            if EMPTY_LAYER_REASON in failure.reason:
-                hint += f" ({_EMPTY_LAYER_HINT})"
         print(
             f"ERROR {failure.layer_id} {failure.municipality_code}: {failure.reason}{hint}",
             file=sys.stderr,
