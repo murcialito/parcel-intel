@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FIXTURE SINTÉTICA generada por tests/fixtures/generate_catastro.py (historia #45). No es una respuesta de Catastro ni cartografía catastral. -->
+<consulta_coordenadas xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.catastro.meh.es/">
+  <control>
+    <cucoor>0</cucoor>
+    <cuerr>1</cuerr>
+  </control>
+  <lerr>
+    <err>
+      <cod>62</cod>
+      <des>NO EXISTE EL INMUEBLE</des>
+    </err>
+  </lerr>
+</consulta_coordenadas>

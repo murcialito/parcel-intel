@@ -110,10 +110,13 @@ def test_ca2_centroides_catastrales_caen_en_su_municipio(tmp_path: Path) -> None
     by_code = {b.ine_code: b.geometry for b in _boundaries(tmp_path)}
     colmenar, villaconejos = by_code["28043"], by_code["28170"]
 
+    # Desde la historia #45 las fixtures `Consulta_CPMRC` son SINTÉTICAS: el centroide
+    # es el centro de la envolvente conservada de cada parcela (99043A90100001 y
+    # 99170A90100001), a pocos metros de los centroides que cita el criterio.
     c_colmenar = _centroid("cpmrc_colmenar_14char.xml")
     c_villaconejos = _centroid("cpmrc_villaconejos_14char.xml")
-    assert c_colmenar == (467588.74, 4442023.74)
-    assert c_villaconejos == (454720.29, 4441476.87)
+    assert c_colmenar == (467582.54, 4442024.38)
+    assert c_villaconejos == (454690.61, 4441488.64)
 
     assert point_in_any_ring(c_colmenar, colmenar.rings)
     assert not point_in_any_ring(c_colmenar, villaconejos.rings)

@@ -25,6 +25,7 @@ from parcel_intel.domain.rule import (
 )
 from parcel_intel.domain.watercourse import Watercourse
 from tests.adapters.catastro.helpers import FIXTURES_DIR as CATASTRO_FIXTURES_DIR
+from tests.adapters.catastro.helpers import VILLACONEJOS_BARRANCO_DEL_MONTERO_M
 from tests.adapters.hydrography.helpers import FIXTURES_DIR as DPH_FIXTURES_DIR
 from tests.adapters.livestock_trails.helpers import FIXTURES_DIR as LIVESTOCK_FIXTURES_DIR
 from tests.adapters.protected_areas.helpers import FIXTURES_DIR as PROTECTED_AREAS_FIXTURES_DIR
@@ -237,14 +238,15 @@ def test_sin_edificios_no_excluye_vacuamente_verdadero() -> None:
     assert len(findings) == 1
 
 
-def test_caso_real_villaconejos_produce_el_hallazgo_documentado() -> None:
-    # El fixture trae 7 parcelas (centroide + bbox de vecinas) -- filtrar
-    # por la referencia real de la parcela rústica objetivo.
+def test_parcela_sintetica_villaconejos_produce_el_hallazgo_documentado() -> None:
+    # Parcela SINTÉTICA de Villaconejos (historia #45) + cauce real "Barranco
+    # del Montero". El fixture trae 7 parcelas (objetivo + vecinas) -- filtrar
+    # por la referencia de la parcela rústica objetivo.
     parcel_xml = (
         CATASTRO_FIXTURES_DIR / "wfsCP_villaconejos_rustica_por_centroide.xml"
     ).read_bytes()
     raw_parcel = next(
-        p for p in parse_wfs_parcels(parcel_xml) if p["reference"] == "REFCAT-RETIRADA"
+        p for p in parse_wfs_parcels(parcel_xml) if p["reference"] == "99170A90100001"
     )
     parcel = make_parcel(
         cadastral_reference=raw_parcel["reference"],
@@ -284,7 +286,8 @@ def test_caso_real_villaconejos_produce_el_hallazgo_documentado() -> None:
     assert len(finding.evidence) == 1
     evidence = finding.evidence[0]
     assert evidence.source_name == "Barranco del Montero"
-    assert evidence.measured_value == 8.535301066249467
+    assert evidence.measured_value is not None and evidence.measured_value > 0
+    assert evidence.measured_value == pytest.approx(VILLACONEJOS_BARRANCO_DEL_MONTERO_M, abs=1e-9)
     assert evidence.unit == "m"
 
 
@@ -408,17 +411,18 @@ def test_red_natura_tupla_vacia_no_produce_hallazgo() -> None:
     assert findings == ()
 
 
-def test_red_natura_caso_real_villaconejos_no_solapa_no_produce_hallazgo() -> None:
+def test_red_natura_parcela_sintetica_villaconejos_no_solapa_no_produce_hallazgo() -> None:
     # Hallazgo del ADR 0018: pese a que el WFS devuelve la zona SE/X para
-    # la bbox de consulta de Villaconejos, la geometría real no la
-    # contiene (distancia real ~1.36 km, confirmada con shapely en el
-    # ADR) -- el filtro BBOX de esta capa es laxo (envolvente de un
-    # MultiSurface disperso en ~46x41 km), a diferencia de vías pecuarias.
+    # la bbox de consulta de Villaconejos, la zona no contiene la parcela
+    # (~1.36 km, confirmado con shapely en el ADR) -- el filtro BBOX de esta
+    # capa es laxo (envolvente de un MultiSurface disperso en ~46x41 km), a
+    # diferencia de vías pecuarias. La parcela es SINTÉTICA (historia #45),
+    # un rombo dentro de la misma envolvente.
     parcel_xml = (
         CATASTRO_FIXTURES_DIR / "wfsCP_villaconejos_rustica_por_centroide.xml"
     ).read_bytes()
     raw_parcel = next(
-        p for p in parse_wfs_parcels(parcel_xml) if p["reference"] == "REFCAT-RETIRADA"
+        p for p in parse_wfs_parcels(parcel_xml) if p["reference"] == "99170A90100001"
     )
 
     pa_xml = (

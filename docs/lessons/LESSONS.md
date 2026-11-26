@@ -276,3 +276,15 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el oráculo de un Bloque 0 se calcula pasando las respuestas reales grabadas por el propio código de producción (adapter + clipper), no por un recuento aparte con otra lógica. Así el número fijado en el test es el que el código da hoy, y una regresión del recorte cambia el test.
   - **Causa**: los 94 tramos distintos que traen los 7 bbox (27 sin tocar ningún término del ámbito) y las 79 piezas salieron de ejecutar `LivestockTrailAdapter` y `ShapelyPolygonClipper` sobre las fixtures; un recuento por `CD_MUNI` habría dado otra cifra (56) y habría escondido las astillas de los vecinos.
   - **Aplica a**: arquitecto e implementación (los números de REGISTRY de una historia de procesamiento salen de ejecutar el pipeline sobre las fixtures reales).
+
+## [2026-11-26] Historia #45 — Fixtures sintéticas de Catastro
+
+- **Lección**: al sustituir las fixtures reales de una fuente, inventariar primero qué fixtures **de otras fuentes** se grabaron a partir de ellas (bbox, ventanas de raster, oráculos de distancia, centroides) y conservar esa invariante (aquí, la envolvente de tres parcelas). El inventario se hace buscando **todos los alias** del directorio (`FIXTURES_DIR as CATASTRO_FIXTURES_DIR`, `_CATASTRO_FIXTURES_DIR`, `CATASTRO_FIXTURES`), también en los tests de aceptación de otras historias.
+  - **Causa**: el diseño cruzó `grep` de `CATASTRO_FIXTURES_DIR` con los `approx(` de bbox y encontró los siete adapters afectados, pero no `tests/acceptance/test_historia_35.py`, que lee los centroides de `Consulta_CPMRC` con otro alias (`CATASTRO_FIXTURES`) y fijaba sus valores reales. Saltó al ejecutar la suite; se adaptó el literal sin tocar el docstring del criterio.
+  - **Aplica a**: arquitecto (inventario por alias y por nombre de fichero, no por una sola constante) | implementación (ejecutar la suite completa nada más borrar los originales, antes de adaptar nada, para ver el inventario real).
+
+- **Lección**: un oráculo de control calculado con otra librería (`shapely`) no coincide bit a bit con la función propia: aquí difieren en ~4·10⁻¹¹ m. Se compara con `pytest.approx(abs=1e-9)` contra el literal de control, nunca con `==` contra el valor que da la función bajo test (eso sería volver al oráculo circular de la lección 0017).
+  - **Aplica a**: implementación y arquitecto (al fijar un oráculo con `shapely`, anotar la tolerancia junto al literal y de dónde salió).
+
+- **Lección**: un test que busca "qué funciones leen tal directorio de fixtures" no puede hacerlo por subcadena del código: `LIVESTOCK_FIXTURES_DIR` contiene `FIXTURES_DIR`. Se hace con `ast`, resolviendo los nombres que el módulo enlaza a ese directorio (imports con alias y asignaciones), y se fija un mínimo de coincidencias para que la detección no pase en vacío.
+  - **Aplica a**: implementación (tests de convenciones sobre el propio árbol de tests).

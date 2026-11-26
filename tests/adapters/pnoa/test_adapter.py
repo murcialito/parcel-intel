@@ -9,20 +9,19 @@ from tests.adapters.pnoa.helpers import FIXTURES_DIR, SequenceHttpGetter
 _CATASTRO_FIXTURES_DIR = FIXTURES_DIR.parent / "catastro"
 
 
-def _parcela_real_7262205() -> Geometry:
-    """Geometría real de la parcela REFCAT-RETIRADA (Colmenar de Oreja),
-    capturada en la historia 0002 — el bbox que produce con el margen por
-    defecto de PNOA es exactamente el usado para grabar las fixtures nuevas
-    de esta historia (ver criterio de aceptación sobre verificar el bbox
-    contra la red real antes de reutilizar o grabar fixtures)."""
+def _parcela_con_edificios() -> Geometry:
+    """Parcela sintética 9900105ZZ0000S (historia #45): conserva la envolvente
+    de la parcela urbana de Colmenar de Oreja con la que se grabaron las
+    ortofotos, así que el bbox que produce con el margen por defecto de PNOA
+    es exactamente el usado para grabar esas fixtures."""
     xml = (_CATASTRO_FIXTURES_DIR / "wfsCP_colmenar_parcela_con_edificios.xml").read_bytes()
     parcels = parse_wfs_parcels(xml)
-    target = next(p for p in parcels if p["reference"] == "REFCAT-RETIRADA")
+    target = next(p for p in parcels if p["reference"] == "9900105ZZ0000S")
     return geometry_from_rings(target["rings"])
 
 
 def test_bbox_calculado_coincide_con_el_de_las_fixtures_grabadas() -> None:
-    geometry = _parcela_real_7262205()
+    geometry = _parcela_con_edificios()
 
     bbox = bbox_with_margin(geometry, DEFAULT_MARGIN_M)
 
@@ -32,7 +31,7 @@ def test_bbox_calculado_coincide_con_el_de_las_fixtures_grabadas() -> None:
 def test_get_current_orthophoto_real() -> None:
     http_get = SequenceHttpGetter([FIXTURES_DIR / "getmap_parcela_real_bbox_actual.jpg"])
     adapter = PnoaAdapter(http_get=http_get)
-    geometry = _parcela_real_7262205()
+    geometry = _parcela_con_edificios()
 
     orthophoto = adapter.get_current_orthophoto(geometry, DEFAULT_MARGIN_M)
 
@@ -50,7 +49,7 @@ def test_get_historical_orthophoto_year_real() -> None:
     # no trivial de que el vuelo histórico pedido es el que de verdad llega.
     http_get = SequenceHttpGetter([FIXTURES_DIR / "getmap_parcela_real_bbox_pnoa2020.jpg"])
     adapter = PnoaAdapter(http_get=http_get)
-    geometry = _parcela_real_7262205()
+    geometry = _parcela_con_edificios()
 
     orthophoto = adapter.get_historical_orthophoto(geometry, DEFAULT_MARGIN_M, 2020)
 
@@ -63,7 +62,7 @@ def test_get_historical_orthophoto_year_real() -> None:
 def test_get_historical_orthophoto_vuelo_nombrado_real() -> None:
     http_get = SequenceHttpGetter([FIXTURES_DIR / "getmap_parcela_real_bbox_ams1956.jpg"])
     adapter = PnoaAdapter(http_get=http_get)
-    geometry = _parcela_real_7262205()
+    geometry = _parcela_con_edificios()
 
     orthophoto = adapter.get_historical_orthophoto(geometry, DEFAULT_MARGIN_M, "AMS_1956-1957")
 
@@ -79,7 +78,7 @@ def _format_bbox(geometry: Geometry, margin_m: float) -> str:
 def test_margen_distinto_produce_bbox_distinto_en_la_peticion() -> None:
     http_get = SequenceHttpGetter([FIXTURES_DIR / "getmap_colmenar_actual.jpg"])
     adapter = PnoaAdapter(http_get=http_get)
-    geometry = _parcela_real_7262205()
+    geometry = _parcela_con_edificios()
 
     adapter.get_current_orthophoto(geometry, margin_m=100.0)
 
@@ -92,7 +91,7 @@ def test_margen_distinto_produce_bbox_distinto_en_la_peticion() -> None:
 def test_vintage_no_confirmado_lanza_error_antes_de_la_red(vintage: object) -> None:
     http_get = SequenceHttpGetter([])  # ninguna fixture: una llamada real fallaría con IndexError
     adapter = PnoaAdapter(http_get=http_get)
-    geometry = _parcela_real_7262205()
+    geometry = _parcela_con_edificios()
 
     with pytest.raises(InvalidHistoricalVintageError):
         adapter.get_historical_orthophoto(geometry, DEFAULT_MARGIN_M, vintage)  # type: ignore[arg-type]
@@ -104,7 +103,7 @@ def test_vintage_no_confirmado_lanza_error_antes_de_la_red(vintage: object) -> N
 def test_limites_del_rango_de_anios_confirmados_son_validos(year: int) -> None:
     http_get = SequenceHttpGetter([FIXTURES_DIR / "getmap_parcela_real_bbox_pnoa2020.jpg"])
     adapter = PnoaAdapter(http_get=http_get)
-    geometry = _parcela_real_7262205()
+    geometry = _parcela_con_edificios()
 
     orthophoto = adapter.get_historical_orthophoto(geometry, DEFAULT_MARGIN_M, year)
 

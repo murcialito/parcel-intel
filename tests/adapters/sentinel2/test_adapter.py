@@ -17,10 +17,10 @@ from tests.adapters.sentinel2.helpers import (
 _CATASTRO_FIXTURES_DIR = Path(__file__).parents[2] / "fixtures" / "catastro"
 
 
-def _parcela_real_7262205() -> Geometry:
+def _parcela_con_edificios() -> Geometry:
     xml = (_CATASTRO_FIXTURES_DIR / "wfsCP_colmenar_parcela_con_edificios.xml").read_bytes()
     parcels = parse_wfs_parcels(xml)
-    target = next(p for p in parcels if p["reference"] == "REFCAT-RETIRADA")
+    target = next(p for p in parcels if p["reference"] == "9900105ZZ0000S")
     return geometry_from_rings(target["rings"])
 
 
@@ -37,7 +37,7 @@ def _build_adapter(scenario: str) -> tuple[Sentinel2Adapter, RecordedFixtures, F
 
 def test_serie_de_una_escena_real() -> None:
     adapter, recorded, poster = _build_adapter("una_escena")
-    geometry = _parcela_real_7262205()
+    geometry = _parcela_con_edificios()
     expected = load_expected("una_escena")[0]
 
     series = adapter.get_ndvi_series(
@@ -67,7 +67,7 @@ def test_serie_con_dos_escenas_reales_y_una_descartada_por_nubes() -> None:
     # nubes, por encima del umbral de 20%) -- confirma con datos reales que
     # el filtro descarta antes de leer ninguna banda de esa escena.
     adapter, recorded, _ = _build_adapter("dos_escenas")
-    geometry = _parcela_real_7262205()
+    geometry = _parcela_con_edificios()
     expected = load_expected("dos_escenas")
 
     series = adapter.get_ndvi_series(
@@ -93,7 +93,7 @@ def test_serie_con_dos_escenas_reales_y_una_descartada_por_nubes() -> None:
 
 def test_lee_significativamente_menos_que_el_archivo_completo() -> None:
     adapter, recorded, _ = _build_adapter("una_escena")
-    geometry = _parcela_real_7262205()
+    geometry = _parcela_con_edificios()
 
     adapter.get_ndvi_series(
         geometry,
@@ -116,7 +116,7 @@ def test_umbral_de_nubes_sin_escenas_candidatas_lanza_error_antes_de_leer_bandas
         ranged_get=recorded.ranged_get,
         content_length=recorded.content_length,
     )
-    geometry = _parcela_real_7262205()
+    geometry = _parcela_con_edificios()
 
     with pytest.raises(NoScenesAfterCloudFilterError) as exc_info:
         adapter.get_ndvi_series(

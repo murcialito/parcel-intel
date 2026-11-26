@@ -16,19 +16,19 @@ def _parcela_rustica(fixture_name: str, reference: str) -> Geometry:
     return geometry_from_rings(target["rings"])
 
 
-def _colmenar_REFCAT-RETIRADA() -> Geometry:
-    return _parcela_rustica("wfsCP_colmenar_rustica_por_centroide.xml", "REFCAT-RETIRADA")
+def _colmenar_rustica() -> Geometry:
+    return _parcela_rustica("wfsCP_colmenar_rustica_por_centroide.xml", "99043A90100001")
 
 
-def _villaconejos_REFCAT-RETIRADA() -> Geometry:
-    return _parcela_rustica("wfsCP_villaconejos_rustica_por_centroide.xml", "REFCAT-RETIRADA")
+def _villaconejos_rustica() -> Geometry:
+    return _parcela_rustica("wfsCP_villaconejos_rustica_por_centroide.xml", "99170A90100001")
 
 
 def test_bbox_calculado_coincide_con_el_de_las_fixtures_grabadas() -> None:
-    assert bbox_with_margin(_colmenar_REFCAT-RETIRADA(), DEFAULT_MARGIN_M) == pytest.approx(
+    assert bbox_with_margin(_colmenar_rustica(), DEFAULT_MARGIN_M) == pytest.approx(
         (467548.15, 4442009.35, 467616.92, 4442039.4)
     )
-    assert bbox_with_margin(_villaconejos_REFCAT-RETIRADA(), DEFAULT_MARGIN_M) == pytest.approx(
+    assert bbox_with_margin(_villaconejos_rustica(), DEFAULT_MARGIN_M) == pytest.approx(
         (454553.78, 4441392.86, 454827.45, 4441584.42)
     )
 
@@ -38,7 +38,7 @@ def test_una_sola_clasificacion_real_colmenar() -> None:
         [FIXTURES_DIR / "wfs_getfeature_bbox_colmenar_rustica_margin2m.xml"]
     )
     adapter = IdemAdapter(http_get=http_get)
-    geometry = _colmenar_REFCAT-RETIRADA()
+    geometry = _colmenar_rustica()
 
     classifications = adapter.get_land_classifications(geometry, DEFAULT_MARGIN_M)
 
@@ -56,7 +56,7 @@ def test_solape_real_villaconejos_devuelve_todas_las_clasificaciones_sin_colapsa
         [FIXTURES_DIR / "wfs_getfeature_bbox_villaconejos_rustica_margin2m_solape.xml"]
     )
     adapter = IdemAdapter(http_get=http_get)
-    geometry = _villaconejos_REFCAT-RETIRADA()
+    geometry = _villaconejos_rustica()
 
     classifications = adapter.get_land_classifications(geometry, DEFAULT_MARGIN_M)
 

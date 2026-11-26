@@ -1,0 +1,608 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- FIXTURE SINTÉTICA generada por tests/fixtures/generate_catastro.py (historia #45). No es una respuesta de Catastro ni cartografía catastral. -->
+<gml:FeatureCollection gml:id="ES.SDGC.BU" xmlns:ad="urn:x-inspire:specification:gmlas:Addresses:3.0" xmlns:base="urn:x-inspire:specification:gmlas:BaseTypes:3.2" xmlns:bu-base="http://inspire.jrc.ec.europa.eu/schemas/bu-base/3.0" xmlns:bu-core2d="http://inspire.jrc.ec.europa.eu/schemas/bu-core2d/2.0" xmlns:bu-ext2d="http://inspire.jrc.ec.europa.eu/schemas/bu-ext2d/2.0" xmlns:cp="urn:x-inspire:specification:gmlas:CadastralParcels:3.0" xmlns:el-bas="http://inspire.jrc.ec.europa.eu/schemas/el-bas/2.0" xmlns:el-cov="http://inspire.jrc.ec.europa.eu/schemas/el-cov/2.0" xmlns:el-tin="http://inspire.jrc.ec.europa.eu/schemas/el-tin/2.0" xmlns:el-vec="http://inspire.jrc.ec.europa.eu/schemas/el-vec/2.0" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:gn="urn:x-inspire:specification:gmlas:GeographicalNames:3.0" xmlns:gsr="http://www.isotc211.org/2005/gsr" xmlns:gss="http://www.isotc211.org/2005/gss" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:swe="http://www.opengis.net/swe/2.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://inspire.jrc.ec.europa.eu/schemas/bu-ext2d/2.0 http://inspire.ec.europa.eu/draft-schemas/bu-ext2d/2.0/BuildingExtended2D.xsd">
+  <gml:featureMember>
+    <bu-ext2d:Building gml:id="ES.SDGC.BU.9900105ZZ0000S">
+    <gml:boundedBy>
+      <gml:Envelope srsName="urn:ogc:def:crs:EPSG::25830">
+         <gml:lowerCorner>457164.67 4436024.75</gml:lowerCorner>
+         <gml:upperCorner>457172.67 4436048.75</gml:upperCorner>
+      </gml:Envelope>
+    </gml:boundedBy>
+      <bu-core2d:beginLifespanVersion>2010-01-01T00:00:00</bu-core2d:beginLifespanVersion>
+      <bu-core2d:conditionOfConstruction>functional</bu-core2d:conditionOfConstruction>
+      <bu-core2d:dateOfConstruction>
+        <bu-core2d:DateOfEvent>
+          <bu-core2d:beginning>1975-01-01T00:00:00</bu-core2d:beginning>
+        </bu-core2d:DateOfEvent>
+      </bu-core2d:dateOfConstruction>
+      <bu-core2d:endLifespanVersion xsi:nil="true" nilReason="other:unpopulated"></bu-core2d:endLifespanVersion>
+      <bu-core2d:inspireId>
+        <base:Identifier>
+          <base:localId>9900105ZZ0000S</base:localId>
+          <base:namespace>ES.SDGC.BU</base:namespace>
+        </base:Identifier>
+      </bu-core2d:inspireId>
+      <bu-ext2d:geometry>
+       <bu-core2d:BuildingGeometry>
+        <bu-core2d:geometry>
+         <gml:Surface gml:id="Surface_ES.SDGC.BU.9900105ZZ0000S" srsName="urn:ogc:def:crs:EPSG::25830">
+           <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457164.67 4436033.75 457172.67 4436033.75 457172.67 4436039.75 457164.67 4436039.75 457164.67 4436033.75</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457167.67 4436046.75 457169.67 4436046.75 457169.67 4436048.75 457167.67 4436048.75 457167.67 4436046.75</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457167.67 4436024.75 457169.67 4436024.75 457169.67 4436026.75 457167.67 4436026.75 457167.67 4436024.75</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+        </bu-core2d:geometry>
+        <bu-core2d:horizontalGeometryEstimatedAccuracy uom="m">0.1</bu-core2d:horizontalGeometryEstimatedAccuracy>
+        <bu-core2d:horizontalGeometryReference>footPrint</bu-core2d:horizontalGeometryReference>
+        <bu-core2d:referenceGeometry>true</bu-core2d:referenceGeometry>
+       </bu-core2d:BuildingGeometry>
+      </bu-ext2d:geometry>
+      <bu-ext2d:currentUse>1_residential</bu-ext2d:currentUse>
+      <bu-ext2d:numberOfBuildingUnits>1</bu-ext2d:numberOfBuildingUnits>
+      <bu-ext2d:numberOfDwellings>1</bu-ext2d:numberOfDwellings>
+      <bu-ext2d:officialArea>
+         <bu-ext2d:OfficialArea>
+          <bu-ext2d:officialAreaReference>grossFloorArea</bu-ext2d:officialAreaReference>
+          <bu-ext2d:value uom="m2">96</bu-ext2d:value>
+         </bu-ext2d:OfficialArea>
+      </bu-ext2d:officialArea>
+    </bu-ext2d:Building>
+  </gml:featureMember>
+  <gml:featureMember>
+    <bu-ext2d:Building gml:id="ES.SDGC.BU.9900108ZZ0000S">
+    <gml:boundedBy>
+      <gml:Envelope srsName="urn:ogc:def:crs:EPSG::25830">
+         <gml:lowerCorner>457180.00 4436051.50</gml:lowerCorner>
+         <gml:upperCorner>457182.00 4436053.50</gml:upperCorner>
+      </gml:Envelope>
+    </gml:boundedBy>
+      <bu-core2d:beginLifespanVersion>2010-01-01T00:00:00</bu-core2d:beginLifespanVersion>
+      <bu-core2d:conditionOfConstruction>functional</bu-core2d:conditionOfConstruction>
+      <bu-core2d:dateOfConstruction>
+        <bu-core2d:DateOfEvent>
+          <bu-core2d:beginning>1990-01-01T00:00:00</bu-core2d:beginning>
+        </bu-core2d:DateOfEvent>
+      </bu-core2d:dateOfConstruction>
+      <bu-core2d:endLifespanVersion xsi:nil="true" nilReason="other:unpopulated"></bu-core2d:endLifespanVersion>
+      <bu-core2d:inspireId>
+        <base:Identifier>
+          <base:localId>9900108ZZ0000S</base:localId>
+          <base:namespace>ES.SDGC.BU</base:namespace>
+        </base:Identifier>
+      </bu-core2d:inspireId>
+      <bu-ext2d:geometry>
+       <bu-core2d:BuildingGeometry>
+        <bu-core2d:geometry>
+         <gml:Surface gml:id="Surface_ES.SDGC.BU.9900108ZZ0000S" srsName="urn:ogc:def:crs:EPSG::25830">
+           <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457180.00 4436051.50 457182.00 4436051.50 457182.00 4436053.50 457180.00 4436053.50 457180.00 4436051.50</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+        </bu-core2d:geometry>
+        <bu-core2d:horizontalGeometryEstimatedAccuracy uom="m">0.1</bu-core2d:horizontalGeometryEstimatedAccuracy>
+        <bu-core2d:horizontalGeometryReference>footPrint</bu-core2d:horizontalGeometryReference>
+        <bu-core2d:referenceGeometry>true</bu-core2d:referenceGeometry>
+       </bu-core2d:BuildingGeometry>
+      </bu-ext2d:geometry>
+      <bu-ext2d:currentUse>1_residential</bu-ext2d:currentUse>
+      <bu-ext2d:numberOfBuildingUnits>1</bu-ext2d:numberOfBuildingUnits>
+      <bu-ext2d:numberOfDwellings>1</bu-ext2d:numberOfDwellings>
+      <bu-ext2d:officialArea>
+         <bu-ext2d:OfficialArea>
+          <bu-ext2d:officialAreaReference>grossFloorArea</bu-ext2d:officialAreaReference>
+          <bu-ext2d:value uom="m2">4</bu-ext2d:value>
+         </bu-ext2d:OfficialArea>
+      </bu-ext2d:officialArea>
+    </bu-ext2d:Building>
+  </gml:featureMember>
+  <gml:featureMember>
+    <bu-ext2d:Building gml:id="ES.SDGC.BU.9900101ZZ0000S">
+    <gml:boundedBy>
+      <gml:Envelope srsName="urn:ogc:def:crs:EPSG::25830">
+         <gml:lowerCorner>457130.00 4436069.00</gml:lowerCorner>
+         <gml:upperCorner>457140.00 4436077.00</gml:upperCorner>
+      </gml:Envelope>
+    </gml:boundedBy>
+      <bu-core2d:beginLifespanVersion>2010-01-01T00:00:00</bu-core2d:beginLifespanVersion>
+      <bu-core2d:conditionOfConstruction>functional</bu-core2d:conditionOfConstruction>
+      <bu-core2d:dateOfConstruction>
+        <bu-core2d:DateOfEvent>
+          <bu-core2d:beginning>1960-01-01T00:00:00</bu-core2d:beginning>
+        </bu-core2d:DateOfEvent>
+      </bu-core2d:dateOfConstruction>
+      <bu-core2d:endLifespanVersion xsi:nil="true" nilReason="other:unpopulated"></bu-core2d:endLifespanVersion>
+      <bu-core2d:inspireId>
+        <base:Identifier>
+          <base:localId>9900101ZZ0000S</base:localId>
+          <base:namespace>ES.SDGC.BU</base:namespace>
+        </base:Identifier>
+      </bu-core2d:inspireId>
+      <bu-ext2d:geometry>
+       <bu-core2d:BuildingGeometry>
+        <bu-core2d:geometry>
+         <gml:Surface gml:id="Surface_ES.SDGC.BU.9900101ZZ0000S" srsName="urn:ogc:def:crs:EPSG::25830">
+           <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457130.00 4436069.00 457140.00 4436069.00 457140.00 4436077.00 457130.00 4436077.00 457130.00 4436069.00</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+        </bu-core2d:geometry>
+        <bu-core2d:horizontalGeometryEstimatedAccuracy uom="m">0.1</bu-core2d:horizontalGeometryEstimatedAccuracy>
+        <bu-core2d:horizontalGeometryReference>footPrint</bu-core2d:horizontalGeometryReference>
+        <bu-core2d:referenceGeometry>true</bu-core2d:referenceGeometry>
+       </bu-core2d:BuildingGeometry>
+      </bu-ext2d:geometry>
+      <bu-ext2d:currentUse>1_residential</bu-ext2d:currentUse>
+      <bu-ext2d:numberOfBuildingUnits>1</bu-ext2d:numberOfBuildingUnits>
+      <bu-ext2d:numberOfDwellings>1</bu-ext2d:numberOfDwellings>
+      <bu-ext2d:officialArea>
+         <bu-ext2d:OfficialArea>
+          <bu-ext2d:officialAreaReference>grossFloorArea</bu-ext2d:officialAreaReference>
+          <bu-ext2d:value uom="m2">80</bu-ext2d:value>
+         </bu-ext2d:OfficialArea>
+      </bu-ext2d:officialArea>
+    </bu-ext2d:Building>
+  </gml:featureMember>
+  <gml:featureMember>
+    <bu-ext2d:Building gml:id="ES.SDGC.BU.9900102ZZ0000S">
+    <gml:boundedBy>
+      <gml:Envelope srsName="urn:ogc:def:crs:EPSG::25830">
+         <gml:lowerCorner>457163.50 4436069.00</gml:lowerCorner>
+         <gml:upperCorner>457173.50 4436077.00</gml:upperCorner>
+      </gml:Envelope>
+    </gml:boundedBy>
+      <bu-core2d:beginLifespanVersion>2010-01-01T00:00:00</bu-core2d:beginLifespanVersion>
+      <bu-core2d:conditionOfConstruction>functional</bu-core2d:conditionOfConstruction>
+      <bu-core2d:dateOfConstruction>
+        <bu-core2d:DateOfEvent>
+          <bu-core2d:beginning>1965-01-01T00:00:00</bu-core2d:beginning>
+        </bu-core2d:DateOfEvent>
+      </bu-core2d:dateOfConstruction>
+      <bu-core2d:endLifespanVersion xsi:nil="true" nilReason="other:unpopulated"></bu-core2d:endLifespanVersion>
+      <bu-core2d:inspireId>
+        <base:Identifier>
+          <base:localId>9900102ZZ0000S</base:localId>
+          <base:namespace>ES.SDGC.BU</base:namespace>
+        </base:Identifier>
+      </bu-core2d:inspireId>
+      <bu-ext2d:geometry>
+       <bu-core2d:BuildingGeometry>
+        <bu-core2d:geometry>
+         <gml:Surface gml:id="Surface_ES.SDGC.BU.9900102ZZ0000S" srsName="urn:ogc:def:crs:EPSG::25830">
+           <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457163.50 4436069.00 457173.50 4436069.00 457173.50 4436077.00 457163.50 4436077.00 457163.50 4436069.00</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+        </bu-core2d:geometry>
+        <bu-core2d:horizontalGeometryEstimatedAccuracy uom="m">0.1</bu-core2d:horizontalGeometryEstimatedAccuracy>
+        <bu-core2d:horizontalGeometryReference>footPrint</bu-core2d:horizontalGeometryReference>
+        <bu-core2d:referenceGeometry>true</bu-core2d:referenceGeometry>
+       </bu-core2d:BuildingGeometry>
+      </bu-ext2d:geometry>
+      <bu-ext2d:currentUse>1_residential</bu-ext2d:currentUse>
+      <bu-ext2d:numberOfBuildingUnits>1</bu-ext2d:numberOfBuildingUnits>
+      <bu-ext2d:numberOfDwellings>1</bu-ext2d:numberOfDwellings>
+      <bu-ext2d:officialArea>
+         <bu-ext2d:OfficialArea>
+          <bu-ext2d:officialAreaReference>grossFloorArea</bu-ext2d:officialAreaReference>
+          <bu-ext2d:value uom="m2">90</bu-ext2d:value>
+         </bu-ext2d:OfficialArea>
+      </bu-ext2d:officialArea>
+    </bu-ext2d:Building>
+  </gml:featureMember>
+  <gml:featureMember>
+    <bu-ext2d:Building gml:id="ES.SDGC.BU.9900103ZZ0000S">
+    <gml:boundedBy>
+      <gml:Envelope srsName="urn:ogc:def:crs:EPSG::25830">
+         <gml:lowerCorner>457193.00 4436069.00</gml:lowerCorner>
+         <gml:upperCorner>457211.00 4436077.00</gml:upperCorner>
+      </gml:Envelope>
+    </gml:boundedBy>
+      <bu-core2d:beginLifespanVersion>2010-01-01T00:00:00</bu-core2d:beginLifespanVersion>
+      <bu-core2d:conditionOfConstruction>functional</bu-core2d:conditionOfConstruction>
+      <bu-core2d:dateOfConstruction>
+        <bu-core2d:DateOfEvent>
+          <bu-core2d:beginning>1970-01-01T00:00:00</bu-core2d:beginning>
+        </bu-core2d:DateOfEvent>
+      </bu-core2d:dateOfConstruction>
+      <bu-core2d:endLifespanVersion xsi:nil="true" nilReason="other:unpopulated"></bu-core2d:endLifespanVersion>
+      <bu-core2d:inspireId>
+        <base:Identifier>
+          <base:localId>9900103ZZ0000S</base:localId>
+          <base:namespace>ES.SDGC.BU</base:namespace>
+        </base:Identifier>
+      </bu-core2d:inspireId>
+      <bu-ext2d:geometry>
+       <bu-core2d:BuildingGeometry>
+        <bu-core2d:geometry>
+         <gml:Surface gml:id="Surface_ES.SDGC.BU.9900103ZZ0000S" srsName="urn:ogc:def:crs:EPSG::25830">
+           <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457193.00 4436069.00 457201.00 4436069.00 457201.00 4436077.00 457193.00 4436077.00 457193.00 4436069.00</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457207.00 4436071.00 457211.00 4436071.00 457211.00 4436075.00 457207.00 4436075.00 457207.00 4436071.00</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+        </bu-core2d:geometry>
+        <bu-core2d:horizontalGeometryEstimatedAccuracy uom="m">0.1</bu-core2d:horizontalGeometryEstimatedAccuracy>
+        <bu-core2d:horizontalGeometryReference>footPrint</bu-core2d:horizontalGeometryReference>
+        <bu-core2d:referenceGeometry>true</bu-core2d:referenceGeometry>
+       </bu-core2d:BuildingGeometry>
+      </bu-ext2d:geometry>
+      <bu-ext2d:currentUse>1_residential</bu-ext2d:currentUse>
+      <bu-ext2d:numberOfBuildingUnits>1</bu-ext2d:numberOfBuildingUnits>
+      <bu-ext2d:numberOfDwellings>1</bu-ext2d:numberOfDwellings>
+      <bu-ext2d:officialArea>
+         <bu-ext2d:OfficialArea>
+          <bu-ext2d:officialAreaReference>grossFloorArea</bu-ext2d:officialAreaReference>
+          <bu-ext2d:value uom="m2">100</bu-ext2d:value>
+         </bu-ext2d:OfficialArea>
+      </bu-ext2d:officialArea>
+    </bu-ext2d:Building>
+  </gml:featureMember>
+  <gml:featureMember>
+    <bu-ext2d:Building gml:id="ES.SDGC.BU.9900104ZZ0000S">
+    <gml:boundedBy>
+      <gml:Envelope srsName="urn:ogc:def:crs:EPSG::25830">
+         <gml:lowerCorner>457130.00 4436032.50</gml:lowerCorner>
+         <gml:upperCorner>457140.00 4436040.50</gml:upperCorner>
+      </gml:Envelope>
+    </gml:boundedBy>
+      <bu-core2d:beginLifespanVersion>2010-01-01T00:00:00</bu-core2d:beginLifespanVersion>
+      <bu-core2d:conditionOfConstruction>functional</bu-core2d:conditionOfConstruction>
+      <bu-core2d:dateOfConstruction>
+        <bu-core2d:DateOfEvent>
+          <bu-core2d:beginning>1975-01-01T00:00:00</bu-core2d:beginning>
+        </bu-core2d:DateOfEvent>
+      </bu-core2d:dateOfConstruction>
+      <bu-core2d:endLifespanVersion xsi:nil="true" nilReason="other:unpopulated"></bu-core2d:endLifespanVersion>
+      <bu-core2d:inspireId>
+        <base:Identifier>
+          <base:localId>9900104ZZ0000S</base:localId>
+          <base:namespace>ES.SDGC.BU</base:namespace>
+        </base:Identifier>
+      </bu-core2d:inspireId>
+      <bu-ext2d:geometry>
+       <bu-core2d:BuildingGeometry>
+        <bu-core2d:geometry>
+         <gml:Surface gml:id="Surface_ES.SDGC.BU.9900104ZZ0000S" srsName="urn:ogc:def:crs:EPSG::25830">
+           <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457130.00 4436032.50 457140.00 4436032.50 457140.00 4436040.50 457130.00 4436040.50 457130.00 4436032.50</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+        </bu-core2d:geometry>
+        <bu-core2d:horizontalGeometryEstimatedAccuracy uom="m">0.1</bu-core2d:horizontalGeometryEstimatedAccuracy>
+        <bu-core2d:horizontalGeometryReference>footPrint</bu-core2d:horizontalGeometryReference>
+        <bu-core2d:referenceGeometry>true</bu-core2d:referenceGeometry>
+       </bu-core2d:BuildingGeometry>
+      </bu-ext2d:geometry>
+      <bu-ext2d:currentUse>1_residential</bu-ext2d:currentUse>
+      <bu-ext2d:numberOfBuildingUnits>1</bu-ext2d:numberOfBuildingUnits>
+      <bu-ext2d:numberOfDwellings>1</bu-ext2d:numberOfDwellings>
+      <bu-ext2d:officialArea>
+         <bu-ext2d:OfficialArea>
+          <bu-ext2d:officialAreaReference>grossFloorArea</bu-ext2d:officialAreaReference>
+          <bu-ext2d:value uom="m2">110</bu-ext2d:value>
+         </bu-ext2d:OfficialArea>
+      </bu-ext2d:officialArea>
+    </bu-ext2d:Building>
+  </gml:featureMember>
+  <gml:featureMember>
+    <bu-ext2d:Building gml:id="ES.SDGC.BU.9900106ZZ0000S">
+    <gml:boundedBy>
+      <gml:Envelope srsName="urn:ogc:def:crs:EPSG::25830">
+         <gml:lowerCorner>457197.00 4436032.50</gml:lowerCorner>
+         <gml:upperCorner>457207.00 4436040.50</gml:upperCorner>
+      </gml:Envelope>
+    </gml:boundedBy>
+      <bu-core2d:beginLifespanVersion>2010-01-01T00:00:00</bu-core2d:beginLifespanVersion>
+      <bu-core2d:conditionOfConstruction>functional</bu-core2d:conditionOfConstruction>
+      <bu-core2d:dateOfConstruction>
+        <bu-core2d:DateOfEvent>
+          <bu-core2d:beginning>1980-01-01T00:00:00</bu-core2d:beginning>
+        </bu-core2d:DateOfEvent>
+      </bu-core2d:dateOfConstruction>
+      <bu-core2d:endLifespanVersion xsi:nil="true" nilReason="other:unpopulated"></bu-core2d:endLifespanVersion>
+      <bu-core2d:inspireId>
+        <base:Identifier>
+          <base:localId>9900106ZZ0000S</base:localId>
+          <base:namespace>ES.SDGC.BU</base:namespace>
+        </base:Identifier>
+      </bu-core2d:inspireId>
+      <bu-ext2d:geometry>
+       <bu-core2d:BuildingGeometry>
+        <bu-core2d:geometry>
+         <gml:Surface gml:id="Surface_ES.SDGC.BU.9900106ZZ0000S" srsName="urn:ogc:def:crs:EPSG::25830">
+           <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457197.00 4436032.50 457207.00 4436032.50 457207.00 4436040.50 457197.00 4436040.50 457197.00 4436032.50</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+        </bu-core2d:geometry>
+        <bu-core2d:horizontalGeometryEstimatedAccuracy uom="m">0.1</bu-core2d:horizontalGeometryEstimatedAccuracy>
+        <bu-core2d:horizontalGeometryReference>footPrint</bu-core2d:horizontalGeometryReference>
+        <bu-core2d:referenceGeometry>true</bu-core2d:referenceGeometry>
+       </bu-core2d:BuildingGeometry>
+      </bu-ext2d:geometry>
+      <bu-ext2d:currentUse>1_residential</bu-ext2d:currentUse>
+      <bu-ext2d:numberOfBuildingUnits>1</bu-ext2d:numberOfBuildingUnits>
+      <bu-ext2d:numberOfDwellings>1</bu-ext2d:numberOfDwellings>
+      <bu-ext2d:officialArea>
+         <bu-ext2d:OfficialArea>
+          <bu-ext2d:officialAreaReference>grossFloorArea</bu-ext2d:officialAreaReference>
+          <bu-ext2d:value uom="m2">120</bu-ext2d:value>
+         </bu-ext2d:OfficialArea>
+      </bu-ext2d:officialArea>
+    </bu-ext2d:Building>
+  </gml:featureMember>
+  <gml:featureMember>
+    <bu-ext2d:Building gml:id="ES.SDGC.BU.9900107ZZ0000S">
+    <gml:boundedBy>
+      <gml:Envelope srsName="urn:ogc:def:crs:EPSG::25830">
+         <gml:lowerCorner>457130.00 4435996.00</gml:lowerCorner>
+         <gml:upperCorner>457140.00 4436004.00</gml:upperCorner>
+      </gml:Envelope>
+    </gml:boundedBy>
+      <bu-core2d:beginLifespanVersion>2010-01-01T00:00:00</bu-core2d:beginLifespanVersion>
+      <bu-core2d:conditionOfConstruction>functional</bu-core2d:conditionOfConstruction>
+      <bu-core2d:dateOfConstruction>
+        <bu-core2d:DateOfEvent>
+          <bu-core2d:beginning>1985-01-01T00:00:00</bu-core2d:beginning>
+        </bu-core2d:DateOfEvent>
+      </bu-core2d:dateOfConstruction>
+      <bu-core2d:endLifespanVersion xsi:nil="true" nilReason="other:unpopulated"></bu-core2d:endLifespanVersion>
+      <bu-core2d:inspireId>
+        <base:Identifier>
+          <base:localId>9900107ZZ0000S</base:localId>
+          <base:namespace>ES.SDGC.BU</base:namespace>
+        </base:Identifier>
+      </bu-core2d:inspireId>
+      <bu-ext2d:geometry>
+       <bu-core2d:BuildingGeometry>
+        <bu-core2d:geometry>
+         <gml:Surface gml:id="Surface_ES.SDGC.BU.9900107ZZ0000S" srsName="urn:ogc:def:crs:EPSG::25830">
+           <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457130.00 4435996.00 457140.00 4435996.00 457140.00 4436004.00 457130.00 4436004.00 457130.00 4435996.00</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+        </bu-core2d:geometry>
+        <bu-core2d:horizontalGeometryEstimatedAccuracy uom="m">0.1</bu-core2d:horizontalGeometryEstimatedAccuracy>
+        <bu-core2d:horizontalGeometryReference>footPrint</bu-core2d:horizontalGeometryReference>
+        <bu-core2d:referenceGeometry>true</bu-core2d:referenceGeometry>
+       </bu-core2d:BuildingGeometry>
+      </bu-ext2d:geometry>
+      <bu-ext2d:currentUse>1_residential</bu-ext2d:currentUse>
+      <bu-ext2d:numberOfBuildingUnits>1</bu-ext2d:numberOfBuildingUnits>
+      <bu-ext2d:numberOfDwellings>1</bu-ext2d:numberOfDwellings>
+      <bu-ext2d:officialArea>
+         <bu-ext2d:OfficialArea>
+          <bu-ext2d:officialAreaReference>grossFloorArea</bu-ext2d:officialAreaReference>
+          <bu-ext2d:value uom="m2">130</bu-ext2d:value>
+         </bu-ext2d:OfficialArea>
+      </bu-ext2d:officialArea>
+    </bu-ext2d:Building>
+  </gml:featureMember>
+  <gml:featureMember>
+    <bu-ext2d:Building gml:id="ES.SDGC.BU.9900109ZZ0000S">
+    <gml:boundedBy>
+      <gml:Envelope srsName="urn:ogc:def:crs:EPSG::25830">
+         <gml:lowerCorner>457197.00 4435996.00</gml:lowerCorner>
+         <gml:upperCorner>457207.00 4436004.00</gml:upperCorner>
+      </gml:Envelope>
+    </gml:boundedBy>
+      <bu-core2d:beginLifespanVersion>2010-01-01T00:00:00</bu-core2d:beginLifespanVersion>
+      <bu-core2d:conditionOfConstruction>functional</bu-core2d:conditionOfConstruction>
+      <bu-core2d:dateOfConstruction>
+        <bu-core2d:DateOfEvent>
+          <bu-core2d:beginning>1990-01-01T00:00:00</bu-core2d:beginning>
+        </bu-core2d:DateOfEvent>
+      </bu-core2d:dateOfConstruction>
+      <bu-core2d:endLifespanVersion xsi:nil="true" nilReason="other:unpopulated"></bu-core2d:endLifespanVersion>
+      <bu-core2d:inspireId>
+        <base:Identifier>
+          <base:localId>9900109ZZ0000S</base:localId>
+          <base:namespace>ES.SDGC.BU</base:namespace>
+        </base:Identifier>
+      </bu-core2d:inspireId>
+      <bu-ext2d:geometry>
+       <bu-core2d:BuildingGeometry>
+        <bu-core2d:geometry>
+         <gml:Surface gml:id="Surface_ES.SDGC.BU.9900109ZZ0000S" srsName="urn:ogc:def:crs:EPSG::25830">
+           <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457197.00 4435996.00 457207.00 4435996.00 457207.00 4436004.00 457197.00 4436004.00 457197.00 4435996.00</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+        </bu-core2d:geometry>
+        <bu-core2d:horizontalGeometryEstimatedAccuracy uom="m">0.1</bu-core2d:horizontalGeometryEstimatedAccuracy>
+        <bu-core2d:horizontalGeometryReference>footPrint</bu-core2d:horizontalGeometryReference>
+        <bu-core2d:referenceGeometry>true</bu-core2d:referenceGeometry>
+       </bu-core2d:BuildingGeometry>
+      </bu-ext2d:geometry>
+      <bu-ext2d:currentUse>1_residential</bu-ext2d:currentUse>
+      <bu-ext2d:numberOfBuildingUnits>1</bu-ext2d:numberOfBuildingUnits>
+      <bu-ext2d:numberOfDwellings>1</bu-ext2d:numberOfDwellings>
+      <bu-ext2d:officialArea>
+         <bu-ext2d:OfficialArea>
+          <bu-ext2d:officialAreaReference>grossFloorArea</bu-ext2d:officialAreaReference>
+          <bu-ext2d:value uom="m2">140</bu-ext2d:value>
+         </bu-ext2d:OfficialArea>
+      </bu-ext2d:officialArea>
+    </bu-ext2d:Building>
+  </gml:featureMember>
+  <gml:featureMember>
+    <bu-ext2d:Building gml:id="ES.SDGC.BU.9900110ZZ0000S">
+    <gml:boundedBy>
+      <gml:Envelope srsName="urn:ogc:def:crs:EPSG::25830">
+         <gml:lowerCorner>457226.00 4436032.00</gml:lowerCorner>
+         <gml:upperCorner>457234.00 4436040.00</gml:upperCorner>
+      </gml:Envelope>
+    </gml:boundedBy>
+      <bu-core2d:beginLifespanVersion>2010-01-01T00:00:00</bu-core2d:beginLifespanVersion>
+      <bu-core2d:conditionOfConstruction>functional</bu-core2d:conditionOfConstruction>
+      <bu-core2d:dateOfConstruction>
+        <bu-core2d:DateOfEvent>
+          <bu-core2d:beginning>2001-01-01T00:00:00</bu-core2d:beginning>
+        </bu-core2d:DateOfEvent>
+      </bu-core2d:dateOfConstruction>
+      <bu-core2d:endLifespanVersion xsi:nil="true" nilReason="other:unpopulated"></bu-core2d:endLifespanVersion>
+      <bu-core2d:inspireId>
+        <base:Identifier>
+          <base:localId>9900110ZZ0000S</base:localId>
+          <base:namespace>ES.SDGC.BU</base:namespace>
+        </base:Identifier>
+      </bu-core2d:inspireId>
+      <bu-ext2d:geometry>
+       <bu-core2d:BuildingGeometry>
+        <bu-core2d:geometry>
+         <gml:Surface gml:id="Surface_ES.SDGC.BU.9900110ZZ0000S" srsName="urn:ogc:def:crs:EPSG::25830">
+           <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457226.00 4436032.00 457234.00 4436032.00 457234.00 4436040.00 457226.00 4436040.00 457226.00 4436032.00</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+        </bu-core2d:geometry>
+        <bu-core2d:horizontalGeometryEstimatedAccuracy uom="m">0.1</bu-core2d:horizontalGeometryEstimatedAccuracy>
+        <bu-core2d:horizontalGeometryReference>footPrint</bu-core2d:horizontalGeometryReference>
+        <bu-core2d:referenceGeometry>true</bu-core2d:referenceGeometry>
+       </bu-core2d:BuildingGeometry>
+      </bu-ext2d:geometry>
+      <bu-ext2d:currentUse>1_residential</bu-ext2d:currentUse>
+      <bu-ext2d:numberOfBuildingUnits>1</bu-ext2d:numberOfBuildingUnits>
+      <bu-ext2d:numberOfDwellings>1</bu-ext2d:numberOfDwellings>
+      <bu-ext2d:officialArea>
+         <bu-ext2d:OfficialArea>
+          <bu-ext2d:officialAreaReference>grossFloorArea</bu-ext2d:officialAreaReference>
+          <bu-ext2d:value uom="m2">60</bu-ext2d:value>
+         </bu-ext2d:OfficialArea>
+      </bu-ext2d:officialArea>
+    </bu-ext2d:Building>
+  </gml:featureMember>
+  <gml:featureMember>
+    <bu-ext2d:Building gml:id="ES.SDGC.BU.9900111ZZ0000S">
+    <gml:boundedBy>
+      <gml:Envelope srsName="urn:ogc:def:crs:EPSG::25830">
+         <gml:lowerCorner>457246.00 4436032.00</gml:lowerCorner>
+         <gml:upperCorner>457254.00 4436040.00</gml:upperCorner>
+      </gml:Envelope>
+    </gml:boundedBy>
+      <bu-core2d:beginLifespanVersion>2010-01-01T00:00:00</bu-core2d:beginLifespanVersion>
+      <bu-core2d:conditionOfConstruction>functional</bu-core2d:conditionOfConstruction>
+      <bu-core2d:dateOfConstruction>
+        <bu-core2d:DateOfEvent>
+          <bu-core2d:beginning>2001-01-01T00:00:00</bu-core2d:beginning>
+        </bu-core2d:DateOfEvent>
+      </bu-core2d:dateOfConstruction>
+      <bu-core2d:endLifespanVersion xsi:nil="true" nilReason="other:unpopulated"></bu-core2d:endLifespanVersion>
+      <bu-core2d:inspireId>
+        <base:Identifier>
+          <base:localId>9900111ZZ0000S</base:localId>
+          <base:namespace>ES.SDGC.BU</base:namespace>
+        </base:Identifier>
+      </bu-core2d:inspireId>
+      <bu-ext2d:geometry>
+       <bu-core2d:BuildingGeometry>
+        <bu-core2d:geometry>
+         <gml:Surface gml:id="Surface_ES.SDGC.BU.9900111ZZ0000S" srsName="urn:ogc:def:crs:EPSG::25830">
+           <gml:patches>
+                <gml:PolygonPatch>
+                <gml:exterior>
+                    <gml:LinearRing>
+                      <gml:posList srsDimension="2" count="5">457246.00 4436032.00 457254.00 4436032.00 457254.00 4436040.00 457246.00 4436040.00 457246.00 4436032.00</gml:posList>
+                    </gml:LinearRing>
+                </gml:exterior>
+                </gml:PolygonPatch>
+              </gml:patches>
+            </gml:Surface>
+        </bu-core2d:geometry>
+        <bu-core2d:horizontalGeometryEstimatedAccuracy uom="m">0.1</bu-core2d:horizontalGeometryEstimatedAccuracy>
+        <bu-core2d:horizontalGeometryReference>footPrint</bu-core2d:horizontalGeometryReference>
+        <bu-core2d:referenceGeometry>true</bu-core2d:referenceGeometry>
+       </bu-core2d:BuildingGeometry>
+      </bu-ext2d:geometry>
+      <bu-ext2d:currentUse>1_residential</bu-ext2d:currentUse>
+      <bu-ext2d:numberOfBuildingUnits>1</bu-ext2d:numberOfBuildingUnits>
+      <bu-ext2d:numberOfDwellings>1</bu-ext2d:numberOfDwellings>
+      <bu-ext2d:officialArea>
+         <bu-ext2d:OfficialArea>
+          <bu-ext2d:officialAreaReference>grossFloorArea</bu-ext2d:officialAreaReference>
+          <bu-ext2d:value uom="m2">60</bu-ext2d:value>
+         </bu-ext2d:OfficialArea>
+      </bu-ext2d:officialArea>
+    </bu-ext2d:Building>
+  </gml:featureMember>
+</gml:FeatureCollection>

@@ -8,10 +8,10 @@ from tests.adapters.flood_hazard.helpers import FIXTURES_DIR, SequenceHttpGetter
 _CATASTRO_FIXTURES_DIR = FIXTURES_DIR.parent / "catastro"
 
 
-def _villaconejos_REFCAT-RETIRADA() -> Geometry:
+def _villaconejos_rustica() -> Geometry:
     xml = (_CATASTRO_FIXTURES_DIR / "wfsCP_villaconejos_rustica_por_centroide.xml").read_bytes()
     parcels = parse_wfs_parcels(xml)
-    target = next(p for p in parcels if p["reference"] == "REFCAT-RETIRADA")
+    target = next(p for p in parcels if p["reference"] == "99170A90100001")
     return geometry_from_rings(target["rings"])
 
 
@@ -36,7 +36,7 @@ def test_cinco_muestras_una_por_capa_conocida_sin_afeccion_real() -> None:
     )
     adapter = FloodHazardAdapter(http_get=http_get)
 
-    samples = adapter.get_flood_hazard(_villaconejos_REFCAT-RETIRADA(), DEFAULT_MARGIN_M)
+    samples = adapter.get_flood_hazard(_villaconejos_rustica(), DEFAULT_MARGIN_M)
 
     assert len(samples) == 5
     assert [(s.kind, s.return_period_years) for s in samples] == [

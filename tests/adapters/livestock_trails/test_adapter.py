@@ -18,12 +18,12 @@ def _parcela_rustica(fixture_name: str, reference: str) -> Geometry:
     return geometry_from_rings(target["rings"])
 
 
-def _colmenar_REFCAT-RETIRADA() -> Geometry:
-    return _parcela_rustica("wfsCP_colmenar_rustica_por_centroide.xml", "REFCAT-RETIRADA")
+def _colmenar_rustica() -> Geometry:
+    return _parcela_rustica("wfsCP_colmenar_rustica_por_centroide.xml", "99043A90100001")
 
 
 def test_bbox_calculado_coincide_con_el_de_las_fixtures_grabadas() -> None:
-    assert bbox_with_margin(_colmenar_REFCAT-RETIRADA(), DEFAULT_MARGIN_M) == pytest.approx(
+    assert bbox_with_margin(_colmenar_rustica(), DEFAULT_MARGIN_M) == pytest.approx(
         (467548.15, 4442009.35, 467616.92, 4442039.4)
     )
 
@@ -34,7 +34,7 @@ def test_sin_via_pecuaria_cercana_devuelve_lista_vacia_no_error() -> None:
     )
     adapter = LivestockTrailAdapter(http_get=http_get)
 
-    trails = adapter.get_nearby_livestock_trails(_colmenar_REFCAT-RETIRADA(), DEFAULT_MARGIN_M)
+    trails = adapter.get_nearby_livestock_trails(_colmenar_rustica(), DEFAULT_MARGIN_M)
 
     assert trails == []
     assert len(http_get.calls) == 1
@@ -46,7 +46,7 @@ def test_tramos_reales_de_colmenar_sin_colapsar() -> None:
     )
     adapter = LivestockTrailAdapter(http_get=http_get)
 
-    trails = adapter.get_nearby_livestock_trails(_colmenar_REFCAT-RETIRADA(), DEFAULT_MARGIN_M)
+    trails = adapter.get_nearby_livestock_trails(_colmenar_rustica(), DEFAULT_MARGIN_M)
 
     assert len(trails) == 15
     vereda = next(t for t in trails if t.name == "Vereda del Cristo")

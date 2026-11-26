@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FIXTURE SINTÉTICA generada por tests/fixtures/generate_catastro.py (historia #45). No es una respuesta de Catastro ni cartografía catastral. -->
+<consulta_coordenadas xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.catastro.meh.es/">
+  <control>
+    <cucoor>1</cucoor>
+    <cuerr>0</cuerr>
+  </control>
+  <coordenadas>
+    <coord>
+      <pc>
+        <pc1>99043A9</pc1>
+        <pc2>0100001</pc2>
+      </pc>
+      <geo>
+        <xcen>467582.54</xcen>
+        <ycen>4442024.38</ycen>
+        <srs>EPSG:25830</srs>
+      </geo>
+      <ldt>Polígono 901 Parcela 1 PARAJE SINTÉTICO. MUNICIPIO SINTÉTICO (PROVINCIA 99)</ldt>
+    </coord>
+  </coordenadas>
+</consulta_coordenadas>

@@ -2,6 +2,14 @@ from pathlib import Path
 
 FIXTURES_DIR = Path(__file__).parents[2] / "fixtures" / "catastro"
 
+# Distancia (m) entre la parcela SINTÉTICA de Villaconejos (99170A90100001, rombo de
+# `wfsCP_villaconejos_rustica_por_centroide.xml`) y el cauce real "Barranco del Montero"
+# (`dph/features_watercourse_villaconejos_rustica_margin2m_barranco_montero.json`).
+# Oráculo de control calculado con `shapely` (Polygon.distance(LineString)) sobre esos dos
+# ficheros antes de escribir los tests (historia #45), NO con la función bajo test
+# (lección de la historia 0017). Estimación a mano del arquitecto: ≈ 3,686 m.
+VILLACONEJOS_BARRANCO_DEL_MONTERO_M = 3.6847247041562987
+
 
 class SequenceHttpGetter:
     """Doble de red: devuelve, en orden, el contenido de una fixture por llamada.
