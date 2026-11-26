@@ -469,6 +469,13 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: ambas respuestas se grabaron como fixtures reales (`window_capa_inexistente_serviceexception.xml`, `window_224_pnoa2010_blanca.jpg`); la blanca a 448 px pesa 0,0073 bytes/píxel, las reales ≥ 0,135.
   - **Aplica a**: implementación (cualquier adapter nuevo sobre WMS del IGN: validar el cuerpo, no el estado HTTP).
 
+## [2026-11-26] Historia #136 — Ajuste afín y validación de trazados en el dominio
+
+- **Lección**: el ADR que un diseño llama «siguiente libre (hoy 0044)» caduca igual que un número de issue. #94 ocupó el 0044 mientras #136 esperaba en cola; se comprobó `ls docs/adr/`, se usó el 0045 y se anotó en el propio ADR. El test de CA12 localiza el ADR por su cabecera (`Historias: #20`) y comprueba que no hay números duplicados, así que no depende del número.
+  - **Aplica a**: BA y arquitecto (citar «el siguiente libre» sin número) | implementación (comprobar `docs/adr/` antes de crear el ADR; ya lo exigía la lección de #43).
+
+- **Lección**: un oráculo de `numpy.linalg.lstsq` sobre una afín casi exacta coincide con el cálculo con coordenadas centradas dentro de ~1e-10 m, así que `abs=1e-9` es correcto pero justo. Al cambiar la escala de la figura en un test (p. ej. multiplicar los píxeles por 100) hay que mantener los objetivos dentro del rango de EPSG:25830 que valida `ControlPoint`.
+  - **Aplica a**: implementación (tests de escala sobre `fit_affine`).
 ## [2026-11-26] Historia #122 — Comando imagenes-comparacion
 
 - **Lección**: para rechazar un GeoJSON «fuera de EPSG:25830» no basta con leer el miembro `crs`: un fichero que declara 25830 pero trae grados (`-3.6, 40.1`) pasa. Hay que acotar además las coordenadas al rango de UTM 30N (este 100.000–900.000 m). Y con mypy estricto, los tests no pueden leer `main.ManifestTooLargeError` y similares: se importan de su módulo, no de `cli.main`.
