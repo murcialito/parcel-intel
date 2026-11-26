@@ -217,3 +217,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: el texto público que valida el fundador se protege con un hash de su forma canónica junto a la marca (fecha y enlace). Cambiar una plantilla, etiqueta o el aviso rompe el test hasta que se actualice la marca, lo que obliga a pedir nueva validación.
   - **Aplica a**: implementación y arquitecto (cualquier texto público de aprobación humana: misma técnica, en `domain/public_card.py`).
+
+## [2026-11-26] Historia #24 — Licencia del servicio roadlink (IGN)
+
+- **Lección**: una cita de licencia para un criterio "textual" sale del documento leído en bruto, no de un resumen. `WebFetch` sobre un PDF comprimido devuelve binario o resúmenes que parafrasean. Para leer un PDF, usar la herramienta de lectura de PDF (lee texto e imagen de cada página). Si además hace falta el texto en un fichero de la fixture, transcribirlo y etiquetarlo como transcripción; no presentar una transcripción como extracción mecánica.
+  - **Causa**: el PDF de condiciones del IGN estaba comprimido; la primera lectura con `WebFetch` no devolvió texto, y las citas de la Orden FOM/2807/2015 obtenidas por resumen no son literales. Se marcaron como limitación en el registro en vez de darlas por textuales. En la corrección, el artículo 4 se citó tal como lo reproduce el PDF del IGN, y la discrepancia «Artículo 2» / «artículo 1» quedó como dato abierto.
+  - **Aplica a**: implementación (para verificar una licencia o una norma, leer el documento primario con la herramienta de PDF o descargarlo a `tests/fixtures/`; un resumen de web no cuenta como cita).
+
+- **Lección**: el texto de atribución de una fuente IGN sale de la tabla de productos del SCNE (identificador, fecha y variantes), no del nombre del servicio. Si el ámbito está en una sola comunidad autónoma, la variante se reduce a la forma sin enumerar las demás (considerando Tercero del documento de condiciones).
+  - **Aplica a**: implementación y arquitecto (al fijar una atribución para el visor, anotar en `REGISTRY.md` la variante elegida y el motivo).
