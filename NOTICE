@@ -74,6 +74,15 @@ de memoria.
 - Atribución que acompaña a la evidencia (con la fecha de consulta de cada dato):
   `Elaboración propia a partir de datos de la Dirección General del Catastro (licencia INSPIRE v1.0), consultados en la fecha indicada. No es un producto oficial del Catastro ni reproduce su dato original, carece de fehaciencia y puede haber cambiado desde la consulta.`
 
+### Paso Común — indicios de discrepancia entre trazados (ADR 0044, historia #95)
+
+- Licencia: CC BY 4.0 (datos derivados propios, ver «Licencias»).
+- Atribución de la capa en el visor mientras está activa:
+  `Indicios elaborados por Paso Común a partir de las fuentes que cita cada ficha`.
+  La ficha de cada indicio muestra además la atribución literal de cada una de sus fuentes.
+- Aviso que acompaña a cada indicio (ficha de #16):
+  `Esto no es un dictamen ni afirma que haya ninguna irregularidad. Es un indicio automático, con la confianza indicada, que debe contrastarse con la administración competente.`
+
 ## Software de terceros incluido en el sitio
 
 - Leaflet 1.9.4 (https://leafletjs.com), BSD 2-Clause. Copia en `site/vendor/leaflet/`, con su

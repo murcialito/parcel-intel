@@ -473,4 +473,26 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: regenerar `data/derived/` con red y volver a publicar es determinista: los ficheros de Colmenar salieron byte a byte iguales a los ya commiteados y las capas de #86 no cambiaron, así que el diff de datos es solo lo nuevo. Cuando un test de una historia anterior fija «solo existe X» sobre datos que la siguiente amplía (el CA15 de #94 exigía solo `28043.geojson`), se relaja a «X sigue ahí» y la historia nueva fija el conjunto completo.
   - **Aplica a**: implementación (tests que congelan un conjunto de ficheros publicados) | arquitecto (al partir una publicación en dos historias, decir qué test de la primera deja de valer).
+## [2026-11-26] Historia #95 — El visor dibuja indicios y muestra su ficha
+
+- **Lección**: para probar que un aviso «siempre está», no basta con la ficha del caso feliz: se pasa por la función pura de la ficha cada forma rota (`null`, `{}`, sin `texto`, `evidencia` que no es lista, aviso vacío) y se comprueba el aviso en el nodo resultante. El literal fijo de `config.js` se compara además con el aviso del fichero publicado y con `NOTICE`, para que no diverjan.
+  - **Aplica a**: implementación (JS del visor) | revisor (cualquier texto legal obligatorio en una ficha).
+
+- **Lección**: los tests estáticos de #85 escanean todo el JS propio en busca de `//` seguidos de texto (URLs externas), también dentro de comentarios. Escribir `https://` en `vista.js` rompe CA1 de #85; el enlace seguro se comprueba con la expresión regular `/^https:\/\/\S/` y los comentarios evitan la cadena literal.
+  - **Aplica a**: implementación (módulos del visor).
+
+- **Lección**: `tests/acceptance/test_historia_46.py` busca en `tests/` cadenas de 14 caracteres alfanuméricos y las compara con huellas de referencias catastrales reales. Una referencia «inventada» con forma plausible puede ser real (p. ej. polígono 1, parcela 1 de un municipio del ámbito). En fixtures usar prefijos de municipio inexistentes (`99999`).
+  - **Aplica a**: implementación (fixtures con referencias catastrales falsas).
+## [2026-11-26] Historia #136 — Ajuste afín y validación de trazados en el dominio
+
+- **Lección**: el ADR que un diseño llama «siguiente libre (hoy 0044)» caduca igual que un número de issue. #94 ocupó el 0044 mientras #136 esperaba en cola; se comprobó `ls docs/adr/`, se usó el 0045 y se anotó en el propio ADR. El test de CA12 localiza el ADR por su cabecera (`Historias: #20`) y comprueba que no hay números duplicados, así que no depende del número.
+  - **Aplica a**: BA y arquitecto (citar «el siguiente libre» sin número) | implementación (comprobar `docs/adr/` antes de crear el ADR; ya lo exigía la lección de #43).
+
+- **Lección**: un oráculo de `numpy.linalg.lstsq` sobre una afín casi exacta coincide con el cálculo con coordenadas centradas dentro de ~1e-10 m, así que `abs=1e-9` es correcto pero justo. Al cambiar la escala de la figura en un test (p. ej. multiplicar los píxeles por 100) hay que mantener los objetivos dentro del rango de EPSG:25830 que valida `ControlPoint`.
+  - **Aplica a**: implementación (tests de escala sobre `fit_affine`).
+## [2026-11-26] Historia #122 — Comando imagenes-comparacion
+
+- **Lección**: para rechazar un GeoJSON «fuera de EPSG:25830» no basta con leer el miembro `crs`: un fichero que declara 25830 pero trae grados (`-3.6, 40.1`) pasa. Hay que acotar además las coordenadas al rango de UTM 30N (este 100.000–900.000 m). Y con mypy estricto, los tests no pueden leer `main.ManifestTooLargeError` y similares: se importan de su módulo, no de `cli.main`.
+  - **Causa**: la primera cota (−1.000.000…2.000.000) dejaba pasar los grados; lo cazó un test unitario con lon/lat.
+  - **Aplica a**: implementación (lectores de ficheros de entrada con CRS declarado).
 

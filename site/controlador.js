@@ -72,6 +72,58 @@ export function fichaDe(capa, propiedades) {
   return ficha;
 }
 
+const CONFIANZAS = new Set(["baja", "media", "alta"]);
+
+const texto = (valor) => (typeof valor === "string" ? valor : "");
+
+// Ficha de un indicio de discrepancia (historia #95, ADR 0044 §2). Lista blanca cerrada: toda
+// otra propiedad del dato se ignora. No redacta ni calcula nada: copia lo ya redactado en #16.
+// El aviso va SIEMPRE: el de la feature o, si falta, el fijo de config.js. Una feature sin la
+// forma esperada devuelve solo el aviso y `disponible: false`. Pura: se prueba sin DOM.
+export function fichaIndicio(propiedades, config) {
+  const aviso =
+    propiedades !== null &&
+    typeof propiedades === "object" &&
+    typeof propiedades.aviso === "string" &&
+    propiedades.aviso.trim() !== ""
+      ? propiedades.aviso
+      : config.textos.avisoIndicio;
+  const p = propiedades;
+  if (
+    p === null ||
+    typeof p !== "object" ||
+    typeof p.texto !== "string" ||
+    p.texto.trim() === "" ||
+    !Array.isArray(p.evidencia)
+  ) {
+    return { aviso, disponible: false };
+  }
+  const evidencia = p.evidencia
+    .filter((e) => e !== null && typeof e === "object")
+    .map((e) => ({
+      papel: texto(e.papel),
+      fuente: texto(e.fuente),
+      anio: typeof e.anio === "number" ? String(e.anio) : config.textos.anioNoDeclarado,
+      fechaDescarga: texto(e.fecha_descarga),
+      licencia: texto(e.licencia),
+      atribucion: texto(e.atribucion),
+      url: texto(e.url),
+    }));
+  return {
+    aviso,
+    disponible: true,
+    etiqueta: texto(p.etiqueta),
+    texto: p.texto,
+    confianza: CONFIANZAS.has(p.confianza) ? `confianza ${p.confianza}` : "",
+    evidencia,
+    criterio: texto(p.criterio),
+    descripcionCriterio: texto(p.descripcion_criterio),
+    avisoOmision: typeof p.aviso_omision === "string" && p.aviso_omision.trim() !== ""
+      ? p.aviso_omision
+      : null,
+  };
+}
+
 // Una respuesta que no es un FeatureCollection es fallo, no «vacío».
 export function esFeatureCollection(json) {
   return (
@@ -88,7 +140,11 @@ export function mensajeErrorCapa(capa, municipio) {
 
 export function crearControlador({ mapa, cargarJson, vista, config }) {
   const estado = { municipios: [], actual: null, peticion: 0, avisoBase: false, capas: {} };
-  for (const capa of config.capas) estado.capas[capa.id] = { cargada: false, visible: true };
+  for (const capa of config.capas) {
+    estado.capas[capa.id] = { cargada: false, visible: capa.visibleInicial ?? true };
+  }
+  const esIndicio = (capa) => capa.tipo === "indicio";
+  const estadoVacio = (capa) => (esIndicio(capa) ? "sin_indicios" : "vacia");
 
   function actualizarAtribuciones() {
     mapa.ponerAtribuciones(atribucionesVisibles(config, estado));
@@ -117,7 +173,7 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
     const pendientes = config.capas.filter((capa) => capa.id in municipio.capas);
     for (const capa of config.capas) {
       // Una capa que el índice no lista no se publicó: #84 no publica capas vacías.
-      vista.ponerEstadoCapa(capa.id, capa.id in municipio.capas ? "cargando" : "vacia");
+      vista.ponerEstadoCapa(capa.id, capa.id in municipio.capas ? "cargando" : estadoVacio(capa));
     }
     const resultados = await Promise.allSettled(
       pendientes.map((capa) => cargarCapa(capa, municipio.capas[capa.id])),
@@ -135,11 +191,13 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
       const geojson = resultado.value;
       mapa.anadirCapa(capa.id, geojson, {
         estilo: capa.estilo,
-        alPulsar: (propiedades) => vista.nodoFicha(fichaDe(capa, propiedades)),
+        alPulsar: esIndicio(capa)
+          ? (propiedades) => vista.nodoFichaIndicio(fichaIndicio(propiedades, config))
+          : (propiedades) => vista.nodoFicha(fichaDe(capa, propiedades)),
       });
       mapa.mostrarCapa(capa.id, estado.capas[capa.id].visible);
       estado.capas[capa.id].cargada = true;
-      vista.ponerEstadoCapa(capa.id, geojson.features.length === 0 ? "vacia" : "ok");
+      vista.ponerEstadoCapa(capa.id, geojson.features.length === 0 ? estadoVacio(capa) : "ok");
     });
     if (errores.length > 0) vista.mostrarMensaje(errores.join(" "));
     actualizarAtribuciones();
