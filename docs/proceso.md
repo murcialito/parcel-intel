@@ -148,6 +148,15 @@ Todas las issues se reflejan en el proyecto [Parcela Intel](https://github.com/u
 
 `talla:s`, `talla:m` y `talla:l` se copian al campo Size del proyecto (S, M, L). Priority lo pones tú si quieres: los agentes no lo tocan.
 
+Además:
+
+- **Assignees**: te asigna mientras una issue tiene `estado:necesita-fundador` y te quita al salir. La vista **Me esperan** (`assignee:@me`) es tu bandeja. Los agentes no aparecen como assignee, porque un bot no se puede asignar.
+- **Start date / Target date**, para la vista **Roadmap**, con fechas reales y no estimadas:
+  - historia: Start es cuando entra en `estado:en-desarrollo` y Target cuando se cierra (hoy mientras sigue abierta); sin empezar, no tiene fechas;
+  - feature y épica: van de la primera Start a la última Target de sus sub-issues.
+  - Una pasada diaria refresca el "hoy".
+- No hay iteraciones: el flujo es continuo (una historia tras otra), así que no hay sprints que planificar.
+
 La app de Claude no puede escribir en proyectos de usuario, así que el workflow necesita el secret `PROJECT_TOKEN`: un token clásico con los permisos `repo` y `project` (mientras el repo sea privado, sin `repo` el proyecto no puede resolver las issues). Sin él, el workflow no hace nada y las etiquetas siguen mandando.
 
 ## Coste

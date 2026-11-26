@@ -1,13 +1,16 @@
 name: Sincronizar tablero
 
 # Refleja cada issue en el proyecto "Parcela Intel" (users/murcialito/projects/1):
-# Status según estado:* (o Done al cerrarse) y Size según talla:*.
+# Status según estado:* (o Done al cerrarse), Size según talla:*, el fundador como assignee mientras
+# la issue le espera y Start/Target date reales para el Roadmap (ver el script).
 # Requiere el secret PROJECT_TOKEN (token clásico con permisos "repo" y "project": sin "repo" no ve las issues del repo privado);
 # la issue se lee con el token del propio workflow. Sin PROJECT_TOKEN no hace nada.
 
 on:
   issues:
     types: [opened, reopened, closed, labeled, unlabeled]
+  schedule:
+    - cron: "47 5 * * *"  # refresca a diario las fechas "hoy" del Roadmap
   workflow_dispatch:
     inputs:
       issue:
@@ -16,7 +19,7 @@ on:
 
 permissions:
   contents: read
-  issues: read
+  issues: write  # asigna al fundador cuando una issue le espera
 
 concurrency:
   group: tablero-${{ github.event.issue.number || inputs.issue || 'todas' }}
