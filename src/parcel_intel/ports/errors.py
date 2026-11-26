@@ -1,3 +1,14 @@
+class RoadNetworkError(Exception):
+    """La respuesta del servicio de red de transporte (`roadlink`) no es
+    utilizable: error HTTP, JSON malformado, estructura inesperada o
+    resultado truncado -- historia #25. Nunca se devuelve una lista vacía
+    en su lugar: "sin tramos" y "no se pudo consultar" son cosas distintas."""
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(f"Respuesta de la red de transporte no utilizable: {detail}")
+        self.detail = detail
+
+
 class InvalidCadastralReferenceError(Exception):
     """La referencia catastral no tiene un formato reconocible (14 o 20 caracteres)."""
 

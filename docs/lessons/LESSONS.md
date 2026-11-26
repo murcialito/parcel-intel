@@ -226,3 +226,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: el texto de atribución de una fuente IGN sale de la tabla de productos del SCNE (identificador, fecha y variantes), no del nombre del servicio. Si el ámbito está en una sola comunidad autónoma, la variante se reduce a la forma sin enumerar las demás (considerando Tercero del documento de condiciones).
   - **Aplica a**: implementación y arquitecto (al fijar una atribución para el visor, anotar en `REGISTRY.md` la variante elegida y el motivo).
+
+## [2026-11-26] Historia #25 — Adapter de tramos sin asfaltar (roadlink)
+
+- **Lección**: el fixture de `roadlink` de la historia de fuentes estaba en EPSG:4326 y con todos los tramos `fictitious="true"`; un adapter que pide `crs`/`bbox-crs` EPSG:25830 necesita su propio fixture grabado en ese CRS. El caso `fictitious="false"` no apareció en la ventana real de Colmenar y se cubre con un test sintético etiquetado como tal.
+  - **Aplica a**: implementación (al reutilizar un fixture de una historia de fuentes, comprobar que CRS y parámetros coinciden con los que pedirá el adapter).
