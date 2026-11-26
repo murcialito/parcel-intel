@@ -88,6 +88,9 @@ def test_casos_json_real() -> None:
     assert validar_casos(data) == []
     cases = parse_validation_cases(data)
     assert [case.case_id for case in cases] == [caso["id"] for caso in data["casos"]]
-    assert all(case.line is None for case in cases)
+    # `validacion-v2` (#112): solo el camino de Ocaña a la Barca lleva `tramo_linea`.
+    assert {case.case_id for case in cases if case.line is not None} == {
+        "aranjuez-camino-de-ocana-a-la-barca"
+    }
     hito = [case for case in cases if case.scope == "hito"]
     assert {case.municipality_ine for case in hito} == {"28013"}

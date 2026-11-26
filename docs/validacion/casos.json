@@ -20,6 +20,7 @@
       "municipio": "Aranjuez",
       "ambito": "hito",
       "tramo_descripcion": "Tramo final, de unos 151 m, del camino de Ocaña a la Barca, que según la fuente está cortado por un canal y su camino de servicio, por ocupaciones de parcelas colindantes y por el desdoblamiento de una línea ferroviaria, sin conexión con la Colada de Toledo. El Ayuntamiento aprobó el 22 de enero de 2020 iniciar su deslinde (BOCM de 12 de febrero de 2020).",
+      "tramo_linea": [[440522, 4426830], [440617, 4426947]],
       "cierre_fecha_aproximada": "2020-03",
       "cierre_fecha_tipo": "documentado_desde",
       "nota_fecha": "Fecha de la nota de prensa de la fuente (4 de marzo de 2020), la más antigua leída que documenta el corte; la fuente dice que lleva «varios años» y no da la fecha del cierre."
