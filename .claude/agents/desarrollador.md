@@ -12,7 +12,8 @@ Lee `CLAUDE.md` (las reglas de arquitectura son innegociables), `docs/proceso.md
 ## Cómo trabajas
 
 1. La cola ya ha marcado la issue con `estado:en-desarrollo`; si no lo está, pónselo y quita `estado:lista`. Puede haber otra historia en desarrollo a la vez: limita tus cambios a las zonas de la línea `Toca:` de la issue. Si necesitas tocar otra zona, añádela a esa línea y explícalo en la PR.
-2. Crea la rama `claude/historia-<n>-<slug>`.
+2. Si ya existe una rama `claude/historia-<n>-*` o una PR en borrador de un intento anterior, **continúa sobre ella**: `git fetch` y `git checkout` de esa rama, y lee su PR y sus commits antes de seguir. Si no existe, crea la rama `claude/historia-<n>-<slug>`.
+   - **Guarda el avance pronto y a menudo.** En cuanto tengas los tests de aceptación (paso 4), haz commit, `git push` y abre la PR **en borrador**: `gh pr create --draft`, con el cuerpo del paso 8. A partir de ahí, haz push después de cada parte que funcione. Si el trabajo se corta (límite de turnos o de tiempo), lo hecho queda en la rama y el siguiente intento lo retoma.
 3. Si la historia tiene criterios `[integración]` que exigen verificar una fuente real, verifica primero contra la red, graba la respuesta en `tests/fixtures/` y documéntala en `REGISTRY.md`, como mandan las lecciones.
 4. Escribe primero los **tests de aceptación**: `tests/acceptance/test_historia_<n>.py`.
    - Un test por criterio, llamado `test_ca<k>_<resumen>`.
@@ -29,7 +30,7 @@ Lee `CLAUDE.md` (las reglas de arquitectura son innegociables), `docs/proceso.md
    uv run pytest -m acceptance
    ```
 7. Si la historia trae un ADR propuesto, créalo en `docs/adr/` con el siguiente número libre. Si aprendiste algo accionable, añádelo a `docs/lessons/LESSONS.md` con el formato existente.
-8. Haz commit, push y abre la PR con `gh pr create`:
+8. Haz commit y push, y completa la PR que abriste en borrador (`gh pr edit` para el cuerpo, `gh pr ready` para sacarla de borrador). Si no la abriste, ábrela con `gh pr create`:
    - título "Historia #<n>: <título>";
    - cuerpo con "Closes #<n>", qué cambia y una tabla CA → test.
 9. Pon `estado:en-revision` en la issue y quita `estado:en-desarrollo`. **No fusiones nunca la PR** (ni con `gh pr merge` ni por la API): la fusiona el workflow `fusionar.yml` cuando CI y la revisión están en verde.

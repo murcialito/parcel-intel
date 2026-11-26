@@ -70,7 +70,7 @@ jobs:
     needs: seleccionar
     if: needs.seleccionar.outputs.historia != ''
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 180  # una historia L con Opus puede pasar de hora y media
     concurrency:
       group: desarrollo-${{ needs.seleccionar.outputs.historia }}
       cancel-in-progress: false
@@ -99,7 +99,9 @@ jobs:
           MODELO_INTERMEDIO: ${{ vars.MODELO_INTERMEDIO }}
           MODELO_CAPAZ: ${{ vars.MODELO_CAPAZ }}
           ISSUE: ${{ env.HISTORIA }}
-        run: echo "modelo=$(.github/scripts/modelo.sh desarrollo "$ISSUE")" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "modelo=$(.github/scripts/modelo.sh desarrollo "$ISSUE")" >> "$GITHUB_OUTPUT"
+          echo "turnos=$(.github/scripts/modelo.sh turnos-desarrollo "$ISSUE")" >> "$GITHUB_OUTPUT"
 
       - uses: anthropics/claude-code-action@v1
         with:
@@ -114,7 +116,7 @@ jobs:
             hasta dejar abierta la PR. No la fusiones: la fusiona el workflow Fusionar.
           claude_args: |
             --model ${{ steps.modelo.outputs.modelo }}
-            --max-turns 150
+            --max-turns ${{ steps.modelo.outputs.turnos }}
             --allowedTools "WebSearch,WebFetch,Read,Glob,Grep,Edit,Write,Bash(uv:*),Bash(git:*),Bash(gh:*),Bash(curl:*),Bash(python3:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
             --disallowedTools "Bash(gh pr merge:*),Bash(gh api:*)"
 
@@ -165,7 +167,7 @@ jobs:
       startsWith(github.event.pull_request.head.ref, 'claude/') &&
       !contains(github.event.pull_request.labels.*.name, 'veto')
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     concurrency:
       group: corregir-${{ github.event.pull_request.number }}
       cancel-in-progress: false
@@ -210,7 +212,7 @@ jobs:
             Trabaja en la rama ${{ github.event.pull_request.head.ref }}, que ya está en el checkout.
           claude_args: |
             --model ${{ steps.modelo.outputs.modelo }}
-            --max-turns 100
+            --max-turns 150
             --allowedTools "WebSearch,WebFetch,Read,Glob,Grep,Edit,Write,Bash(uv:*),Bash(git:*),Bash(gh:*),Bash(python3:*),Bash(head:*),Bash(tail:*),Bash(cat:*),Bash(jq:*),Bash(wc:*),Bash(ls:*),Bash(sort:*),Bash(cut:*),Bash(tr:*),Bash(echo:*),Bash(mkdir:*)"
             --disallowedTools "Bash(gh pr merge:*),Bash(gh api:*)"
 

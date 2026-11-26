@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Elige el modelo de Claude según la fase y la talla de la historia (docs/proceso.md, "Modelos por tarea").
 # Uso: modelo.sh <fase> [issue]   con fase en: refinar | diseno | desarrollo | revision
+#      modelo.sh turnos-desarrollo <issue>   → tope de turnos del desarrollador según la talla
 # Entorno: GH_TOKEN, REPO. Los modelos se pueden cambiar sin tocar código con las variables
 # de repositorio MODELO_BARATO, MODELO_INTERMEDIO y MODELO_CAPAZ.
 set -euo pipefail
@@ -31,6 +32,13 @@ case "$fase" in
     case "$talla" in
       talla:l) echo "$CAPAZ" ;;
       *) echo "$INTERMEDIO" ;;
+    esac ;;
+  turnos-desarrollo)
+    # Una historia L con Opus llegó a 173 turnos (#37): el tope sobra en S y se queda corto en L.
+    case "$talla" in
+      talla:s) echo 120 ;;
+      talla:l) echo 350 ;;
+      *) echo 250 ;;
     esac ;;
   *) echo "Fase desconocida: $fase" >&2; exit 1 ;;
 esac
