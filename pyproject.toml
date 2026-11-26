@@ -2,6 +2,8 @@
 name = "parcel-intel"
 version = "0.1.0"
 description = "Mapa abierto de caminos públicos y vías pecuarias con indicios de cortes"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 dependencies = [
     "requests>=2.31",

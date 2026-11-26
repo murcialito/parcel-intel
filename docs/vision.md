@@ -137,7 +137,8 @@ El mayor riesgo sigue siendo de confianza, ahora con otro destinatario: un falso
 **Decisiones abiertas:**
 
 - [ ] Si una capa derivada de Catastro (trazado de camino inferido) cuenta como "transformación" según su licencia de 2016 y se puede publicar.
-- [ ] Licencia del código (p. ej. MIT/Apache frente a AGPL) y de los datos derivados publicados (condicionada por las licencias de las fuentes, en especial si entra OpenStreetMap con ODbL).
+- [x] Licencia del código: Apache-2.0 (decisión del fundador, 2026-11-25; ver historia #42).
+- [ ] Licencia de los datos derivados publicados (condicionada por las licencias de las fuentes, en especial si entra OpenStreetMap con ODbL).
 - [ ] Si el mapa muestra la referencia catastral de la finca donde queda un candidato, o solo el tramo.
 - [ ] Método de detección de "candidato a corte" (ver hito, punto b).
 - [ ] Dónde se aloja el mapa estático.
