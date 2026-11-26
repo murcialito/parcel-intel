@@ -44,8 +44,20 @@ jobs:
             echo "Ya hay una historia en desarrollo o revisión; se espera a la siguiente pasada."
             exit 0
           fi
-          historia=$(gh issue list -R "$REPO" --state open --label "tipo:historia" --label "estado:lista" \
-            --json number,createdAt --jq 'sort_by(.createdAt) | .[0].number // empty')
+          # La más antigua cuyas dependencias ("Depende de #N" en el cuerpo) estén todas cerradas.
+          historia=""
+          for n in $(gh issue list -R "$REPO" --state open --label "tipo:historia" --label "estado:lista" \
+                       --limit 200 --json number,createdAt --jq 'sort_by(.createdAt) | .[].number'); do
+            deps=$(gh issue view "$n" -R "$REPO" --json body --jq .body \
+                     | grep -iE 'depende de' | grep -oE '#[0-9]+' | tr -d '#' | sort -un || true)
+            abiertas=""
+            for d in $deps; do
+              [ "$d" = "$n" ] && continue
+              [ "$(gh issue view "$d" -R "$REPO" --json state --jq .state 2>/dev/null || echo CLOSED)" = "OPEN" ] && abiertas="$abiertas #$d"
+            done
+            if [ -n "$abiertas" ]; then echo "#$n espera a$abiertas."; continue; fi
+            historia=$n; break
+          done
           echo "historia=$historia" >> "$GITHUB_OUTPUT"
           echo "Historia elegida: ${historia:-ninguna}"
 
@@ -59,6 +71,7 @@ jobs:
       issues: write
       pull-requests: write
       id-token: write
+      actions: write
     env:
       HISTORIA: ${{ needs.seleccionar.outputs.historia }}
     steps:
@@ -126,6 +139,24 @@ jobs:
               gh issue edit "$HISTORIA" -R "$REPO" --remove-label "talla:s" --add-label "talla:m"
             fi
           fi
+
+      - name: Seguir con la cola si no quedó nada en curso
+        # Si el agente bloqueó la historia, la devolvió a la cola o pidió ayuda, nadie más relanza la
+        # cola hasta el próximo merge (el cron horario de GitHub no es fiable). El selector salta las
+        # historias con dependencias abiertas. Tras un fallo no se relanza: así una caída general no
+        # quema la cola entera.
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          for estado in estado:en-desarrollo estado:en-revision; do
+            if [ "$(gh issue list -R "$REPO" --state open --label tipo:historia --label "$estado" --json number --jq length)" -gt 0 ]; then
+              echo "Hay una historia en $estado: la cola sigue sola tras el merge."; exit 0
+            fi
+          done
+          gh workflow run desarrollar.yml -R "$REPO" --ref main
+          echo "Cola relanzada."
 
   corregir:
     if: >-
