@@ -342,3 +342,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: al fusionar `main` en una rama puede romperse un test de otra historia que comprueba el orden de menciones en un documento que `main` acaba de ampliar (`test_historia_44` CA5 con el runbook). Acotar la búsqueda a la sección que el criterio nombra en vez de al documento entero.
   - **Aplica a**: implementación.
 
+
+## [2026-11-26] Migración a repo público — fallo de CI por un cambio de documentación
+
+- **Lección**: hay tests que leen documentos. Por ejemplo, `test_historia_44` comprueba el orden de los pasos de `docs/runbook-publicacion.md`. Un cambio "solo de docs" empujado a `main` sin ejecutar `uv run pytest` dejó CI en rojo en `main` y en la PR en curso (#46), que lo heredó al fusionar con `main`. Antes de empujar cualquier cambio, aunque solo toque `.md`, se ejecutan los cinco comandos.
+  - **Aplica a**: todos (agentes y fundador), sobre todo con commits directos a `main`.

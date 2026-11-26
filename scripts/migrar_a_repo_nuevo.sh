@@ -27,6 +27,9 @@
 # Catastro, así que la purga es POR CONTENIDO. Se quitan del historial todas las versiones que
 # alguna vez estuvieron en tests/fixtures/catastro/ o tests/fixtures/caminos/catastro_*, salvo
 # las que hay en main al migrar (sintéticas, comprobadas antes de purgar).
+# Además, toda referencia catastral real que aparezca en cualquier fichero o mensaje de commit del
+# historial se sustituye por REFCAT-RETIRADA (decisión del fundador en #46: opción 1, también en el
+# historial). main no debe contener ninguna al migrar.
 set -euo pipefail
 
 OWNER=murcialito
@@ -53,11 +56,30 @@ paso() { echo; echo "==> $*"; }
 parar() { echo "ERROR: $*" >&2; exit 1; }
 
 RUTAS_RE='^tests/fixtures/(catastro/|caminos/catastro_)'
-REFERENCIA_RE='\b28[0-9]{3}A[0-9]{8}|\b[0-9]{7}[A-Z]{2}[0-9]{4}[A-Z]\b'  # rústica de Madrid (28) o urbana
+# Referencia catastral de 14 caracteres con su sufijo opcional de 6 (20 en total): rústica de Madrid
+# (28...) o urbana.
+REFERENCIA_RE='\b28[0-9]{3}A[0-9]{8}([0-9]{4}[A-Z]{2})?\b|\b[0-9]{7}[A-Z]{2}[0-9]{4}[A-Z]([0-9]{4}[A-Z]{2})?\b'
+
+referencias_reales() {  # stdin: contenido; stdout: referencias reales encontradas
+  # No son reales las sintéticas del proyecto: urbanas con hoja ZZ (#45), rústicas con polígono
+  # 99x (#46) o con parcela 99999 (casos "no encontrada"). Las de provincia 99 no casan con 28...
+  grep -oE "$REFERENCIA_RE" | grep -vE '^[0-9]{7}ZZ|^28[0-9]{3}A99[0-9]|^28[0-9]{3}A[0-9]{3}99999' || true
+}
 
 tiene_referencia_real() {  # stdin: contenido. 0 si contiene una referencia catastral real.
-  # Las sintéticas usan provincia 99 (no casa con 28...) y, en urbanas, la hoja ZZ (no existe).
-  grep -oE "$REFERENCIA_RE" | grep -vE '^[0-9]{7}ZZ' | grep -q .
+  referencias_reales | grep -q .
+}
+
+refs_historial() {  # refs_historial <repo>: referencias reales en cualquier blob o mensaje del historial
+  local repo="$1"
+  {
+    git -C "$repo" rev-list --objects --all | while read -r id ruta; do
+      [ -n "$ruta" ] || continue
+      [ "$(git -C "$repo" cat-file -t "$id")" = blob ] || continue
+      git -C "$repo" cat-file -p "$id" | referencias_reales
+    done
+    git -C "$repo" log --all --format=%B | referencias_reales
+  } | sort -u
 }
 
 blobs_en_rutas() {  # blobs_en_rutas <repo> <commit>: blobs de main o de un commit en las rutas purgables
@@ -78,18 +100,15 @@ verificar() {  # verificar <repo> <fichero-de-blobs>: 0 si no queda rastro
   while read -r id; do
     if git -C "$repo" cat-file -e "$id" 2>/dev/null; then echo "RASTRO: blob real $id sigue en $repo"; fallos=$((fallos + 1)); fi
   done <"$ids"
-  # Comprobación independiente: ningún blob del historial en esas rutas lleva una referencia real.
-  while read -r id ruta; do
-    [ -n "$ruta" ] || continue
-    [[ "$ruta" =~ $RUTAS_RE ]] || continue
-    [ "$(git -C "$repo" cat-file -t "$id")" = blob ] || continue
-    if git -C "$repo" cat-file -p "$id" | tiene_referencia_real; then
-      echo "RASTRO: $ruta ($id) contiene una referencia catastral real"; fallos=$((fallos + 1))
-    fi
-  done < <(git -C "$repo" rev-list --objects --all)
+  # Comprobación independiente: ninguna referencia real en ningún fichero ni mensaje del historial.
+  local quedan
+  quedan=$(refs_historial "$repo")
+  if [ -n "$quedan" ]; then
+    echo "RASTRO: referencias catastrales reales en el historial: $(tr '\n' ' ' <<<"$quedan")"; fallos=$((fallos + 1))
+  fi
   sueltos=$(git -C "$repo" fsck --unreachable --no-reflogs --no-progress 2>/dev/null | wc -l | tr -d ' ')
   [ "$sueltos" = "0" ] || { echo "RASTRO: $sueltos objetos inalcanzables tras gc"; fallos=$((fallos + 1)); }
-  [ "$fallos" = "0" ] && echo "OK: sin rastro de las $(wc -l <"$ids" | tr -d ' ') versiones reales ni referencias reales en las fixtures."
+  [ "$fallos" = "0" ] && echo "OK: sin rastro de las $(wc -l <"$ids" | tr -d ' ') versiones reales ni referencias catastrales reales en el historial."
   return "$fallos"
 }
 
@@ -119,11 +138,12 @@ preparar)
     [ "$curso" = "0" ] || parar "Hay $curso workflows en marcha en $OWNER/$VIEJO."
   fi
   git -C "$RAIZ" fetch -q origin main
-  while read -r id ruta; do
-    if git -C "$RAIZ" cat-file -p "$id" | tiene_referencia_real; then
-      parar "main tiene una fixture con referencia catastral real: $ruta"
-    fi
-  done < <(git -C "$RAIZ" ls-tree -r origin/main | awk -v re="$RUTAS_RE" '$4 ~ re {print $3, $4}')
+  en_main=$(git -C "$RAIZ" ls-tree -r origin/main | awk '$2 == "blob" {print $3}' | while read -r id; do
+              git -C "$RAIZ" cat-file -p "$id" | referencias_reales; done | sort -u)
+  if [ -n "$en_main" ]; then
+    aviso="main aún contiene referencias catastrales reales: $(tr '\n' ' ' <<<"$en_main")"
+    if [ -n "$ENSAYO" ]; then echo "AVISO (ensayo): $aviso"; else parar "$aviso"; fi
+  fi
   command -v git-filter-repo >/dev/null || parar "Falta git-filter-repo (uv tool install git-filter-repo)."
   [ ! -e "$TRABAJO/backup.git" ] || parar "$TRABAJO/backup.git ya existe: usa una carpeta de trabajo nueva."
 
@@ -135,7 +155,11 @@ preparar)
   git -C "$TRABAJO/purga" checkout -q main
   blobs_reales "$TRABAJO/purga" >"$TRABAJO/blobs_reales.txt"
   echo "$(wc -l <"$TRABAJO/blobs_reales.txt" | tr -d ' ') versiones a quitar del historial; las de main (sintéticas) se conservan."
-  git -C "$TRABAJO/purga" filter-repo --force --strip-blobs-with-ids "$TRABAJO/blobs_reales.txt"
+  refs_historial "$TRABAJO/purga" | awk '{print length, $0}' | sort -rn | cut -d' ' -f2- \
+    | sed 's/$/==>REFCAT-RETIRADA/' >"$TRABAJO/reemplazos.txt"  # las largas (20) antes que las cortas (14)
+  echo "$(wc -l <"$TRABAJO/reemplazos.txt" | tr -d ' ') referencias reales a sustituir en ficheros y mensajes del historial."
+  git -C "$TRABAJO/purga" filter-repo --force --strip-blobs-with-ids "$TRABAJO/blobs_reales.txt" \
+    --replace-text "$TRABAJO/reemplazos.txt" --replace-message "$TRABAJO/reemplazos.txt"
   verificar "$TRABAJO/purga" "$TRABAJO/blobs_reales.txt"
 
   paso "El árbol purgado sigue en verde"
