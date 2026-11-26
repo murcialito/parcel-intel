@@ -558,13 +558,18 @@ Verificación real, hecha con un script local que **no guarda respuestas** (ni e
 - **Límites:** (1) el **paraje no sirve para clasificar**: hay `VT` con paraje `DESCUENTO` o `NO INFORMADO`, `HG` con `NO INFORMADO` e `I-` con `CAMINO`; manda la clase. (2) `I-` improductivo con paraje `CAMINO` indica que algún camino cartografiado como parcela 9xxx **no** sale como `VT`; el filtro `VT` los deja fuera, y eso es un falso negativo conocido. (3) Un arroyo con parcela propia **no prueba titularidad** (ni pública ni privada); Catastro carece de fehaciencia. (4) El servicio devuelve la `Ñ` de los parajes mal codificada (`CA¥ADA`): no se debe comparar texto de paraje por igualdad. (5) La muestra es de una ventana por municipio y no es un censo; no se contó por término.
 - **Canales consultados:** WFS de parcelas de Catastro, `Consulta_DNPPP` y la colección `watercourse` de IDEE, todos leídos con éxito. No se consultó el catálogo de usos del Catastro para saber si existen más clases `H*`.
 
-#### Capa interna de caminos de Catastro (historia #37) — `confirmado` en parte (2026-11-26)
+#### Capa interna de caminos de Catastro (historia #37) — `confirmado` (2026-11-26)
 
-Comando `catastro-caminos` para Colmenar de Oreja (`28043`), con el bbox del término del WFS de unidades administrativas del IGN, EPSG:25830, ejes E,N: `449341, 4431623, 470702, 4442906` (redondeado hacia fuera al metro). Ejecutado en local por el fundador (el WFS de Catastro corta la conexión desde los runners de GitHub Actions, por eso CA7 va marcado `fuera_de_ci`).
+Comando `catastro-caminos` para Colmenar de Oreja (`28043`), con el bbox del término del WFS de unidades administrativas del IGN, EPSG:25830, ejes E,N: `449341, 4431623, 470702, 4442906` (redondeado hacia fuera al metro). Ejecutado en local por el fundador (el WFS de Catastro rechaza los runners de GitHub Actions: primero cortaba la conexión y después respondía HTTP 400. Por eso CA7 va marcado `fuera_de_ci`).
 
-- **Pasada con red:** 312 teselas WFS de 900 m y 980 consultas `Consulta_DNPPP`, unos 45 min. Una tesela del casco de Colmenar pesa unos 3,6 MB y tarda unos 45 s: el tiempo de lectura es de 180 s.
+- **Pasada con red:** 312 teselas WFS de 900 m y 988 consultas `Consulta_DNPPP`, en 44 min 44 s. Una tesela del casco de Colmenar pesa unos 3,6 MB y tarda unos 45 s: el tiempo de lectura es de 180 s.
 - **Hallazgo:** Catastro es incoherente. El WFS devuelve parcelas ≥ 9000 que `Consulta_DNPPP` no reconoce (`lerr`: «NO EXISTE NINGÚN INMUEBLE CON LOS PARÁMETROS INDICADOS»). Esas parcelas quedan como `unclassified`. La respuesta `lerr` es determinista y se cachea, para que `--sin-red` repita el resultado.
-- **Pendiente:** repetir CA7 en local con el arreglo (caché de `lerr`) y anotar aquí los números de caminos, excluidas por clase y sin clasificar. Hasta entonces la PR lleva `pendiente-local`.
+- **Resultado agregado** (CA7 en verde el 2026-11-26; la repetición `--sin-red` da la misma capa y no cambia la caché):
+  - 12 452 parcelas del municipio vistas;
+  - 988 con número ≥ 9000;
+  - **505 caminos de clase `VT`**, con 424,0 ha en total;
+  - 475 excluidas por tener otra clase;
+  - 8 sin clasificar, por `lerr`.
 
 ### PNOA — vuelos reales sobre el ámbito — `confirmado`
 
