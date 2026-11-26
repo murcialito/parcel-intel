@@ -208,3 +208,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: `uv run pytest -m acceptance` **sustituye** el `-m 'not integration'` de `addopts`, así que selecciona también los criterios marcados `[integración]`. Un criterio `[integración: PostGIS local]` necesita que el job de CI tenga PostGIS con las migraciones aplicadas; si no, la PR falla en CI o alguien acaba saltando el test.
   - **Causa**: hasta la historia #19 ningún criterio de aceptación tocaba PostGIS (los `[integración]` de #17 se cumplen sin red con las fixtures). Al ejecutar `pytest -m acceptance` sin base de datos, CA4–CA6, CA9 y CA10 dieron `Connection refused`. El arreglo (servicio `postgis/postgis` en el job y migración con reintentos, por el reinicio interno de la imagen de la historia 0003) toca `.github/workflows/ci.yml`, y el push lo rechazó GitHub: la App de los agentes no tiene permiso `workflows`. La historia quedó parada hasta que lo aplicara el fundador.
   - **Aplica a**: BA y arquitecto (un criterio `[integración]` debe decir si corre en CI y con qué servicio; si exige cambiar un workflow, pedirlo al fundador antes de pasar la historia a `estado:lista`) | implementación (antes de escribir un test de aceptación `[integración]`, comprobar que el job de CI puede ejecutarlo; los agentes no pueden tocar `.github/workflows/`).
+
+## [2026-11-26] Historia #16 — Texto público de discrepancias
+
+- **Lección**: no ejecutar `uv run ruff format .` sobre todo el repo: el código existente no está formateado con ruff y reescribiría 24 ficheros ajenos (ADRs incluidos), ensuciando la PR. Formatear solo los ficheros propios (`uv run ruff format <ficheros>`).
+  - **Causa**: al formatear la historia #16 con `.` se modificaron ADRs, adapters, api y cli sin relación; hubo que revertirlos con `git checkout`.
+  - **Aplica a**: implementación (revisar `git status` antes del commit y comprobar que solo hay ficheros de la historia).
+
+- **Lección**: el texto público que valida el fundador se protege con un hash de su forma canónica junto a la marca (fecha y enlace). Cambiar una plantilla, etiqueta o el aviso rompe el test hasta que se actualice la marca, lo que obliga a pedir nueva validación.
+  - **Aplica a**: implementación y arquitecto (cualquier texto público de aprobación humana: misma técnica, en `domain/public_card.py`).
