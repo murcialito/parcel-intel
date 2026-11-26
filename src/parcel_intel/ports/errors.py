@@ -1,5 +1,7 @@
 from collections.abc import Sequence
 
+from parcel_intel.domain.orthophoto import HistoricalVintage
+
 
 class RoadNetworkError(Exception):
     """La respuesta del servicio de red de transporte (`roadlink`) no es
@@ -227,3 +229,13 @@ class NoLandClassificationFoundError(Exception):
     def __init__(self, bbox: tuple[float, float, float, float]) -> None:
         super().__init__(f"Ninguna clasificación de suelo encontrada para el bbox: {bbox}")
         self.bbox = bbox
+
+
+class OrthophotoNotCoveredError(Exception):
+    """El vuelo pedido no cubre la ventana (el WMS devuelve una imagen blanca
+    sin error) -- historia #121, ADR 0042 §3. No es un fallo: la franja prueba
+    el siguiente vuelo de su lista."""
+
+    def __init__(self, vintage: HistoricalVintage) -> None:
+        super().__init__(f"El vuelo {vintage!r} no cubre la ventana pedida")
+        self.vintage = vintage
