@@ -14,7 +14,6 @@ pytestmark = pytest.mark.acceptance
 REPO = Path(__file__).resolve().parents[2]
 REGISTRY = REPO / "src" / "parcel_intel" / "sources" / "REGISTRY.md"
 INICIO = "## Sitios de interés"
-FIN = "## Resumen de fuentes no verificadas en esta pasada"
 
 # Una fila por fuente candidata (CA1). Cada una empieza por su nombre en la primera celda.
 FUENTES = {
@@ -31,8 +30,9 @@ REF_CATASTRAL = re.compile(r"\b\d{7}[A-Z]{2}\d{4}[A-Z]\d{4}[A-Z]{2}\b")
 def _seccion() -> str:
     texto = REGISTRY.read_text(encoding="utf-8")
     inicio = texto.index(INICIO)
-    fin = texto.index(FIN, inicio)
-    return texto[inicio:fin]
+    # La sección acaba en el siguiente encabezado de nivel 2 (otras historias añaden las suyas).
+    fin = texto.find("\n## ", inicio + len(INICIO))
+    return texto[inicio : fin if fin != -1 else len(texto)]
 
 
 def _fila(seccion: str, prefijo: str) -> str:

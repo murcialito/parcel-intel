@@ -788,4 +788,18 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: un PDF de más de 10 MB no pasa por `WebFetch` y `pdftoppm` no está instalado. Descargar con `curl` a un directorio aparte y extraer el texto de los flujos Flate con `zlib` (`python3 -I`) sirve para buscar cláusulas. Ese texto no es una cita certificada: las citas se copian de él y se marcan como extraídas.
   - **Aplica a**: implementación (verificación de licencias en PDF de gran tamaño).
+## [2026-11-27] Historia #206 — Vuelos históricos de la Comunidad de Madrid
+
+- **Lección**: un servicio de imágenes responde **200 con una tesela blanca** fuera de su cobertura (la IDEM: 854 bytes, un solo nivel de gris), igual que el IGN. «200 + `image/png`» no prueba que haya imagen: se decodifica y se mide varianza y niveles distintos (en blanco si varianza < 1). Cualquier adapter de #207 debe aplicarlo a cada respuesta.
+  - **Aplica a**: implementación (adapters de imágenes) | revisión.
+
+- **Lección**: el `GetCapabilities` del WMS de la IDEM anuncia un `GetMap` (`http://…/erdas-iws/ogc/wms/visorcartografia2`) que responde 404; el que funciona es `https://idem.comunidad.madrid/srvimagenes2/ogc/wms/visorcartografia2`. Una URL que da el propio documento de capacidades tampoco vale hasta probarla (lección 0001). El `GetCapabilities` WMTS pesa 14 MB: se guarda solo un extracto.
+  - **Aplica a**: implementación (#207).
+
+- **Lección**: los píxeles de un `TileMatrixSet` `EPSG3857` miden `escala × 0,00028 × cos(latitud)` en el terreno: el nivel 18 («0,597 m») son 0,457 m en Colmenar. Se calcula la resolución real a la latitud del ámbito antes de elegir nivel. Los bytes de una misma tesela cambian entre peticiones, así que no sirven como huella.
+  - **Aplica a**: implementación (#207) | BA (criterios de «resolución»).
+## [2026-11-27] Historia #211 — Catastrones del IGN
+
+- **Lección**: el `GetFeatureInfo` de `primera-edicion-mtn` devuelve la hoja de un solo punto; para saber qué hojas cubren un término hay que muestrear una rejilla dentro del límite (2,5 km bastó) y contar puntos por hoja. Una sola consulta en el centro oculta las hojas de borde (Colmenar tiene dos; Chinchón, cuatro). Los enlaces de descarga del CNIG devuelven la ficha HTML con reCAPTCHA v3, no el zip: se anota `bloqueado` y se trabaja con el render del WMS.
+  - **Aplica a**: refinador, implementación (historias que inventarían la cobertura de un WMS histórico).
 
