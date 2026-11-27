@@ -971,26 +971,30 @@ Un `SOLAPE` reducido a su parte sin contraparte cambia de zona y por tanto de id
 
 `415956c18feed794` se mantiene **a propósito** (decisión del fundador en #183, «opción 1», que reescribe CA8): su sujeto es un camino **sin asfaltar** (`280430215621`) que corre en paralelo a una carretera, a 13–25 m de ella y a 24–40 m de la vía, y no va bajo asfalto; la vía, en ese tramo, tampoco (1,9 % cubierta a ≤ 11,18 m). La red asfaltada no entra en esa comparación (su contraparte es la vía), y no se añade ninguna regla para suprimirlo (ADR 0050). Ningún indicio publicado tiene como sujeto un tramo asfaltado. Los otros tres que el arquitecto midió entre el 25 % y el 36 % (`58c697f68088debf`, `c6a7f6f2a943c5d9`, `a2d854c24b69ae92`) también se reducen.
 
-#### Paso local con Catastro (CA9 y CA13, `pendiente-local`)
+#### Paso local con Catastro (CA9 y CA13, hecho el 2026-11-27)
 
-Pendiente de ejecutar en local (paso 11 del diseño de #183): `catastro-caminos --sin-red`, `vias-pecuarias-municipios --sin-red`, `camino-actual-municipios` (con red), `discrepancias --ambito`, `publicar-discrepancias --ambito`, `candidatos-corte --municipio 28043` y `revision-candidatos --municipio 28043`. Después, rellenar las dos tablas, subir `site/datos/discrepancias/` y pasar `uv run pytest -m "acceptance and integration" tests/acceptance/test_historia_183.py -k "ca9 or ca13"`.
+Ejecutado en local el 2026-11-27 (paso 11 del diseño; antes `pendiente-local`): `catastro-caminos --sin-red`, `camino-actual-municipios` (con red), `discrepancias --ambito`, `publicar-discrepancias --ambito`, `candidatos-corte --municipio 28043 --sin-red` y `revision-candidatos --municipio 28043`. `vias-pecuarias-municipios --sin-red` falla porque la respuesta de IDEM no está en la caché cruda; se usaron las capas derivadas de vías pecuarias ya existentes, las mismas que produjeron los indicios publicados antes. La capa `camino_actual` regenerada es idéntica a la anterior en los 7 municipios (mismos ids); lo nuevo es `camino_asfaltado`. Como su `fecha_descarga` pasa al 2026-11-27, se republicó también con `publicar-capas --ambito` (mismos tramos, solo cambia la fecha), para que coincida con la de los indicios. Las vías pecuarias siguen con el 2026-11-26 y Catastro con el 2026-11-27: las fechas de las fuentes de un indicio pueden diferir, y cada una coincide con su capa de origen.
+
+**Colmenar sube de 19 a 32 por Catastro, no por esta historia.** Los 19 indicios publicados antes se generaron sin la capa interna de Catastro. Con ella, se publican por primera vez indicios con Catastro como **contraparte** (ADR 0041 y 0044: sin geometría ni referencias de Catastro, con su atribución y aviso de no fehaciencia), y se omiten 348 con Catastro en el lado A. Para aislar el efecto de #183 se repitió Colmenar **sin** Catastro: siguen siendo 19 indicios, pero 9 ids cambian. Son `228d09f82d066f2e` y `b1f47704c7f34945` (CA8) y otros 7 `SOLAPE` cuya zona se reduce a la parte sin contraparte asfaltada, lo que cambia el id público. `415956c18feed794` se mantiene.
+
+**Candidatos de Colmenar.** Siguen siendo los mismos 40, con la misma geometría, pero en 36 cambia la evidencia `longitud_base_m` (por ejemplo, 1174,706 → 1161,1 m): la discrepancia base se reduce por el tramo asfaltado, que ahora es solo contraparte. Su huella cambia y **36 de las 40 aprobaciones caducan**. Ningún agente toca `curated/candidatos/` (ADR 0047): las tiene que revisar el fundador. `site/datos/candidatos/` no se republica en esta PR (hoy no hay ninguno publicado).
 
 | INE | Municipio | Indicios publicados antes | Después |
 | --- | --- | ---: | ---: |
-| 28043 | Colmenar de Oreja | 19 | pendiente |
-| 28013 | Aranjuez | 27 | pendiente |
-| 28052 | Chinchón | 19 | pendiente |
-| 28019 | Belmonte de Tajo | 0 | pendiente |
-| 28170 | Villaconejos | 4 | pendiente |
-| 28180 | Villarejo de Salvanés | 5 | pendiente |
-| 28157 | Valdelaguna | 0 | pendiente |
+| 28043 | Colmenar de Oreja | 19 | 32 |
+| 28013 | Aranjuez | 27 | 27 |
+| 28052 | Chinchón | 19 | 17 |
+| 28019 | Belmonte de Tajo | 0 | 0 |
+| 28170 | Villaconejos | 4 | 2 |
+| 28180 | Villarejo de Salvanés | 5 | 5 |
+| 28157 | Valdelaguna | 0 | 0 |
 
 | Medida | Antes | Después |
 | --- | ---: | ---: |
-| candidatos de 28043 | 40 | pendiente |
-| aprobaciones vigentes | 40 | pendiente |
-| aprobaciones caducadas | 0 | pendiente |
-| revisiones huérfanas | 0 | pendiente |
+| candidatos de 28043 | 40 | 40 |
+| aprobaciones vigentes | 40 | 4 |
+| aprobaciones caducadas | 0 | 36 |
+| revisiones huérfanas | 0 | 0 |
 
 ---
 

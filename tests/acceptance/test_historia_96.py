@@ -393,14 +393,20 @@ def test_ca8_fechas_de_descarga_de_las_capas_de_origen_coinciden() -> None:
     origen (y avisa si difieren entre sí), y lo que no tiene capa todavía (históricas,
     Catastro) como «no disponible», no como «sin indicios». (El informe vive en la PR; aquí se
     comprueba el dato que lo alimenta: las fechas de descarga publicadas.)"""
-    fechas: dict[str, set[str]] = {}
+    # Antes se fijaba el literal «2026-11-26»: deja de valer en cuanto se republica otro día
+    # (#183 regeneró la red del IGN el 2026-11-27). Lo que se comprueba es que la fecha de cada
+    # fuente del indicio coincide con la de su capa de origen publicada en `site/datos/`.
+    capas = {"ign-roadlink": "camino_actual", "idem": "vias_pecuarias"}
     for ine in CON_INDICIOS:
         sidecar = _load(DISCREPANCIAS / f"{ine}.geojson.procedencia.json")
-        fechas[ine] = {f["fecha_descarga"] for f in sidecar["fuentes"]}
+        for fuente in sidecar["fuentes"]:
+            assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", fuente["fecha_descarga"]), (ine, fuente)
+            capa = capas.get(fuente["origen"])
+            if capa is not None:  # Catastro no tiene capa publicada (uso interno)
+                origen = _load(DATOS / capa / f"{ine}.geojson.procedencia.json")
+                assert fuente["fecha_descarga"] == origen["fecha_descarga"], (ine, capa)
         for feature in _load(DISCREPANCIAS / f"{ine}.geojson")["features"]:
             assert feature["properties"]["evidencia"], ine
-    todas = set().union(*fechas.values())
-    assert todas == {"2026-11-26"}, fechas  # las dos capas de origen, mismo día en los 5
 
 
 @pytest.mark.integration

@@ -2,12 +2,12 @@
  "atribucion": "Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional",
  "aviso": "cartografía informativa",
  "capa": "camino_actual",
- "fecha_descarga": "2026-11-26",
+ "fecha_descarga": "2026-11-27",
  "fuente": "ign-roadlink",
  "licencia": "CC BY 4.0 — «Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional» (REGISTRY.md, historia #24)",
  "municipio": "28019",
  "procedencia_limite": {
-  "fecha_descarga": "2026-11-26",
+  "fecha_descarga": "2026-11-27",
   "fuente": "ign_unidades_administrativas",
   "licencia": "CC BY 4.0 ign.es",
   "url": "https://www.ign.es/wfs-inspire/unidades-administrativas?bbox=39.98%2C-3.62%2C40.22%2C-3.15%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A4258&count=200&request=GetFeature&service=WFS&typeNames=au%3AAdministrativeUnit&version=2.0.0"

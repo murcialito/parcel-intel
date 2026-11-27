@@ -810,7 +810,7 @@ def test_ca13_candidatos_y_aprobaciones_de_colmenar_anotados(tmp_path: Path) -> 
                 "28043",
                 "--sin-red",
                 "--entrada",
-                str(out),
+                str(tmp_path),  # raíz con discrepancias/interno/, no la carpeta de discrepancias
                 "--cache",
                 str(ROOT / "data" / "raw"),
                 "--salida",
