@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.validacion.casos_schema import MUNICIPIOS_HITO, validar_casos
+from parcel_intel.adapters.validation_cases.casos_schema import MUNICIPIOS_HITO, validar_casos
 
 pytestmark = pytest.mark.acceptance
 

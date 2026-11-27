@@ -18,6 +18,7 @@ from pathlib import Path
 import pytest
 
 from parcel_intel.adapters.validation_cases.casos_json import parse_validation_cases
+from parcel_intel.adapters.validation_cases.casos_schema import validar_casos
 from parcel_intel.application.evaluate_candidates import EvaluateCandidatesUseCase
 from parcel_intel.domain.candidate_evaluation import (
     MATCH_CRITERION_V1,
@@ -34,7 +35,6 @@ from parcel_intel.domain.candidate_evaluation import (
     line_overlap_fraction,
 )
 from parcel_intel.domain.geometry import LineGeometry, MultiLineGeometry
-from tests.validacion.casos_schema import validar_casos
 
 pytestmark = pytest.mark.acceptance
 

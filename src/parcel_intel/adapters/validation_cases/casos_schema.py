@@ -1,7 +1,7 @@
 """Validador del conjunto de validación de caminos cerrados (`docs/validacion/casos.json`).
 
-Historia #51. Solo stdlib: es herramienta de prueba, no lógica de producto, así que vive en
-`tests/` y no en `src/`. Las historias #52, #53 y #54 reutilizan `validar_casos` sin duplicarlo.
+Historia #51; movido a producción en la historia #125 para que `medir-candidatos` (#111) no importe
+de `tests/`. Solo stdlib. Las historias #52, #53 y #54 reutilizan `validar_casos` sin duplicarlo.
 
 Reglas que hace cumplir (ver `docs/validacion/README.md`): formato fijo de campos, fuente
 rastreable y ningún dato de titularidad ni referencia catastral en los textos del caso.

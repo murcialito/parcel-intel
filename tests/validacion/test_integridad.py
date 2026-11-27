@@ -6,7 +6,7 @@ sea válido (no bloquea CI mientras se recopila). Una vez congelado, es estricto
 
 from pathlib import Path
 
-from tests.validacion.congelacion import comprobar_integridad
+from parcel_intel.adapters.validation_cases.congelacion import comprobar_integridad
 
 VALIDACION = Path(__file__).resolve().parents[2] / "docs" / "validacion"
 

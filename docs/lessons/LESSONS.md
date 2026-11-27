@@ -652,4 +652,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: una propiedad opcional nueva del formato curado se valida en tres sitios que deben moverse juntos: `_ALLOWED_PROPERTIES` del lector (si no, «propiedades desconocidas»), el `DigitizedTrail` (forma) y el caso de uso (`load` y `evidence` llaman a `check_trail_municipalities` antes de escribir). Rechazar el fichero entero antes de `sync_unit` deja la base intacta; el doble de repositorio de los tests de aceptación cuenta las llamadas para probarlo.
   - **Aplica a**: ampliaciones del formato de #20.
+## [2026-11-27] Historia #125 — Mover validador y congelación a producción
+
+- **Lección**: al reubicar un módulo de `tests/` a `src/`, busca todas sus referencias con `grep` (imports, docstrings y docs que citan la ruta vieja) antes de darlo por hecho; los comentarios del tipo «sigue en `tests/` hasta #N» quedan falsos si no se actualizan.
+  - **Aplica a**: implementación.
 

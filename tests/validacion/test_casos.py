@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from tests.validacion.casos_schema import validar_casos
+from parcel_intel.adapters.validation_cases.casos_schema import validar_casos
 
 REPO = Path(__file__).resolve().parents[2]
 CASOS = REPO / "docs" / "validacion" / "casos.json"
