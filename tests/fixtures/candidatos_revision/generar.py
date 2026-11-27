@@ -221,7 +221,7 @@ def _window(images: list[dict[str, object]]) -> dict[str, object]:
 
 def manifest_document() -> dict[str, object]:
     found = candidates()
-    stretches = [
+    stretches: list[dict[str, object]] = [
         {
             "id": found["aprobado"].candidate_id,
             "estado": "generada",

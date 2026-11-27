@@ -91,3 +91,36 @@ def test_crs_ausente_o_distinto_y_tipo_erroneo(tmp_path: Path, mutation: dict[st
         collection.pop("crs")
     with pytest.raises(StretchFileFormatError):
         read_stretches(_write(tmp_path, collection), "28043")
+
+
+LINE = {"type": "LineString", "coordinates": [[470000, 4440000], [470080, 4440000]]}
+
+
+def _with_feature_id(feature_id: object, properties: dict[str, object]) -> dict[str, object]:
+    feature = {"type": "Feature", "id": feature_id, "properties": properties, "geometry": LINE}
+    return {"type": "FeatureCollection", "crs": CRS, "features": [feature]}
+
+
+def test_sin_properties_id_vale_el_id_de_la_feature(tmp_path: Path) -> None:
+    """Historia #168 (CA9): el fichero interno de candidatos lleva el id en la feature."""
+    path = _write(tmp_path, _with_feature_id("b" * 16, {"candidate_id": "b" * 16}))
+    (request,) = read_stretches(path, "28043")
+    assert request.stretch_id == "b" * 16
+    path = _write(tmp_path, _with_feature_id("b" * 16, {"id": "b" * 16}))
+    assert read_stretches(path, "28043")[0].stretch_id == "b" * 16
+
+
+@pytest.mark.parametrize(
+    ("feature_id", "properties", "expected"),
+    [
+        ("b" * 16, {"id": "c" * 16}, "no coinciden"),
+        ("B" * 16, {}, "16 hexadecimales"),
+        (7, {}, "16 hexadecimales"),
+    ],
+)
+def test_id_de_feature_no_valido_o_distinto(
+    tmp_path: Path, feature_id: object, properties: dict[str, object], expected: str
+) -> None:
+    path = _write(tmp_path, _with_feature_id(feature_id, properties))
+    with pytest.raises(StretchFileFormatError, match=expected):
+        read_stretches(path, "28043")
