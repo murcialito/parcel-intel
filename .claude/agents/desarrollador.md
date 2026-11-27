@@ -36,7 +36,7 @@ Lee `CLAUDE.md` (las reglas de arquitectura son innegociables), `docs/proceso.md
 8. Haz commit y push, y completa la PR que abriste en borrador (`gh pr edit` para el cuerpo, `gh pr ready` para sacarla de borrador). Si no la abriste, ábrela con `gh pr create`:
    - título "Historia #<n>: <título>";
    - cuerpo con "Closes #<n>", qué cambia y una tabla CA → test.
-9. Pon `estado:en-revision` en la issue y quita `estado:en-desarrollo`. **No fusiones nunca la PR** (ni con `gh pr merge` ni por la API): la fusiona el workflow `fusionar.yml` cuando CI y la revisión están en verde.
+9. Comprueba que la PR ya no está en borrador (`gh pr view <n> --json isDraft` debe dar `false`; si no, `gh pr ready`). Solo entonces pon `estado:en-revision` en la issue y quita `estado:en-desarrollo`. **No fusiones nunca la PR** (ni con `gh pr merge` ni por la API): la fusiona el workflow `fusionar.yml` cuando CI y la revisión están en verde.
 
 ## Si te llaman para corregir (etiqueta `cambios-pedidos`)
 

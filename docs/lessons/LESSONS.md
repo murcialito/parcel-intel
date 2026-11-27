@@ -679,6 +679,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **También**: con `cancel-in-progress: true`, la `concurrency` va en el job y no en el workflow, porque así un run que se salta por el `if` no cancela al que sí revisa. Y si cambia `revisar.yml` en `main`, las PRs abiertas fallan la revisión con `SIN_VEREDICTO` hasta traerse `main`: la acción se salta si su workflow no coincide.
   - **Aplica a**: workflows (`.github/`).
 
+- **Lección**: el desarrollador puede terminar con la historia en `estado:en-revision` y la PR aún en borrador si se le olvida `gh pr ready`. Ningún paso de la tubería lo recogía: la revisión se salta los borradores, el barrido de revisiones solo miraba PRs listas y «devolver a la cola» solo actúa si la historia sigue en desarrollo. Ahora `revisiones_pendientes.sh` también marca lista (con `PROJECT_TOKEN`) una PR `claude/historia-<n>-*` en borrador cuando la historia `n` lleva más de 10 minutos en revisión y no hay un Corregir en marcha; el revisor decide si está completa. Y el barrido de revisiones se salta las PRs en conflicto: sin runs de `pull_request`, pedir la revisión no sirve; las saca Actualizar rama.
+  - **Causa**: PRs #232 (#216), #234 (#217) y #184 (#183), 2026-11-27. Una sola ejecución del agente cada una, sin ningún evento `ready_for_review`; la #184 llevó así casi tres horas y quedó en conflicto con `main`.
+  - **Aplica a**: workflows (`.github/`), desarrollador (paso 8: `gh pr ready` antes de pasar la historia a revisión).
+
 ## [2026-11-27] Historia #165 — Estilos de capa del sistema de diseño en el mapa
 
 - **Lección**: para no divergir de un paquete de diseño entregado como script global, el test ejecuta el original en `node:vm` con `window` y `document` falsos y compara con `deepStrictEqual`. Los objetos de otro contexto de `vm` tienen otro prototipo y `deepStrictEqual` los distingue: normaliza los dos lados con `JSON.parse(JSON.stringify(x))`. Un comentario del módulo que nombre `data-tema` o `window` rompe los tests estáticos que buscan esas palabras: reescríbelo.
@@ -774,6 +778,37 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: una captura de una fixture sintética sobre el mapa real (un tramo inventado con texto de indicio en un punto de Colmenar) parece un hallazgo real. Esas capturas se enseñan en local y no se suben a `docs/`.
   - **Aplica a**: diseño (capturas de la PR).
 
+## [2026-11-27] Historia #214 — Fuentes de sitios de interés
+
+- **Lección**: un servicio público que responde 200 no es un recuento. Overpass dio un 200 con cero nodos porque la consulta por `area["ref:INE"="28043"]` no encontró el área (la relación de Colmenar no lleva esa etiqueta en OSM), y la búsqueda de relaciones con la misma etiqueta también dio cero. Un cero solo vale si antes se ha comprobado que el objeto de referencia existe en la fuente. Lo que no responde se anota como `bloqueado`, con el intento, no como negativo.
+  - **Causa**: el espejo agotó el tiempo en las consultas por caja y el servidor principal devolvió 502 «at capacity» en varios intentos.
+  - **Aplica a**: BA (al exigir un recuento, pedir el canal y el intento fallido) | implementación (antes de registrar un recuento de OSM o de un servicio público, comprobar que el objeto de referencia existe).
+
+- **Lección**: dos fuentes que parecen independientes pueden ser la misma geometría. El Nomenclátor (NGBE) trae 217 de 230 topónimos de la caja con el campo `fuente` igual a `MITMA.IGN.BTN25`. Antes de sumar cobertura de dos fuentes, mirar el campo de procedencia.
+  - **Aplica a**: BA e implementación (fuentes del IGN que se solapan; no contar dos veces el mismo dato como verificación cruzada).
+
+- **Lección**: una especificación de producto descargada de la web puede estar sustituida. La BTN25 que se encuentra en ign.es es la v1.0 de 2009, y dice que desde septiembre de 2021 la sustituye ESPBTN_MOD21. Anotar la versión y la fecha de la especificación leída, y comprobar si hay una vigente antes de citar sus códigos.
+  - **Aplica a**: BA (al verificar un producto, anotar la versión y la fecha de la especificación leída).
+
+- **Lección**: un PDF de más de 10 MB no pasa por `WebFetch` y `pdftoppm` no está instalado. Descargar con `curl` a un directorio aparte y extraer el texto de los flujos Flate con `zlib` (`python3 -I`) sirve para buscar cláusulas. Ese texto no es una cita certificada: las citas se copian de él y se marcan como extraídas.
+  - **Aplica a**: implementación (verificación de licencias en PDF de gran tamaño).
+## [2026-11-27] Historia #213 — Kit de campo GPX/KML
+
+- **Lección**: un exportador de lo ya publicado (GPX/KML) no copia propiedades: construye cada descripción solo desde la lista blanca de la ficha y falla si llega una clave de más o una de titularidad/catastral, incluso anidada. El aviso se exige por elemento y en la procedencia de cada capa; un exportador que «omite lo que no encuentra» deja un tramo sin aviso (lecciones 95 y 169).
+  - **Aplica a**: implementación de cualquier exportación derivada de `site/datos/` (descargas, enlaces, QField).
+
+- **Lección**: para que una salida con fecha sea reproducible byte a byte, la fecha entra por parámetro (el CLI la lee una vez) y nunca la lee el adapter; `xml.etree` con `ET.indent` y orden de entrada fijo basta, sin librerías nuevas.
+  - **Aplica a**: implementación (ficheros publicados que llevan «fecha de generación»).
+## [2026-11-27] Historia #206 — Vuelos históricos de la Comunidad de Madrid
+
+- **Lección**: un servicio de imágenes responde **200 con una tesela blanca** fuera de su cobertura (la IDEM: 854 bytes, un solo nivel de gris), igual que el IGN. «200 + `image/png`» no prueba que haya imagen: se decodifica y se mide varianza y niveles distintos (en blanco si varianza < 1). Cualquier adapter de #207 debe aplicarlo a cada respuesta.
+  - **Aplica a**: implementación (adapters de imágenes) | revisión.
+
+- **Lección**: el `GetCapabilities` del WMS de la IDEM anuncia un `GetMap` (`http://…/erdas-iws/ogc/wms/visorcartografia2`) que responde 404; el que funciona es `https://idem.comunidad.madrid/srvimagenes2/ogc/wms/visorcartografia2`. Una URL que da el propio documento de capacidades tampoco vale hasta probarla (lección 0001). El `GetCapabilities` WMTS pesa 14 MB: se guarda solo un extracto.
+  - **Aplica a**: implementación (#207).
+
+- **Lección**: los píxeles de un `TileMatrixSet` `EPSG3857` miden `escala × 0,00028 × cos(latitud)` en el terreno: el nivel 18 («0,597 m») son 0,457 m en Colmenar. Se calcula la resolución real a la latitud del ámbito antes de elegir nivel. Los bytes de una misma tesela cambian entre peticiones, así que no sirven como huella.
+  - **Aplica a**: implementación (#207) | BA (criterios de «resolución»).
 ## [2026-11-27] Historia #211 — Catastrones del IGN
 
 - **Lección**: el `GetFeatureInfo` de `primera-edicion-mtn` devuelve la hoja de un solo punto; para saber qué hojas cubren un término hay que muestrear una rejilla dentro del límite (2,5 km bastó) y contar puntos por hoja. Una sola consulta en el centro oculta las hojas de borde (Colmenar tiene dos; Chinchón, cuatro). Los enlaces de descarga del CNIG devuelven la ficha HTML con reCAPTCHA v3, no el zip: se anota `bloqueado` y se trabaja con el render del WMS.
@@ -787,4 +822,15 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: implementación (al añadir una sección a `REGISTRY.md`, ejecutar la suite completa, no solo los tests de la historia).
 - **Lección**: el cruce de control entre una capa de trazados (GML en EPSG:25830) y otra de polígonos (SHP en EPSG:4258) se hizo con stdlib (inverso de UTM sobre los vértices y punto-en-polígono). Que el 99 % de los vértices caiga dentro de un recinto valida la reproyección a la escala del problema; si el porcentaje cayera, habría que revisar la conversión antes de sacar conclusiones.
   - **Aplica a**: implementación (cruces entre capas en distintos CRS sin dependencias de geoprocesamiento en `domain/`).
+## [2026-11-27] Historia #220 — Montes de utilidad pública (IDEM)
+
+- **Lección**: cuando una fuente pública publica campos de titularidad (aquí `DS_PROPIETARIO` y `DS_NOM_PROPIETARIO`, incluso de entes públicos), el parser lee solo una lista blanca de campos y falla si se le pide otro; no se parsea todo y se «filtra después». En la fixture se sustituyen los valores reales por unos ficticios, y un test comprueba que ni nombres ni valores llegan a ningún fichero derivado.
+  - **Aplica a**: implementación de adapters de cualquier capa con campos de propietario (otras capas de `Zonas`, Catastro) | revisión.
+
+- **Lección**: el filtro `BBOX` de una capa de recintos grandes trae montes de municipios vecinos y, al recortar con el límite del IGN, deja astillas de unos m² por la diferencia entre líneas municipales (Chinchón 122 m², Belmonte 1 920 m²). Se anotan en `REGISTRY.md` y no se filtran hasta decidir un umbral de publicación.
+  - **Aplica a**: implementación (#224 al publicar la capa).
+## [2026-11-27] Historia #207 — Adapter de los vuelos históricos de Madrid
+
+- **Lección**: el WMS de la IDEM responde 200 con un PNG blanco fuera de cobertura (y la URL de `GetMap` que anuncia su `GetCapabilities` da 404); un `ServiceException` XML también llega con 200. El filtro fiable es validar la firma PNG antes de cachear y medir la varianza de gris (media de R, G, B) después. No hay Pillow en el proyecto: se reutiliza `adapters/evidence/png.py::decode_png`. Los identificadores `CM_*` son distintos de `AMS_1956-1957` del IGN: cada adapter rechaza con `InvalidHistoricalVintageError` los vuelos que no son suyos, y elegir adapter por vuelo es cosa de la composición (#208).
+  - **Aplica a**: implementación (#208 y cualquier otra fuente de ortofoto por WMS).
 
