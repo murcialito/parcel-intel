@@ -124,6 +124,68 @@ export function fichaIndicio(propiedades, config) {
   };
 }
 
+// Imágenes de comparación de un tramo a verificar (historia #178, ADR 0042 §6, ADR 0049). Pura y
+// tolerante: no redacta nada, copia lo publicado en #172. Un campo ausente (fichero anterior a
+// #172) o sin ninguna ventana válida da `null` y la ficha queda como antes.
+const numeroPositivo = (n) => typeof n === "number" && Number.isFinite(n) && n > 0;
+const punto = (p) =>
+  Array.isArray(p) && p.length === 2 && p.every((n) => typeof n === "number" && Number.isFinite(n));
+
+function ventanaComparacion(v) {
+  if (v === null || typeof v !== "object") return null;
+  if (!numeroPositivo(v.ancho_px) || !numeroPositivo(v.alto_px)) return null;
+  const partes = (Array.isArray(v.trazo_px) ? v.trazo_px : [])
+    .filter((parte) => Array.isArray(parte) && parte.length >= 2 && parte.every(punto))
+    .map((parte) => parte.map(([x, y]) => `${x},${y}`).join(" "));
+  const imagenes = (Array.isArray(v.imagenes) ? v.imagenes : [])
+    .filter((i) => i !== null && typeof i === "object")
+    .map((i, orden) => ({
+      url: texto(i.url),
+      periodo: texto(i.periodo),
+      atribucion: texto(i.atribucion),
+      alt: texto(i.texto_alternativo),
+      inicio: Number.parseInt(texto(i.periodo), 10),
+      orden,
+    }))
+    // Cronológico por el año con que empieza el periodo; a igualdad o sin año, el del fichero.
+    .sort((a, b) => (a.inicio - b.inicio || 0) || a.orden - b.orden)
+    .map(({ url, periodo, atribucion, alt }) => ({ url, periodo, atribucion, alt }));
+  const omitidas = (Array.isArray(v.omitidas) ? v.omitidas : [])
+    .filter((o) => o !== null && typeof o === "object" && cadenaNoVacia(o.texto))
+    .map((o) => ({ franja: texto(o.franja), texto: o.texto }));
+  if (imagenes.length === 0 && omitidas.length === 0) return null;
+  return { ancho: v.ancho_px, alto: v.alto_px, partes, imagenes, omitidas };
+}
+
+// `notas` es el bloque `comparacion` de la colección (o null): huecos, quién sirve las
+// imágenes y el texto de «imagen no disponible», todo tal cual.
+export function notasComparacion(propiedadesColeccion) {
+  const c = propiedadesColeccion?.comparacion;
+  if (c === null || typeof c !== "object") return null;
+  return {
+    huecos: (Array.isArray(c.huecos) ? c.huecos : [])
+      .map((h) => texto(h?.texto))
+      .filter((t) => t.trim() !== ""),
+    servidasPor: texto(c.servidas_por),
+    noDisponible: texto(c.no_disponible),
+  };
+}
+
+export function fichaComparacion(propiedades, notas, config) {
+  const crudas = propiedades?.imagenes_comparacion;
+  if (!Array.isArray(crudas)) return null;
+  const ventanas = crudas.map(ventanaComparacion).filter((v) => v !== null);
+  if (ventanas.length === 0) return null;
+  return {
+    ventanas,
+    huecos: notas?.huecos ?? [],
+    servidasPor: notas?.servidasPor ?? "",
+    noDisponible: cadenaNoVacia(notas?.noDisponible)
+      ? notas.noDisponible
+      : config.textos.imagenNoDisponible,
+  };
+}
+
 // Una respuesta que no es un FeatureCollection es fallo, no «vacío».
 export function esFeatureCollection(json) {
   return (
@@ -193,6 +255,15 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
     return { json, resumen };
   }
 
+  // Ficha de un tramo o indicio; los tramos llevan además sus imágenes de comparación (#178).
+  function fichaDeCapa(capa, json) {
+    const notas = esCandidato(capa) ? notasComparacion(json.properties) : null;
+    return (propiedades) => {
+      const comparacion = esCandidato(capa) ? fichaComparacion(propiedades, notas, config) : null;
+      return vista.nodoFichaIndicio(fichaIndicio(propiedades, config), comparacion);
+    };
+  }
+
   async function elegirMunicipio(ine) {
     const municipio = estado.municipios.find((m) => m.ine === ine);
     if (!municipio) return;
@@ -236,8 +307,8 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
         ...opcionesDeEstilo(capa),
         orden: capa.orden,
         alPulsar: esIndicio(capa)
-          ? (propiedades) => vista.nodoFichaIndicio(fichaIndicio(propiedades, config))
-          : (propiedades) => vista.nodoFicha(fichaDe(capa, propiedades)),
+          ? fichaDeCapa(capa, geojson)
+          :(propiedades) => vista.nodoFicha(fichaDe(capa, propiedades)),
       });
       mapa.mostrarCapa(capa.id, estado.capas[capa.id].visible);
       estado.capas[capa.id].cargada = true;

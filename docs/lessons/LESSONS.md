@@ -751,3 +751,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: en las Actions de los agentes, `mv`, `rm`, `cp` y `sed -i` sobre ficheros del repo piden aprobación. Para colocar un fichero generado, genéralo directamente en su ruta o léelo y escríbelo con `Write`, y no dejes carpetas temporales dentro del repo.
   - **Aplica a**: implementación.
+
+## [2026-11-27] Historia #178 — Imágenes de comparación en la ficha del visor
+
+- **Lección**: el espacio de nombres de SVG (`createElementNS`) es una URL literal que el escáner de #85 (CA1) toma por un recurso externo. No se relaja el test: en `vista.js` se escribe partido (`"http:" + "//www.w3.org/2000/svg"`) con un comentario que lo explica, sin `https://` en el comentario.
+  - **Aplica a**: implementación (módulos del visor que necesiten un literal con `//`).
+
+- **Lección**: el documento falso de los tests del visor solo conoce lo que ya se usaba; un widget con eventos o SVG exige ampliarlo (`createElementNS`, `addEventListener`, `getAttribute`) en el mismo cambio, y la fixture con el campo nuevo se genera a partir de la anterior para no divergir de su forma.
+  - **Aplica a**: implementación (tests de `tests/site/`).

@@ -89,6 +89,11 @@ export const CONFIG = Object.freeze({
     sinIndicios: "sin indicios publicados",
     sinCandidatos: "sin tramos a verificar publicados",
     anioNoDeclarado: "año no declarado",
+    // Historia #178: rótulos del visor para las imágenes de comparación. Los demás textos
+    // (atribución, huecos, omitidas, «no disponible») vienen del fichero publicado.
+    tituloComparacion: "Imágenes de comparación",
+    mostrarTrazo: "Mostrar el trazo sobre las imágenes",
+    imagenNoDisponible: "Imagen no disponible",
     fichaNoDisponible: "ficha no disponible",
     // Copia literal del aviso de #16 (ficha pública; también en cada feature y en el sidecar de
     // `datos/discrepancias/`). Un test lo compara con el fichero publicado.
