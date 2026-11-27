@@ -644,13 +644,14 @@ def test_ca14_notice_con_la_capa_y_sin_duplicar_catastro() -> None:
 
 
 @pytest.mark.integration
-@pytest.mark.fuera_de_ci  # depende de data/ local con Catastro y de la revisión real
 def test_ca15_flujo_real_en_local(tmp_path: Path) -> None:
     """CA15. [integración] Dado el flujo real en local con Catastro (`candidatos-corte`,
     `medir-candidatos`, revisión aprobada en `curated/candidatos/28043/revision.json`), cuando
     se ejecuta `publicar-candidatos --municipio 28043`, entonces se obtienen los ficheros
-    anteriores. Lo ejecuta el fundador, no CI (`fuera_de_ci`); la historia no commitea datos
-    reales."""
+    anteriores. La historia no commitea datos reales, así que en CI se salta: faltan `data/derived`
+    y `revision.json`. Decisión del fundador en #170: no bloquea el merge y se ejecuta en la
+    primera publicación real, cuando haya candidatos aprobados. El resultado se anota en
+    `REGISTRY.md`."""
     medicion = ROOT / "data" / "derived" / "validacion" / "medicion.json"
     entrada = ROOT / "data" / "derived" / "candidatos" / "interno"
     curated = ROOT / "curated" / "candidatos"
