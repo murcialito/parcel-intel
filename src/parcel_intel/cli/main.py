@@ -8,6 +8,11 @@ from pathlib import Path
 
 import requests
 
+from parcel_intel.adapters.catastro import client as catastro_client
+from parcel_intel.adapters.catastro.area_adapter import (
+    CATASTRO_WFS_TILE_SIDE_M,
+    CatastroAreaAdapter,
+)
 from parcel_intel.adapters.comparison_files import (
     JsonComparisonManifestWriter,
     ManifestTooLargeError,
@@ -60,6 +65,7 @@ from parcel_intel.adapters.road_network.adapter import RoadNetworkAdapter
 from parcel_intel.adapters.shapely_geometry import ShapelyLineClipper, ShapelyPolygonClipper
 from parcel_intel.adapters.trail_layers import GeoJsonTrailLayerReader, TrailLayerFormatError
 from parcel_intel.application.author_rule_proposal import AuthorRuleProposalUseCase
+from parcel_intel.application.build_cadastral_road_layer import BuildCadastralRoadLayerUseCase
 from parcel_intel.application.build_comparison_images import BuildComparisonImagesUseCase
 from parcel_intel.application.build_municipal_comparisons import (
     BuildMunicipalComparisonsUseCase,
@@ -77,10 +83,12 @@ from parcel_intel.application.publish_layers import (
     DEFAULT_LAYERS,
     PublishLayersUseCase,
 )
+from parcel_intel.domain.cadastral_road import CadastralRoadLayer
 from parcel_intel.domain.comparison_image import DegenerateStretchError
 from parcel_intel.domain.digitization import StaleApprovalError
 from parcel_intel.domain.discrepancy import DiscrepancyKind
 from parcel_intel.domain.discrepancy_report import LayerStatus
+from parcel_intel.domain.geometry import BBox
 from parcel_intel.domain.georeferencing import GeoreferenceRejectedError
 from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
 from parcel_intel.domain.municipal_road_layer import MunicipalRoadLayerBatch
@@ -89,6 +97,8 @@ from parcel_intel.domain.published_discrepancy import OmittedByLicense
 from parcel_intel.domain.published_layers import PUBLISHED_LAYERS, PublishedLayerId
 from parcel_intel.domain.rule import Rule, WithinDistanceCondition
 from parcel_intel.ports.errors import (
+    AreaQueryLimitExceededError,
+    CadastralServiceError,
     ClippedGeometryHasHolesError,
     CuratedUnitNotFoundError,
     EvidenceImageFormatError,
@@ -99,6 +109,7 @@ from parcel_intel.ports.errors import (
     MunicipalBoundaryUnusableError,
     RawImageMismatchError,
     RuleProposalNotFoundError,
+    TruncatedAreaQueryError,
     WorkingImageUnavailableError,
 )
 
@@ -366,6 +377,86 @@ def _camino_actual_municipios(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
     return 1 if batch.failures else 0
+
+
+def build_cadastral_road_layer(
+    provincia: str,
+    municipio: str,
+    municipality_code: str,
+    bbox: BBox,
+    cache_dir: Path,
+    offline: bool,
+    http_get: HttpGet = catastro_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> CadastralRoadLayer:
+    """Composition root de la capa interna de caminos de Catastro (historia #37, ADR 0028).
+
+    Con `offline=True` nada llama a la red: solo se lee la caché cruda."""
+    fetcher = CachedRawFetcher(http_get, cache_dir, today, sleep=sleep, offline=offline)
+    adapter = CatastroAreaAdapter(provincia, municipio, fetcher)
+    use_case = BuildCadastralRoadLayerUseCase(
+        parcels=adapter, land_use=adapter, tile_side_m=CATASTRO_WFS_TILE_SIDE_M
+    )
+    return use_case.execute(municipality_code, bbox)
+
+
+def _format_cadastral_road_layer(layer: CadastralRoadLayer, municipio: str) -> str:
+    lines = [
+        f"{layer.municipality_code} {municipio}",
+        f"  teselas: {layer.tiles}",
+        f"  parcelas vistas: {layer.parcels_seen}",
+        f"  candidatas (número >= 9000): {layer.road_number_candidates}",
+        f"  caminos: {len(layer.roads)}",
+        f"  excluidas por clase: {len(layer.excluded)}",
+        f"  sin clasificar: {len(layer.unclassified)}",
+    ]
+    for road in layer.roads:
+        lines.append(
+            f"    {road.cadastral_reference} area_m2={road.area_m2:.1f} "
+            f"clases={','.join(road.land_use_classes)}"
+        )
+    lines.append("Capa de uso interno: no publicable (licencia INSPIRE de Catastro).")
+    return "\n".join(lines)
+
+
+def _bbox_argument(value: str) -> BBox:
+    parts = value.split(",")
+    try:
+        numbers = tuple(float(part) for part in parts)
+    except ValueError:
+        numbers = ()
+    if len(numbers) != 4 or numbers[0] >= numbers[2] or numbers[1] >= numbers[3]:
+        raise argparse.ArgumentTypeError(
+            f"bbox MINX,MINY,MAXX,MAXY en EPSG:25830 (E,N) esperado: {value!r}"
+        )
+    return (numbers[0], numbers[1], numbers[2], numbers[3])
+
+
+def _catastro_caminos(args: argparse.Namespace) -> int:
+    try:
+        layer = build_cadastral_road_layer(
+            args.provincia,
+            args.municipio,
+            args.codigo,
+            args.bbox,
+            args.cache_dir,
+            args.sin_red,
+        )
+    except (
+        AreaQueryLimitExceededError,
+        TruncatedAreaQueryError,
+        CadastralServiceError,
+        RawCacheMissError,
+        RawCacheCorruptError,
+    ) as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    except requests.RequestException as error:
+        print(f"Error de red: {error}", file=sys.stderr)
+        return 1
+    print(_format_cadastral_road_layer(layer, args.municipio))
+    return 0
 
 
 def build_discrepancy_use_case(derived_dir: Path, output_dir: Path) -> DetectDiscrepanciesUseCase:
@@ -760,6 +851,34 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio de los ficheros <codigo_ine>.geojson",
     )
     camino_parser.set_defaults(func=_camino_actual_municipios)
+
+    caminos_parser = subparsers.add_parser(
+        "catastro-caminos",
+        help="Capa interna de caminos de Catastro (parcelas >= 9000 de clase VT) de un municipio",
+    )
+    caminos_parser.add_argument("--provincia", required=True, help="Nombre, p. ej. MADRID")
+    caminos_parser.add_argument(
+        "--municipio", required=True, help="Nombre, p. ej. 'COLMENAR DE OREJA'"
+    )
+    caminos_parser.add_argument(
+        "--codigo", type=_municipality_code, required=True, help="Código de Catastro, 5 dígitos"
+    )
+    caminos_parser.add_argument(
+        "--bbox",
+        type=_bbox_argument,
+        required=True,
+        help="MINX,MINY,MAXX,MAXY del término en EPSG:25830 (orden E,N)",
+    )
+    caminos_parser.add_argument(
+        "--cache-dir",
+        type=Path,
+        default=Path("data/raw/catastro"),
+        help="Directorio de la caché cruda de Catastro",
+    )
+    caminos_parser.add_argument(
+        "--sin-red", action="store_true", help="Solo la caché cruda; falla si falta algo"
+    )
+    caminos_parser.set_defaults(func=_catastro_caminos)
 
     discrepancias_parser = subparsers.add_parser(
         "discrepancias",

@@ -8,13 +8,20 @@ titularidad: que un arroyo tenga parcela propia no dice nada sobre quién es su 
 
 from collections.abc import Iterable
 
-CLASE_VIA_DE_COMUNICACION = "VT"
-PARCELA_MINIMA_DE_DOMINIO_PUBLICO = 9000
+from parcel_intel.domain.cadastral_road import (
+    ROAD_LAND_USE_CLASS,
+    ROAD_PARCEL_NUMBER_MIN,
+    is_road_class,
+)
+
+CLASE_VIA_DE_COMUNICACION = ROAD_LAND_USE_CLASS
+PARCELA_MINIMA_DE_DOMINIO_PUBLICO = ROAD_PARCEL_NUMBER_MIN
 
 
 def es_camino(clase: str) -> bool:
-    """True si la clase de subparcela es `VT` (vía de comunicación de dominio público)."""
-    return clase.strip().upper() == CLASE_VIA_DE_COMUNICACION
+    """True si la clase de subparcela es `VT` (vía de comunicación de dominio público).
+    La regla vive en `domain.cadastral_road`."""
+    return is_road_class(clase)
 
 
 def es_camino_catastro(parcela: int, clases: Iterable[str]) -> bool:

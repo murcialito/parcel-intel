@@ -372,6 +372,13 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: antes de atribuir un camino a un municipio, comprobar que el homónimo no es otro: el «Colmenar» de una búsqueda era Colmenar Viejo (Vado de la Tabla), no Colmenar de Oreja (lección 0021 otra vez).
   - **Aplica a**: implementación | BA.
 
+## [2026-11-26] Historia #37 — Capa interna de caminos de Catastro
+
+- **Lección**: las referencias "de ejemplo" sintéticas pueden coincidir con una referencia real: la de la parcela 1 del polígono 1 de un municipio real (un ejemplo «inocente» con ceros a la izquierda en un test) casó con una huella de `tests/fixtures/catastro_huellas_reales.json` y rompió `test_historia_46::test_ca7`. Para tests de formato usar números ≥9000 (`28043A00109101`), que son los de la tabla sintética, y correr `uv run pytest` entero antes de la PR.
+  - **Aplica a**: implementación.
+
+- **Lección**: el WFS y `Consulta_DNPPP` del Catastro (`ovc.catastro.meh.es`) cortan la conexión (`Connection reset by peer`) desde los runners de GitHub Actions, aunque la raíz responda (400 a un GetCapabilities sin parámetros). Un criterio `[integración]` contra el Catastro real no puede verificarse en el agente; hay que ejecutarlo desde una máquina con acceso.
+  - **Aplica a**: BA | implementación.
 ## [2026-11-26] Historia #84 — Publicar capas en site/datos
 
 - **Lección**: una puerta "denegar por defecto" (aquí `PublishableLayer` con `layer_provenance`) también rechaza los casos degenerados que nadie miró, y el rechazo sale con el mensaje del caso común. La capa de vías pecuarias **vacía** toma la procedencia del límite del IGN (uso interno) porque no hay consulta de IDEM de la que tomarla. Se rechaza como «no redistribuible» y el mensaje sugiere regenerarla, lo que no arregla nada. Le pasa a Belmonte de Tajo (28019) en los datos reales, así que `publicar-capas --ambito` sale con 1.
@@ -413,6 +420,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: la lógica de decisión de un workflow (aquí «¿toca `curated/`?» y «¿aprobó el fundador el último commit?») se extrae a scripts que leen stdin; así se prueba con JSON fijo sin red y el YAML solo la invoca.
   - **Aplica a**: arquitecto | implementación.
 
+## [2026-11-26] Historia #37 — Capa interna de caminos de Catastro
+
+- **Lección**: una respuesta de error determinista de una fuente (aquí `lerr` de `Consulta_DNPPP`: «no existe ningún inmueble») se cachea igual que una buena; si no, `--sin-red` no puede repetir la pasada con red. La validación previa a la caché solo rechaza lo transitorio (excepciones de servicio, truncados) y el error de dominio se relanza al leer.
+  - **Causa**: el WFS de Catastro devuelve parcelas ≥ 9000 que DNPPP no reconoce; sin cachear el `lerr`, la repetición sin red falló con `RawCacheMissError`.
+  - **Aplica a**: implementación (adapters con `CachedRawFetcher`) | arquitecto.
 ## [2026-11-26] Historia #110 — Arnés de evaluación de candidatos
 
 - **Lección**: en una medida por muestreo de puntos medios con `<=` (aquí `line_overlap_fraction`, paso 1 m), un oráculo escrito a mano falla si el alcance coincide con la distancia de un punto medio (0,5 m del vértice): ese punto cuenta como cubierto. Al calcular el oráculo, listar los puntos medios cercanos a la frontera y elegir un alcance que no caiga justo en uno, o fijar ese caso límite a propósito en un test propio.
@@ -496,6 +508,16 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: la primera cota (−1.000.000…2.000.000) dejaba pasar los grados; lo cazó un test unitario con lon/lat.
   - **Aplica a**: implementación (lectores de ficheros de entrada con CRS declarado).
 
+## [2026-11-26] Historia #138 — Registro PostGIS de unidades y `sync_unit`
+
+- **Lección**: un test de migración que dice «`down` revierte la última» se rompe en cuanto llega una migración nueva. `test_historia_19::test_ca6` revertía una vez y esperaba que `historic_trail` desapareciera; con la `0006` solo desaparece la columna `unit_id`. Al añadir una migración, buscar con `grep` los tests que llaman a `migrate.down` y actualizarlos.
+  - **Aplica a**: implementación (cualquier migración nueva) | revisión.
+
+- **Lección**: para que `get_unit` devuelva una unidad **igual** a la guardada, cada dato que el dominio repite en dos entidades (`UnitSpec` y `WorkingImage`: tipo, sha256, ancho, alto, fuente) o que no está en la entidad persistida (`image_url` exacta, `image_retrieved_at` de la especificación frente a la fecha real de descarga) necesita su columna o una comprobación previa al SQL. El SQL literal de #20 no tenía `image_url` ni `spec_image_retrieved_at`; se añadieron, y `sync_unit` rechaza con `ValueError` una unidad incoherente en vez de perder un dato en silencio.
+  - **Aplica a**: arquitecto (al fijar un esquema para una ida y vuelta exacta, comparar campo a campo con el dataclass) | implementación.
+
+- **Lección**: en esta sesión no había PostGIS ni permiso para Docker, así que los criterios `[integración: PostGIS]` solo corren en CI. Se cuadró a mano el número de `%s` y de parámetros de cada sentencia (el fallo más probable al no poder ejecutarlas) y se dejó el resto a CI.
+  - **Aplica a**: implementación (si no se puede ejecutar la base, contar placeholders y decir en la PR que no se ejecutó).
 ## [2026-11-26] Historia #137 — Entrada curada y caché de la imagen de trabajo
 
 - **Lección**: el sha256 de un fichero versionado solo es estable si git no toca sus finales de línea. `.gitattributes` marca `curated/historico/**` y la fixture como `-text` (CA11), y la lectura del CSV calcula el hash sobre los **bytes** del fichero, no sobre el texto decodificado: con BOM o CRLF el hash cambia a propósito, porque eso es lo que vio quien aprobó. Un test que mezcla las dos cosas (BOM → mismo contenido, otro sha256) lo documenta.

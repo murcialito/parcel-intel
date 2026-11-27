@@ -95,19 +95,18 @@ def test_get_parcel_multisurface_en_bbox_denso_de_121_parcelas() -> None:
     assert xs == [459990.0, 459998.0, 460002.0, 460010.0]
 
 
-def test_vecina_con_hueco_se_parsea_con_su_anillo_interior() -> None:
-    # CA9 (d): la vecina 99170A90100002 trae exterior + 1 gml:interior; el parser
-    # devuelve los dos anillos (el adapter de Catastro no descarta huecos).
+def test_vecina_con_hueco_se_parsea_solo_con_su_anillo_exterior() -> None:
+    # CA9 (d) + historia #37 (ADR 0028): la vecina 99170A90100002 trae exterior + 1
+    # gml:interior; el parser de parcelas descarta los huecos (`Geometry` no los modela),
+    # como IDEM (ADR 0011) y Red Natura (ADR 0015). Antes los devolvía como anillo exterior.
     xml = (FIXTURES_DIR / "wfsCP_villaconejos_rustica_por_centroide.xml").read_bytes()
     assert xml.count(b"<gml:interior>") == 1
 
     vecina = next(p for p in parse_wfs_parcels(xml) if p["reference"] == "99170A90100002")
 
-    assert len(vecina["rings"]) == 2
-    exterior, interior = vecina["rings"]
-    ex_xs = [x for x, _ in exterior]
-    in_xs = [x for x, _ in interior]
-    assert min(ex_xs) < min(in_xs) and max(in_xs) < max(ex_xs)
+    assert len(vecina["rings"]) == 1
+    xs = [x for x, _ in vecina["rings"][0]]
+    assert max(xs) - min(xs) == 80.0  # el exterior (80×60), no el hueco (20×20)
     assert vecina["area_m2"] == 80.0 * 60.0 - 20.0 * 20.0
 
 
