@@ -657,3 +657,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: al reubicar un módulo de `tests/` a `src/`, busca todas sus referencias con `grep` (imports, docstrings y docs que citan la ruta vieja) antes de darlo por hecho; los comentarios del tipo «sigue en `tests/` hasta #N» quedan falsos si no se actualizan.
   - **Aplica a**: implementación.
 
+
+## [2026-11-27] Tubería — correcciones perdidas
+
+- **Lección**: un disparo por evento (`labeled`, `synchronize`) se pierde si la PR está en conflicto con `main` en ese momento: GitHub no crea runs de `pull_request` en una PR con conflictos, y no los crea después. Todo paso de la tubería que dependa de un evento de PR necesita un barrido de respaldo que mire el estado (aquí `correcciones_pendientes.sh`: `cambios-pedidos` sin un Corregir lanzado después). Ese barrido no debe duplicar el disparo normal: deja un margen y comprueba los runs en curso, y el workflow disparado vuelve a comprobar la condición al empezar.
+  - **Causa**: el revisor puso `cambios-pedidos` en la PR #129 (#114) mientras Actualizar rama la sacaba de un conflicto. No se lanzó ningún Corregir y la PR quedó parada hasta la revisión manual.
+  - **Aplica a**: workflows (`.github/`).
