@@ -1,4 +1,4 @@
-// Estilos de capa del sistema de diseño Paso Común (historia #165, ADR 0047).
+// Estilos de capa del sistema de diseño Paso Común (historia #165, ADR 0046).
 //
 // Módulo puro: sin DOM, sin la librería de mapas y sin globales. Los valores y la aritmética son
 // los de `docs/design-system/site/js/estilos-capas.js` (un test los compara con el original).
@@ -50,7 +50,7 @@ export const BASE = congelar({
   seleccionHalo: { claro: "#ffffff", oscuro: "#e8ebe8" },
 });
 
-// Opacidad del relleno de los polígonos (decisión de producto de #165, ADR 0047).
+// Opacidad del relleno de los polígonos (decisión de producto de #165, ADR 0046).
 export const RELLENO = congelar({
   viasPecuarias: 0.15,
   indicioBaja: 0.1,
