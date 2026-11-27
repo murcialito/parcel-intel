@@ -784,4 +784,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: los píxeles de un `TileMatrixSet` `EPSG3857` miden `escala × 0,00028 × cos(latitud)` en el terreno: el nivel 18 («0,597 m») son 0,457 m en Colmenar. Se calcula la resolución real a la latitud del ámbito antes de elegir nivel. Los bytes de una misma tesela cambian entre peticiones, así que no sirven como huella.
   - **Aplica a**: implementación (#207) | BA (criterios de «resolución»).
+## [2026-11-27] Historia #211 — Catastrones del IGN
+
+- **Lección**: el `GetFeatureInfo` de `primera-edicion-mtn` devuelve la hoja de un solo punto; para saber qué hojas cubren un término hay que muestrear una rejilla dentro del límite (2,5 km bastó) y contar puntos por hoja. Una sola consulta en el centro oculta las hojas de borde (Colmenar tiene dos; Chinchón, cuatro). Los enlaces de descarga del CNIG devuelven la ficha HTML con reCAPTCHA v3, no el zip: se anota `bloqueado` y se trabaja con el render del WMS.
+  - **Aplica a**: refinador, implementación (historias que inventarían la cobertura de un WMS histórico).
 

@@ -939,6 +939,78 @@ Ninguna ficha publica mes. Las tres fichas declaran la misma caja (lon −4,6128
 
 ---
 
+## Catastrones (minutas MTN50 del IGN): cobertura, año y atribución en el ámbito (historia #211)
+
+Verificado el **2026-11-27** para la [historia #211](https://github.com/murcialito/paso-comun/issues/211) (hija de #195). Pregunta: ¿qué hojas de catastrones cubren los 7 municipios del ámbito, de qué año son, con qué atribución se pueden publicar y merece la pena georreferenciarlas? Servicio: `https://www.ign.es/wms/primera-edicion-mtn`, capa `catastrones` (WMS 1.3.0, EPSG:25830). Script puntual: `scripts/verificar_catastrones.py` (`hojas`, `imagenes`, `descargas`, `fixtures`). Fixtures en `tests/fixtures/caminos/catastrones/` (`GetFeatureInfo` de cada hoja, recortes de 1 km a 2 m/px, `hojas.json`, `imagenes.json`, `descargas.json`, ficha del Centro de Descargas de la 0606, `procedencia.json`). Crudos en `data/raw/ign_catastrones/`, fuera de git. Ninguna prueba llama a red.
+
+### CA1 — Hojas que cubren cada municipio (`GetFeatureInfo`, `confirmado`)
+
+Método: rejilla de 2,5 km dentro del término (límite del IGN, fixture `ign_au_ambito_7_municipios.xml`) más un punto interior; un `GetFeatureInfo` por punto sobre una ventana de 100 m (`text/html`). Todos los puntos devolvieron hoja (0 «sin hoja»). Año = «Año de edición» de la tabla; ninguna hoja salió «sin año». Entre paréntesis, puntos de la rejilla que caen en esa hoja.
+
+| Municipio (INE) | Puntos | Hojas (número, nombre, año) |
+|---|---|---|
+| Colmenar de Oreja (28043) | 19 | **0606** Chinchón 1963 (17); 0605 Aranjuez 1943 (2) |
+| Aranjuez (28013) | 31 | 0630 Yepes 1945 (17); 0605 Aranjuez 1943 (14) |
+| Chinchón (28052) | 20 | 0606 Chinchón 1963 (6); 0583 Arganda 1956 (9); 0582 Getafe 1964 (3); 0605 Aranjuez 1943 (2) |
+| Belmonte de Tajo (28019) | 5 | 0606 Chinchón 1963 (5) |
+| Villaconejos (28170) | 6 | 0606 Chinchón 1963 (6) |
+| Villarejo de Salvanés (28180) | 20 | 0606 Chinchón 1963 (18); 0583 Arganda 1956 (2) |
+| Valdelaguna (28157) | 7 | 0583 Arganda 1956 (5); 0606 Chinchón 1963 (2) |
+
+Cinco hojas en total: 0582 (1964), 0583 (1956), 0605 (1943), 0606 (1963) y 0630 (1945). Las cinco son posteriores a 1881 y la mitad anteriores al vuelo AMS de 1956-57: son una fuente distinta del MTN50 de 1881 y de las planimetrías de #17. Los recuentos son de una rejilla, no una medición de área: una hoja con pocos puntos solo toca el borde del término.
+
+### CA2 — `GetMap` con contenido (`confirmado`)
+
+`GetMap` de 1 km × 1 km (500 × 500 px, 2 m/px) centrado en un punto de cada hoja dentro de cada municipio: **14 de 14 combinaciones municipio-hoja devuelven `image/png` con contenido** (200 OK; 353.043 a 557.674 bytes; desviación típica de gris 25 a 40; fracción de píxeles no blancos ≥ 0,9999). Ejemplos (sha256 completo en `imagenes.json`; el recorte de cada hoja está en `recorte_<hoja>_1km_2mpx.png`):
+
+| Hoja | Municipio de la ventana | Bytes | sha256 (inicio) |
+|---|---|---|---|
+| 0582 | Chinchón | 540.585 | `877af140d9f3` |
+| 0583 | Chinchón | 435.344 | `06d28048ecf0` |
+| 0605 | Colmenar de Oreja | 489.424 | `7bb04c2b6c1a` |
+| 0606 | Colmenar de Oreja | 416.485 | `247a1b994963` |
+| 0630 | Aranjuez | 353.043 | `20f43e017f42` |
+
+**Resolución efectiva** (curva de gradiente de `verificar_planimetrias.py`, ventana de 300 m pedida a 0,25 m/px): la curva normalizada es ≈ 1,00 hasta 1 m y cae a 0,86-0,90 a 2 m y a 0,68-0,76 a 4 m en las 14 ventanas, así que el detalle real se agota hacia **1 a 2 m/px** (escala 1:25.000 escaneada). Es `asumido` como estimación, no medido contra el original. Un recorte de 1 km a 2 m/px basta para ver caminos con nombre.
+
+### CA3 — Atribución (`confirmado` salvo el identificador exacto)
+
+- **Licencia**: CC BY 4.0. El `GetCapabilities` declara `AccessConstraints` = `CC BY 4.0 ign.es` (fixture `ign_primera-edicion-mtn_getcapabilities.xml`). La capa `catastrones` solo declara `Attribution` = «Instituto Geográfico Nacional» (enlace a `https://www.ign.es`); no lleva texto de licencia propio.
+- **Licencia de uso del IGN** (fixture `ign_licencia_condiciones_uso.txt`, Orden FOM/2807/2015, art. 4): el uso es libre y gratuito mencionando origen y propiedad. Para un **servicio sin modificar** vale la fórmula de `AccessConstraints`: «CC BY 4.0 ign.es». Para una **obra derivada** (cualquier georreferenciación o trazado que hagamos sobre la minuta) la fórmula es «Obra derivada de `<identificador del producto>` `<fecha>` CC-BY 4.0 `<atribución de productores>`», visible junto a los datos.
+- **Atribución literal propuesta** para lo que salga de catastrones: «Obra derivada de Minutas MTN50 (catastrones) 1910-1970 CC-BY 4.0 © Instituto Geográfico Nacional de España». Es la misma construcción que ya usan `scripts/verificar_planimetrias.py` y el sitio para planimetrías y MTN50.
+- **¿Basta el aviso «© Instituto Geográfico Nacional de España» del WMS?** No para una obra derivada: falta «Obra derivada de», el producto, la fecha y «CC-BY 4.0». Para mostrar la imagen del WMS sin modificar bastaría «CC BY 4.0 ign.es» más ese reconocimiento; para el resto hay que añadir lo anterior.
+- **`asumido`**: el identificador y el rango de fechas exactos de la tabla de productos de `scne.es/productos.html` no se pudieron leer (la página cerró la conexión TLS y su contenido es dinámico). Se usa el título del servicio («Minutas del Mapa Topográfico Nacional 1:50.000 (catastrones) 1910-1970»). Si el IGN publica otro identificador, corregir la cadena antes de publicar.
+
+### CA4 — Descarga del original (`bloqueado` por reCAPTCHA para un script)
+
+Los enlaces de `GetFeatureInfo` (`http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-<hoja>-<Nombre>.zip`) redirigen a HTTPS y devuelven la **ficha HTML** del producto (200, `text/html`), no el zip. La descarga se autoriza con una llamada a `preAutorizarDescarga` que exige un token de **reCAPTCHA v3** (`grecaptcha.execute`, acción `preautorizar_descarga`), igual que la ficha de ALTI de #17: no hay descarga directa sin navegador. Los datos de las fichas sí se leen:
+
+| Hoja | Fichero | Fecha | Tamaño | Formato | Estado |
+|---|---|---|---|---|---|
+| 0582 Getafe | `MINUTAMTN50-0582-GETAFE.ZIP` | 1964 | 141,14 MB | JPG + ECW | `bloqueado` (reCAPTCHA v3) |
+| 0583 Arganda | `MINUTAMTN50-0583-ARGANDA.ZIP` | 1956 | 132,75 MB | JPG + ECW | `bloqueado` (reCAPTCHA v3) |
+| 0605 Aranjuez | `MINUTAMTN50-0605-ARANJUEZ.ZIP` | 1943 | 125,25 MB | JPG + ECW | `bloqueado` (reCAPTCHA v3) |
+| 0606 Chinchón | `MINUTAMTN50-0606-CHINCHON.ZIP` | 1963 | 125,14 MB | JPG + ECW | `bloqueado` (reCAPTCHA v3) |
+| 0630 Yepes | `MINUTAMTN50-0630-YEPES.ZIP` | 1945 | 126,76 MB | JPG + ECW | `bloqueado` (reCAPTCHA v3) |
+
+Escala declarada en la ficha: 25.000. Sistema: ETRS89, coordenadas geográficas. Unidad de descarga: hoja del MTN50. **No hay manera de automatizar el original**: o lo baja una persona en el navegador, o se trabaja con el render del WMS cacheado (opción A de #17: cero coste, 1-2 m/px, ya reproyectado). No se bajó ningún zip.
+
+### CA5 — Recomendación por hoja
+
+El WMS entrega una imagen ya georreferenciada por el IGN, así que «georreferenciar» aquí significa medir su desajuste frente a PNOA y, si hace falta, corregirlo con puntos de control (como #139), no escanear nada.
+
+| Hoja | Año | Municipios | Recomendación |
+|---|---|---|---|
+| **0606** Chinchón | 1963 | 6 de 7 (todos salvo Aranjuez) | **Georreferenciar, prioridad 1**: cubre casi todo el ámbito, caminos con nombre y es la única con cobertura completa de Colmenar de Oreja, Belmonte de Tajo y Villaconejos. |
+| **0605** Aranjuez | 1943 | Aranjuez, borde de Colmenar y Chinchón | **Georreferenciar, prioridad 2**: la más antigua y anterior al vuelo de 1956; da una fecha distinta para Aranjuez y el sur de Colmenar. |
+| **0583** Arganda | 1956 | Valdelaguna, Chinchón, Villarejo de Salvanés | **Georreferenciar, prioridad 2**: es de 1956, el mismo año que el vuelo AMS de PNOA histórico, lo que permite contrastar minuta y foto. |
+| **0630** Yepes | 1945 | Aranjuez (17 de 31 puntos) | **Georreferenciar, prioridad 3**: solo aporta a Aranjuez; hacerlo si Aranjuez entra en un hito. |
+| 0582 Getafe | 1964 | Chinchón (3 de 20 puntos, borde) | **Descartar por ahora**: solo toca el borde norte de un término; el 1963 de la 0606 ya cubre esa zona. |
+
+Límites: el año de la minuta no es el año del camino; la resolución efectiva es de 1 a 2 m/px; el original no se puede bajar sin captcha. La recomendación no mide el desajuste frente a PNOA (queda para la historia hermana de georreferenciación).
+
+---
+
 ## Resumen de fuentes no verificadas en esta pasada
 
 Fuera de alcance de la historia 0001 (ver sección "Fuera de alcance" de `docs/stories/0001-registro-fuentes.md`): vías pecuarias, Red Natura 2000, concesiones de agua, inventario municipal de caminos. SNCZI/dominio público hidráulico, que figuraba aquí mismo hasta la historia 0012, quedó verificado en esa historia (ver sección "SNCZI / Dominio Público Hidráulico — MITECO" más arriba: cursos de agua y peligrosidad por inundación `confirmado`, deslinde legal de DPH y zonas de servidumbre/policía `bloqueado`). Vías pecuarias, que figuraba aquí mismo hasta la historia 0014, quedó verificada en esa historia (ver sección "Vías pecuarias — IDEM, Comunidad de Madrid" más arriba: `confirmado`, un único servicio real encontrado bajo el workspace `Zonas` del mismo GeoServer de IDEM). Red Natura 2000, que figuraba aquí mismo hasta la historia 0015, quedó verificada en esa historia (ver sección "Red Natura 2000 y espacios protegidos — IDEM, Comunidad de Madrid" más arriba: `confirmado` como fuente real de planes de gestión, con el alcance explícito de que modela zonificación de planes, no el límite oficial de cada sitio individual con código EU). Concesiones de agua e inventario municipal de caminos quedan para una iteración posterior del registro, cuando las historias de reglas/afecciones las necesiten.
