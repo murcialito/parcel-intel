@@ -871,3 +871,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en OGC API Features el enlace `rel=next` trae la URL completa con su query; para cachearla con `CachedRawFetcher` (clave = URL canónica) hay que partirla en base + parámetros (`urlsplit`/`parse_qsl`) y comprobar que la base es la de la colección antes de seguirla. Y no comprobar «sin duplicados» por nombre o longitud: en datos reales dos tramos distintos comparten nombre y hasta longitud; el `id` de la feature es la única clave.
   - **Aplica a**: adapters que paginen colecciones OGC API Features (red de transporte, nuevas capas) | revisión.
 
+## [2026-11-27] Historia #287 — Catastro histórico de rústica en REGISTRY.md
+
+- **Lección**: una historia de documentación escrita antes de que el fundador termine la descarga puede afirmar como hecho algo que su propio comentario posterior desmiente. El CA3 decía que la 2.ª y la 3.ª renovación «no se bajaron»; el fundador las bajó después y lo pidió en el mismo issue. Antes de implementar, leer todos los comentarios del issue y contrastar cada afirmación de hecho de los criterios con el último comentario; si el fundador lo resuelve por escrito, seguir su decisión más reciente y dejar el cambio explícito en la PR, no reinterpretar el criterio en silencio.
+  - **Causa**: el refinamiento se escribió con los tres productos del primer comentario; la segunda tanda de descargas llegó como comentario posterior y no entró en el texto de la historia.
+  - **Aplica a**: refinador (al redactar criterios que describen el estado de una descarga o de un dato externo, citar el comentario que lo fija y su fecha) | implementación (leer los comentarios del issue completos, no solo el cuerpo, antes de dar por válido un CA de hecho).
+- **Lección**: una sección nueva de `REGISTRY.md` que se inserte antes de «## Resumen de fuentes no verificadas» cae dentro del rango de las guardas de otras historias (`index(...)` hasta el resumen). Se añade al final del fichero, para no tocar esos rangos, y la suite completa se ejecuta antes de abrir la PR.
+  - **Aplica a**: implementación (al añadir secciones a `REGISTRY.md`) | revisión (comprobar con qué encabezado acota cada guarda antes de aceptar la posición de una sección nueva).
+
