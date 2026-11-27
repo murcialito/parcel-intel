@@ -3,6 +3,9 @@ from dataclasses import dataclass
 from parcel_intel.domain.geometry import Geometry
 from parcel_intel.domain.provenance import Provenance
 
+# Los 7 municipios del ámbito del primer hito (Colmenar de Oreja y vecinos), códigos INE.
+HITO_MUNICIPALITY_CODES = ("28043", "28013", "28052", "28019", "28170", "28180", "28157")
+
 
 @dataclass(frozen=True)
 class MunicipalBoundary:

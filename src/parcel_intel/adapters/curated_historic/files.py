@@ -59,6 +59,7 @@ _ALLOWED_PROPERTIES = _REQUIRED_PROPERTIES | {
     "reviewed_at",
     "review_note",
     "control_points_sha256",
+    "municipality_code",
 }
 _REVIEW_STATES: dict[str, ReviewStatus] = {
     "propuesto": "proposed",
@@ -323,9 +324,7 @@ class CuratedHistoricFiles:
             raise InvalidDigitizationError(f"{label}: {exc}") from exc
         reviewed_at_raw = self._optional_text(properties, "reviewed_at", label)
         try:
-            reviewed_at = (
-                _iso_datetime(reviewed_at_raw, "reviewed_at") if reviewed_at_raw else None
-            )
+            reviewed_at = _iso_datetime(reviewed_at_raw, "reviewed_at") if reviewed_at_raw else None
         except ValueError as exc:
             raise InvalidDigitizationError(f"{label}: {exc}") from exc
         return DigitizedTrail(
@@ -338,6 +337,7 @@ class CuratedHistoricFiles:
             reviewed_at=reviewed_at,
             review_note=self._optional_text(properties, "review_note", label),
             control_points_sha256=self._optional_text(properties, "control_points_sha256", label),
+            municipality_code=self._optional_text(properties, "municipality_code", label),
         )
 
     @staticmethod

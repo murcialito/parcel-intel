@@ -73,3 +73,27 @@ def test_vertice_tridimensional_o_no_numerico_se_rechaza(tmp_path: Path) -> None
     path.write_text(json.dumps(data), "utf-8")
     with pytest.raises(InvalidDigitizationError, match="vértice"):
         CuratedHistoricFiles(root).read_trails(UNIT)
+
+
+def _set_municipality(root: Path, value: object) -> None:
+    path = root / UNIT / "trazados.geojson"
+    data = json.loads(path.read_text("utf-8"))
+    data["features"][0]["properties"]["municipality_code"] = value
+    path.write_text(json.dumps(data), "utf-8")
+
+
+def test_trazado_lee_su_municipality_code_y_sin_el_queda_none(tmp_path: Path) -> None:
+    root = _copy(tmp_path)
+    assert all(t.municipality_code is None for t in CuratedHistoricFiles(root).read_trails(UNIT))
+    _set_municipality(root, "28043")
+    trails = CuratedHistoricFiles(root).read_trails(UNIT)
+    assert trails[0].municipality_code == "28043"
+    assert all(t.municipality_code is None for t in trails[1:])
+
+
+@pytest.mark.parametrize("bad", ["2804", "abcde", "280430", 28043])
+def test_municipality_code_mal_formado_se_rechaza(tmp_path: Path, bad: object) -> None:
+    root = _copy(tmp_path)
+    _set_municipality(root, bad)
+    with pytest.raises(InvalidDigitizationError):
+        CuratedHistoricFiles(root).read_trails(UNIT)

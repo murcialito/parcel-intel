@@ -13,19 +13,23 @@ on:
         description: "Número de la PR con cambios-pedidos"
         required: true
 
+# El nombre lleva la PR para que correcciones_pendientes.sh sepa qué PRs ya tienen corrección.
+run-name: Corregir PR #${{ inputs.pr }}
+
 concurrency:
   group: corregir-${{ inputs.pr }}
   cancel-in-progress: false
 
 jobs:
-  corregir:
+  comprobar:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
     permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-      id-token: write
+      pull-requests: read
+    outputs:
+      seguir: ${{ steps.pr.outputs.seguir }}
+      rama: ${{ steps.pr.outputs.rama }}
+      cabeza: ${{ steps.pr.outputs.cabeza }}
+      historia: ${{ steps.pr.outputs.historia }}
     steps:
       - id: pr
         env:
@@ -38,13 +42,33 @@ jobs:
           case "$rama" in claude/*) ;; *) echo "::error::La PR #$PR no es de un agente ($rama)."; exit 1 ;; esac
           [ "$(jq -r .state <<<"$datos")" = "OPEN" ] || { echo "::error::La PR #$PR no está abierta."; exit 1; }
           if jq -e '.labels[].name | select(. == "veto")' <<<"$datos" >/dev/null; then echo "::error::La PR #$PR tiene veto."; exit 1; fi
+          # Un segundo disparo (el evento de etiqueta y el barrido de correcciones_pendientes.sh) llega
+          # aquí después de que el primero quitara la etiqueta: no hay nada que corregir.
+          if ! jq -e '.labels[].name | select(. == "cambios-pedidos")' <<<"$datos" >/dev/null; then
+            echo "La PR #$PR ya no tiene cambios-pedidos: nada que corregir."
+            echo "seguir=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "seguir=true" >> "$GITHUB_OUTPUT"
           echo "rama=$rama" >> "$GITHUB_OUTPUT"
           echo "cabeza=$(jq -r .headRefOid <<<"$datos")" >> "$GITHUB_OUTPUT"
           echo "historia=$(sed -nE 's#^claude/historia-([0-9]+).*#\1#p' <<<"$rama")" >> "$GITHUB_OUTPUT"
 
+  corregir:
+    needs: comprobar
+    if: needs.comprobar.outputs.seguir == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+
       - uses: actions/checkout@v4
         with:
-          ref: ${{ steps.pr.outputs.rama }}
+          ref: ${{ needs.comprobar.outputs.rama }}
           fetch-depth: 0
 
       - uses: astral-sh/setup-uv@v6
@@ -58,7 +82,7 @@ jobs:
           MODELO_BARATO: ${{ vars.MODELO_BARATO }}
           MODELO_INTERMEDIO: ${{ vars.MODELO_INTERMEDIO }}
           MODELO_CAPAZ: ${{ vars.MODELO_CAPAZ }}
-          ISSUE: ${{ steps.pr.outputs.historia }}
+          ISSUE: ${{ needs.comprobar.outputs.historia }}
         run: echo "modelo=$(.github/scripts/modelo.sh desarrollo "$ISSUE")" >> "$GITHUB_OUTPUT"
 
       - name: Instrucciones del agente desde main
@@ -73,12 +97,12 @@ jobs:
           prompt: |
             REPO: ${{ github.repository }}
             PR: #${{ inputs.pr }}
-            RAMA: ${{ steps.pr.outputs.rama }}
+            RAMA: ${{ needs.comprobar.outputs.rama }}
 
             Actúa como el agente definido en ${{ runner.temp }}/desarrollador.md (la versión de main de
             .claude/agents/desarrollador.md; la copia de la rama puede estar desfasada), sección
             "Si te llaman para corregir", sobre la PR #${{ inputs.pr }}.
-            Trabaja en la rama ${{ steps.pr.outputs.rama }}, que ya está en el checkout.
+            Trabaja en la rama ${{ needs.comprobar.outputs.rama }}, que ya está en el checkout.
           claude_args: |
             --model ${{ steps.modelo.outputs.modelo }}
             --max-turns 150
@@ -102,7 +126,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           PR: ${{ inputs.pr }}
-          ANTES: ${{ steps.pr.outputs.cabeza }}
+          ANTES: ${{ needs.comprobar.outputs.cabeza }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           datos=$(gh pr view "$PR" -R "$REPO" --json headRefOid,labels)

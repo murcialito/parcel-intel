@@ -6,7 +6,11 @@ umbrales, trazados, aprobaciones vigentes) y llama a `render` solo para los
 trazados `proposed`. No toca la base. Ningún LLM interviene.
 """
 
-from parcel_intel.domain.digitization import check_approvals_current, check_trails_in_image
+from parcel_intel.domain.digitization import (
+    check_approvals_current,
+    check_trail_municipalities,
+    check_trails_in_image,
+)
 from parcel_intel.domain.georeferencing import (
     GeoreferenceRejectedError,
     GeoreferenceUnit,
@@ -44,6 +48,7 @@ class BuildTrailEvidenceUseCase:
             raise GeoreferenceRejectedError(unit_id, verdict)
         trails = self._inputs.read_trails(unit_id)
         check_trails_in_image(trails, image.width_px, image.height_px)
+        check_trail_municipalities(trails)
         check_approvals_current(trails, control_points.sha256)
         unit = GeoreferenceUnit(spec=spec, image=image, control_points=control_points, fit=fit)
         return tuple(

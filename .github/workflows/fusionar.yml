@@ -194,3 +194,21 @@ jobs:
           # API REST de etiquetas: `gh pr edit` pide permisos de Projects (classic) que el token no tiene.
           GH_TOKEN="$PROYECTO_TOKEN" gh api -X POST "repos/$REPO/issues/$pr/labels" -f "labels[]=cambios-pedidos" --silent
           echo "PR #$pr: CI rojo; se pide corrección."
+
+  correcciones-pendientes:
+    # Una cambios-pedidos puesta mientras la PR estaba en conflicto con main no dispara Corregir: GitHub
+    # no crea runs de pull_request en una PR con conflictos y el evento se pierde (#114). Tras cada CI o
+    # Revisar se buscan PRs así y se les lanza la corrección. Hay respaldo en el cron de desarrollar.yml.
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      issues: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: .github/scripts/correcciones_pendientes.sh
