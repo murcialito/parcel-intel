@@ -20,9 +20,9 @@ from parcel_intel.domain.parcel import Parcel
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.ports.errors import DiscrepancyReportUnavailableError
 
-ORDINARY = "28043A00100012"  # rústica, parcela 12 < 9000 (inventada)
-INFRASTRUCTURE_VT = "28043A00109001"  # rústica >= 9000 (inventada)
-INFRASTRUCTURE_HG = "28043A00109002"
+ORDINARY = "28043A99100012"  # rústica, parcela 12 < 9000 (polígono 991 sintético)
+INFRASTRUCTURE_VT = "28043A99109001"  # rústica >= 9000 (sintética)
+INFRASTRUCTURE_HG = "28043A99109002"
 URBAN = "1234567VK1234S"  # 14 caracteres, sector no alfabético: no es rústica
 UNREADABLE = "no-es-una-referencia"
 
