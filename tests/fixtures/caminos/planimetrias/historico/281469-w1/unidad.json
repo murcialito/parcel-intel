@@ -1,0 +1,20 @@
+{
+  "unit_id": "281469-w1",
+  "document_id": "281469",
+  "document_kind": "planimetria",
+  "municipality_code": "28180",
+  "document_date": "1870-01-01",
+  "document_date_precision": "year",
+  "scale_denominator": 50000,
+  "image": {
+    "kind": "wms_render",
+    "url": "https://www.ign.es/wms/minutas-cartograficas?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=Minutas&STYLES=&CRS=EPSG:25830&BBOX=478200.00,4444450.00,479200.00,4445450.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+    "sha256": "80222cbcd74130a4d9624537232a6c8b9683b66b18cf3cf2a0acf2fe65430dd1",
+    "width_px": 500,
+    "height_px": 500,
+    "retrieved_at": "2026-11-26"
+  },
+  "provenance_source": "Planimetría de Villarejo de Salvanés, IGN, documento 281469",
+  "georeferenced_by": "fixture-sintetica",
+  "georeferenced_at": "2026-11-26T10:00:00+00:00"
+}

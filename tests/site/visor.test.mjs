@@ -12,6 +12,8 @@ import { pathToFileURL } from "node:url";
 
 const VISOR_DIR = process.env.VISOR_DIR;
 const FIXTURES = process.env.VISOR_FIXTURES;
+const DATOS = process.env.VISOR_DATOS; // site/datos publicado (historia #95)
+const REFCAT = new RegExp(process.env.VISOR_REFCAT_RE ?? "(?!)"); // CADASTRAL_REFERENCE_RE de #94
 if (!VISOR_DIR || !FIXTURES) throw new Error("faltan VISOR_DIR o VISOR_FIXTURES");
 
 const importar = (nombre) => import(pathToFileURL(join(VISOR_DIR, nombre)).href);
@@ -20,6 +22,7 @@ const controladorMod = await importar("controlador.js");
 const { crearControlador, validarIndice, fichaDe, atribucionesVisibles } = controladorMod;
 const { crearMapa, escaparTexto } = await importar("mapa.js");
 const { crearVista } = await importar("vista.js");
+const { fichaIndicio } = controladorMod;
 
 const VIAS = CONFIG.capas.find((c) => c.id === "vias_pecuarias");
 const CAMINO = CONFIG.capas.find((c) => c.id === "camino_actual");
@@ -96,6 +99,9 @@ function crearVistaDoble() {
     nodoFicha(ficha) {
       return { nodo: ficha };
     },
+    nodoFichaIndicio(ficha) {
+      return { nodo: ficha };
+    },
   };
   return v;
 }
@@ -137,6 +143,9 @@ class ElementoFalso {
   insertAdjacentHTML() {
     throw new Error("insertAdjacentHTML prohibido en el visor");
   }
+  setAttribute(nombre, valor) {
+    this.atributos = { ...(this.atributos ?? {}), [nombre]: String(valor) };
+  }
   appendChild(hijo) {
     this.children.push(hijo);
     return hijo;
@@ -149,7 +158,7 @@ class ElementoFalso {
 
 function documentoFalso() {
   const elementos = {};
-  for (const id of ["municipio", "mensaje", "aviso-base", "estado-vias_pecuarias", "estado-camino_actual"]) {
+  for (const id of ["municipio", "mensaje", "aviso-base", "estado-vias_pecuarias", "estado-camino_actual", "estado-discrepancias"]) {
     elementos[id] = new ElementoFalso("div");
   }
   return {
@@ -698,4 +707,309 @@ test("unidad: atribucionesVisibles exige capa cargada y visible", () => {
 test("unidad: crearMapa falla con un mensaje claro si la librería no está cargada", () => {
   delete globalThis.L;
   assert.throws(() => crearMapa("x", { teselas: CONFIG.teselas }), /no está cargada/);
+});
+
+// --- historia #95: indicios de discrepancia ---------------------------------------------
+// Los nombres empiezan por "H95 CA<n>:" para filtrarlos desde tests/acceptance/test_historia_95.py.
+
+const INDICIOS = CONFIG.capas.find((c) => c.id === "discrepancias");
+const RUTA_IND = "discrepancias/99001.geojson";
+const AVISO = CONFIG.textos.avisoIndicio;
+
+const propsIndicio = (extra = {}) => ({
+  tipo: "AUSENTE_EN_FUENTE",
+  etiqueta: "Trazado en una fuente y no en otra",
+  texto: "Indicio a verificar: texto sintético.",
+  aviso: AVISO,
+  confianza: "media",
+  evidencia: [
+    {
+      papel: "sujeto",
+      fuente: "fuente sintética A",
+      anio: 1956,
+      origen: "sintetico",
+      url: "https://ejemplo.invalid/a",
+      fecha_descarga: "2026-11-26",
+      licencia: "CC BY 4.0 sintética",
+      atribucion: "Atribución sintética A",
+    },
+    {
+      papel: "contraparte",
+      fuente: "fuente sintética B",
+      anio: null,
+      origen: "sintetico",
+      url: "http://ejemplo.invalid/b",
+      fecha_descarga: "2026-11-25",
+      licencia: "CC BY 4.0 sintética B",
+      atribucion: "Atribución sintética B",
+    },
+  ],
+  criterio: "criterio_sintetico v3",
+  descripcion_criterio: "Descripción sintética del criterio.",
+  aviso_omision: null,
+  ...extra,
+});
+
+const coleccion = (...props) => ({
+  type: "FeatureCollection",
+  features: props.map((p, i) => ({
+    type: "Feature",
+    properties: p,
+    geometry:
+      i % 2 === 0
+        ? { type: "LineString", coordinates: [[-3.4, 40.08], [-3.39, 40.09]] }
+        : { type: "Polygon", coordinates: [[[-3.4, 40.08], [-3.39, 40.08], [-3.39, 40.09], [-3.4, 40.08]]] },
+  })),
+});
+
+function indiceConIndicios(sinIndicios = false) {
+  return {
+    municipios: INDICE.municipios.map((m, i) =>
+      i === 0 && !sinIndicios ? { ...m, capas: { ...m.capas, discrepancias: RUTA_IND } } : m,
+    ),
+  };
+}
+
+function cargadorIndicios(respuestaIndicios, sinIndicios = false) {
+  const llamadas = [];
+  const cargar = async (ruta) => {
+    llamadas.push(ruta);
+    if (ruta.endsWith("indice.json")) return indiceConIndicios(sinIndicios);
+    if (ruta.endsWith(RUTA_IND)) {
+      if (respuestaIndicios instanceof Error) throw respuestaIndicios;
+      return respuestaIndicios;
+    }
+    return cargarJsonFixture(ruta);
+  };
+  return { cargar, llamadas };
+}
+
+const hijos = (nodo) => nodo.children.flatMap((h) => [h, ...hijos(h)]);
+const enlaces = (nodo) => hijos(nodo).filter((h) => h.tagName === "a");
+
+function nodoDe(propiedades) {
+  const vista = crearVista(documentoFalso(), CONFIG.textos);
+  return vista.nodoFichaIndicio(fichaIndicio(propiedades, CONFIG));
+}
+
+test("H95 CA1: la capa de indicios se carga del índice y se dibuja con estilo distinto", async () => {
+  const { cargar, llamadas } = cargadorIndicios(coleccion(propsIndicio()));
+  const { mapa } = await iniciado(cargar);
+  assert.ok(llamadas.includes(CONFIG.datos + RUTA_IND));
+  const dibujada = mapa.r.anadidas.find((a) => a.id === "discrepancias");
+  assert.ok(dibujada, "se dibuja");
+  assert.equal(INDICIOS.titulo, "Indicios a verificar (no son un dictamen)");
+  for (const otra of [VIAS, CAMINO]) {
+    assert.notDeepEqual(dibujada.opciones.estilo, otra.estilo);
+    assert.equal(otra.estilo.dashArray, undefined);
+  }
+  assert.ok(INDICIOS.estilo.dashArray, "trazo discontinuo");
+  // La ficha de un indicio pulsado es la de indicios, no la genérica.
+  assert.ok("nodo" in dibujada.opciones.alPulsar(propsIndicio()));
+  assert.equal(dibujada.opciones.alPulsar(propsIndicio()).nodo.disponible, true);
+});
+
+test("H95 CA2: nace apagada, sin atribución; al marcar y desmarcar aparece y desaparece", async () => {
+  const { cargar } = cargadorIndicios(coleccion(propsIndicio()));
+  const { mapa, ctl } = await iniciado(cargar);
+  const base = [...CONFIG.atribucionesBase];
+  assert.equal(mapa.presentes.get("discrepancias"), false);
+  assert.equal(mapa.presentes.get("vias_pecuarias"), true);
+  assert.equal(mapa.presentes.get("camino_actual"), true);
+  assert.deepEqual(ultima(mapa.r.atribuciones), [...base, VIAS.atribucion, CAMINO.atribucion]);
+  ctl.cambiarCapa("discrepancias", true);
+  assert.equal(mapa.presentes.get("discrepancias"), true);
+  assert.deepEqual(ultima(mapa.r.atribuciones), [
+    ...base,
+    VIAS.atribucion,
+    CAMINO.atribucion,
+    INDICIOS.atribucion,
+  ]);
+  ctl.cambiarCapa("discrepancias", false);
+  assert.equal(mapa.presentes.get("discrepancias"), false);
+  assert.deepEqual(ultima(mapa.r.atribuciones), [...base, VIAS.atribucion, CAMINO.atribucion]);
+});
+
+test("H95 CA3: un municipio sin la capa en el índice dice «sin indicios publicados», sin error", async () => {
+  const { cargar, llamadas } = cargadorIndicios(coleccion(), true);
+  const { mapa, vista } = await iniciado(cargar);
+  assert.equal(vista.estados.discrepancias, "sin_indicios");
+  assert.equal(vista.mensaje, "");
+  assert.ok(!llamadas.some((r) => r.includes("discrepancias")));
+  assert.deepEqual(mapa.r.anadidas.map((a) => a.id).sort(), ["camino_actual", "vias_pecuarias"]);
+  const doc = documentoFalso();
+  crearVista(doc, CONFIG.textos).ponerEstadoCapa("discrepancias", "sin_indicios");
+  assert.equal(doc.elementos["estado-discrepancias"].textContent, "sin indicios publicados");
+});
+
+test("H95 CA4: un fichero que falla o no es FeatureCollection da error de esa capa; las otras se dibujan", async () => {
+  for (const respuesta of [new Error("HTTP 404"), { type: "Feature" }, null]) {
+    const { cargar } = cargadorIndicios(respuesta);
+    const { mapa, vista } = await iniciado(cargar);
+    assert.equal(vista.estados.discrepancias, "error");
+    assert.ok(vista.mensaje.includes(INDICIOS.titulo), vista.mensaje);
+    assert.deepEqual(mapa.r.anadidas.map((a) => a.id).sort(), ["camino_actual", "vias_pecuarias"]);
+  }
+  const doc = documentoFalso();
+  crearVista(doc, CONFIG.textos).ponerEstadoCapa("discrepancias", "error");
+  assert.equal(doc.elementos["estado-discrepancias"].textContent, "no se pudo cargar");
+});
+
+test("H95 CA5: la ficha va en orden: etiqueta, texto, confianza, aviso y fuentes", () => {
+  const t = nodoDe(propsIndicio()).textContent;
+  const orden = [
+    "Trazado en una fuente y no en otra",
+    "Indicio a verificar: texto sintético.",
+    "confianza media",
+    AVISO,
+    "fuente sintética A",
+  ].map((s) => t.indexOf(s));
+  assert.ok(orden.every((i) => i >= 0), JSON.stringify(orden));
+  assert.deepEqual(orden, [...orden].sort((a, b) => a - b));
+  for (const nivel of ["baja", "media", "alta"]) {
+    assert.ok(nodoDe(propsIndicio({ confianza: nivel })).textContent.includes(`confianza ${nivel}`));
+  }
+});
+
+test("H95 CA6: cada fuente con papel, nombre, año, fecha, licencia, atribución y enlace https", () => {
+  const nodo = nodoDe(propsIndicio());
+  const t = nodo.textContent;
+  for (const s of [
+    "sujeto: fuente sintética A (1956)",
+    "contraparte: fuente sintética B (año no declarado)",
+    "2026-11-26",
+    "2026-11-25",
+    "CC BY 4.0 sintética",
+    "Atribución sintética A",
+    "Atribución sintética B",
+  ]) {
+    assert.ok(t.includes(s), s);
+  }
+  const a = enlaces(nodo);
+  assert.equal(a.length, 1, "solo la URL https es un enlace");
+  assert.equal(a[0].atributos.href, "https://ejemplo.invalid/a");
+  assert.equal(a[0].atributos.rel, "noopener noreferrer");
+  assert.ok(t.includes("http://ejemplo.invalid/b"), "la URL no https se muestra como texto");
+  for (const url of ["javascript:alert(1)", "//otro.host/x", "HTTPS://x", ""]) {
+    const n = nodoDe(propsIndicio({ evidencia: [{ ...propsIndicio().evidencia[0], url }] }));
+    assert.equal(enlaces(n).length, 0, url);
+  }
+});
+
+test("H95 CA7: criterio con versión, su descripción y el aviso de omisión si existe", () => {
+  const t = nodoDe(propsIndicio()).textContent;
+  assert.ok(t.includes("criterio_sintetico v3"));
+  assert.ok(t.includes("Descripción sintética del criterio."));
+  const con = nodoDe(propsIndicio({ aviso_omision: "Se omitió una fuente sintética." })).textContent;
+  assert.ok(con.includes("Se omitió una fuente sintética."));
+  assert.ok(!t.includes("omitió"), "con null no se muestra");
+});
+
+test("H95 CA8: el aviso siempre está; sin aviso en la feature se usa el fijo; forma rota solo aviso", () => {
+  assert.ok(nodoDe(propsIndicio()).textContent.includes(AVISO));
+  assert.equal(fichaIndicio(propsIndicio({ aviso: undefined }), CONFIG).aviso, AVISO);
+  assert.equal(fichaIndicio(propsIndicio({ aviso: "  " }), CONFIG).aviso, AVISO);
+  const rotas = [
+    {},
+    null,
+    undefined,
+    "texto",
+    propsIndicio({ texto: undefined }),
+    propsIndicio({ evidencia: "no-lista" }),
+    propsIndicio({ evidencia: null }),
+  ];
+  for (const rota of rotas) {
+    const nodo = nodoDe(rota);
+    assert.ok(nodo.textContent.includes(AVISO), JSON.stringify(rota));
+    assert.ok(nodo.textContent.includes("ficha no disponible"), JSON.stringify(rota));
+    assert.ok(!nodo.textContent.includes("fuente sintética"));
+  }
+  assert.doesNotThrow(() => nodoDe(propsIndicio({ evidencia: [null, 3, "x", {}] })));
+});
+
+test("H95 CA9: el marcado HTML de los datos se ve como texto y nada usa innerHTML", () => {
+  const html = "<img src=x onerror=alert(1)>";
+  const nodo = nodoDe(
+    propsIndicio({
+      etiqueta: html,
+      texto: `texto ${html}`,
+      evidencia: [{ ...propsIndicio().evidencia[0], fuente: html, atribucion: html, url: html }],
+    }),
+  ); // el documento falso lanza si algo toca innerHTML/outerHTML/insertAdjacentHTML
+  assert.ok(nodo.textContent.includes(html));
+  assert.equal(enlaces(nodo).length, 0);
+  assert.ok(!hijos(nodo).some((h) => h.tagName === "img"));
+});
+
+test("H95 CA10: las fichas del GeoJSON real no llevan refcat ni propiedades fuera de la lista blanca", async () => {
+  const real = JSON.parse(await readFile(join(DATOS, "discrepancias", "28043.geojson"), "utf8"));
+  assert.ok(real.features.length > 0);
+  for (const f of real.features) {
+    const trampa = { ...f.properties, titular: "Persona Inventada", refcat: "99999A00100001", id: "x" };
+    const ficha = fichaIndicio(trampa, CONFIG);
+    const t = nodoDe(trampa).textContent;
+    assert.ok(!REFCAT.test(t), t);
+    assert.ok(!t.includes("Persona Inventada") && !t.includes("99999A00100001"));
+    assert.ok(!JSON.stringify(ficha).includes("Persona Inventada"));
+    assert.deepEqual(Object.keys(ficha).sort(), [
+      "aviso",
+      "avisoOmision",
+      "confianza",
+      "criterio",
+      "descripcionCriterio",
+      "disponible",
+      "etiqueta",
+      "evidencia",
+      "texto",
+    ]);
+    assert.ok(t.includes(f.properties.texto) && t.includes(f.properties.aviso));
+  }
+  assert.ok(REFCAT.test("99999A00100001"), "el patrón de refcat no está vacío");
+});
+
+test("H95 CA12: al cambiar de municipio los indicios del anterior se quitan y manda la última petición", async () => {
+  const { cargar } = cargadorIndicios(coleccion(propsIndicio()));
+  const { mapa, ctl } = await iniciado(cargar);
+  assert.equal(mapa.presentes.has("discrepancias"), true);
+  await ctl.elegirMunicipio(B.ine);
+  assert.equal(mapa.presentes.has("discrepancias"), false);
+  assert.ok(mapa.r.quitadas.includes("discrepancias"));
+
+  const esperas = [];
+  const lenta = (ruta) => {
+    if (ruta.endsWith("indice.json")) return Promise.resolve(indiceConIndicios());
+    if (ruta.endsWith(RUTA_IND)) {
+      return new Promise((resolve) => esperas.push(() => resolve(coleccion(propsIndicio()))));
+    }
+    return cargarJsonFixture(ruta);
+  };
+  const m = crearMapaDoble();
+  const vista = crearVistaDoble();
+  const ctl2 = crearControlador({ mapa: m, cargarJson: lenta, vista, config: CONFIG });
+  const inicio = ctl2.iniciar();
+  await new Promise((r) => setImmediate(r));
+  await ctl2.elegirMunicipio(B.ine);
+  for (const soltar of esperas.splice(0)) soltar();
+  await inicio;
+  assert.ok(!m.r.anadidas.some((a) => a.id === "discrepancias"), "el indicio tardío no se mezcla");
+});
+
+test("H95 CA13: cada atribución del sidecar publicado sale en alguna ficha o en la capa", async () => {
+  const real = JSON.parse(await readFile(join(DATOS, "discrepancias", "28043.geojson"), "utf8"));
+  const sidecar = JSON.parse(
+    await readFile(join(DATOS, "discrepancias", "28043.geojson.procedencia.json"), "utf8"),
+  );
+  const visible = [INDICIOS.atribucion, ...real.features.map((f) => nodoDe(f.properties).textContent)];
+  assert.ok(sidecar.atribucion.length > 0);
+  for (const a of sidecar.atribucion) {
+    assert.ok(visible.some((t) => t.includes(a)), a);
+  }
+  assert.equal(sidecar.aviso, AVISO);
+});
+
+test("unidad: visibleInicial manda; sin él una capa nace encendida", async () => {
+  const { ctl } = await iniciado();
+  assert.equal(ctl.estado.capas.discrepancias.visible, false);
+  assert.equal(ctl.estado.capas.vias_pecuarias.visible, true);
+  assert.equal(ctl.estado.capas.camino_actual.visible, true);
 });

@@ -8,6 +8,7 @@ from parcel_intel.adapters.catastro.client import (
     WFS_PARCEL_URL,
     HttpGetter,
     default_http_getter,
+    wfs_getfeature_params,
 )
 from parcel_intel.adapters.catastro.geometry_ops import ring_centroid
 from parcel_intel.adapters.catastro.parsing import (
@@ -137,15 +138,7 @@ class CatastroAdapter:
     def _wfs_params(
         self, type_name: str, bbox: tuple[float, float, float, float]
     ) -> dict[str, str]:
-        minx, miny, maxx, maxy = bbox
-        return {
-            "service": "WFS",
-            "version": "2.0.0",
-            "request": "GetFeature",
-            "typenames": type_name,
-            "srsname": "urn:ogc:def:crs:EPSG::25830",
-            "bbox": f"{minx},{miny},{maxx},{maxy},urn:ogc:def:crs:EPSG::25830",
-        }
+        return wfs_getfeature_params(type_name, bbox)
 
     @staticmethod
     def _params_to_query(params: dict[str, str]) -> str:

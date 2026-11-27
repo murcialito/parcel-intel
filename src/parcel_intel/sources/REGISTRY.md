@@ -138,6 +138,51 @@ Mapa base del visor estático (`site/config.js`, ADR 0037). Verificado por el ar
 - **IGN-Base** (`https://www.ign.es/wmts/ign-base`): responde con `CC BY 4.0 scne.es`, pero no se usa (atribución de producto sin verificar; el fundador pidió la ortofoto). Queda como alternativa.
 - **Caducidad del año:** la tabla del SCNE ya lista un vuelo PNOA 2024 con la Comunidad de Madrid entre los organismos, pero el servicio sigue sirviendo 2023-07 en Colmenar. Cuando cambie, el criterio `[integración]` CA10 de `tests/acceptance/test_historia_85.py` falla y hay que actualizar `NOTICE`, este registro y `site/config.js` juntos.
 
+### Imágenes de comparación (historia #120, ADR 0042) — `confirmado`
+
+Verificación para el ADR 0042 (ventanas de un tramo y franjas de vuelo). Peticiones reales del 2026-11-26 con `User-Agent: parcel-intel-verificacion/0.1`, hechas por el arquitecto y repetidas por el desarrollador (`PNOA2023` y `PNOA2010`, 20:26 UTC) con el mismo resultado. Las respuestas **no se versionan**: las fixtures del adapter de ventanas las grabará su propia historia (ADR 0042 §8).
+
+- **Ventana**: rural de Colmenar de Oreja, `bbox=467344,4441744,467856,4442256` (EPSG:25830, 512 m de lado), `width=height=1024` (0,5 m por píxel), `format=image/jpeg`, WMS 1.3.0.
+- **URL canónica** (la que construye `CachedRawFetcher`, parámetros ordenados y codificados), probada tal cual: `https://www.ign.es/wms/pnoa-historico?bbox=467344%2C4441744%2C467856%2C4442256&crs=EPSG%3A25830&format=image%2Fjpeg&height=1024&layers=PNOA2023&request=GetMap&service=WMS&styles=&version=1.3.0&width=1024`. Las demás filas cambian solo `layers` (y la del servicio actual, la URL base `https://www.ign.es/wms-inspire/pnoa-ma`).
+
+| Servicio y capa | Respuesta | Bytes | sha256 |
+| --- | --- | --- | --- |
+| `pnoa-historico` `PNOA2023` | 200 `image/jpeg`, empieza por `ff d8` | 243.158 | `a68b31370c9c6ab19329be1a712136698930262b824a823a29bbf54c88ea621b` (idéntico en las dos peticiones del arquitecto, con la URL canónica y en la repetición del desarrollador) |
+| `pnoa-ma` `OI.OrthoimageCoverage` | 200 `image/jpeg` | 228.719 | no anotado |
+| `pnoa-historico` `PNOA2017` | 200 `image/jpeg` | 167.525 | no anotado |
+| `pnoa-historico` `PNOA2009` | 200 `image/jpeg` | 238.891 | no anotado |
+| `pnoa-historico` `SIGPAC` | 200 `image/jpeg` | 155.801 | no anotado |
+| `pnoa-historico` `OLISTAT` | 200 `image/jpeg` | 140.609 | no anotado |
+| `pnoa-historico` `AMS_1956-1957` | 200 `image/jpeg`, caminos de 1956 visibles | 158.660 | no anotado |
+| `pnoa-historico` `PNOA2010` (sin vuelo sobre Madrid) | 200 `image/jpeg`, imagen **blanca**, sin error | 6.427 | no anotado |
+| `pnoa-historico` `PNOA2023`, ventana de 200 m `467500,4441900,467700,4442100` a 400 px | 200 `image/jpeg` | 41.968 | no anotado |
+
+- **Respuestas sin cobertura**: el WMS no da error cuando el vuelo no cubre la ventana; devuelve una imagen blanca. `PNOA2010` a 1024 px pesa 6.427 bytes; la fixture ya existente `tests/fixtures/pnoa/getmap_colmenar_2004.jpg` (`PNOA2004`, 512 px) es también blanca, de 1.819 bytes. Bytes por píxel: imágenes blancas 0,0061–0,0069; imágenes reales 0,061–0,262 (la más baja, el AMS a 512 px de la fixture de parcela, 16.099 bytes). De ahí el umbral `< 0,02` bytes por píxel del ADR 0042 §3. Los vuelos `Interministerial_1973-1986` y `Nacional_1981-1986` dan un `GetMap` transparente de 334 bytes (sección «PNOA — vuelos reales sobre el ámbito»).
+- **Cabeceras** de `pnoa-historico` (`GetMap` de `PNOA2023`): `content-type: image/jpeg`, `access-control-allow-origin: *`, `cache-control: max-age=31536000`, `expires` a un año, servido por CloudFront (`x-cache`, `via`). Sin clave ni `Referer`. Un `<img>` no necesita CORS; si se dibujase en un `canvas`, también valdría.
+- **Capas**: el `GetCapabilities` histórico (fixture `wms_pnoa_historico_getcapabilities.xml`) trae, además de `PNOA2004`…`PNOA2024`, `AMS_1956-1957`, `Interministerial_1973-1986` y `Nacional_1981-1986`, las capas `SIGPAC` y `OLISTAT`, que se usan en la franja 1997-2003.
+- **Atribuciones literales del SCNE** de cada vuelo usado (tabla de productos, `https://www.scne.es/tablaProductos.php`, leída en bruto el 2026-11-26). Con la imagen remuestreada y el trazado encima, el visor y el dossier las muestran precedidas de «Obra derivada de» (ADR 0042 §5):
+  - `Orto-AMS 1956-1957 CC-BY 4.0 ejercito.defensa.gob.es` — **el AMS no es del IGN**: su atribución nombra al Centro Geográfico del Ejército de Tierra;
+  - `Orto-SIGPAC 1997-2003 CC-BY 4.0 scne.es`;
+  - `Orto-OLISTAT 1997-1999 CC-BY 4.0 scne.es`;
+  - `PNOA 2006 CC-BY 4.0 scne.es`, `PNOA 2009 CC-BY 4.0 scne.es`, `PNOA 2011 CC-BY 4.0 scne.es`, `PNOA 2014 CC-BY 4.0 scne.es`, `PNOA 2017 CC-BY 4.0 scne.es`, `PNOA 2020 CC-BY 4.0 scne.es` y `PNOA 2023 CC-BY 4.0 scne.es`.
+- **Fixtures del adapter de ventanas (historia #124)**, grabadas el 2026-11-26 con `User-Agent: parcel-intel-verificacion/0.1` en `tests/fixtures/pnoa/`. Ventana de 224 m de Colmenar de Oreja, `bbox=469928,4439888,470152,4440112` (EPSG:25830), `width=height=448`, mismos parámetros que la URL canónica de arriba (cambia `layers`):
+
+  | Fixture | Capa | Respuesta | Bytes | Bytes/píxel |
+  | --- | --- | --- | --- | --- |
+  | `window_224_pnoa2023.jpg` | `PNOA2023` | 200 `image/jpeg` | 44.674 | 0,223 |
+  | `window_224_ams.jpg` | `AMS_1956-1957` | 200 `image/jpeg` | 27.053 | 0,135 |
+  | `window_224_sigpac.jpg` | `SIGPAC` | 200 `image/jpeg` | 32.908 | 0,164 |
+  | `window_224_pnoa2010_blanca.jpg` | `PNOA2010` (sin vuelo) | 200 `image/jpeg`, **blanca** | 1.459 | 0,0073 |
+  | `window_capa_inexistente_serviceexception.xml` | `NOEXISTE` | 200 `text/xml`, `ServiceException code="LayerNotDefined"` | 554 | — |
+
+  Un `ServiceException` llega con **200**, no con un error HTTP: solo la cabecera JPEG lo distingue. `OLISTAT` no tiene fixture propia (la ventana no se pidió); el test de #124 lo sirve con la de `SIGPAC` y solo comprueba que el vuelo se acepta. CA8 de #124 (`PNOA2023` real, `PNOA2010` sin cobertura) pasó contra la red real el 2026-11-26.
+- **PNOA en PNG para la evidencia de trazados históricos (historia #140, ADR 0043)**, `confirmado` el 2026-11-26 con `User-Agent: parcel-intel-verificacion/0.1`. Sin Pillow no se lee JPEG, así que el panel de PNOA se pide a `pnoa-ma` en PNG (el `pnoa-historico` da 502 en PNG).
+  - **URL canónica** (la que construye `CachedRawFetcher`, parámetros ordenados y codificados; es la ventana de `T003` de la unidad sintética `280075-w1`): `https://www.ign.es/wms-inspire/pnoa-ma?bbox=466400%2C4439749%2C467201%2C4440453&crs=EPSG%3A25830&format=image%2Fpng&height=352&layers=OI.OrthoimageCoverage&request=GetMap&service=WMS&styles=&version=1.3.0&width=400`.
+  - **Respuesta**: `200 image/png`, **369.049 bytes**, sha256 `5134e3f3a768c2f471566ad5a4bcab9f963b24ee8aa66ff63128ca5fc995c063`, 400 × 352 px. **Tipo de color 2 (RGB), 8 bits por canal, no entrelazado**, todas las filas con filtro 0 y 47 bloques `IDAT`; el decodificador propio (`adapters/evidence/png.py`) la lee. Es la fixture `tests/fixtures/caminos/planimetrias/historico/pnoa_ma_280075-w1_T003.png`. La primera prueba (200 × 200 px, `466200,4439450,466400,4439650`) dio 104.085 B.
+  - CA10 de #140 (`pytest -m integration tests/acceptance/test_historia_140.py`) vuelve a pedirla a la red real y la decodifica.
+  - Atribución de la evidencia: `Obra derivada de PNOA 2023 CC-BY 4.0 scne.es` (ADR 0043), con licencia `CC BY 4.0`.
+- **Sin fuentes nuevas ni licencias nuevas**: todo es PNOA (actual e histórico), CC BY 4.0, ya en la tabla resumen de licencias, que no cambia (`NOTICE`, historia #43). `NOTICE` recogerá estas atribuciones cuando se publique la primera imagen (#103).
+
 ---
 
 ## BOE
@@ -529,6 +574,21 @@ Verificación real, hecha con un script local que **no guarda respuestas** (ni e
 - **Límites:** (1) el **paraje no sirve para clasificar**: hay `VT` con paraje `DESCUENTO` o `NO INFORMADO`, `HG` con `NO INFORMADO` e `I-` con `CAMINO`; manda la clase. (2) `I-` improductivo con paraje `CAMINO` indica que algún camino cartografiado como parcela 9xxx **no** sale como `VT`; el filtro `VT` los deja fuera, y eso es un falso negativo conocido. (3) Un arroyo con parcela propia **no prueba titularidad** (ni pública ni privada); Catastro carece de fehaciencia. (4) El servicio devuelve la `Ñ` de los parajes mal codificada (`CA¥ADA`): no se debe comparar texto de paraje por igualdad. (5) La muestra es de una ventana por municipio y no es un censo; no se contó por término.
 - **Canales consultados:** WFS de parcelas de Catastro, `Consulta_DNPPP` y la colección `watercourse` de IDEE, todos leídos con éxito. No se consultó el catálogo de usos del Catastro para saber si existen más clases `H*`.
 
+#### Capa interna de caminos de Catastro (historia #37) — `confirmado` (2026-11-26)
+
+Comando `catastro-caminos` para Colmenar de Oreja (`28043`), con el bbox del término del WFS de unidades administrativas del IGN, EPSG:25830, ejes E,N: `449341, 4431623, 470702, 4442906` (redondeado hacia fuera al metro). Ejecutado en local por el fundador (el WFS de Catastro rechaza los runners de GitHub Actions: primero cortaba la conexión y después respondía HTTP 400. Por eso CA7 va marcado `fuera_de_ci`).
+
+- **Pasada con red:** 312 teselas WFS de 900 m y 988 consultas `Consulta_DNPPP`, en 44 min 44 s. Una tesela del casco de Colmenar pesa unos 3,6 MB y tarda unos 45 s: el tiempo de lectura es de 180 s.
+- **Hallazgo:** Catastro es incoherente. El WFS devuelve parcelas ≥ 9000 que `Consulta_DNPPP` no reconoce (`lerr`: «NO EXISTE NINGÚN INMUEBLE CON LOS PARÁMETROS INDICADOS»). Esas parcelas quedan como `unclassified`. La respuesta `lerr` es determinista y se cachea, para que `--sin-red` repita el resultado.
+- **Resultado agregado** (pasada con red en verde el 2026-11-26, repetida el 2026-11-27 con reintentos ante cortes de red: los mismos números; la repetición `--sin-red` da la misma capa y no cambia la caché):
+  - 12 452 parcelas del municipio vistas;
+  - 988 con número ≥ 9000;
+  - **505 caminos de clase `VT`**, con 424,0 ha en total;
+  - 475 excluidas por tener otra clase;
+  - 8 sin clasificar, por `lerr`.
+  - El recuento de la pasada final con CA13 es 988; el «980» de un comentario anterior era el de la primera pasada (sin CA13).
+- Geometría en teselas contiguas: **idéntica**. Comprobado en local el 2026-11-27: con dos bboxes solapados de 600 m en el casco, cada parcela que cruza el borde del primero llega con la misma geometría en los dos. El WFS no recorta al bbox, así que la deduplicación por referencia de CA3 es válida.
+
 ### PNOA — vuelos reales sobre el ámbito — `confirmado`
 
 - **Actual**: `GetFeatureInfo` sobre la capa `OI.MosaicElement` de `pnoa-ma`, en tres puntos (Colmenar `467400,4441800,467800,4442200`; zona de Chinchón `457000,4446000,…`; zona de Villarejo `478000,4447000,…`, EPSG:25830). Las tres respuestas dicen "Fecha 2023-07, Resolución 0.25 m, Ortoimagen verdadera NO" (`pnoa_ma_mosaicelement_gfi_*.html`).
@@ -581,6 +641,7 @@ Verificado el 2026-11-25 para la [historia #17](https://github.com/murcialito/pa
 | Puntos de control reconocibles hoy | `asumido` | 6 por imagen (cruce radial norte, iglesia, Plaza Mayor, ermita de San Juan, cementerio, ermita del Cristo); 3 con coordenada leída a ojo en el PNOA (±25 a 30 m), 3 `sin coordenada`. Los 3 con coordenada están a menos de 600 m entre sí: sirven para medir el desajuste local, no para ajustar toda la hoja |
 | Desajuste local MTN50 frente a PNOA en el casco | `asumido` | 15 a 60 m a ojo; no medido con rigor |
 | Ficha MTN50 0606 en el Centro de Descargas (tamaño, píxeles del original) | `bloqueado` | No se abrió en esta historia; queda para la de georreferenciación |
+| Unidad `280075-w1` de la fixture (historia #137): el `GetMap` de la ventana `466200,4439450,467200,4440450` a 500 × 500 px | `confirmado` | Verificado el 2026-11-26 con `User-Agent: parcel-intel-verificacion/0.1`: `200 image/png`, 428.157 B, sha256 `80222cbc…30dd1`, **idéntico** al del recorte versionado `planimetria_colmenar_280075_recorte_casco_2mpx.png`. El render es estable entre descargas. CA12 de #137 lo vuelve a comprobar (`pytest -m integration tests/acceptance/test_historia_137.py`); si algún día cambia, `RawImageMismatchError` es el comportamiento correcto |
 
 ### Licencia y atribución exacta
 
@@ -674,6 +735,7 @@ Conclusión de la cadena: la licencia CC BY 4.0 la declara el documento que el p
 - Formato: «Obra derivada de <identificador> <fecha> CC-BY 4.0 <atribución de productores>», apartado 4 del documento de condiciones. Ese prefijo aplica a una obra derivada, es decir, si el visor transforma los datos. Si la capa publicada no altera la información original, el apartado 1 pide la forma sin «Obra derivada de» (`<identificador> <fecha> CC-BY 4.0 <atribución de productores>`). El texto de CA2 usa la forma derivada porque así lo fija el criterio; si la capa se publica sin transformar, cambiarlo es una decisión del fundador. La atribución debe verse junto a los datos (apartado 1).
 - Atribución de productores: la variante 2 de la tabla sin las otras comunidades. El considerando Tercero del documento indica que, si el ámbito está completamente en una comunidad autónoma, se usa la variante 2 «sin mencionar al resto de Comunidades Autónomas». Colmenar de Oreja está en la Comunidad de Madrid.
 - Alternativa literal si el fundador prefiere la variante 1: `Obra derivada de IGR-RT 2026 CC-BY 4.0 Sistema Cartográfico Nacional`.
+- Desde #94 (ADR 0044) la evidencia de la red de transporte aparece también en las fichas de los indicios publicados (`site/datos/discrepancias/`), con esta misma atribución de `NOTICE`: `SOURCE_POLICY["ign_red_transporte"]` pasa a verificada. No cambia ninguna conclusión de esta sección.
 
 ### Límites y canales no leídos
 
@@ -729,7 +791,25 @@ Ejecución real del 2026-11-26: `vias-pecuarias-municipios` y `camino-actual-mun
 | `site/datos/indice.json` | 1 municipio | 215 |
 | `site/datos/indice.json.procedencia.json` | — | 205 |
 
-Ningún fichero supera el umbral de simplificación (3 000 000 bytes). Belmonte de Tajo (28019) no tiene piezas de vías pecuarias, y su capa vacía lleva la procedencia del límite del IGN (uso interno), así que hoy no se puede publicar. Queda para #86 (ADR 0036, notas de implementación).
+Ningún fichero supera el umbral de simplificación (3 000 000 bytes). Belmonte de Tajo (28019) no tiene piezas de vías pecuarias, y su capa vacía no se publica (resuelto en #86, ADR 0036). El ámbito completo se publicó en #86: 13 capas, ninguna sobre el umbral.
+
+### Candidatos a corte — fichero interno (historia #128)
+
+`candidatos-corte` escribe `data/derived/candidatos/interno/<ine>.geojson` (EPSG:25830, fuera de git). **Deriva de Catastro** (parcelas del WFS de #37, licencia INSPIRE) y de las capas base de #94: es de **uso interno y no redistribuible**; la procedencia de cada señal (`redistribucion: solo_uso_interno`) viaja en el propio fichero. No lleva datos de titularidad, referencias catastrales ni geometría de parcela. Publicar candidatos es #103 y exigirá su propia redacción. Sin fuente nueva ni proveedor nuevo.
+
+Verificación con datos reales de Colmenar de Oreja (CA12, `integration` + `fuera_de_ci`), **en verde** en local el 2026-11-27, con `data/` generada por `catastro-caminos` (41 min), `camino-actual-municipios` y `discrepancias --municipio 28043`. El fichero se genera y el lector lo reconstruye, pero el resultado aún no sirve:
+
+- **0 candidatos**, sobre 17 registros base (discrepancias `SOLAPE` o `AUSENTE_EN_FUENTE` frente a la red del IGN).
+- Señal `parcela_no_camino` en **`sin_datos`**: 59 teselas no están en la caché. `candidatos-corte` corta las teselas con otra rejilla, de origen fraccionario, que la de `catastro-caminos` (bbox redondeado del término).
+- En `discrepancias` falta además la fuente `catastro_vt`, porque `catastro-caminos` no escribe `data/derived/catastro_caminos/<ine>.geojson`.
+
+Las dos integraciones pendientes están en la #160.
+
+### Integración de `catastro-caminos` con `discrepancias` y `candidatos-corte` (historia #160)
+
+- `catastro-caminos` escribe ahora `data/derived/catastro_caminos/<ine>.geojson` (formato común de #32, `fuente: catastro_vt`, EPSG:25830, `redistribucion: solo_uso_interno`; un feature por camino con id `VT-0001…`, sin referencias catastrales; atómico). **Nunca se publica** (INSPIRE). Sin fuente nueva ni proveedor nuevo.
+- La rejilla de teselas de un municipio es única: `municipality_tiles(bbox del límite del IGN, 900 m)`, con el bbox redondeado hacia fuera a metro entero (`domain/geometry.py`). Para Colmenar reproduce el bbox de #37 (`449341,4431623,470702,4442906`; origen `(449341, 4431623)`). Sin `--bbox`, `catastro-caminos` lo toma del límite del IGN; con `--bbox` se respeta y se imprime la rejilla usada.
+- **CA8 pendiente de pasar en local** (`PASO_COMUN_DATOS_LOCALES=1 uv run pytest -m "acceptance and integration" tests/acceptance/test_historia_160.py`; usa `data/` del fundador, no el CI). La caché de 107 MB de #128 se descargó con el mismo bbox de #37, así que sus teselas deberían encajar con la rejilla nueva; si alguna no encaja, anótalo en la PR y no se redescarga en el CI. Recuento de candidatos de Colmenar: _por anotar tras la ejecución local_ (sin nombres ni referencias catastrales).
 
 ---
 

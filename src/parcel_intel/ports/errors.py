@@ -1,5 +1,7 @@
 from collections.abc import Sequence
 
+from parcel_intel.domain.orthophoto import HistoricalVintage
+
 
 class RoadNetworkError(Exception):
     """La respuesta del servicio de red de transporte (`roadlink`) no es
@@ -200,6 +202,15 @@ class HistoricTrailNotPendingError(Exception):
         self.identifier = identifier
 
 
+class GeoreferenceUnitNotFoundError(Exception):
+    """No existe ninguna unidad georreferenciada con ese `unit_id` -- historia
+    #138, ADR 0044."""
+
+    def __init__(self, unit_id: str) -> None:
+        super().__init__(f"No existe ninguna unidad georreferenciada: {unit_id!r}")
+        self.unit_id = unit_id
+
+
 class TrailLayerUnavailableError(Exception):
     """No hay capa de trazados para esa fuente y municipio -- historia #31,
     ADR 0030. Significa solo "no hay capa" (p. ej. sin fichero derivado en
@@ -216,6 +227,28 @@ class TrailLayerUnavailableError(Exception):
         self.reason = reason
 
 
+class DiscrepancyReportUnavailableError(Exception):
+    """No hay informe de discrepancias escrito para ese municipio -- historia
+    #94. Significa solo "no hay fichero"; un fichero corrupto es otro error."""
+
+    def __init__(self, municipality_code: str, reason: str) -> None:
+        super().__init__(
+            f"Sin informe de discrepancias para el municipio {municipality_code}: {reason}"
+        )
+        self.municipality_code = municipality_code
+        self.reason = reason
+
+
+class CutCandidateFileError(Exception):
+    """El fichero de candidatos a corte existe pero no se puede leer o no cumple
+    el formato -- historia #128. No equivale a «sin capas» (`None`)."""
+
+    def __init__(self, path: str, detail: str) -> None:
+        super().__init__(f"Fichero de candidatos a corte no válido {path}: {detail}")
+        self.path = path
+        self.detail = detail
+
+
 class NoLandClassificationFoundError(Exception):
     """Ningún polígono de clasificación de suelo intersecta el bbox pedido.
     El servicio no distingue "fuera de cobertura de la Comunidad de Madrid"
@@ -227,3 +260,90 @@ class NoLandClassificationFoundError(Exception):
     def __init__(self, bbox: tuple[float, float, float, float]) -> None:
         super().__init__(f"Ninguna clasificación de suelo encontrada para el bbox: {bbox}")
         self.bbox = bbox
+
+
+class CadastralServiceError(Exception):
+    """El servicio de Catastro respondió con una excepción o con una estructura
+    inesperada -- historia #37. Nunca se cachea ni se devuelve como lista vacía."""
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(f"Respuesta de Catastro no utilizable: {detail}")
+        self.detail = detail
+
+
+class AreaQueryLimitExceededError(Exception):
+    """El bbox pedido supera el límite de área del proveedor (WFS de parcelas de
+    Catastro: "Area of extension out of limits") -- historia #37."""
+
+    def __init__(self, bbox: tuple[float, float, float, float]) -> None:
+        super().__init__(f"El área pedida supera el límite del proveedor: {bbox}")
+        self.bbox = bbox
+
+
+class TruncatedAreaQueryError(Exception):
+    """El proveedor devolvió menos elementos de los que dice haber encontrado
+    (`numberReturned < numberMatched`): usarla perdería parcelas en silencio --
+    historia #37."""
+
+    def __init__(
+        self, bbox: tuple[float, float, float, float], matched: int, returned: int
+    ) -> None:
+        super().__init__(
+            f"Respuesta truncada para {bbox}: encontradas {matched}, devueltas {returned}"
+        )
+        self.bbox = bbox
+        self.matched = matched
+        self.returned = returned
+
+
+class OrthophotoNotCoveredError(Exception):
+    """El vuelo pedido no cubre la ventana (el WMS devuelve una imagen blanca
+    sin error) -- historia #121, ADR 0042 §3. No es un fallo: la franja prueba
+    el siguiente vuelo de su lista."""
+
+    def __init__(self, vintage: HistoricalVintage) -> None:
+        super().__init__(f"El vuelo {vintage!r} no cubre la ventana pedida")
+        self.vintage = vintage
+
+
+class RawImageMismatchError(Exception):
+    """La imagen de trabajo de una unidad no es la que declara `unidad.json`:
+    otro sha256, otras dimensiones o un sidecar que no cuadra con su cuerpo --
+    historia #137, ADR 0043. Nunca se usa una imagen distinta de la declarada:
+    los puntos de control se tomaron sobre aquella."""
+
+    def __init__(self, unit_id: str, detail: str) -> None:
+        super().__init__(f"Imagen de trabajo de {unit_id} no coincide con la declarada: {detail}")
+        self.unit_id = unit_id
+        self.detail = detail
+
+
+class WorkingImageUnavailableError(Exception):
+    """No hay imagen de trabajo en la caché y no se puede (o no se debe)
+    descargar: modo sin red, o una unidad `original_cnig`, cuya descarga pasa
+    por un captcha y la hace una persona -- historia #137."""
+
+    def __init__(self, unit_id: str, detail: str) -> None:
+        super().__init__(f"Imagen de trabajo de {unit_id} no disponible: {detail}")
+        self.unit_id = unit_id
+        self.detail = detail
+
+
+class CuratedUnitNotFoundError(Exception):
+    """Falta el directorio de una unidad en `curated/historico/` o alguno de
+    sus tres ficheros -- historia #137."""
+
+    def __init__(self, unit_id: str, detail: str) -> None:
+        super().__init__(f"Sin entrada curada para la unidad {unit_id}: {detail}")
+        self.unit_id = unit_id
+        self.detail = detail
+
+
+class EvidenceImageFormatError(Exception):
+    """Una imagen de la evidencia no es un PNG de 8 bits no entrelazado que el
+    decodificador propio sepa leer (p. ej. entrelazado, de 16 bits, un JPEG o un
+    PNG corrupto) -- historia #140, ADR 0043 («Herramientas»: sin Pillow)."""
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(f"Imagen de evidencia no legible: {detail}")
+        self.detail = detail

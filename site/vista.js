@@ -2,6 +2,9 @@
 // Recibe el `document` por inyección (se prueba con un documento falso en Node).
 // Todo texto que viene de datos se inserta con `textContent`, nunca como HTML (CA6).
 
+// Solo `https:` seguido de dos barras y algo más (en minúsculas, sin espacios).
+const ENLACE_SEGURO = /^https:\/\/\S/;
+
 export function crearVista(documento, textos) {
   const porId = (id) => {
     const elemento = documento.getElementById(id);
@@ -16,6 +19,7 @@ export function crearVista(documento, textos) {
     ok: "",
     cargando: textos.cargando,
     vacia: textos.sinTrazados,
+    sin_indicios: textos.sinIndicios,
     error: textos.errorCapa,
   };
 
@@ -69,7 +73,63 @@ export function crearVista(documento, textos) {
     return ficha;
   }
 
+  function parrafo(clase, contenido) {
+    const p = documento.createElement("p");
+    if (clase) p.className = clase;
+    p.textContent = contenido;
+    return p;
+  }
+
+  // Ficha de un indicio (historia #95): solo createElement y textContent. El enlace de una
+  // fuente se crea únicamente si la URL es https con dos barras; si no, se muestra como texto.
+  function nodoFichaIndicio(ficha) {
+    const nodo = documento.createElement("div");
+    nodo.className = "ficha ficha-indicio";
+    if (!ficha.disponible) {
+      nodo.appendChild(parrafo("", textos.fichaNoDisponible));
+      nodo.appendChild(parrafo("ficha-aviso", ficha.aviso));
+      return nodo;
+    }
+    const cabecera = documento.createElement("strong");
+    cabecera.textContent = ficha.etiqueta;
+    nodo.appendChild(cabecera);
+    nodo.appendChild(parrafo("", ficha.texto));
+    if (ficha.confianza) nodo.appendChild(parrafo("ficha-confianza", ficha.confianza));
+    nodo.appendChild(parrafo("ficha-aviso", ficha.aviso));
+
+    const lista = documento.createElement("ul");
+    lista.className = "ficha-fuentes";
+    for (const e of ficha.evidencia) {
+      const item = documento.createElement("li");
+      item.appendChild(parrafo("", `${e.papel}: ${e.fuente} (${e.anio})`));
+      item.appendChild(parrafo("ficha-fuente", `Descargada el ${e.fechaDescarga}`));
+      item.appendChild(parrafo("ficha-fuente", `Licencia: ${e.licencia}`));
+      item.appendChild(parrafo("ficha-fuente", e.atribucion));
+      if (ENLACE_SEGURO.test(e.url)) {
+        const enlace = documento.createElement("a");
+        enlace.setAttribute("href", e.url);
+        enlace.setAttribute("rel", "noopener noreferrer");
+        enlace.setAttribute("target", "_blank");
+        enlace.textContent = e.url;
+        const p = documento.createElement("p");
+        p.className = "ficha-fuente";
+        p.appendChild(enlace);
+        item.appendChild(p);
+      } else if (e.url !== "") {
+        item.appendChild(parrafo("ficha-fuente", e.url));
+      }
+      lista.appendChild(item);
+    }
+    nodo.appendChild(lista);
+
+    nodo.appendChild(parrafo("ficha-criterio", `Criterio: ${ficha.criterio}`));
+    nodo.appendChild(parrafo("ficha-criterio", ficha.descripcionCriterio));
+    if (ficha.avisoOmision !== null) nodo.appendChild(parrafo("ficha-aviso", ficha.avisoOmision));
+    return nodo;
+  }
+
   return {
+    nodoFichaIndicio,
     ponerMunicipios,
     seleccionarMunicipio,
     ponerEstadoCapa,

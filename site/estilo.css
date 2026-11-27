@@ -65,6 +65,7 @@ legend { font-weight: var(--weight-bold); }
 }
 .muestra-vias_pecuarias { background: rgba(251, 146, 60, .5); border: 2px solid #c2410c; }
 .muestra-camino_actual { height: .3rem; background: #fde047; box-shadow: 0 0 0 1px #444; }
+.muestra-discrepancias { background: rgba(167, 139, 250, .3); border: 2px dashed #7c3aed; }
 .mensaje:not(:empty) {
   color: var(--error);
   border-left: 3px solid var(--error);
@@ -84,6 +85,12 @@ legend { font-weight: var(--weight-bold); }
 .ficha strong { display: block; }
 .ficha p { margin: var(--space-1) 0 0; }
 .ficha-fuente { color: var(--color-muted); font-size: var(--text-sm); font-family: var(--font-mono); }
+.ficha-indicio { max-width: 22rem; }
+.ficha-aviso { background: var(--color-nota-bg); color: var(--color-nota-fg); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); font-size: var(--text-sm); }
+.ficha-confianza { font-weight: var(--weight-bold); }
+.ficha-fuentes { margin: var(--space-2) 0 0; padding-left: 1.1rem; }
+.ficha-fuentes a { overflow-wrap: anywhere; }
+.ficha-criterio { color: var(--color-muted); font-size: var(--text-sm); }
 @media (max-width: 40rem) {
   .visor { flex-direction: column; }
   .panel { width: auto; max-width: none; border-right: 0; border-bottom: 1px solid var(--color-line); }

@@ -372,6 +372,13 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: antes de atribuir un camino a un municipio, comprobar que el homónimo no es otro: el «Colmenar» de una búsqueda era Colmenar Viejo (Vado de la Tabla), no Colmenar de Oreja (lección 0021 otra vez).
   - **Aplica a**: implementación | BA.
 
+## [2026-11-26] Historia #37 — Capa interna de caminos de Catastro
+
+- **Lección**: las referencias "de ejemplo" sintéticas pueden coincidir con una referencia real: la de la parcela 1 del polígono 1 de un municipio real (un ejemplo «inocente» con ceros a la izquierda en un test) casó con una huella de `tests/fixtures/catastro_huellas_reales.json` y rompió `test_historia_46::test_ca7`. Para tests de formato usar números ≥9000 (`28043A00109101`), que son los de la tabla sintética, y correr `uv run pytest` entero antes de la PR.
+  - **Aplica a**: implementación.
+
+- **Lección**: el WFS y `Consulta_DNPPP` del Catastro (`ovc.catastro.meh.es`) cortan la conexión (`Connection reset by peer`) desde los runners de GitHub Actions, aunque la raíz responda (400 a un GetCapabilities sin parámetros). Un criterio `[integración]` contra el Catastro real no puede verificarse en el agente; hay que ejecutarlo desde una máquina con acceso.
+  - **Aplica a**: BA | implementación.
 ## [2026-11-26] Historia #84 — Publicar capas en site/datos
 
 - **Lección**: una puerta "denegar por defecto" (aquí `PublishableLayer` con `layer_provenance`) también rechaza los casos degenerados que nadie miró, y el rechazo sale con el mensaje del caso común. La capa de vías pecuarias **vacía** toma la procedencia del límite del IGN (uso interno) porque no hay consulta de IDEM de la que tomarla. Se rechaza como «no redistribuible» y el mensaje sugiere regenerarla, lo que no arregla nada. Le pasa a Belmonte de Tajo (28019) en los datos reales, así que `publicar-capas --ambito` sale con 1.
@@ -401,6 +408,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en las Actions de los agentes no se puede lanzar un navegador sin cabeza (`chromium`, `google-chrome` piden aprobación). La comprobación en un navegador real queda como paso manual anotado en la PR; los tests cubren el visor con un `L` falso, así que un error de uso de la API real de Leaflet solo se ve en el navegador.
   - **Aplica a**: implementación (anotar en la PR qué no se pudo ver) | fundador (abrir la URL de Pages tras el despliegue).
 
+## [2026-11-26] Historia #86 — Publicar el ámbito completo y vigilar el peso
+
+- **Lección**: una puerta "denegar por defecto" que también mira lo vacío bloquea ejecuciones enteras por un caso sin datos. Si una capa no tiene elementos, no hay nada que redistribuir: se omite antes de la puerta y se declara en la salida. El dominio sigue siendo estricto; la decisión vive en el caso de uso y se prueba con el caso real (Belmonte de Tajo).
+  - **Aplica a**: arquitecto (al añadir una validación sobre una colección, decidir qué pasa con la colección vacía) | implementación (ejecutar el comando sobre TODO el ámbito real antes de dar la historia por buena: un municipio atípico solo sale así).
 ## [2026-11-26] Historia #50 — Guardia de curated/** en fusionar.yml
 
 - **Lección**: en las Actions de los agentes `chmod` y `sed -i` sobre ficheros del repo piden aprobación. Los scripts nuevos de `.github/scripts/` se invocan con `bash fichero.sh` (en el workflow y en los tests), no por su ruta, para no depender del bit de ejecución. Y un test que busca `gh pr merge` en `fusionar.yml` encuentra primero el comentario de cabecera: se ancla a la orden real (`gh pr merge "$pr"`).
@@ -409,6 +420,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: la lógica de decisión de un workflow (aquí «¿toca `curated/`?» y «¿aprobó el fundador el último commit?») se extrae a scripts que leen stdin; así se prueba con JSON fijo sin red y el YAML solo la invoca.
   - **Aplica a**: arquitecto | implementación.
 
+## [2026-11-26] Historia #37 — Capa interna de caminos de Catastro
+
+- **Lección**: una respuesta de error determinista de una fuente (aquí `lerr` de `Consulta_DNPPP`: «no existe ningún inmueble») se cachea igual que una buena; si no, `--sin-red` no puede repetir la pasada con red. La validación previa a la caché solo rechaza lo transitorio (excepciones de servicio, truncados) y el error de dominio se relanza al leer.
+  - **Causa**: el WFS de Catastro devuelve parcelas ≥ 9000 que DNPPP no reconoce; sin cachear el `lerr`, la repetición sin red falló con `RawCacheMissError`.
+  - **Aplica a**: implementación (adapters con `CachedRawFetcher`) | arquitecto.
 ## [2026-11-26] Historia #110 — Arnés de evaluación de candidatos
 
 - **Lección**: en una medida por muestreo de puntos medios con `<=` (aquí `line_overlap_fraction`, paso 1 m), un oráculo escrito a mano falla si el alcance coincide con la distancia de un punto medio (0,5 m del vértice): ese punto cuenta como cubierto. Al calcular el oráculo, listar los puntos medios cercanos a la frontera y elegir un alcance que no caiga justo en uno, o fijar ese caso límite a propósito en un test propio.
@@ -429,3 +445,194 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: en las Actions de los agentes `cp`, `rm` y `mkdir` fuera del repo piden aprobación; los ficheros se copian con `Read` + `Write` y los temporales de descarga se dejan dentro del repo sin añadirlos (`git add` por ruta).
   - **Aplica a**: implementación.
+## [2026-11-26] Historia #120 — ADR de imágenes de comparación
+
+- **Lección**: si un ADR trae una tabla de oráculos y las constantes de las que sale, el test de aceptación no se limita a comprobar propiedades de la tabla (lado múltiplo de 32, píxeles = 2·lado). Recalcula cada fila con una implementación de referencia mínima que **lee las constantes del texto del ADR** y exige igualdad exacta. Así, si alguien cambia una constante (margen, escalón, tope) sin rehacer la tabla, el test falla antes de que #121 programe contra oráculos caducados. La referencia vive solo en el test y no sustituye a la implementación de producción.
+  - **Causa**: el CA10 pedía solo la coherencia con las constantes. Con esa comprobación habría pasado una ventana mal calculada que aun así tuviera un lado válido. Recalcular costó unas 40 líneas, y los seis oráculos del arquitecto cuadraron.
+  - **Aplica a**: implementación (historias de ADR con oráculos) | arquitecto (dar el algoritmo con el detalle suficiente para reimplementarlo: orden, redondeo y desempate).
+
+- **Lección**: en las Actions de los agentes, `sha256sum` sobre un fichero de `/tmp` se deniega, porque solo se permite dentro del repo. Para comprobar el sha256 y los bytes de una respuesta descargada sin guardarla en el repo, usar `python3 -I -c "import hashlib,sys; d=open(sys.argv[1],'rb').read(); print(len(d), hashlib.sha256(d).hexdigest())" /tmp/fichero`.
+  - **Aplica a**: implementación (verificaciones de red cuya respuesta no se versiona).
+
+## [2026-11-26] Historia #126 — Entidad CutCandidate y método de combinación
+
+- **Lección**: no ejecutes `ruff format .` sobre todo el repo: la versión de ruff local reformatea medio repo (incluidos bloques de código de los ADR, que rompen tests que leen sus textos literales). CI solo exige `ruff check`. Formatea solo los ficheros nuevos (`ruff format <ruta>`) y revisa `git status` antes de commitear.
+  - **Causa**: al formatear `.` se tocaron 44 ficheros ajenos a la historia y falló `test_historia_109` (que busca una línea exacta del ADR 0039). Se revirtió con `git checkout` de lo ajeno.
+  - **Aplica a**: implementación.
+
+- **Lección**: al fundir rachas por distancia entre piezas (`GAP_M`), basta comparar piezas con `segment_distance` y un prefiltro de bbox; el coste es cuadrático por trazado, aceptable con rachas de decenas de muestras. Si se calibra `GAP_M` o `SAMPLE_STEP_M`, revisar ese coste.
+  - **Aplica a**: implementación (al calibrar el método con #100).
+
+## [2026-11-26] Historia #121 — Caso de uso de imágenes de comparación
+
+- **Lección**: el trozo de puntos de `comparison_windows` se corta por `max(ancho, alto)`, no por longitud: una diagonal de 1500 m (2121 m de recorrido) cabe en 4 ventanas y no es `tramo_demasiado_largo`. Para probar el tope, usar un tramo cuyo lado mayor supere ~1,6 km en proyección.
+  - **Causa**: el primer test unitario esperaba `None` con una diagonal de 1500×1500 m y salieron 4 ventanas. El código seguía el ADR; el oráculo mental era erróneo.
+  - **Aplica a**: implementación (tests de topes por tamaño de ventana).
+
+## [2026-11-26] Historia #18 — ADR de georreferenciación y digitalización
+
+- **Lección**: los cuerpos de las issues anteriores a la migración (ADR 0040) llevan referencias reescritas como `murcialito/parcel-intel#N`, también dentro de cadenas que un criterio pide «literales», como un encabezado de ADR. Antes de copiarlas, comprobar con `gh issue view N` que la issue de este repo es la misma. Si lo es, escribir `#N` en el documento, como el resto de `docs/adr/`; el docstring del test conserva el criterio literal y el módulo explica la adaptación. Un ADR con `murcialito/parcel-intel#N` enlazaría al repo antiguo.
+  - **Causa**: el CA12 de #18 exigía el encabezado `## Consecuencias para #19 y murcialito/parcel-intel#20`. #20 y #50 de este repo son las mismas historias.
+  - **Aplica a**: BA y arquitecto (al reescribir una issue migrada, normalizar sus referencias a `#N`) | implementación (anotar la adaptación en la PR).
+
+- **Lección**: al buscar frases en un ADR tras quitar las negritas (`texto.replace("**", "")`) también se borra el `**` de los globs (`curated/**`). Las cadenas con glob se buscan en el texto sin normalizar.
+  - **Aplica a**: implementación (tests que leen documentos Markdown).
+
+## [2026-11-26] Historia #94 — Publicar los indicios de discrepancia
+
+- **Lección**: una decisión del fundador tomada después del diseño (aquí el ADR 0041, que abre los indicios con Catastro como contraparte) cambia el oráculo, un criterio y el texto público a la vez. Antes de codificar, leer los comentarios de la issue y los ADR posteriores al diseño; recalcular el oráculo con el pipeline (Bloque 0) y escribir en el docstring del módulo de tests qué se ajustó y por qué, dejando el criterio literal en el docstring de cada test.
+  - **Causa**: el diseño fijaba 2 indicios publicados y 3 omitidos en 28043; con el ADR 0041 son 4 y 1. El número del ADR propuesto (0038) también estaba ya ocupado (lección #43).
+  - **Aplica a**: implementación | arquitecto (un diseño que depende de una decisión jurídica abierta debe decir qué cambia si se resuelve en el otro sentido).
+
+- **Lección**: una franja sintética de 20 m frente a una línea por su eje no "coincide" para todos los pares de fuentes. Las muestras del borde corto quedan a 7,5 m del eje y la tolerancia Catastro–IGN es 7,07 m, así que sale un `SOLAPE` que el oráculo no esperaba. Al escribir fixtures de franjas, comprobar la distancia de las muestras de los bordes cortos con la tolerancia más estricta de los pares que se van a comparar, o usar franjas estrechas (10 m).
+  - **Aplica a**: implementación y arquitecto (fixtures sintéticas de discrepancias).
+
+- **Lección**: en las capas derivadas reales ninguna fuente declara una fecha común: vías pecuarias no tiene fecha por tramo y la red del IGN mezcla `fecha_alta` de 2017 a 2026. Los `AUSENTE_EN_FUENTE` reales dicen «año no declarado» aunque el formato ya guarda `fecha_dato_b`. Un criterio con un año en el texto (CA11) se cumple con fixtures; con los datos reales hace falta decidir qué fecha representa a cada capa.
+  - **Aplica a**: BA y arquitecto (al fijar un texto público con año, comprobar qué fecha tienen los datos reales) | implementación (anotarlo en la PR al publicar datos reales).
+## [2026-11-26] Historia #124 — Adapter de ventanas de ortofoto PNOA
+
+- **Lección**: el WMS del IGN responde **200** a todo: una capa inexistente da un `ServiceException` XML y un vuelo sin cobertura da un JPEG blanco. Ningún código de estado distingue el éxito; solo la cabecera JPEG (para no cachear errores) y el tamaño por píxel (para detectar el blanco, que sí se cachea) lo hacen.
+  - **Causa**: ambas respuestas se grabaron como fixtures reales (`window_capa_inexistente_serviceexception.xml`, `window_224_pnoa2010_blanca.jpg`); la blanca a 448 px pesa 0,0073 bytes/píxel, las reales ≥ 0,135.
+  - **Aplica a**: implementación (cualquier adapter nuevo sobre WMS del IGN: validar el cuerpo, no el estado HTTP).
+
+## [2026-11-26] Historia #96 — Publicar indicios del ámbito y comprobar peso y lenguaje
+
+- **Lección**: regenerar `data/derived/` con red y volver a publicar es determinista: los ficheros de Colmenar salieron byte a byte iguales a los ya commiteados y las capas de #86 no cambiaron, así que el diff de datos es solo lo nuevo. Cuando un test de una historia anterior fija «solo existe X» sobre datos que la siguiente amplía (el CA15 de #94 exigía solo `28043.geojson`), se relaja a «X sigue ahí» y la historia nueva fija el conjunto completo.
+  - **Aplica a**: implementación (tests que congelan un conjunto de ficheros publicados) | arquitecto (al partir una publicación en dos historias, decir qué test de la primera deja de valer).
+## [2026-11-26] Historia #95 — El visor dibuja indicios y muestra su ficha
+
+- **Lección**: para probar que un aviso «siempre está», no basta con la ficha del caso feliz: se pasa por la función pura de la ficha cada forma rota (`null`, `{}`, sin `texto`, `evidencia` que no es lista, aviso vacío) y se comprueba el aviso en el nodo resultante. El literal fijo de `config.js` se compara además con el aviso del fichero publicado y con `NOTICE`, para que no diverjan.
+  - **Aplica a**: implementación (JS del visor) | revisor (cualquier texto legal obligatorio en una ficha).
+
+- **Lección**: los tests estáticos de #85 escanean todo el JS propio en busca de `//` seguidos de texto (URLs externas), también dentro de comentarios. Escribir `https://` en `vista.js` rompe CA1 de #85; el enlace seguro se comprueba con la expresión regular `/^https:\/\/\S/` y los comentarios evitan la cadena literal.
+  - **Aplica a**: implementación (módulos del visor).
+
+- **Lección**: `tests/acceptance/test_historia_46.py` busca en `tests/` cadenas de 14 caracteres alfanuméricos y las compara con huellas de referencias catastrales reales. Una referencia «inventada» con forma plausible puede ser real (p. ej. polígono 1, parcela 1 de un municipio del ámbito). En fixtures usar prefijos de municipio inexistentes (`99999`).
+  - **Aplica a**: implementación (fixtures con referencias catastrales falsas).
+## [2026-11-26] Historia #136 — Ajuste afín y validación de trazados en el dominio
+
+- **Lección**: el ADR que un diseño llama «siguiente libre (hoy 0044)» caduca igual que un número de issue. #94 ocupó el 0044 mientras #136 esperaba en cola; se comprobó `ls docs/adr/`, se usó el 0045 y se anotó en el propio ADR. El test de CA12 localiza el ADR por su cabecera (`Historias: #20`) y comprueba que no hay números duplicados, así que no depende del número.
+  - **Aplica a**: BA y arquitecto (citar «el siguiente libre» sin número) | implementación (comprobar `docs/adr/` antes de crear el ADR; ya lo exigía la lección de #43).
+
+- **Lección**: un oráculo de `numpy.linalg.lstsq` sobre una afín casi exacta coincide con el cálculo con coordenadas centradas dentro de ~1e-10 m, así que `abs=1e-9` es correcto pero justo. Al cambiar la escala de la figura en un test (p. ej. multiplicar los píxeles por 100) hay que mantener los objetivos dentro del rango de EPSG:25830 que valida `ControlPoint`.
+  - **Aplica a**: implementación (tests de escala sobre `fit_affine`).
+## [2026-11-26] Historia #122 — Comando imagenes-comparacion
+
+- **Lección**: para rechazar un GeoJSON «fuera de EPSG:25830» no basta con leer el miembro `crs`: un fichero que declara 25830 pero trae grados (`-3.6, 40.1`) pasa. Hay que acotar además las coordenadas al rango de UTM 30N (este 100.000–900.000 m). Y con mypy estricto, los tests no pueden leer `main.ManifestTooLargeError` y similares: se importan de su módulo, no de `cli.main`.
+  - **Causa**: la primera cota (−1.000.000…2.000.000) dejaba pasar los grados; lo cazó un test unitario con lon/lat.
+  - **Aplica a**: implementación (lectores de ficheros de entrada con CRS declarado).
+
+## [2026-11-26] Historia #138 — Registro PostGIS de unidades y `sync_unit`
+
+- **Lección**: un test de migración que dice «`down` revierte la última» se rompe en cuanto llega una migración nueva. `test_historia_19::test_ca6` revertía una vez y esperaba que `historic_trail` desapareciera; con la `0006` solo desaparece la columna `unit_id`. Al añadir una migración, buscar con `grep` los tests que llaman a `migrate.down` y actualizarlos.
+  - **Aplica a**: implementación (cualquier migración nueva) | revisión.
+
+- **Lección**: para que `get_unit` devuelva una unidad **igual** a la guardada, cada dato que el dominio repite en dos entidades (`UnitSpec` y `WorkingImage`: tipo, sha256, ancho, alto, fuente) o que no está en la entidad persistida (`image_url` exacta, `image_retrieved_at` de la especificación frente a la fecha real de descarga) necesita su columna o una comprobación previa al SQL. El SQL literal de #20 no tenía `image_url` ni `spec_image_retrieved_at`; se añadieron, y `sync_unit` rechaza con `ValueError` una unidad incoherente en vez de perder un dato en silencio.
+  - **Aplica a**: arquitecto (al fijar un esquema para una ida y vuelta exacta, comparar campo a campo con el dataclass) | implementación.
+
+- **Lección**: en esta sesión no había PostGIS ni permiso para Docker, así que los criterios `[integración: PostGIS]` solo corren en CI. Se cuadró a mano el número de `%s` y de parámetros de cada sentencia (el fallo más probable al no poder ejecutarlas) y se dejó el resto a CI.
+  - **Aplica a**: implementación (si no se puede ejecutar la base, contar placeholders y decir en la PR que no se ejecutó).
+## [2026-11-26] Historia #137 — Entrada curada y caché de la imagen de trabajo
+
+- **Lección**: el sha256 de un fichero versionado solo es estable si git no toca sus finales de línea. `.gitattributes` marca `curated/historico/**` y la fixture como `-text` (CA11), y la lectura del CSV calcula el hash sobre los **bytes** del fichero, no sobre el texto decodificado: con BOM o CRLF el hash cambia a propósito, porque eso es lo que vio quien aprobó. Un test que mezcla las dos cosas (BOM → mismo contenido, otro sha256) lo documenta.
+  - **Aplica a**: implementación (cualquier fichero cuyo hash se copie a otro sitio como firma de «lo que vi»).
+
+- **Lección**: en un borde de validación estricta, los helpers que extraen un campo tipado (`_text`, `_integer`, `_choice`) evitan `cast` y `type: ignore` y dejan que mypy compruebe el `TypedDict` de salida. Para un `Literal` cerrado, `options: tuple[T, ...] = get_args(Literal)` más `_choice` devuelve el literal ya estrechado. Y un `lambda` asignado a una variable en un test cuenta como función sin tipar para `mypy` estricto (`no-untyped-call`): se escribe inline o como `def`.
+  - **Aplica a**: implementación (nuevos lectores de ficheros de formato cerrado).
+
+- **Lección**: el WMS de minutas del IGN devolvió byte a byte el mismo PNG (sha256 idéntico) del recorte versionado en #17 al día siguiente, así que un hash declarado en `unidad.json` es una comprobación realista y no un falso positivo. Aun así, el adapter trata cualquier diferencia como `RawImageMismatchError` y no escribe nada: los puntos de control se tomaron sobre aquella imagen.
+  - **Aplica a**: implementación (adapters de imágenes con hash declarado) | review.
+
+## [2026-11-27] Historia #139 — Comandos `historico ajuste` y `historico cargar`
+
+- **Lección**: un criterio que cita un valor de una fixture ya fusionada («`reviewer = usuario-sintetico`») puede no coincidir con ella (`fixture-sintetica` en #137). Se comprueba el valor real de la fixture, no el del texto, y la diferencia se anota en el docstring del módulo de tests y en la PR; cambiar la fixture rompería el sha256 de sus aprobaciones.
+  - **Aplica a**: BA y arquitecto (copiar los valores de las fixtures, no recordarlos) | implementación.
+
+- **Lección**: para que un comando pruebe «no se llama a la base» sin PostGIS, el composition root expone un único punto de apertura (`_georeference_repository`, un `contextmanager`) que los tests sustituyen por un doble que registra llamadas; `ajuste` no lo usa, y un test lo sustituye por una función que falla. La métrica que un comando imprime y que el dominio ya calcula en privado (cuadrantes) se hace pública en el dominio en vez de recalcularla en `cli/`.
+  - **Aplica a**: implementación (comandos con base opcional).
+## [2026-11-27] Historia #59 — Segunda unidad histórica (Valdelaguna, 280246-w1)
+
+- **Lección**: una segunda unidad sintética se deriva de la primera desplazando solo las coordenadas métricas de los puntos (aquí −7200 m en X, +8550 m en Y) y dejando intactos píxeles y trazados: residuos y LOO son idénticos, el sha256 del CSV cambia y hay que reescribir el `control_points_sha256` de los trazados aprobados. El texto de licencia del IGN es «CC-BY 4.0» (con guion), no «CC BY 4.0»: los tests usan el literal del código.
+  - **Aplica a**: implementación (fixtures de nuevas unidades) | refinador (copiar literales de licencia).
+
+- **Lección**: un criterio «descarga real [integración]» no es comprobable con una imagen sintética: su sha256 no coincide con ningún render del WMS. Con una unidad sintética solo se prueba la caché y la procedencia; la descarga real corresponde a la tarea humana con datos reales.
+  - **Aplica a**: refinador.
+
+## [2026-11-26] Historia #140 — Evidencia PNG de dos paneles
+
+- **Lección**: el WMS `pnoa-ma` del IGN sirve PNG de 8 bits RGB (tipo de color 2, sin entrelazar, todas las filas con filtro 0, 47 bloques `IDAT` en 400 × 352 px) y el recorte de minutas es igual. Con esos dos reales no se ejercita ningún filtro PNG distinto de 0: el decodificador propio sin Pillow se prueba con PNG **sintéticos escritos con un codificador independiente** (filtrado directo en el test) para los cinco tipos de color y los cinco filtros, además de los reales. Si solo hubiera fixtures reales, Sub, Up, Average y Paeth llegarían sin una sola prueba.
+  - **Aplica a**: implementación (decodificadores de formatos binarios: los reales dicen qué sirve la fuente hoy, no qué cubre el código).
+
+- **Lección**: para que un oráculo de banda «a ≤ 2 × LOO» se pueda fijar a mano, se elige 1 m por píxel y un LOO tal que el radio caiga en el centro de un píxel (LOO = 4,75 m → 9,5 m): los centros están a x,5 m y un radio entero dejaría la frontera exactamente sobre un centro (lección de #110). La fila a 9,5 m está dentro y la de 10,5 m (= 2 × LOO + 1) fuera.
+  - **Aplica a**: arquitecto e implementación (oráculos de máscaras sobre rejillas de centros de píxel).
+
+- **Lección**: una opción de CLI que el diseño no nombra (`--cache-pnoa`) fue necesaria para poder probar de extremo a extremo con `tmp_path`: sin ella, la caché de PNOA habría tenido que derivarse de `--cache` o escribirse en `data/raw/pnoa_ma` durante los tests. Se anota en CLAUDE.md y en la PR.
+  - **Aplica a**: arquitecto (una CLI con dos cachés crudas necesita dos opciones).
+## [2026-11-27] Historia #127 — Señal `parcela_no_camino` y caso de uso de candidatos a corte
+
+- **Lección**: un criterio que cita «el error de sin datos que deje #37» no se cumple si #37 no dejó uno: `ParcelsInAreaPort` solo declara `AreaQueryLimitExceededError`, `TruncatedAreaQueryError` y `CadastralServiceError`. La señal trata esos tres como «tesela sin datos» (`TILE_UNAVAILABLE` en `application/cut_signals.py`) y propaga cualquier otro. Un `RawCacheMissError` (modo `--sin-red`) vive en un adapter y la aplicación no puede capturarlo: H3 (#128) debe declarar un error de port para «sin red» o envolverlo en el adapter, o ese modo abortaría en vez de dar `sin_datos`.
+  - **Aplica a**: arquitecto/refinador (al citar un error «acordado» de otra historia, comprobar que existe en `ports/errors.py`) | implementación de #128.
+
+- **Lección**: las muestras de `trail_samples` salen de interpolaciones en coma flotante (`102.49999999999999`), así que un test que compare coordenadas con `==` falla aunque el método sea correcto; y el tramo de un candidato lleva un vértice por pieza de 5 m, no solo los dos extremos. Compara con `pytest.approx` y por extremos.
+  - **Aplica a**: implementación (tests sobre muestras o tramos).
+
+## [2026-11-27] Historia #60 — Fixtures de Villarejo y runbook histórico
+
+- **Lección**: para una segunda unidad sintética que reutilice la imagen de otra, basta **trasladar** los puntos de control: la afín es invariante a la traslación, así que RMSE, residuo máximo y LOO coinciden con el oráculo de #139 (aquí con `abs=0.005`) sin recalcular nada. Cambian el `puntos_sha256` (hay que copiarlo a `control_points_sha256` de los trazados aprobados, con `sha256sum` del fichero ya escrito) y el `BBOX` de la URL. Para distinguir las unidades por su `.provenance.json` en un test, se da a cada sidecar una fecha de descarga distinta.
+  - **Aplica a**: implementación (fixtures hermanas).
+
+- **Lección**: al comprobar el orden de pasos de un runbook con `text.index`, la primera aparición de una palabra («CODEOWNERS») puede estar en la introducción; se indexan los encabezados de los pasos numerados, no las palabras sueltas.
+  - **Aplica a**: implementación (tests de documentos).
+
+## [2026-11-27] Historia #56 — Fixture sintética de Chinchón (281287-w1)
+
+- **Lección**: el id de trazado del código es `<unit_id>-<trail_id>` (`281287-w1-T001`), no `281287:<trazado>` como decía el criterio: se verifica el formato real antes de copiar el literal del criterio y se anota en el docstring del test. Para una unidad con fecha genérica basta una fixture hermana con `document_date_precision: "year"`; un test «guardia» que cambia `"year"` por `"day"` demuestra que el test de CA5 falla si el marcado se pierde. El hash `control_points_sha256` de los aprobados debe recalcularse con `sha256sum` tras trasladar los puntos.
+  - **Aplica a**: implementación (fixtures hermanas de unidades históricas).
+
+- **Lección**: `ruff format .` sin límite reformatea decenas de ficheros ajenos a la historia (aquí 51, incluidos ADR y código de otras historias) y ensucia la PR. Formatea solo los ficheros que has tocado (`ruff format <rutas>`), o comprueba `git status` antes de hacer commit.
+  - **Aplica a**: implementación.
+
+## [2026-11-27] Historia #62 — Hoja MTN50 0606 (0606-w1)
+
+- **Lección**: un criterio que dice «sin cambios en el mecanismo» puede ser incompatible con otro criterio de la misma historia. #62 (CA6) pide trazados de varios municipios en una hoja, pero `unidad.json` lleva un único `municipality_code` y `trazados.geojson` no admite municipio por trazado (`_ALLOWED_PROPERTIES`). Antes de escribir los tests se contrasta cada criterio con `adapters/curated_historic/files.py` y `domain/digitization.py`; el que no cabe se escala al fundador en vez de tocar `src/` fuera de la línea `Toca:`.
+  - **Aplica a**: refinador (al exigir una capacidad nueva en una historia «de patrón», comprobar que el formato de #20 la admite) | implementación.
+
+- **Lección**: la atribución «exacta» de un criterio puede ser la de capa y no la que imprime la CLI. Del MTN50 hay dos: por trazado (`Obra derivada de Primera edición MTN50, IGN, hoja 0606 1881 …`, `derived_work_attribution`) y de capa (`…MTN50 1875-1968…`, `layer_attributions`). El test comprueba cada una donde vive. El `unit_id` de una hoja lleva ceros a la izquierda (`0606-w1`) y casa con `^[0-9]{4,6}-[wh][0-9]+$`.
+  - **Aplica a**: refinador | implementación.
+
+## [2026-11-27] Historia #128 — Fichero interno de candidatos y comando `candidatos-corte`
+
+- **Lección**: un fichero ausente y uno vacío significan cosas distintas. `CutCandidateSource.get_report` devuelve `None` si no hay fichero («sin capas») y un informe con `candidates == ()` si lo hay sin features («municipio evaluable»); un fichero ilegible o en otro CRS lanza `CutCandidateFileError`, nunca `None`. La escritura es atómica (temporal + `os.replace`) para que un fallo a medias no deje un fichero truncado que se tome por «evaluable».
+  - **Aplica a**: cualquier lector de ficheros derivados con semántica «ausente ≠ vacío» (#110, #111, #103).
+
+- **Lección**: el `RawCacheMissError` de `--sin-red` vive en un adapter y la aplicación no lo captura (lección de #127). Se resuelve en el composition root: `_CachedParcels` (en `cli/main.py`) lo convierte en `CadastralServiceError`, que la señal ya trata como «tesela sin datos». Así `--sin-red` da `sin_datos` con su motivo en vez de abortar.
+  - **Aplica a**: composition roots que inyecten un adapter con caché a un caso de uso que solo conoce errores de port.
+
+- **Lección**: las coordenadas de un tramo salen de interpolaciones en coma flotante (`110.00000000000001`) y el fichero las guarda a 0,01 m, así que `leer(escribir(x)) == x` solo vale si `x` ya está en esa rejilla. Los tests de ida y vuelta redondean el informe de partida; el fichero es idempotente (escribir, leer y volver a escribir da los mismos bytes).
+  - **Aplica a**: tests de ida y vuelta de geometría.
+
+- **Lección**: `ruff format src tests` sin acotar volvió a reformatear 34 ficheros ajenos (ya avisaba la lección de #127). Pasa `ruff format` solo con las rutas tocadas.
+  - **Aplica a**: implementación.
+## [2026-11-27] Historia #58 — Belmonte de Tajo (280040-w1)
+
+- **Lección**: el diseño de una historia hija escrita antes de #139 puede citar una forma que ya no existe (`historico cargar --documento 280040`, ids `280040:<trazado>`, fixture en `planimetrias/280040/`). Con el código fusionado manda lo real: `historico cargar 280040-w1`, id `280040-w1-<trazado>`, fixture en `planimetrias/historico/280040-w1/`. Se anota en el docstring del módulo de tests y en la PR. El CA8 («sha256 que declara el fichero de puntos de control») se cumple con el `sha256` de `unidad.json` (la entrada curada), que es donde vive hoy ese dato.
+  - **Aplica a**: refinador (al partir hijas, citar la CLI y las rutas del código ya fusionado) | implementación.
+## [2026-11-27] Historia #61 — Unidad sintética de Aranjuez (280027-w1)
+
+- **Lección**: un criterio que cita `historico cargar --documento 280022` describe una opción que no existe: el comando recibe la unidad (`280022-w1`) y el documento y la fecha viajan juntos en su `unidad.json`. Pedir el documento de 1943 sin unidad curada falla con «no existe» (salida 1, nada escrito), y un `document_id` distinto del prefijo del `unit_id` se rechaza al leer la unidad. Los tests prueban esos dos caminos en vez de inventar la opción.
+  - **Aplica a**: refinador (copiar las opciones reales del CLI de CLAUDE.md) | implementación.
+
+- **Lección**: la ruta que un criterio nombra (`tests/fixtures/caminos/planimetrias/280027/`) puede diferir de la que fija la línea `Toca:` y el método de #20 (`historico/280027-w1/`). Manda la convención vigente del repo; la diferencia se anota en el docstring del módulo de tests y en la PR.
+  - **Aplica a**: refinador | implementación.
+
+## [2026-11-27] Historia #160 — Integrar `catastro-caminos` con `discrepancias` y `candidatos-corte`
+
+- **Lección**: un criterio «el fichero se genera» pasa con datos inservibles si productor y consumidor no se prueban juntos. #128 dio 0 candidatos porque `catastro-caminos` no escribía el formato común y porque dos órdenes teselaban con rejillas distintas (la clave de la caché cruda lleva el bbox exacto de la tesela). Los tests de #160 encadenan productor → lector y `catastro-caminos` → caché → `candidatos-corte --sin-red` sobre la misma caché.
+  - **Aplica a**: refinador (un criterio de integración nombra al consumidor) | implementación.
+
+- **Lección**: si dos comandos comparten una caché cuya clave depende de una geometría, esa geometría la calcula una única función de dominio (`municipality_tiles`), no dos copias del cálculo. El test de «teselas idénticas» falla si divergen.
+  - **Aplica a**: cualquier caché cruda indexada por bbox.
+
+- **Lección**: `ruff format src` sin acotar reformateó 14 ficheros ajenos (tercera vez, ver #127 y #128). Formatea solo las rutas tocadas.
+  - **Aplica a**: implementación.
+

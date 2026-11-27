@@ -140,9 +140,20 @@ class PublicSourcePolicy:
 
 
 # Verificada = licencia leída o declarada por el proveedor y anotada como
-# `confirmado` en REGISTRY.md (historia 0021). La red de transporte del IGN
-# figura como `asumido` para ese servicio: no está verificada, así que su
-# evidencia se omite en publicación hasta que se confirme.
+# `confirmado` en REGISTRY.md (historia 0021). La red de transporte del IGN se
+# verificó en #24 (REGISTRY.md, «Red de transporte del IGN — roadlink,
+# licencia»); su atribución es la literal de NOTICE (historia #94, ADR 0044).
+# Catastro: se publica lo derivado que no reproduce el dato original, citando a
+# la Dirección General del Catastro con la fecha de consulta (la `fecha_descarga`
+# de la evidencia) y avisando de que no es fehaciente (ADR 0041). La atribución
+# no lo llama «cartografía catastral» ni «información catastral».
+CATASTRO_ATTRIBUTION = (
+    "Elaboración propia a partir de datos de la Dirección General del Catastro "
+    "(licencia INSPIRE v1.0), consultados en la fecha indicada. No es un producto "
+    "oficial del Catastro ni reproduce su dato original, carece de fehaciencia y puede "
+    "haber cambiado desde la consulta."
+)
+
 SOURCE_POLICY: Mapping[SourceKind, PublicSourcePolicy] = MappingProxyType(
     {
         "via_pecuaria_oficial": PublicSourcePolicy(
@@ -153,13 +164,12 @@ SOURCE_POLICY: Mapping[SourceKind, PublicSourcePolicy] = MappingProxyType(
         "catastro_vt": PublicSourcePolicy(
             "trazado derivado de datos del Catastro",
             True,
-            "Producto transformado a partir de datos de la Dirección General del Catastro "
-            "(licencia INSPIRE v1.0). No incluye el dato original.",
+            CATASTRO_ATTRIBUTION,
         ),
         "ign_red_transporte": PublicSourcePolicy(
             SOURCE_LABEL["ign_red_transporte"],
-            False,
-            "",
+            True,
+            "Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional",
         ),
         "planimetria_historica": PublicSourcePolicy(
             SOURCE_LABEL["planimetria_historica"],

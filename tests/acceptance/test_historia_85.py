@@ -251,7 +251,8 @@ def test_ca4_atribuciones_literales_de_notice_y_visibles_con_su_capa(tmp_path: P
     notice = NOTICE.read_text(encoding="utf-8")
     registry = REGISTRY.read_text(encoding="utf-8")
     capas, base = _literales_config()
-    assert len(capas) == 2 and len(base) == 2, (capas, base)
+    # Tres capas desde #95 (vías pecuarias, camino actual e indicios de discrepancia).
+    assert len(capas) == 3 and len(base) == 2, (capas, base)
     for texto in capas + base:
         assert f"`{texto}`" in notice, f"no consta literalmente en NOTICE: {texto}"
     for texto in base:
@@ -261,6 +262,14 @@ def test_ca4_atribuciones_literales_de_notice_y_visibles_con_su_capa(tmp_path: P
     assert sidecars
     for sidecar in sidecars:
         atribucion = json.loads(sidecar.read_text(encoding="utf-8"))["atribucion"]
+        if sidecar.parent.name == "discrepancias":
+            # #94 (ADR 0044): la capa de indicios cita la atribución de cada fuente de su
+            # evidencia (lista). Cada una contiene un literal de capa de config.js o consta
+            # literalmente en NOTICE (Catastro, ADR 0041); la muestra el visor de #95.
+            assert isinstance(atribucion, list) and atribucion, sidecar.name
+            for texto in atribucion:
+                assert any(c in texto for c in capas) or f"`{texto}`" in notice, texto
+            continue
         assert atribucion in capas, f"{sidecar.name}: {atribucion}"
     # Las atribuciones no están escritas en el HTML (si no, no desaparecerían con su capa).
     html = (SITE / "index.html").read_text(encoding="utf-8")
@@ -323,6 +332,18 @@ def test_ca7_solo_mapa_js_usa_leaflet() -> None:
 
 
 _FEATURE_PROPS = {"nombre", "tipo", "fecha_dato", "procedencia"}
+# Lista blanca de la capa de indicios (#94, ADR 0044 §2): la ficha de #16, sin nombres.
+_INDICIO_PROPS = {
+    "tipo",
+    "etiqueta",
+    "texto",
+    "aviso",
+    "confianza",
+    "evidencia",
+    "criterio",
+    "descripcion_criterio",
+    "aviso_omision",
+}
 _PROHIBIDAS = re.compile(r"catastr|titular|propietari|refcat|referencia_catastral", re.IGNORECASE)
 
 
@@ -345,8 +366,9 @@ def _comprobar_datos(datos: Path) -> None:
             coleccion = json.loads(geojson.read_text(encoding="utf-8"))
         except ValueError:
             continue  # el JSON roto sintético de CA9
+        permitidas = _INDICIO_PROPS if geojson.parent.name == "discrepancias" else _FEATURE_PROPS
         for feature in coleccion["features"]:
-            assert set(feature["properties"]) <= _FEATURE_PROPS, geojson
+            assert set(feature["properties"]) <= permitidas, geojson
         for clave in re.findall(r'"([^"]+)"\s*:', geojson.read_text(encoding="utf-8")):
             assert not _PROHIBIDAS.search(clave), f"{geojson.name}: clave {clave}"
 
@@ -548,7 +570,7 @@ def test_ca15_accesibilidad_de_index_html() -> None:
     assert raiz and raiz[0].get("lang") == "es"
     etiquetas = {a.get("for") for t, a in tags if t == "label"}
     controles = [(t, a) for t, a in tags if t in ("select", "input", "button", "textarea")]
-    assert len(controles) == 3, controles
+    assert len(controles) == 4, controles  # selector + tres capas (la de indicios, de #95)
     for tag, attrs in controles:
         assert tag in ("select", "input"), tag
         if tag == "input":

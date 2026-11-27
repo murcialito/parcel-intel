@@ -69,3 +69,4 @@ class MunicipalDiscrepancyReport:
     layers: tuple[LayerSummary, ...]  # una por fuente, en orden canónico
     records: tuple[DiscrepancyRecord, ...]  # en orden canónico
     redacted: bool  # True = versión publicable
+    municipality_name: str | None = None  # el de las capas derivadas (#94); None si no lo traen

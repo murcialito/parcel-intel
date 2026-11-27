@@ -28,7 +28,9 @@ toca() {
 
 # Puntos calientes compartidos: casi toda historia los toca, sus conflictos son triviales (se añaden
 # líneas) y los resuelve Actualizar rama; Fusionar exige además la PR al día con main antes de fusionar.
-COMPARTIDAS='^(src/parcel_intel/cli/main\.py|src/parcel_intel/ports/errors\.py|src/parcel_intel/sources/REGISTRY\.md|NOTICE|CLAUDE\.md|docs/lessons/LESSONS\.md)$'
+# Una carpeta de tests entera (tests/, tests/acceptance, tests/domain…) también es compartida: dos
+# historias que añaden ficheros de test distintos en ella no chocan. Un fichero concreto sí cuenta.
+COMPARTIDAS='^(src/parcel_intel/cli/main\.py|src/parcel_intel/ports/errors\.py|src/parcel_intel/sources/REGISTRY\.md|NOTICE|CLAUDE\.md|docs/lessons/LESSONS\.md|tests(/[a-z_]+)?)$'
 
 # solapan <zonas-a> <zonas-b>: 0 si alguna zona de una contiene a (o es) alguna de la otra.
 solapan() {
