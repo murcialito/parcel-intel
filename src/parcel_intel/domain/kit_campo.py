@@ -244,3 +244,55 @@ def build_kit_layer(file: PublishedLayerFile) -> KitLayer:
         notice=file.notice,
         tramos=tuple(tramos),
     )
+
+
+# --- Proyecto de campo para QField (historia #222) ---------------------------------------
+
+QFIELD_WARNING = (
+    "Anota solo lo que ves del camino: qué obstáculo hay y en qué estado está. No fotografíes "
+    "a personas ni vehículos con matrícula visible, y no escribas nombres de personas, de "
+    "propietarios ni de empresas. Fotos y notas pueden identificar a alguien, y lo que recojas "
+    "se queda en tu dispositivo: este proyecto no envía nada. Los tramos son indicios a "
+    "verificar, no un dictamen; tu anotación confirma o desmiente lo que ves, no denuncia a "
+    "nadie."
+)
+NOTE_FIELD_LABEL = "Nota corta (sin nombres de personas)"
+NOTE_MAX_LENGTH = 280
+
+
+@dataclass(frozen=True)
+class FormOption:
+    label: str
+    value: str
+
+
+@dataclass(frozen=True)
+class IncidenciaFormulario:
+    """Formulario de la capa editable `incidencias`: listas cerradas y advertencia aprobada."""
+
+    obstacle_types: tuple[FormOption, ...]
+    states: tuple[FormOption, ...]
+    note_label: str
+    warning: str
+
+
+INCIDENCIA_FORM = IncidenciaFormulario(
+    obstacle_types=(
+        FormOption("Cancela", "cancela"),
+        FormOption("Valla", "valla"),
+        FormOption("Cadena", "cadena"),
+        FormOption("Zanja", "zanja"),
+        FormOption("Bloques", "bloques"),
+        FormOption("Cartel de prohibido el paso", "cartel_prohibido"),
+        FormOption("Arado", "arado"),
+        FormOption("Vegetación", "vegetacion"),
+    ),
+    states=(
+        FormOption("Practicable", "practicable"),
+        FormOption("Tapado por la vegetación", "tapado_vegetacion"),
+        FormOption("Con obstáculo", "con_obstaculo"),
+        FormOption("Deteriorado por máquinas", "deteriorado_maquinas"),
+    ),
+    note_label=NOTE_FIELD_LABEL,
+    warning=QFIELD_WARNING,
+)
