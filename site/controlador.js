@@ -138,6 +138,19 @@ export function mensajeErrorCapa(capa, municipio) {
   return `No se pudo cargar la capa «${capa.titulo}» de ${municipio.nombre}.`;
 }
 
+// Opciones de estilo que `mapa.anadirCapa` espera, a partir de la descripción de `config.js`
+// (#165): `{ clave }` fija o `{ claveDe }`, que elige la clave por una propiedad del trazado.
+export function opcionesDeEstilo(capa) {
+  const { clave, porPropiedad, claves, defecto } = capa.estilo;
+  if (clave !== undefined) return { clave };
+  return {
+    claveDe: (propiedades) => {
+      const valor = propiedades?.[porPropiedad];
+      return typeof valor === "string" && Object.hasOwn(claves, valor) ? claves[valor] : defecto;
+    },
+  };
+}
+
 export function crearControlador({ mapa, cargarJson, vista, config }) {
   const estado = { municipios: [], actual: null, peticion: 0, avisoBase: false, capas: {} };
   for (const capa of config.capas) {
@@ -190,7 +203,8 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
       }
       const geojson = resultado.value;
       mapa.anadirCapa(capa.id, geojson, {
-        estilo: capa.estilo,
+        ...opcionesDeEstilo(capa),
+        orden: capa.orden,
         alPulsar: esIndicio(capa)
           ? (propiedades) => vista.nodoFichaIndicio(fichaIndicio(propiedades, config))
           : (propiedades) => vista.nodoFicha(fichaDe(capa, propiedades)),

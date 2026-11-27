@@ -3,6 +3,7 @@
 
 import { CONFIG } from "./config.js";
 import { crearControlador } from "./controlador.js";
+import { temaDe } from "./estilos-capas.js";
 import { crearMapa } from "./mapa.js";
 import { crearVista } from "./vista.js";
 
@@ -12,6 +13,11 @@ async function cargarJson(ruta) {
   return await respuesta.json(); // JSON inválido → rechazo → error de capa (CA9)
 }
 
+// Único fichero que lee `data-tema` y la preferencia del sistema (#165).
+const consulta = globalThis.matchMedia?.("(prefers-color-scheme: dark)");
+const temaActual = () =>
+  temaDe(document.documentElement.getAttribute("data-tema"), Boolean(consulta?.matches));
+
 const vista = crearVista(document, CONFIG.textos);
 let controlador = null;
 const mapa = crearMapa(document.getElementById("mapa"), {
@@ -19,7 +25,9 @@ const mapa = crearMapa(document.getElementById("mapa"), {
   vistaInicial: CONFIG.vistaInicial,
   atribucionesBase: CONFIG.atribucionesBase,
   alFallarTesela: () => controlador?.falloTesela(),
+  tema: temaActual(),
 });
+consulta?.addEventListener?.("change", () => mapa.ponerTema(temaActual()));
 controlador = crearControlador({ mapa, cargarJson, vista, config: CONFIG });
 
 document.getElementById("municipio").addEventListener("change", (evento) => {
