@@ -3,7 +3,7 @@
 
 from parcel_intel.adapters.pnoa.adapter import historical_layer_name
 from parcel_intel.adapters.pnoa.client import WMS_HISTORICO_URL
-from parcel_intel.adapters.raw_cache.cache import CachedRawFetcher
+from parcel_intel.adapters.raw_cache.cache import CachedRawFetcher, canonical_url
 from parcel_intel.domain.orthophoto import HistoricalVintage, Orthophoto, OrthophotoWindow
 from parcel_intel.domain.provenance import Provenance, Redistribution
 from parcel_intel.ports.errors import OrthophotoNotCoveredError
@@ -30,6 +30,28 @@ def _require_jpeg(content: bytes) -> None:
         )
 
 
+def window_params(window: OrthophotoWindow, vintage: HistoricalVintage) -> dict[str, str]:
+    """Parámetros del `GetMap` de una ventana y un vuelo en el WMS histórico."""
+    return {
+        "service": "WMS",
+        "version": "1.3.0",
+        "request": "GetMap",
+        "layers": historical_layer_name(vintage),
+        "styles": "",
+        "crs": f"EPSG:{window.srid}",
+        "bbox": f"{window.min_x},{window.min_y},{window.max_x},{window.max_y}",
+        "width": str(window.width_px),
+        "height": str(window.height_px),
+        "format": "image/jpeg",
+    }
+
+
+def window_url(window: OrthophotoWindow, vintage: HistoricalVintage) -> str:
+    """URL canónica de la ventana y el vuelo: la que pide la caché cruda y la única que
+    se publica (ADR 0049 §2)."""
+    return canonical_url(WMS_HISTORICO_URL, window_params(window, vintage))
+
+
 class PnoaWindowAdapter:
     """Implementa `OrthophotoWindowPort`: pide la ventana al WMS histórico solo
     a través de `CachedRawFetcher`. Una respuesta que no es JPEG no entra nunca
@@ -42,19 +64,7 @@ class PnoaWindowAdapter:
     def get_orthophoto_window(
         self, window: OrthophotoWindow, vintage: HistoricalVintage
     ) -> Orthophoto:
-        layer = historical_layer_name(vintage)
-        params = {
-            "service": "WMS",
-            "version": "1.3.0",
-            "request": "GetMap",
-            "layers": layer,
-            "styles": "",
-            "crs": f"EPSG:{window.srid}",
-            "bbox": f"{window.min_x},{window.min_y},{window.max_x},{window.max_y}",
-            "width": str(window.width_px),
-            "height": str(window.height_px),
-            "format": "image/jpeg",
-        }
+        params = window_params(window, vintage)
         response = self._fetcher.fetch(WMS_HISTORICO_URL, params, validate=_require_jpeg)
         pixels = window.width_px * window.height_px
         if len(response.content) / pixels < BLANK_MAX_BYTES_PER_PIXEL:

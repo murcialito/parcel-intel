@@ -11,7 +11,7 @@ import json
 import os
 import tempfile
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
@@ -36,6 +36,12 @@ class RawResponse:
 
 class HttpGet(Protocol):
     def __call__(self, url: str, params: dict[str, str]) -> bytes: ...
+
+
+def canonical_url(url: str, params: Mapping[str, str]) -> str:
+    """URL con la query canónica (parámetros ordenados): la clave de la caché y la URL
+    que se guarda como procedencia. Única definición (ADR 0049 §2)."""
+    return f"{url}?{urlencode(sorted(params.items()))}"
 
 
 class CachedRawFetcher:
@@ -64,18 +70,18 @@ class CachedRawFetcher:
         params: dict[str, str],
         validate: Callable[[bytes], None] | None = None,
     ) -> RawResponse:
-        canonical_url = f"{url}?{urlencode(sorted(params.items()))}"
-        key = hashlib.sha256(canonical_url.encode("utf-8")).hexdigest()
+        canonical = canonical_url(url, params)
+        key = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
         directory = self._cache_dir / key[:2]
         body_path = directory / f"{key}.body"
         sidecar_path = directory / f"{key}.json"
 
         # La entrada existe solo si existe el sidecar (se escribe el último).
         if sidecar_path.exists():
-            return self._read(canonical_url, body_path, sidecar_path)
+            return self._read(canonical, body_path, sidecar_path)
 
         if self._offline:
-            raise RawCacheMissError(f"Sin red y no cacheado: {canonical_url}")
+            raise RawCacheMissError(f"Sin red y no cacheado: {canonical}")
 
         content = self._download(url, params)
         if validate is not None:
@@ -91,7 +97,7 @@ class CachedRawFetcher:
         directory.mkdir(parents=True, exist_ok=True)
         _write_atomic(body_path, content)
         _write_atomic(sidecar_path, json.dumps(sidecar, sort_keys=True).encode("utf-8"))
-        return RawResponse(content=content, url=canonical_url, retrieved_at=retrieved_at)
+        return RawResponse(content=content, url=canonical, retrieved_at=retrieved_at)
 
     def _download(self, url: str, params: dict[str, str]) -> bytes:
         if self._last_request_at is not None:

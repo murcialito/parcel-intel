@@ -15,6 +15,11 @@ Oráculos del Bloque 0, calculados pasando la fixture por `public_candidate_id` 
 Adaptación anotada: un tramo de una sola pieza sale como `LineString` (lo que da
 `shape_to_geojson`, igual que los indicios de #94); el de dos piezas, como
 `MultiLineString` (CA17).
+
+Actualizado por #172 (CA15, ADR 0049): la feature gana `imagenes_comparacion` y la
+colección `comparacion`; `_publicar` pasa `--comparacion` con el manifiesto de la fixture
+(generado con el productor real), `_write_inputs` escribe el manifiesto de sus candidatos
+con el mismo productor y CA15 se salta también si falta `data/derived/comparacion/28043.json`.
 """
 
 import dataclasses
@@ -26,6 +31,7 @@ from typing import Any
 
 import pytest
 
+from parcel_intel.adapters.comparison_files import JsonComparisonManifestReader
 from parcel_intel.adapters.cut_candidate_files import GeoJsonCutCandidateWriter
 from parcel_intel.adapters.published_layers import (
     GeoJsonPublishedCandidateSink,
@@ -62,6 +68,7 @@ ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "tests" / "fixtures" / "candidatos_publicar"
 CANDIDATES_DIR = FIXTURE / "candidatos"
 CURATED_DIR = FIXTURE / "curated"
+COMPARISON_DIR = FIXTURE / "comparacion"
 MEASUREMENT = FIXTURE / "medicion.json"
 MEASUREMENT_COMPUTABLE = FIXTURE / "medicion_calculable.json"
 DISCREPANCY_FIXTURES = ROOT / "tests" / "fixtures" / "discrepancias_publicar" / "entrada"
@@ -74,7 +81,15 @@ PUBLIC_IDS = {
     "caducado": "9cdd209df9143b26",
 }
 NOT_PUBLISHED_IDS = {"rechazado": "56b281f54f05bbd0", "sin_revision": "f122ad6ba1eac3be"}
-FEATURE_KEYS = {"etiqueta", "texto", "aviso", "confianza", "evidencia", "aviso_omision"}
+FEATURE_KEYS = {
+    "etiqueta",
+    "texto",
+    "aviso",
+    "confianza",
+    "evidencia",
+    "aviso_omision",
+    "imagenes_comparacion",
+}
 COLLECTION_KEYS = {
     "capa",
     "nombre_capa",
@@ -84,6 +99,7 @@ COLLECTION_KEYS = {
     "aviso",
     "revisado_a_mano",
     "medicion",
+    "comparacion",
     "atribucion",
     "procedencia",
 }
@@ -111,6 +127,7 @@ def _publicar(
     medicion: Path = MEASUREMENT,
     entrada: Path = CANDIDATES_DIR,
     curated: Path = CURATED_DIR,
+    comparacion: Path = COMPARISON_DIR,
 ) -> int:
     municipalities = [arg for code in codes for arg in ("--municipio", code)]
     return _run(
@@ -123,6 +140,8 @@ def _publicar(
             str(entrada),
             "--curated",
             str(curated),
+            "--comparacion",
+            str(comparacion),
             "--salida",
             str(salida),
         ]
@@ -182,13 +201,20 @@ def _review_entry(candidate: CutCandidate, status: str = "aprobado") -> dict[str
 def _write_inputs(
     base: Path, candidates: list[CutCandidate], reviews: list[dict[str, object]]
 ) -> tuple[Path, Path]:
-    """Fichero de candidatos y revisión sintéticos en `base`; devuelve (entrada, curated)."""
+    """Fichero de candidatos y revisión sintéticos en `base`, y el manifiesto de imágenes
+    de esos candidatos en `base / "comparacion"` (productor real, #172); devuelve
+    (entrada, curated)."""
     entrada = base / "candidatos"
     curated = base / "curated"
     report = dataclasses.replace(
         revision.report(), candidates=tuple(sorted(candidates, key=lambda c: c.candidate_id))
     )
     GeoJsonCutCandidateWriter(entrada).write(report)
+    comparacion = base / "comparacion"
+    comparacion.mkdir()
+    (comparacion / f"{INE}.json").write_text(
+        generar.manifest_text_for(entrada / f"{INE}.geojson"), encoding="utf-8"
+    )
     (curated / INE).mkdir(parents=True)
     (curated / INE / "revision.json").write_text(
         json.dumps({"municipio": INE, "revisiones": reviews}, ensure_ascii=False),
@@ -299,7 +325,8 @@ def test_ca4_sin_ningun_aprobado_o_sin_fichero_sale_con_1(
         [_review_entry(found["rechazado"], "rechazado")],
     )
     site = tmp_path / "site"
-    assert _publicar(site, INE, entrada=entrada, curated=curated) == 1
+    comparacion = entrada.parent / "comparacion"
+    assert _publicar(site, INE, entrada=entrada, curated=curated, comparacion=comparacion) == 1
     assert "ningún candidato aprobado" in capsys.readouterr().err
     assert _publicar(site, INE, entrada=tmp_path / "sin-candidatos") == 1
     assert "sin fichero de candidatos" in capsys.readouterr().err
@@ -387,7 +414,19 @@ def test_ca7_geometria_del_tramo_ficha_y_lista_blanca_cerrada(published: dict[st
         assert re.fullmatch(r"[0-9a-f]{16}(-\d+)?", public_id)
         assert public_id not in {c.candidate_id for c in found.values()}
         assert CADASTRAL_REFERENCE_RE.search(public_id) is None
-    text = published["file"].read_text(encoding="utf-8")
+    # #172: `resolucion_m` (0.5, 0.25) es dato del vuelo, no la confianza ni el apoyo; las
+    # imágenes tienen su propia lista blanca cerrada (#172 CA1). Se buscan las fugas en el
+    # resto del fichero, que es lo que este criterio cubre.
+    for feature in document["features"]:
+        images = feature["properties"].pop("imagenes_comparacion")
+        assert {key for window in images for key in window} <= {
+            "ancho_px",
+            "alto_px",
+            "trazo_px",
+            "imagenes",
+            "omitidas",
+        }
+    text = json.dumps(document, ensure_ascii=False)
     for leaked in (
         revision.REVIEWER,
         "Comparado con la ortofoto",
@@ -474,7 +513,9 @@ def test_ca9_sin_referencias_ni_parcelas_ni_palabras_vetadas_y_barrera_del_sink(
     # Última barrera: un texto con una referencia o un localizador no se escribe.
     state = reconcile(revision.report(), _fixture_reviews())
     summary = summarize_measurement(_not_computable_report(), revision.report().method)
-    publication = build_candidate_layer(state, summary, "Colmenar de Oreja").publication
+    manifest = JsonComparisonManifestReader(COMPARISON_DIR).get_manifest(INE)
+    assert manifest is not None
+    publication = build_candidate_layer(state, summary, "Colmenar de Oreja", manifest).publication
     site = tmp_path / "barrera"
     GeoJsonPublishedCandidateSink(site, main.REPOSITORY_URL).publish([publication])
     before = _snapshot(site)
@@ -535,7 +576,10 @@ def test_ca10_trazado_no_redistribuible_o_sin_fecha_de_catastro_falla_el_municip
             tmp_path / f"variante-{index}", [candidate], [_review_entry(candidate)]
         )
         site = tmp_path / f"site-{index}"
-        assert _publicar(site, INE, entrada=entrada, curated=curated) == 1, reason
+        comparacion = entrada.parent / "comparacion"
+        assert (
+            _publicar(site, INE, entrada=entrada, curated=curated, comparacion=comparacion) == 1
+        ), reason
         err = capsys.readouterr().err
         assert reason in err, err
         assert revision.CATASTRO_TRAIL_ID not in err
@@ -651,16 +695,22 @@ def test_ca15_flujo_real_en_local(tmp_path: Path) -> None:
     anteriores. La historia no commitea datos reales, así que en CI se salta: faltan `data/derived`
     y `revision.json`. Decisión del fundador en #170: no bloquea el merge y se ejecuta en la
     primera publicación real, cuando haya candidatos aprobados. El resultado se anota en
-    `REGISTRY.md`."""
+    `REGISTRY.md`. Desde #172 hace falta además el manifiesto de `imagenes-comparacion`."""
     medicion = ROOT / "data" / "derived" / "validacion" / "medicion.json"
     entrada = ROOT / "data" / "derived" / "candidatos" / "interno"
     curated = ROOT / "curated" / "candidatos"
+    comparacion = ROOT / "data" / "derived" / "comparacion"
     if not (medicion.is_file() and (entrada / f"{INE}.geojson").is_file()):
         pytest.skip("faltan medicion.json o el fichero interno de 28043 en data/derived")
+    if not (comparacion / f"{INE}.json").is_file():
+        pytest.skip("falta data/derived/comparacion/28043.json (imagenes-comparacion)")
     if not (curated / INE / "revision.json").is_file():
         pytest.skip("falta curated/candidatos/28043/revision.json")
     site = tmp_path / "site"
-    assert _publicar(site, INE, medicion=medicion, entrada=entrada, curated=curated) == 0
+    code = _publicar(
+        site, INE, medicion=medicion, entrada=entrada, curated=curated, comparacion=comparacion
+    )
+    assert code == 0
     for path in _written_files(site):
         assert path.is_file(), path
 
@@ -737,7 +787,8 @@ def test_ca17_colision_de_id_publico_y_tramo_de_dos_piezas(tmp_path: Path) -> No
         tmp_path / "entradas", candidates, [_review_entry(c) for c in candidates]
     )
     site = tmp_path / "site"
-    assert _publicar(site, INE, entrada=entrada, curated=curated) == 0
+    comparacion = entrada.parent / "comparacion"
+    assert _publicar(site, INE, entrada=entrada, curated=curated, comparacion=comparacion) == 0
     features = _load(site / "candidatos" / f"{INE}.geojson")["features"]
     first, second = sorted([aprobado, twin], key=lambda c: c.candidate_id)
     ids = [f["id"] for f in features]

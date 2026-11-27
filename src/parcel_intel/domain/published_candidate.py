@@ -25,6 +25,7 @@ from parcel_intel.domain.candidate_review import (
     CandidateReviewState,
     check_candidate_approvals_current,
 )
+from parcel_intel.domain.comparison_image import ComparisonManifest
 from parcel_intel.domain.cut_candidate import CutCandidate
 from parcel_intel.domain.discrepancy_criterion import CriterionRef
 from parcel_intel.domain.discrepancy_policy import REDISTRIBUTABLE_SOURCES
@@ -32,6 +33,13 @@ from parcel_intel.domain.geometry import MultiLineGeometry
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.domain.public_candidate_card import PublicCandidateCard, build_candidate_card
 from parcel_intel.domain.publication import PublishableLayer
+from parcel_intel.domain.published_comparison import (
+    ComparisonNotes,
+    ComparisonNotPublishableError,
+    PublishedComparison,
+    build_published_comparison,
+    check_comparison_manifest,
+)
 
 CANDIDATE_LAYER_ID: Final = "candidatos"
 CANDIDATE_LAYER_SOURCE = "Paso Común, tramos a verificar revisados a mano"
@@ -219,6 +227,7 @@ class PublishedCandidate:
     stretch: MultiLineGeometry  # EPSG:25830, el tramo del trazado A (nunca de parcela)
     card: PublicCandidateCard  # build_candidate_card(candidate) tal cual
     provenance: Provenance  # la del trazado A (cumple HasProvenance para la puerta)
+    comparison: PublishedComparison  # imágenes de comparación (#172, ADR 0049)
 
 
 @dataclass(frozen=True)
@@ -228,6 +237,7 @@ class CandidateLayerPublication:
     method: str  # "candidato_corte v1"
     measurement: MeasurementSummary
     content: PublishableLayer[PublishedCandidate]  # name = "candidatos/<ine>"
+    comparison_notes: ComparisonNotes  # bloque `comparacion` de la colección (#172)
 
 
 @dataclass(frozen=True)
@@ -270,7 +280,10 @@ def public_candidate_id(candidate: CutCandidate) -> str:
 
 
 def build_candidate_layer(
-    state: CandidateReviewState, measurement: MeasurementSummary, municipality_name: str
+    state: CandidateReviewState,
+    measurement: MeasurementSummary,
+    municipality_name: str,
+    manifest: ComparisonManifest,
 ) -> CandidateLayerBuild:
     """Capa publicable con los candidatos aprobados vigentes de `state`, en orden de
     `candidate_id`.
@@ -280,9 +293,14 @@ def build_candidate_layer(
     trazado de fuente no redistribuible o sin licencia declarada;
     `MissingCatastroDateError` si la ficha no puede citar a Catastro; y
     `NotRedistributableError` (la puerta de ADR 0028) si la procedencia de un trazado A
-    no es `PUBLIC`. Un aprobado no publicable hace fallar el municipio: no se omite."""
+    no es `PUBLIC`. Un aprobado no publicable hace fallar el municipio: no se omite.
+
+    Las imágenes salen de `manifest` (#172, ADR 0049): `ComparisonManifestNotUsableError`
+    si el manifiesto entero no sirve; `CandidatesNotPublishableError` con el
+    `candidate_id` si las de un aprobado faltan o no casan con su tramo."""
     code = state.municipality_code
     check_candidate_approvals_current(state)
+    notes = check_comparison_manifest(manifest, code)
     approved = state.approved()
     if not approved:
         raise CandidatesNotPublishableError(code, "ningún candidato aprobado")
@@ -302,6 +320,14 @@ def build_candidate_layer(
                 f"el candidato {candidate.candidate_id} tiene un trazado sin licencia "
                 "declarada; la ficha no puede citar su fuente",
             )
+        try:
+            comparison = build_published_comparison(
+                candidate.stretch, manifest.stretch(candidate.candidate_id)
+            )
+        except ComparisonNotPublishableError as error:
+            raise CandidatesNotPublishableError(
+                code, f"el candidato {candidate.candidate_id}: {error.reason}"
+            ) from error
         base = public_candidate_id(candidate)
         seen[base] = seen.get(base, 0) + 1
         public_id = base if seen[base] == 1 else f"{base}-{seen[base]}"
@@ -311,6 +337,7 @@ def build_candidate_layer(
                 stretch=candidate.stretch,
                 card=card,
                 provenance=candidate.subject.source.provenance,
+                comparison=comparison,
             )
         )
     content = PublishableLayer[PublishedCandidate](
@@ -323,6 +350,7 @@ def build_candidate_layer(
             method=measurement.method,
             measurement=measurement,
             content=content,
+            comparison_notes=notes,
         ),
         approved=len(items),
         proposed=sum(1 for c in state.candidates if c.status == "proposed"),

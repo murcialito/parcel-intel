@@ -3,7 +3,8 @@
 
 Lee primero el informe de medición de `medir-candidatos` (#111): sin informe utilizable
 no se mira ningún municipio. Por municipio, reconcilia candidatos (#128) y revisiones
-(#168) y deja solo los aprobados vigentes con su ficha (`build_candidate_layer`). Todo
+(#168) y deja solo los aprobados vigentes con su ficha (`build_candidate_layer`) y sus
+imágenes de comparación del manifiesto de `imagenes-comparacion` (#172, ADR 0049). Todo
 o nada: si un municipio falla, no se llama al sink y no se escribe nada.
 
 Los mensajes nunca incluyen `trail_id` ni `review_note`; los `candidate_id` sí, porque ya
@@ -30,11 +31,14 @@ from parcel_intel.domain.published_candidate import (
     build_candidate_layer,
     summarize_measurement,
 )
+from parcel_intel.domain.published_comparison import ComparisonManifestNotUsableError
 from parcel_intel.domain.published_layers import PublishedFile
 from parcel_intel.ports.candidate_review_source import CandidateReviewSource
+from parcel_intel.ports.comparison_manifest_source import ComparisonManifestSource
 from parcel_intel.ports.cut_candidate_source import CutCandidateSource
 from parcel_intel.ports.errors import (
     CandidateReviewFileError,
+    ComparisonManifestFileError,
     CutCandidateFileError,
     MeasurementReportUnavailableError,
 )
@@ -72,11 +76,13 @@ class PublishCandidatesUseCase:
         measurement: MeasurementReportSource,
         candidates: CutCandidateSource,
         reviews: CandidateReviewSource,
+        comparisons: ComparisonManifestSource,
         sink: PublishedCandidateSink,
     ) -> None:
         self._measurement = measurement
         self._candidates = candidates
         self._reviews = reviews
+        self._comparisons = comparisons
         self._sink = sink
 
     def execute(self, municipality_codes: Sequence[str]) -> CandidatePublicationResult:
@@ -126,11 +132,24 @@ class PublishCandidatesUseCase:
                 raise _MunicipalityFailed(
                     f"el fichero de candidatos es del municipio {report.municipality_code}"
                 )
+            manifest = self._comparisons.get_manifest(code)
+            if manifest is None:
+                raise _MunicipalityFailed(
+                    "sin manifiesto de imágenes de comparación; ejecuta imagenes-comparacion"
+                )
             summary = summarize_measurement(measurement, report.method)
             state = reconcile(report, self._reviews.reviews(code))
-            return build_candidate_layer(state, summary, name)
-        except (CutCandidateFileError, CandidateReviewFileError) as error:
+            return build_candidate_layer(state, summary, name, manifest)
+        except (
+            CutCandidateFileError,
+            CandidateReviewFileError,
+            ComparisonManifestFileError,
+        ) as error:
             raise _MunicipalityFailed(str(error)) from error
+        except ComparisonManifestNotUsableError as error:
+            raise _MunicipalityFailed(
+                f"manifiesto de imágenes no utilizable: {error.reason}"
+            ) from error
         except InvalidCandidateReviewError as error:
             raise _MunicipalityFailed(f"revisión no válida: {error}") from error
         except MeasurementNotUsableError as error:

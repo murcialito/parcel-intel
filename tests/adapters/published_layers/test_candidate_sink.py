@@ -1,4 +1,5 @@
-"""Sink de tramos a verificar (historia #170). Publicaciones sintéticas de la fixture."""
+"""Sink de tramos a verificar (historias #170 y #172). Publicaciones sintéticas de la
+fixture."""
 
 import dataclasses
 import json
@@ -6,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from parcel_intel.adapters.comparison_files import JsonComparisonManifestReader
 from parcel_intel.adapters.curated_candidates import CuratedCandidateReviewFiles
 from parcel_intel.adapters.published_layers import (
     GeoJsonPublishedCandidateSink,
@@ -29,7 +31,11 @@ def _publication() -> CandidateLayerPublication:
     state = reconcile(revision.report(), reviews)
     measurement = JsonMeasurementReportReader(generar.DIRECTORY / "medicion.json").get_measurement()
     summary = summarize_measurement(measurement, revision.report().method)
-    return build_candidate_layer(state, summary, "Colmenar de Oreja").publication
+    manifest = JsonComparisonManifestReader(generar.DIRECTORY / "comparacion").get_manifest(
+        generar.INE
+    )
+    assert manifest is not None
+    return build_candidate_layer(state, summary, "Colmenar de Oreja", manifest).publication
 
 
 def _snapshot(directory: Path) -> dict[str, bytes]:
@@ -73,14 +79,35 @@ def test_escribe_capa_procedencia_e_indice(tmp_path: Path) -> None:
     assert [s["origen"] for s in sidecar["fuentes"]] == [
         "catastro_wfs_cp (sintético)",
         "idem_vias_pecuarias (sintético)",
+        *["pnoa-historico"] * 4,  # un vuelo publicado por entrada (#172)
     ]
     index = json.loads((tmp_path / "indice.json").read_text(encoding="utf-8"))
     assert index["municipios"][0]["capas"] == {"candidatos": "candidatos/28043.geojson"}
 
 
 def test_umbral_de_peso(tmp_path: Path) -> None:
-    (published,) = GeoJsonPublishedCandidateSink(tmp_path, URL, 100).publish([_publication()])
-    assert published.over_threshold
+    """#172 (ADR 0049 §7): por encima del umbral, falla sin escribir nada."""
+    with pytest.raises(PublishedLayerError, match="por encima del umbral de 100"):
+        GeoJsonPublishedCandidateSink(tmp_path, URL, 100).publish([_publication()])
+    assert _snapshot(tmp_path) == {}
+
+
+def test_imagenes_y_procedencia_de_los_vuelos(tmp_path: Path) -> None:
+    GeoJsonPublishedCandidateSink(tmp_path, URL).publish([_publication()])
+    document = json.loads((tmp_path / "candidatos" / "28043.geojson").read_text(encoding="utf-8"))
+    for feature in document["features"]:
+        for window in feature["properties"]["imagenes_comparacion"]:
+            assert [i["franja"] for i in window["imagenes"]] == [
+                "1997-2003",
+                "2006-2011",
+                "2014-2020",
+                "reciente",
+            ]
+    sidecar = json.loads(
+        (tmp_path / "candidatos" / "28043.geojson.procedencia.json").read_text(encoding="utf-8")
+    )
+    assert sidecar["imagenes_comparacion"]["alojadas_en_el_sitio"] is False
+    assert [s["origen"] for s in sidecar["fuentes"]].count("pnoa-historico") == 4
 
 
 def test_sin_publicaciones_no_escribe(tmp_path: Path) -> None:

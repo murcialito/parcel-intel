@@ -17,14 +17,25 @@ Reutiliza los candidatos de `tests/fixtures/candidatos_revision/generar.py` (#16
   real (cocientes no calculables).
 - `medicion_calculable.json`: la misma forma con los dos cocientes calculables (cobertura
   1 de 2, precisión 1 de 3).
+- `comparacion/28043.json` (historia #172): manifiesto de `imagenes-comparacion` escrito
+  con el productor real (`read_stretches` sobre `candidatos/28043.geojson` y
+  `build_comparison_use_case`) y un `http_get` falso que devuelve JPEG deterministas: la
+  respuesta blanca para `AMS_1956-1957`, `SIGPAC` y `PNOA2009`, y una imagen «con
+  contenido» para el resto. Por ventana: `1956-1957` omitida, `1997-2003` con OLISTAT,
+  `2006-2011` con 2006, `2014-2020` con 2017 y `reciente` con 2023. Las imágenes falsas
+  viven en un temporal; solo se versiona el manifiesto.
 """
 
 import json
+import math
+import tempfile
 from datetime import date
 from pathlib import Path
 
+from parcel_intel.adapters.comparison_files import read_stretches
 from parcel_intel.adapters.cut_candidate_files.geojson_writer import report_to_geojson_text
-from parcel_intel.cli.main import build_measurement_report
+from parcel_intel.adapters.pnoa.window import window_url
+from parcel_intel.cli.main import build_comparison_use_case, build_measurement_report
 from parcel_intel.domain.candidate_evaluation import (
     MATCH_CRITERION_V1,
     SAMPLE_STEP_M,
@@ -32,6 +43,22 @@ from parcel_intel.domain.candidate_evaluation import (
     NotEvaluableCase,
 )
 from parcel_intel.domain.candidate_review import candidate_fingerprint
+from parcel_intel.domain.comparison_image import (
+    COMPARISON_POLICY,
+    DECLARED_GAPS,
+    FLIGHTS,
+    ComparisonImage,
+    ComparisonManifest,
+    ComparisonWindow,
+    OmittedSlot,
+    StretchComparison,
+    attribution_for,
+    comparison_windows,
+    stretch_pixels,
+)
+from parcel_intel.domain.cut_candidate import CutCandidate
+from parcel_intel.domain.orthophoto import HistoricalVintage
+from parcel_intel.domain.provenance import Provenance, Redistribution
 from tests.fixtures.candidatos_revision import generar as revision
 
 DIRECTORY = Path(__file__).resolve().parent
@@ -40,6 +67,109 @@ LABEL = "validacion-v1"
 RUN_DATE = date(2026, 11, 27)
 SHA256 = "2" * 64
 APPROVED_ROLES = ("aprobado", "propuesto", "caducado")
+COMPARISON_DATE = date(2026, 11, 27)
+BLANK_LAYERS = frozenset({"AMS_1956-1957", "SIGPAC", "PNOA2009"})
+_JPEG = b"\xff\xd8"
+
+
+def fake_wms(url: str, params: dict[str, str]) -> bytes:
+    """`http_get` falso del WMS histórico: blanca (por debajo de 0,02 bytes/píxel) para
+    `BLANK_LAYERS` y «con contenido» (0,03 bytes/píxel) para el resto."""
+    if params["layers"] in BLANK_LAYERS:
+        return _JPEG + b"\x00" * 100
+    pixels = int(params["width"]) * int(params["height"])
+    return _JPEG + b"\x00" * math.ceil(0.03 * pixels)
+
+
+def manifest_text_for(candidates_file: Path, municipality_code: str = INE) -> str:
+    """Manifiesto que escribe `imagenes-comparacion --tramos <candidates_file>` con
+    `fake_wms`, en un temporal."""
+    stretches = read_stretches(candidates_file, municipality_code)
+    with tempfile.TemporaryDirectory() as tmp:
+        base = Path(tmp)
+        use_case = build_comparison_use_case(
+            base / "cache",
+            base / "salida",
+            offline=False,
+            http_get=fake_wms,
+            today=lambda: COMPARISON_DATE,
+            sleep=lambda seconds: None,
+        )
+        use_case.execute(municipality_code, stretches)
+        return (base / "salida" / f"{municipality_code}.json").read_text(encoding="utf-8")
+
+
+# Lo que da `fake_wms` por franja: el vuelo con imagen (None = franja omitida).
+FAKE_SLOT_VINTAGES: tuple[tuple[str, HistoricalVintage | None], ...] = (
+    ("1956-1957", None),
+    ("1997-2003", "OLISTAT"),
+    ("2006-2011", 2006),
+    ("2014-2020", 2017),
+    ("reciente", 2023),
+)
+_TRIED: dict[str, tuple[HistoricalVintage, ...]] = {"1956-1957": ("AMS_1956-1957",)}
+
+
+def stretch_comparison(candidate: CutCandidate) -> StretchComparison:
+    """La comparación que `imagenes-comparacion` escribiría con `fake_wms` para el tramo de
+    `candidate`, sin pasar por la caché (para tests de dominio y de caso de uso)."""
+    windows = comparison_windows(candidate.stretch)
+    assert windows is not None
+    built: list[ComparisonWindow] = []
+    for window in windows:
+        images: list[ComparisonImage] = []
+        omitted: list[OmittedSlot] = []
+        for slot, vintage in FAKE_SLOT_VINTAGES:
+            if vintage is None:
+                omitted.append(OmittedSlot(slot, "sin_cobertura", _TRIED[slot], None))
+                continue
+            flight = FLIGHTS[vintage]
+            images.append(
+                ComparisonImage(
+                    slot=slot,
+                    vintage=vintage,
+                    period=flight.period,
+                    resolution_m=flight.resolution_m,
+                    attribution=attribution_for(vintage),
+                    sha256="3" * 64,
+                    byte_size=1000,
+                    provenance=Provenance(
+                        "pnoa-historico",
+                        window_url(window, vintage),
+                        COMPARISON_DATE,
+                        "CC BY 4.0",
+                        Redistribution.PUBLIC,
+                    ),
+                )
+            )
+        built.append(
+            ComparisonWindow(
+                window=window,
+                stretch_px=stretch_pixels(candidate.stretch, window),
+                images=tuple(images),
+                omitted=tuple(omitted),
+            )
+        )
+    return StretchComparison(
+        stretch_id=candidate.candidate_id,
+        municipality_code=candidate.municipality_code,
+        policy=COMPARISON_POLICY,
+        status="generada",
+        windows=tuple(built),
+        gaps=DECLARED_GAPS,
+    )
+
+
+def manifest_for(candidates: list[CutCandidate]) -> ComparisonManifest:
+    """Manifiesto con `stretch_comparison` de cada candidato."""
+    return ComparisonManifest(
+        municipality_code=INE,
+        policy=COMPARISON_POLICY,
+        gaps=DECLARED_GAPS,
+        stretches=tuple(
+            sorted((stretch_comparison(c) for c in candidates), key=lambda s: s.stretch_id)
+        ),
+    )
 
 
 def revision_document() -> dict[str, object]:
@@ -133,11 +263,17 @@ def _json(document: object) -> str:
 
 def texts() -> dict[Path, str]:
     """Texto de cada fichero de la fixture, por ruta relativa a este directorio."""
+    candidates_text = report_to_geojson_text(revision.report())
+    with tempfile.TemporaryDirectory() as tmp:
+        candidates_file = Path(tmp) / f"{INE}.geojson"
+        candidates_file.write_text(candidates_text, encoding="utf-8")
+        manifest = manifest_text_for(candidates_file)
     return {
-        Path("candidatos") / f"{INE}.geojson": report_to_geojson_text(revision.report()),
+        Path("candidatos") / f"{INE}.geojson": candidates_text,
         Path("curated") / INE / "revision.json": _json(revision_document()),
         Path("medicion.json"): _json(measurement_document(not_computable_result())),
         Path("medicion_calculable.json"): _json(measurement_document(computable_result())),
+        Path("comparacion") / f"{INE}.json": manifest,
     }
 
 
