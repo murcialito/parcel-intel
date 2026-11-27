@@ -573,3 +573,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: `ruff format .` sin límite reformatea decenas de ficheros ajenos a la historia (aquí 51, incluidos ADR y código de otras historias) y ensucia la PR. Formatea solo los ficheros que has tocado (`ruff format <rutas>`), o comprueba `git status` antes de hacer commit.
   - **Aplica a**: implementación.
 
+## [2026-11-27] Historia #61 — Unidad sintética de Aranjuez (280027-w1)
+
+- **Lección**: un criterio que cita `historico cargar --documento 280022` describe una opción que no existe: el comando recibe la unidad (`280022-w1`) y el documento y la fecha viajan juntos en su `unidad.json`. Pedir el documento de 1943 sin unidad curada falla con «no existe» (salida 1, nada escrito), y un `document_id` distinto del prefijo del `unit_id` se rechaza al leer la unidad. Los tests prueban esos dos caminos en vez de inventar la opción.
+  - **Aplica a**: refinador (copiar las opciones reales del CLI de CLAUDE.md) | implementación.
+
+- **Lección**: la ruta que un criterio nombra (`tests/fixtures/caminos/planimetrias/280027/`) puede diferir de la que fija la línea `Toca:` y el método de #20 (`historico/280027-w1/`). Manda la convención vigente del repo; la diferencia se anota en el docstring del módulo de tests y en la PR.
+  - **Aplica a**: refinador | implementación.
+
