@@ -1245,3 +1245,14 @@ Fuera de alcance de la historia 0001 (ver sección "Fuera de alcance" de `docs/s
 ### Publicar los tramos a verificar (historia #170)
 
 - **CA15 (flujo real), pendiente de la primera publicación real.** Por decisión del fundador en #170 (2026-11-27), no bloquea el merge: necesita candidatos aprobados a mano en `curated/candidatos/28043/revision.json`, y ningún agente puede aprobarlos (ADR 0047). Sin aprobados, `publicar-candidatos` no publica nada. La primera vez que se publique de verdad, ejecuta `uv run pytest -m "acceptance and integration" tests/acceptance/test_historia_170.py -k ca15` y anota aquí la fecha, cuántos tramos aprobados se publicaron y la línea `medición:` (solo números, sin referencias catastrales).
+
+## Polígonos catastrales rústicos: `cp:CadastralZoning` del WFS INSPIRE de Catastro (historia #217)
+
+Verificado el 2026-11-27 desde un runner de Actions contra `https://ovc.catastro.meh.es/INSPIRE/wfsCP.aspx` (`GetFeature`, `typenames=cp:CadastralZoning`, `srsname=urn:ogc:def:crs:EPSG::25830`). Mismo servicio, caché cruda y licencia INSPIRE de Catastro que las parcelas (ADR 0028): **capa de uso interno, nunca se publica**. Sin proveedor nuevo.
+
+- **Forma**: cada feature trae `cp:geometry` = `gml:MultiSurface/gml:Surface/gml:patches/gml:PolygonPatch/gml:exterior/…/gml:posList` (no `gml:Polygon`), `cp:label` (número de polígono, p. ej. `040`), `cp:level` con el nivel en `xlink:href` (`…/CadastralZoningLevelValue/2ndOrder`), `cp:levelName` (`POLIGONO`) y `cp:nationalCadastalZoningReference` (sic, referencia de zona). La referencia es de zona, no de finca, y el adaptador no la lee: solo sale la etiqueta.
+- **Niveles (CA2)**: el parser lee el nivel de cada feature y el adaptador se queda solo con `2ndOrder` (polígonos). Se descarta `1stOrder` (el término municipal, si la capa lo devuelve; no se observó en las teselas reales de Colmenar, solo se contempla). Los anillos interiores (`gml:interior`) se descartan como en las parcelas (lecciones 0011 y 0015); la tesela real de 1 km² de Colmenar no tenía ninguno.
+- **Límite de área**: el mismo de las parcelas, 1000×1000 m sí y el término entero no. La excepción de esta capa llega **en español**: `Area de la extensión fuera de los límites` (`OperationProcessingFailed`); la de parcelas, en inglés (`out of limits`). El adaptador reconoce ambos textos.
+- **Teselado**: rejilla única de `municipality_tiles` (teselas de 900 m), como `catastro-caminos`; un polígono grande (p. ej. `28043A040`, ~2 × 3 km) aparece en varias teselas y se une por etiqueta, nivel y geometría.
+- **No verificado**: cobertura de los 7 municipios del ámbito (solo Colmenar de Oreja, 4 polígonos en la tesela `460000,4436000,461000,4437000`).
+- Comando: `uv run python -m parcel_intel.cli.main catastro-poligonos --codigo 28043 [--bbox …] [--sin-red]`; sin fichero derivado, las respuestas quedan en `data/raw/catastro`.

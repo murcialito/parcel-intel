@@ -16,6 +16,7 @@ from parcel_intel.adapters.catastro.area_adapter import (
     CATASTRO_WFS_TILE_SIDE_M,
     CatastroAreaAdapter,
 )
+from parcel_intel.adapters.catastro.zoning_adapter import CatastroZoningAdapter
 from parcel_intel.adapters.comparison_files import (
     JsonComparisonAvailabilityReader,
     JsonComparisonManifestReader,
@@ -130,7 +131,9 @@ from parcel_intel.application.publish_layers import (
     DEFAULT_LAYERS,
     PublishLayersUseCase,
 )
+from parcel_intel.application.read_cadastral_zoning import ReadCadastralZoningUseCase
 from parcel_intel.domain.cadastral_road import CadastralRoadLayer
+from parcel_intel.domain.cadastral_zoning import CadastralZoningLayer
 from parcel_intel.domain.candidate_evaluation import (
     MATCH_CRITERION_V1,
     CandidateEvaluationInputError,
@@ -665,6 +668,54 @@ def _catastro_caminos(args: argparse.Namespace) -> int:
     print(_format_cadastral_road_layer(layer, args.municipio))
     print(f"  rejilla: bbox {_format_bbox(bbox)} (teselas de {CATASTRO_WFS_TILE_SIDE_M:g} m)")
     print(f"Capa escrita en {path}")
+    return 0
+
+
+def build_cadastral_zoning_layer(
+    bbox: BBox,
+    cache_dir: Path,
+    offline: bool,
+    http_get: HttpGet = catastro_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> CadastralZoningLayer:
+    """Composition root de los polígonos catastrales (historia #217): descarga por teselas
+    y deja las respuestas en la caché cruda. Con `offline=True` solo se lee la caché."""
+    fetcher = CachedRawFetcher(http_get, cache_dir, today, sleep=sleep, offline=offline)
+    use_case = ReadCadastralZoningUseCase(
+        CatastroZoningAdapter(fetcher), tile_side_m=CATASTRO_WFS_TILE_SIDE_M
+    )
+    return use_case.execute(bbox)
+
+
+def _catastro_poligonos(args: argparse.Namespace) -> int:
+    try:
+        if args.bbox is None:
+            bbox = municipality_grid_bbox(args.codigo, args.cache, args.sin_red)
+        else:
+            bbox = args.bbox
+        layer = build_cadastral_zoning_layer(bbox, args.cache_dir, args.sin_red)
+    except (
+        MunicipalBoundaryNotFoundError,
+        MunicipalBoundaryUnusableError,
+        AreaQueryLimitExceededError,
+        TruncatedAreaQueryError,
+        CadastralServiceError,
+        RawCacheMissError,
+        RawCacheCorruptError,
+    ) as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    except requests.RequestException as error:
+        print(f"Error de red: {error}", file=sys.stderr)
+        return 1
+    print(f"{args.codigo} polígonos catastrales")
+    print(f"  rejilla: bbox {_format_bbox(bbox)} (teselas de {CATASTRO_WFS_TILE_SIDE_M:g} m)")
+    print(f"  teselas: {layer.tiles}")
+    print(f"  polígonos (nivel 2ndOrder): {len(layer.zones)}")
+    for zone in layer.zones:
+        print(f"    {zone.label} anillos={len(zone.geometry.rings)}")
+    print("Capa de uso interno: caché cruda, no publicable (licencia INSPIRE de Catastro).")
     return 0
 
 
@@ -1723,6 +1774,37 @@ def _build_parser() -> argparse.ArgumentParser:
         "--sin-red", action="store_true", help="Solo la caché cruda; falla si falta algo"
     )
     caminos_parser.set_defaults(func=_catastro_caminos)
+
+    poligonos_parser = subparsers.add_parser(
+        "catastro-poligonos",
+        help="Descarga y cachea los polígonos catastrales (CadastralZoning) de un municipio",
+    )
+    poligonos_parser.add_argument(
+        "--codigo", type=_municipality_code, required=True, help="Código de Catastro, 5 dígitos"
+    )
+    poligonos_parser.add_argument(
+        "--bbox",
+        type=_bbox_argument,
+        default=None,
+        help="MINX,MINY,MAXX,MAXY en EPSG:25830 (E,N); por defecto, el límite del IGN "
+        "redondeado hacia fuera (la misma rejilla que catastro-caminos)",
+    )
+    poligonos_parser.add_argument(
+        "--cache",
+        type=Path,
+        default=Path("data/raw"),
+        help="Caché cruda del límite del IGN (solo sin --bbox)",
+    )
+    poligonos_parser.add_argument(
+        "--cache-dir",
+        type=Path,
+        default=Path("data/raw/catastro"),
+        help="Directorio de la caché cruda de Catastro (uso interno, nunca se publica)",
+    )
+    poligonos_parser.add_argument(
+        "--sin-red", action="store_true", help="Solo la caché cruda; falla si falta una tesela"
+    )
+    poligonos_parser.set_defaults(func=_catastro_poligonos)
 
     discrepancias_parser = subparsers.add_parser(
         "discrepancias",
