@@ -878,6 +878,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: refinador (al redactar criterios que describen el estado de una descarga o de un dato externo, citar el comentario que lo fija y su fecha) | implementación (leer los comentarios del issue completos, no solo el cuerpo, antes de dar por válido un CA de hecho).
 - **Lección**: una sección nueva de `REGISTRY.md` que se inserte antes de «## Resumen de fuentes no verificadas» cae dentro del rango de las guardas de otras historias (`index(...)` hasta el resumen). Se añade al final del fichero, para no tocar esos rangos, y la suite completa se ejecuta antes de abrir la PR.
   - **Aplica a**: implementación (al añadir secciones a `REGISTRY.md`) | revisión (comprobar con qué encabezado acota cada guarda antes de aceptar la posición de una sección nueva).
+## [2026-11-27] Historia #243 — Estrechamiento de vías pecuarias
+
+- **Lección**: la capa derivada de vías pecuarias (#83) solo trae el área de la pieza recortada, no el `area_m2`/`length_m` del tramo completo de IDEM, y sin ellos no hay anchura oficial. Un cálculo que parta de la anchura oficial debe leer `MunicipalLivestockTrailLayer` (caché cruda de IDEM), no el GeoJSON derivado. Además, con la anchura catastral recortada a la franja, `A / W` es la fracción de la franja cubierta por parcelas VT: nunca supera 1, así que «A mayor que W» no existe como caso. Y `ruff format` sobre todo `src/` reformatea ficheros ajenos a la historia: formatear solo los ficheros propios.
+  - **Aplica a**: implementación (señales de anchura, ventanas a lo largo del eje) | revisión.
 ## [2026-11-27] Historia #282 — Clasificación de vías pecuarias en BOE y BOCM
 
 - **Lección**: la búsqueda de texto libre del BOCM no exige todas las palabras: pone en la página 1 documentos de otros municipios con «Colmenar» o «vías pecuarias» (Colmenar del Arroyo, Chapinería), y el control con Villaconejos no lo deja arriba aunque el BOE tenga su orden. Un «no hay» en el BOCM solo vale con la frase exacta del título de la orden y con un control positivo que salga en primer lugar (Chapinería, orden 3/2011).
