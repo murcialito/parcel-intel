@@ -112,6 +112,7 @@ from parcel_intel.domain.georeferencing import (
 )
 from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
 from parcel_intel.domain.municipal_road_layer import MunicipalRoadLayerBatch
+from parcel_intel.domain.municipality import HITO_MUNICIPALITY_CODES
 from parcel_intel.domain.parcel import Parcel
 from parcel_intel.domain.provenance import Provenance, Redistribution
 from parcel_intel.domain.published_discrepancy import OmittedByLicense
@@ -138,7 +139,7 @@ from parcel_intel.ports.municipal_boundary import MunicipalBoundaryPort
 
 _LAYER_CHOICES = ["dph_cauce", "via_pecuaria", "red_natura_plan"]
 
-AMBITO_HITO_INE = ("28043", "28013", "28052", "28019", "28170", "28180", "28157")
+AMBITO_HITO_INE = HITO_MUNICIPALITY_CODES
 """Los 7 municipios del primer hito (REGISTRY.md, "Ámbito del hito"): Colmenar de
 Oreja, Aranjuez, Chinchón, Belmonte de Tajo, Villaconejos, Villarejo de Salvanés y
 Valdelaguna. Configuración del hito, no dominio."""

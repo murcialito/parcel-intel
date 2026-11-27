@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from parcel_intel.domain.digitization import (
     DigitizedTrail,
     check_approvals_current,
+    check_trail_municipalities,
     check_trails_in_image,
     to_historic_trail,
 )
@@ -91,6 +92,7 @@ class HistoricUnitUseCase:
         )
         trails = self._inputs.read_trails(unit_id)
         check_trails_in_image(trails, unit.image.width_px, unit.image.height_px)
+        check_trail_municipalities(trails)
         check_approvals_current(trails, unit.control_points.sha256)
 
         approved: list[HistoricTrail] = []

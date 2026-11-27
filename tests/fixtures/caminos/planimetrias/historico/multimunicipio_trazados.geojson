@@ -1,0 +1,58 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[100.0, 100.0], [180.0, 160.0], [260.0, 200.0], [340.0, 300.0]]},
+      "properties": {
+        "trail_id": "T001",
+        "kind": "camino",
+        "label": "Trazado sintético A",
+        "review": "aprobado",
+        "reviewed_by": "fixture-sintetica",
+        "reviewed_at": "2026-11-27T11:00:00+00:00",
+        "control_points_sha256": "935c3075b95405724d8f374f7f136b39471d45142ea0f6ebfc212b8f110753d8",
+        "municipality_code": "28052"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[120.0, 380.0], [200.0, 340.0], [300.0, 330.0]]},
+      "properties": {
+        "trail_id": "T002",
+        "kind": "via_pecuaria",
+        "review": "aprobado",
+        "reviewed_by": "fixture-sintetica",
+        "reviewed_at": "2026-11-27T11:05:00+00:00",
+        "control_points_sha256": "935c3075b95405724d8f374f7f136b39471d45142ea0f6ebfc212b8f110753d8",
+        "municipality_code": "28043"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[300.0, 100.0], [350.0, 130.0], [400.0, 160.0]]},
+      "properties": {
+        "trail_id": "T003",
+        "kind": "senda",
+        "label": "Trazado sintético C",
+        "review": "aprobado",
+        "reviewed_by": "fixture-sintetica",
+        "reviewed_at": "2026-11-27T11:10:00+00:00",
+        "control_points_sha256": "935c3075b95405724d8f374f7f136b39471d45142ea0f6ebfc212b8f110753d8",
+        "municipality_code": "28013"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[150.0, 250.0], [200.0, 280.0], [250.0, 300.0]]},
+      "properties": {
+        "trail_id": "T004",
+        "kind": "camino",
+        "review": "aprobado",
+        "reviewed_by": "fixture-sintetica",
+        "reviewed_at": "2026-11-27T11:15:00+00:00",
+        "control_points_sha256": "935c3075b95405724d8f374f7f136b39471d45142ea0f6ebfc212b8f110753d8"
+      }
+    }
+  ]
+}

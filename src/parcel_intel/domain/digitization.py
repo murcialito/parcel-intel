@@ -18,6 +18,7 @@ from typing import Literal, get_args
 from parcel_intel.domain.geometry import LineGeometry
 from parcel_intel.domain.georeferencing import GeoreferenceUnit, round_mm
 from parcel_intel.domain.historic_trail import METRIC_SRID, HistoricTrail, ReviewStatus
+from parcel_intel.domain.municipality import HITO_MUNICIPALITY_CODES
 
 TrailKind = Literal["camino", "via_pecuaria", "senda", "otro"]
 
@@ -25,6 +26,7 @@ MAX_LABEL_LENGTH = 80
 
 _TRAIL_ID_RE = re.compile(r"T[0-9]{3,4}")
 _SHA256_RE = re.compile(r"[0-9a-f]{64}")
+_MUNICIPALITY_RE = re.compile(r"[0-9]{5}")
 _GITHUB_USER_RE = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})")
 
 
@@ -56,10 +58,16 @@ class DigitizedTrail:
     reviewed_at: datetime | None = None
     review_note: str | None = None
     control_points_sha256: str | None = None
+    municipality_code: str | None = None  # None: el de la unidad (#20, #62)
 
     def __post_init__(self) -> None:
         if not isinstance(self.trail_id, str) or not _TRAIL_ID_RE.fullmatch(self.trail_id):
             raise InvalidDigitizationError(f"trail_id no cumple ^T[0-9]{{3,4}}$: {self.trail_id!r}")
+        if self.municipality_code is not None and (
+            not isinstance(self.municipality_code, str)
+            or not _MUNICIPALITY_RE.fullmatch(self.municipality_code)
+        ):
+            self._fail(f"municipality_code no cumple ^[0-9]{{5}}$: {self.municipality_code!r}")
         self._check_pixels()
         if self.kind not in get_args(TrailKind):
             self._fail(f"kind no reconocido: {self.kind!r}")
@@ -118,6 +126,22 @@ def check_trails_in_image(trails: Sequence[DigitizedTrail], width_px: int, heigh
                 )
 
 
+def check_trail_municipalities(trails: Sequence[DigitizedTrail]) -> None:
+    """Todo `municipality_code` propio de un trazado debe ser de los 7 municipios del
+    ámbito; si no, se rechaza el fichero entero (nada se carga)."""
+    outside = [
+        f"{t.trail_id} ({t.municipality_code})"
+        for t in trails
+        if t.municipality_code is not None and t.municipality_code not in HITO_MUNICIPALITY_CODES
+    ]
+    if outside:
+        raise InvalidDigitizationError(
+            "municipio fuera del ámbito del hito en trazados: "
+            + ", ".join(outside)
+            + f"; válidos: {', '.join(HITO_MUNICIPALITY_CODES)}; no se carga nada"
+        )
+
+
 def check_approvals_current(trails: Sequence[DigitizedTrail], control_points_sha256: str) -> None:
     """Las aprobaciones valen para los puntos que vio quien aprobó. Si algún
     `approved` lleva otro sha256, lanza `StaleApprovalError`. Los `proposed` y
@@ -150,7 +174,7 @@ def to_historic_trail(unit: GeoreferenceUnit, trail: DigitizedTrail) -> Historic
     )
     return HistoricTrail(
         identifier=f"{spec.unit_id}-{trail.trail_id}",
-        municipality_code=spec.municipality_code,
+        municipality_code=trail.municipality_code or spec.municipality_code,
         document_kind=spec.document_kind,
         document_id=spec.document_id,
         document_date=spec.document_date,

@@ -645,6 +645,13 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: `ruff format src` sin acotar reformateó 14 ficheros ajenos (tercera vez, ver #127 y #128). Formatea solo las rutas tocadas.
   - **Aplica a**: implementación.
 
+## [2026-11-27] Historia #162 — Municipio por trazado en el formato histórico
+
+- **Lección**: la lista de los 7 municipios del ámbito vivía solo en `cli/main.py` (`AMBITO_HITO_INE`), inalcanzable para el dominio. Una validación «dentro del ámbito» en dominio/aplicación necesita la constante en `domain` (`HITO_MUNICIPALITY_CODES`, en `municipality.py`); el CLI la reexporta con su nombre antiguo. Validar en el borde (adapter) habría duplicado la lista.
+  - **Aplica a**: cualquier regla que cite «los 7 municipios» fuera del CLI.
+
+- **Lección**: una propiedad opcional nueva del formato curado se valida en tres sitios que deben moverse juntos: `_ALLOWED_PROPERTIES` del lector (si no, «propiedades desconocidas»), el `DigitizedTrail` (forma) y el caso de uso (`load` y `evidence` llaman a `check_trail_municipalities` antes de escribir). Rechazar el fichero entero antes de `sync_unit` deja la base intacta; el doble de repositorio de los tests de aceptación cuenta las llamadas para probarlo.
+  - **Aplica a**: ampliaciones del formato de #20.
 ## [2026-11-27] Historia #125 — Mover validador y congelación a producción
 
 - **Lección**: al reubicar un módulo de `tests/` a `src/`, busca todas sus referencias con `grep` (imports, docstrings y docs que citan la ruta vieja) antes de darlo por hecho; los comentarios del tipo «sigue en `tests/` hasta #N» quedan falsos si no se actualizan.
