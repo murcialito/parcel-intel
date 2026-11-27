@@ -3,7 +3,7 @@ import json
 import sys
 import time
 from collections import Counter
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -57,6 +57,8 @@ from parcel_intel.adapters.pnoa.window import PnoaWindowAdapter
 from parcel_intel.adapters.postgis.connection import get_connection
 from parcel_intel.adapters.postgis.georeference_repository import PostgisGeoreferenceRepository
 from parcel_intel.adapters.postgis.rule_repository import PostgisRuleRepository
+from parcel_intel.adapters.public_utility_forests import client as forest_client
+from parcel_intel.adapters.public_utility_forests.adapter import PublicUtilityForestAdapter
 from parcel_intel.adapters.published_layers import (
     GeoJsonCoverageSink,
     GeoJsonPublishedCandidateSink,
@@ -73,8 +75,13 @@ from parcel_intel.adapters.raw_cache import (
 )
 from parcel_intel.adapters.road_layer_files import (
     GeoJsonLivestockTrailLayerWriter,
+    GeoJsonPublicUtilityForestLayerWriter,
     GeoJsonRoadLayerWriter,
     LivestockTrailLayerFileError,
+    PublicUtilityForestLayerFileError,
+)
+from parcel_intel.adapters.road_layer_files.public_utility_forest_writer import (
+    layer_to_geojson_text as forest_layer_to_geojson_text,
 )
 from parcel_intel.adapters.road_network import client as roadlink_client
 from parcel_intel.adapters.road_network.adapter import RoadNetworkAdapter
@@ -101,6 +108,9 @@ from parcel_intel.application.build_municipal_comparisons import (
 )
 from parcel_intel.application.build_municipal_livestock_trail_layers import (
     BuildMunicipalLivestockTrailLayersUseCase,
+)
+from parcel_intel.application.build_municipal_public_utility_forest_layers import (
+    BuildMunicipalPublicUtilityForestLayersUseCase,
 )
 from parcel_intel.application.build_municipal_road_layers import BuildMunicipalRoadLayersUseCase
 from parcel_intel.application.build_trail_evidence import BuildTrailEvidenceUseCase
@@ -146,6 +156,7 @@ from parcel_intel.domain.georeferencing import (
     thresholds_m,
 )
 from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
+from parcel_intel.domain.municipal_public_utility_forests import MunicipalPublicUtilityForestLayer
 from parcel_intel.domain.municipal_road_layer import MunicipalRoadLayerBatch
 from parcel_intel.domain.municipality import HITO_MUNICIPALITY_CODES
 from parcel_intel.domain.parcel import Parcel
@@ -381,6 +392,93 @@ def _vias_pecuarias_municipios(args: argparse.Namespace) -> int:
             failed = True
             continue
         print(_format_layer(layer))
+        print(f"  fichero: {path}")
+    return 1 if failed else 0
+
+
+def _format_forest_layer(layer: MunicipalPublicUtilityForestLayer) -> str:
+    municipality = layer.municipality
+    lines = [
+        f"{municipality.ine_code} {municipality.name}",
+        f"  aviso: {layer.notice}",
+        f"  límite: {_format_provenance(municipality.provenance)}",
+    ]
+    if not layer.forests:
+        lines.append("  sin montes")
+        return "\n".join(lines)
+    lines.append(f"  piezas: {len(layer.forests)}")
+    for piece in layer.forests:
+        source = piece.source
+        lines.append(
+            f"    forest_code={source.forest_code} name={source.name} "
+            f"area_m2={piece.area_m2:.2f}"
+        )
+        lines.append(f"      procedencia: {_format_provenance(piece.provenance)}")
+    return "\n".join(lines)
+
+
+def build_municipal_forest_layers(
+    cache_dir: Path,
+    offline: bool,
+    ine_codes: Sequence[str] = AMBITO_HITO_INE,
+    ign_http_get: HttpGet = ign_client.default_http_getter,
+    idem_http_get: HttpGet = forest_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> tuple[MunicipalPublicUtilityForestLayer, ...]:
+    """Composition root de la capa de montes de utilidad pública por municipio (historia #220).
+
+    Misma caché cruda inmutable que las demás capas (la clave es la URL completa).
+    Con `offline=True` nada llama a la red."""
+    ign_fetcher = CachedRawFetcher(ign_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    idem_fetcher = CachedRawFetcher(idem_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    use_case = BuildMunicipalPublicUtilityForestLayersUseCase(
+        boundaries=IgnAdministrativeUnitsAdapter(
+            AMBITO_HITO_BBOX_ETRS89, fetcher=ign_fetcher, today=today
+        ),
+        forests=PublicUtilityForestAdapter(fetcher=idem_fetcher, today=today),
+        clipper=ShapelyPolygonClipper(),
+    )
+    return use_case.execute(ine_codes)
+
+
+def _montes_utilidad_publica_municipios(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        codes = list(AMBITO_HITO_INE)
+    try:
+        layers = build_municipal_forest_layers(args.cache, args.sin_red, codes)
+        # Todo o nada: se serializan todas las capas antes de escribir ninguna.
+        for layer in layers:
+            forest_layer_to_geojson_text(layer)
+    except (
+        MunicipalBoundaryNotFoundError,
+        MunicipalBoundaryUnusableError,
+        IncompleteWfsResponseError,
+        ClippedGeometryHasHolesError,
+        RawCacheMissError,
+        RawCacheCorruptError,
+        PublicUtilityForestLayerFileError,
+    ) as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    except requests.RequestException as error:
+        print(f"Error de red: {error}", file=sys.stderr)
+        return 1
+    writer = GeoJsonPublicUtilityForestLayerWriter(args.salida)
+    failed = False
+    for layer in layers:
+        try:
+            path = writer.write(layer)
+        except OSError as error:
+            print(
+                f"FALLO {layer.municipality.ine_code} {layer.municipality.name}: {error}",
+                file=sys.stderr,
+            )
+            failed = True
+            continue
+        print(_format_forest_layer(layer))
         print(f"  fichero: {path}")
     return 1 if failed else 0
 
@@ -1589,6 +1687,34 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio de los ficheros <codigo_ine>.geojson",
     )
     vias_parser.set_defaults(func=_vias_pecuarias_municipios)
+
+    montes_parser = subparsers.add_parser(
+        "montes-utilidad-publica-municipios",
+        help="Capa de montes de utilidad pública recortada al término de cada municipio",
+    )
+    montes_parser.add_argument(
+        "--municipio",
+        type=_municipality_code,
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible)",
+    )
+    montes_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito (por defecto)"
+    )
+    montes_parser.add_argument(
+        "--sin-red", action="store_true", help="Solo la caché cruda; falla si falta algo"
+    )
+    montes_parser.add_argument(
+        "--cache", type=Path, default=Path("data/raw"), help="Directorio de la caché cruda"
+    )
+    montes_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("data/derived/montes_utilidad_publica"),
+        help="Directorio de los ficheros <codigo_ine>.geojson",
+    )
+    montes_parser.set_defaults(func=_montes_utilidad_publica_municipios)
 
     camino_parser = subparsers.add_parser(
         "camino-actual-municipios",

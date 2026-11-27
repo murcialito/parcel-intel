@@ -458,6 +458,31 @@ Verificado el 2026-11-26. Las 7 respuestas reales de IDEM por bbox del término 
 - **Guarda de truncado**: cada respuesta de IDEM trae `numberMatched`; si no coincide con las features parseadas, el adapter lanza `IncompleteWfsResponseError` y no cachea. Las 7 respuestas reales cumplen la guarda (CA5 de #36, integración).
 - **Licencia**: `CC BY 4.0 Comunidad de Madrid`, leída de `AccessConstraints` (sección anterior); el adapter ya la rellena en `Provenance.license`.
 
+## Montes de utilidad pública — IDEM, Comunidad de Madrid (`Zonas:IDEM_MA_MONTES_UP`, historia #220)
+
+Verificado el 2026-11-27 (peticiones reales; fixtures en `tests/fixtures/public_utility_forests/`).
+
+- **Servicio**: mismo GeoServer y workspace que las vías pecuarias, WFS 2.0.0 en `https://idem.comunidad.madrid/geoidem/Zonas/wfs`, capa `Zonas:IDEM_MA_MONTES_UP`, EPSG:25830. 208 elementos en toda la Comunidad.
+- **Esquema** (`DescribeFeatureType`, `wfs_describefeaturetype_montes_up.xml`): `CD_UP` (decimal), `DS_ELENCO`, `DS_NOMBRE`, `DS_MUNICIPIO`, `CD_COMARCA`, `DS_PROPIETARIO`, `DS_NOM_PROPIETARIO`, `DS_GESTION`, `CD_ANNO_INCOR_CAT`, `DS_DESLINDE`, `FC_APROB_DESLINDE`, `DS_AMOJONAMIENTO`, `FC_APROB_AMOJONA`, `NM_SUPERF_CATALOGO`, `GEOMETRY1`.
+- **Titularidad**: la capa publica `DS_PROPIETARIO` y `DS_NOM_PROPIETARIO`. El parser lee solo `CD_UP`, `DS_NOMBRE`, `DS_MUNICIPIO` y la geometría (lista blanca); esos dos campos no entran en el dominio ni en ningún fichero. En las fixtures, sus valores reales están sustituidos por «PROPIETARIO FICTICIO» y «TITULAR FICTICIO».
+- **Licencia**: `CC BY 4.0 Comunidad de Madrid`, `AccessConstraints` del workspace `Zonas` (mismo texto que vías pecuarias; el proveedor no publica un documento aparte). El test de integración de #220 la vuelve a leer del `GetCapabilities`.
+- **Cobertura del ámbito** (bbox de cada término, margen 2 m; `numberMatched` y piezas tras recortar con el límite del IGN):
+
+| INE | Municipio | `numberMatched` | Piezas tras recortar |
+| --- | --- | --- | --- |
+| 28043 | Colmenar de Oreja | 0 | 0 |
+| 28013 | Aranjuez | 1 | 1 (`208` Soto de las Cuevas) |
+| 28052 | Chinchón | 1 | 1 (`184`, 122 m²: astilla de borde) |
+| 28019 | Belmonte de Tajo | 2 | 1 (`182`, 1 920 m²: astilla de borde) |
+| 28170 | Villaconejos | 0 | 0 |
+| 28180 | Villarejo de Salvanés | 1 | 0 |
+| 28157 | Valdelaguna | 2 | 2 (`182` y `184`, multiparte) |
+
+- **Colmenar de Oreja no tiene ningún monte**: la capa sale vacía y es un resultado válido («sin montes»).
+- **Astillas**: dos piezas (Chinchón, Belmonte) son diferencia entre la línea municipal de IDEM y la del IGN. No se filtran (como en vías pecuarias, ADR 0032).
+- **Anillos interiores**: las respuestas de Valdelaguna traen `gml:interior` (21 contra 28 `gml:exterior`). El parser solo lee `gml:exterior` (ADR 0011): el área de la pieza puede sobrestimar el monte si hay claros dentro. Pendiente si algún día se publica el área.
+- **No usado**: el catálogo nacional de MITECO; la capa autonómica es de la misma administración, ya en EPSG:25830 y con licencia leída.
+
 ## Red Natura 2000 y espacios protegidos — IDEM, Comunidad de Madrid (Planes de Gestión)
 
 Verificado en profundidad el 2026-10-16, para la historia 0015, a partir de un hallazgo de pasada de la historia 0014 (`Zonas:IDEM_MA_RED_NATURA_PLAN`, mismo workspace `Zonas` del GeoServer de IDEM ya usado para vías pecuarias) — nunca dado por bueno solo por el nombre de la capa, verificado con el mismo rigor que el resto de fuentes.
@@ -828,6 +853,30 @@ Las dos integraciones pendientes están en la #160.
 
 ---
 
+## Sitios de interés — fuentes candidatas (historia #214)
+
+Verificado el 2026-11-27 para valorar si un tramo da acceso a una fuente, una ermita, un mirador, un yacimiento o un núcleo. Solo verificación de fuentes: no hay adapter ni datos en `data/` ni la prioridad de los tramos (historia posterior, #202). Ámbito de referencia: Colmenar de Oreja (INE 28043). Los recuentos de NGBE se hicieron con la caja `40.02,-3.47,40.13,-3.27` (WGS84) filtrada por el polígono municipal del IGN (`tests/fixtures/caminos/ign_au_ambito_7_municipios.xml`, EPSG:4258). Son topónimos y registros de inventario, no prueba de que el sitio exista ni de su acceso.
+
+| Fuente | Formato y vía de acceso | Cobertura en Colmenar | Frecuencia | Licencia (cita) | Estado | Conclusión | Tipos de sitio |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Nomenclátor Geográfico Básico (NGBE), IGN/CNIG | API de entidades `https://api-features.ign.es/collections/namedplace/items` (GeoJSON, leído el 2026-11-27); descarga en el [Centro de Descargas del CNIG](https://centrodedescargas.cnig.es/CentroDescargas/buscadorCatalogo.do?codFamilia=NGBES) (no descargada en esta pasada). Ficha primaria: [datos.gob.es](https://datos.gob.es/es/catalogo/e0dat0002-nomenclator-geografico-basico-de-espana1) | 230 topónimos en la caja; **99 dentro del término**: 30 parajes, 26 caminos y vías pecuarias, 12 edificaciones, 11 cursos de agua, 3 entidades singulares, 1 núcleo de población (Colmenar de Oreja), 2 fuentes («Fuente de la Salceda», «Fuente de Arriba»), 2 ermitas («Ermita de San Isidro», «Ermita del Cristo»), 0 miradores, 0 yacimientos. 91 de los 99 vienen de la BTN25 (campo `fuente`) | Continua (tabla de productos de [scne.es](http://www.scne.es/tablaProductos.php), leída por resumen) | Ficha datos.gob.es: licencia «CC BY 4.0» (URI `http://publications.europa.eu/resource/authority/licence/CC_BY_4_0`). Condiciones del IGN (`https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf`, leídas el 2026-11-27): el uso de los productos «definidos en el ámbito de la Orden FOM/2807/2015» «conlleva la aceptación por el usuario de una licencia CC - BY 4.0». Si el NGBE está en ese ámbito no se comprueba aquí: `asumido` | `verificado` (API) | **Publicar**, con la atribución «NGBE Continua CC-BY 4.0 Instituto Geográfico Nacional» (tabla de scne.es leída por resumen: `asumido` hasta cotejar el texto literal). **Usar primero** | Fuente, ermita, núcleo, paraje |
+| Bienes de Interés Cultural / Patrimonio de la Comunidad de Madrid | CSV en datos.comunidad.madrid: [inmuebles BIC](https://datos.comunidad.madrid/dataset/dde86e1d-a06b-4f65-8668-920a566fa264/resource/1804d79a-8643-4f06-8c20-7a0e40641be0/download/inmuebles_bic.csv), [inmuebles BIP](https://datos.comunidad.madrid/dataset/dde86e1d-a06b-4f65-8668-920a566fa264/resource/a20388c0-645d-48fe-81f5-847bcb07ecdf/download/inmuebles_bip.csv) (descargados el 2026-11-27). Ficha primaria: [datos.gob.es](https://datos.gob.es/es/catalogo/a13002908-patrimonio-cultural-protegido-en-la-comunidad-de-madrid). Columnas: denominación, autor, situación, incoación, declaración, número de registro, naturaleza, categoría, municipio. **Sin coordenadas** | 3 inmuebles BIC (iglesia parroquial Santa María la Mayor; «Ciudad de Colmenar de Oreja», conjunto histórico; zona arqueológica del término) y 1 BIP (Museo Ulpiano Checa) | Fecha de última actualización de la ficha: 4/11/2026. Frecuencia no consta | Ficha datos.gob.es: «https://creativecommons.org/licenses/by/4.0/legalcode.es». Ficha de datos.comunidad.madrid no leída en esta pasada | `verificado` | **Publicar** es posible con atribución «Comunidad de Madrid, CC BY 4.0» (`asumido`, forma exacta no leída). **Descartar** como fuente de acceso: pocos registros en el término y sin posición | Núcleo (conjunto histórico) y yacimiento (zona arqueológica), casi nada de fuente, ermita o mirador |
+| Base Topográfica Nacional (BTN25), IGN | Ficha primaria: [datos.gob.es, «Base Topográfica Nacional»](https://datos.gob.es/ca/catalogo/datos-gob-es-es-catalogo-edit-e00125901-spaignbtnserie) (frecuencia «Mensual», formato SHP en la serie CNIG `codSerie=02101`, WMS `https://www.ign.es/wms-inspire/ign-base`). Especificación leída: [ESPBTN25.pdf](https://www.ign.es/web/resources/docs/IGNCnig/BTN/ESPBTN25.pdf), versión **1.0 de 2009**, que dice que desde septiembre de 2021 la sustituye ESPBTN_MOD21 (desactualizada); catálogo de fenómenos v1 de 2017-08-03 leído en ese mismo PDF | **No contada en Colmenar de Oreja**: el SHP no se descargó en esta pasada. Proxy: los 217 de 230 topónimos del NGBE de la caja que vienen de la BTN25 (91 de 99 dentro del término). El catálogo define ERMITA (edificio religioso), surgencia con tipo FUENTE y yacimiento arqueológico | Mensual (ficha datos.gob.es) | Condiciones del IGN (mismo documento que en NGBE): atribución de ejemplo en la propia tabla «BTN25 2014 - 2015 CC - BY 4.0 ign.es». En la parte leída de la tabla de scne.es (resumen de `WebFetch`, lectura parcial) no aparece la fila BTN25; sí «BTN Continua CC-BY 4.0» | `bloqueado` (SHP no descargado; la tabla de productos no confirma la BTN25) | **Interno** hasta confirmar la fila y la atribución. No hace falta para el primer uso, porque el NGBE ya trae esa geometría con nombre | Fuente, ermita, yacimiento (catálogo), núcleo |
+| OpenStreetMap | Overpass API: `https://overpass-api.de/api/interpreter` y el espejo `https://overpass.kumi.systems/api/interpreter` (JSON). Respuesta: «The data is made available under ODbL» | **Sin recuento válido en Colmenar.** 2026-11-27: `overpass-api.de` devolvió `502` «at capacity» en dos consultas (una por área `ref:INE=28043` y otra por caja con `historic`, `tourism=viewpoint`, `amenity=drinking_water`, `place` y `natural=spring`); en un primer intento devolvió 200 con cero nodos, que no es un recuento válido. En el espejo `overpass.kumi.systems`, la consulta por área dio 0 elementos y la búsqueda de relaciones con `ref:INE=28043` también 0: esa etiqueta no está en OSM, así que el cero no vale. Agotaron el tiempo la búsqueda por nombre (120 s), la consulta por caja (300 s) y la de solo manantiales y agua potable (110 s). La wiki de estado de Overpass (leída por resumen de `WebFetch`, 2026-11-27) recoge timeouts recientes y un bloqueo temporal de rangos de Azure y AWS | Edición continua | Licencia ODbL, «compartir igual». Cita de la respuesta de Overpass, leída el 2026-11-27: «The data is made available under ODbL». `https://www.openstreetmap.org/copyright` no se leyó en esta pasada (`asumido`) | `bloqueado` (Overpass saturado o sin respuesta; no hay recuento) | **Interno**, como señal (ya así en el resumen de la historia 0021). Para un recuento hay que reintentar en otro momento o con instancia propia, como pide la propia página de Overpass para uso automatizado | Fuente (`natural=spring`, `amenity=drinking_water`), mirador (`tourism=viewpoint`), ermita y yacimiento (`historic=*`), núcleo (`place=*`) |
+
+**Canales consultados sin lectura completa.** El PDF de la BTN25 pesa 15 MB: `WebFetch` no lo leyó y se extrajo con un lector propio (zlib) del mismo PDF; la especificación leída es la v1.0 de 2009. Las tablas de scne.es se leyeron por resumen de `WebFetch`, no literalmente: antes de citar la atribución del NGBE o de la BTN25 hay que copiarla del texto de la tabla. Ninguna fila de esta sección se apoya en un resultado de búsqueda sin abrir el documento primario.
+
+### Recomendación
+
+- **Usar primero el NGBE.** Es la única fuente de las cuatro que hoy es `verificada`, con licencia CC BY 4.0 leída y cobertura contada dentro del término (2 fuentes, 2 ermitas y el núcleo). Permite **Publicar** con atribución. Limitación: es un topónimo. Una «Fuente de la Salceda» en el registro no demuestra que el manantial exista ni que dé acceso; eso lo tendría que confirmar una comprobación posterior sobre ortofoto o en el terreno. El NGBE no trae **miradores** ni **yacimientos** en el término.
+- **Descartar primero el BIC/Patrimonio para este fin.** Aporta 4 registros en Colmenar y sin coordenadas: sirve como contexto de un bien protegido, no como sitio de acceso.
+- **Mantener OSM como `Interno` y reintentarlo.** Es la única fuente con miradores y yacimientos etiquetados de forma abierta, pero no hay recuento. Mientras Overpass esté saturado, no hay que construir nada que dependa de ella, y el uso automatizado desde CI sigue siendo un riesgo de bloqueo.
+- **BTN25 en espera.** Sus datos ya están en el NGBE. Solo hace falta si se necesita la geometría de los puntos, y entonces hay que confirmar la fila y la atribución de la tabla de productos.
+
+Tipos de sitio que queda sin cubrir con fuentes `verificadas`: **mirador** y **yacimiento** en el término (el NGBE no los trae y el BIC solo tiene una zona arqueológica sin posición).
+
+---
+
 ## Vuelos históricos de la Comunidad de Madrid — 1956, 1975, 1991 (IDEM, historia #206)
 
 Verificado el 2026-11-27 (15:49–15:53 UTC) con peticiones reales desde GitHub Actions, con `User-Agent: paso-comun-verificacion/0.1 (proyecto abierto sin animo de lucro)`. Cierra, para la Comunidad de Madrid, el hueco 1957–1997 que la sección del WMS histórico del IGN daba por perdido (el IGN solo sirve AMS 1956-57 y PNOA desde 1997). Fixtures en `tests/fixtures/idem_vuelos/`; ninguna imagen va a `site/`.
@@ -1008,7 +1057,7 @@ El WMS entrega una imagen ya georreferenciada por el IGN, así que «georreferen
 | 0582 Getafe | 1964 | Chinchón (3 de 20 puntos, borde) | **Descartar por ahora**: solo toca el borde norte de un término; el 1963 de la 0606 ya cubre esa zona. |
 
 Límites: el año de la minuta no es el año del camino; la resolución efectiva es de 1 a 2 m/px; el original no se puede bajar sin captcha. La recomendación no mide el desajuste frente a PNOA (queda para la historia hermana de georreferenciación).
-
+>
 ---
 
 ## Resumen de fuentes no verificadas en esta pasada

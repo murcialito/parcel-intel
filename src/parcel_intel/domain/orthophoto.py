@@ -11,6 +11,9 @@ HistoricalVintage = (
         "Nacional_1981-1986",
         "SIGPAC",
         "OLISTAT",
+        "CM_1956",
+        "CM_1975",
+        "CM_1991",
     ]
 )
 Vintage = Literal["actual"] | HistoricalVintage
