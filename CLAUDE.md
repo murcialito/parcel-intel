@@ -103,6 +103,17 @@ uv run python -m parcel_intel.cli.main publicar-discrepancias --ambito
 # falla, si hay más de 400 ventanas (antes de pedir nada) o si el manifiesto pasa de 3.000.000 bytes. --sin-red: solo desde la caché.
 uv run python -m parcel_intel.cli.main imagenes-comparacion --municipio 28043 --tramos ruta/tramos.geojson [--sin-red] [--cache data/raw]
 
+# Georreferenciación histórica por unidad (historia #139, ADR 0043/0044): entrada humana en curated/historico/<unit_id>/ (unidad.json,
+# puntos_control.csv, trazados.geojson) e imagen de trabajo en data/raw/ign_planimetrias/<unit_id>.png (+ .provenance.json). Opciones, con
+# sus valores por defecto: --curated curated/historico, --cache data/raw/ign_planimetrias, --sin-red (solo desde la caché).
+# `ajuste` no usa la base: imprime candidatos, retenidos, cuadrantes, RMSE, residuo máximo, RMSE LOO, umbrales, veredicto y una línea por punto
+# (puntos_sha256 es lo que se copia en control_points_sha256 al aprobar); sale con 1 si el veredicto es negativo.
+# `cargar` (requiere PostGIS) hace lo mismo y, si todo es válido, sincroniza en una transacción solo los trazados aprobados (insertados,
+# actualizados, sin_cambios, retirados, propuestos, rechazados, extrapolado <trail_id>, atribucion). Sale con 1 sin escribir nada si algo falla.
+# Ejemplos sobre la fixture sintética (la imagen debe estar en la caché; los tests la copian de tests/fixtures/caminos/planimetrias/):
+uv run python -m parcel_intel.cli.main historico ajuste 280075-w1 --curated tests/fixtures/caminos/planimetrias/historico --cache data/raw/ign_planimetrias --sin-red
+uv run python -m parcel_intel.cli.main historico cargar 280075-w1 --curated tests/fixtures/caminos/planimetrias/historico --cache data/raw/ign_planimetrias --sin-red
+
 # Evidencia de los trazados históricos propuestos de una unidad (historia #140, ADR 0043): un PNG de dos paneles por trazado `propuesto`
 # (la planimetría con el trazado; PNOA en PNG con el trazado transformado y su banda de ± 2 × LOO) y su .procedencia.json, en
 # <curated>/<unit_id>/evidencia/. Los aprobados y rechazados no se tocan. Sin base de datos. Sale con 1, sin escribir, si la unidad no es
