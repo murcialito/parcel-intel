@@ -48,6 +48,7 @@ from parcel_intel.adapters.ign_admin_units import client as ign_client
 from parcel_intel.adapters.ign_historic import HttpGet as HistoricHttpGet
 from parcel_intel.adapters.ign_historic import IgnHistoricImageAdapter
 from parcel_intel.adapters.ign_historic import default_http_get as historic_default_http_get
+from parcel_intel.adapters.kit_campo import FileFieldKitSink, PublishedLayerFileReader
 from parcel_intel.adapters.livestock_trails import client as livestock_client
 from parcel_intel.adapters.livestock_trails.adapter import LivestockTrailAdapter
 from parcel_intel.adapters.pnoa import client as pnoa_client
@@ -106,6 +107,7 @@ from parcel_intel.application.cut_signals import CadastralParcelSignalProvider
 from parcel_intel.application.detect_cut_candidates import DetectCutCandidatesUseCase
 from parcel_intel.application.detect_discrepancies import DetectDiscrepanciesUseCase
 from parcel_intel.application.evaluate_candidates import EvaluateCandidatesUseCase
+from parcel_intel.application.kit_campo import PublishFieldKitUseCase
 from parcel_intel.application.list_candidate_reviews import (
     ListCandidateReviewsUseCase,
     MunicipalReviewListing,
@@ -167,6 +169,7 @@ from parcel_intel.ports.errors import (
     WorkingImageUnavailableError,
 )
 from parcel_intel.ports.georeference_repository import GeoreferenceRepositoryPort
+from parcel_intel.ports.kit_campo import KitSinkError
 from parcel_intel.ports.municipal_boundary import MunicipalBoundaryPort
 
 _LAYER_CHOICES = ["dph_cauce", "via_pecuaria", "red_natura_plan"]
@@ -1194,6 +1197,43 @@ def _publicar_candidatos(args: argparse.Namespace) -> int:
     return 0
 
 
+def build_field_kit_use_case(input_dir: Path, output_dir: Path) -> PublishFieldKitUseCase:
+    """Composition root de `publicar-kit-campo` (historia #213): lee lo ya publicado en
+    `input_dir` (normalmente `site/datos`) y escribe en `output_dir`. Sin red ni LLM."""
+    return PublishFieldKitUseCase(
+        source=PublishedLayerFileReader(input_dir),
+        sink=FileFieldKitSink(output_dir, REPOSITORY_URL),
+    )
+
+
+def _publicar_kit_campo(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        print("Indica --municipio <INE> (repetible) o --ambito.", file=sys.stderr)
+        return 2
+    use_case = build_field_kit_use_case(args.entrada, args.salida)
+    try:
+        result = use_case.execute(codes, _today())
+    except (KitSinkError, OSError) as error:
+        print(f"ERROR al escribir el kit: {error}", file=sys.stderr)
+        print(f"No se ha escrito nada en {args.salida}.", file=sys.stderr)
+        return 1
+    for failure in result.failures:
+        print(f"ERROR {failure.municipality_code}: {failure.reason}", file=sys.stderr)
+    if result.failures:
+        print(f"No se ha escrito nada en {args.salida}.", file=sys.stderr)
+        return 1
+    for code, included, missing in result.included:
+        print(
+            f"kit {code}: capas incluidas: {', '.join(included)}; "
+            f"capas que faltaban: {', '.join(missing) or 'ninguna'}"
+        )
+    for published in result.published:
+        print(f"publicado {args.salida / published.path} {published.size_bytes} bytes")
+    return 0
+
+
 def build_comparison_use_case(
     cache_dir: Path,
     output_dir: Path,
@@ -1766,6 +1806,31 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio publicado del sitio",
     )
     indicios_parser.set_defaults(func=_publicar_discrepancias)
+
+    kit_parser = subparsers.add_parser(
+        "publicar-kit-campo",
+        help="Exporta los tramos publicados de un municipio a GPX y KML en site/datos/kit",
+    )
+    kit_parser.add_argument(
+        "--municipio",
+        type=_municipality_code,
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible)",
+    )
+    kit_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito"
+    )
+    kit_parser.add_argument(
+        "--entrada",
+        type=Path,
+        default=Path("site/datos"),
+        help="Directorio publicado con las capas (site/datos)",
+    )
+    kit_parser.add_argument(
+        "--salida", type=Path, default=Path("site/datos"), help="Directorio publicado del sitio"
+    )
+    kit_parser.set_defaults(func=_publicar_kit_campo)
 
     tramos_parser = subparsers.add_parser(
         "publicar-candidatos",

@@ -774,6 +774,13 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: una captura de una fixture sintética sobre el mapa real (un tramo inventado con texto de indicio en un punto de Colmenar) parece un hallazgo real. Esas capturas se enseñan en local y no se suben a `docs/`.
   - **Aplica a**: diseño (capturas de la PR).
 
+## [2026-11-27] Historia #213 — Kit de campo GPX/KML
+
+- **Lección**: un exportador de lo ya publicado (GPX/KML) no copia propiedades: construye cada descripción solo desde la lista blanca de la ficha y falla si llega una clave de más o una de titularidad/catastral, incluso anidada. El aviso se exige por elemento y en la procedencia de cada capa; un exportador que «omite lo que no encuentra» deja un tramo sin aviso (lecciones 95 y 169).
+  - **Aplica a**: implementación de cualquier exportación derivada de `site/datos/` (descargas, enlaces, QField).
+
+- **Lección**: para que una salida con fecha sea reproducible byte a byte, la fecha entra por parámetro (el CLI la lee una vez) y nunca la lee el adapter; `xml.etree` con `ET.indent` y orden de entrada fijo basta, sin librerías nuevas.
+  - **Aplica a**: implementación (ficheros publicados que llevan «fecha de generación»).
 ## [2026-11-27] Historia #206 — Vuelos históricos de la Comunidad de Madrid
 
 - **Lección**: un servicio de imágenes responde **200 con una tesela blanca** fuera de su cobertura (la IDEM: 854 bytes, un solo nivel de gris), igual que el IGN. «200 + `image/png`» no prueba que haya imagen: se decodifica y se mide varianza y niveles distintos (en blanco si varianza < 1). Cualquier adapter de #207 debe aplicarlo a cada respuesta.
