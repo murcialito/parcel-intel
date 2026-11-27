@@ -435,6 +435,7 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: una línea de validación no puede dibujarse sobre la misma capa pública que alimenta a los candidatos (vías pecuarias): casaría casi seguro y inflaría la cobertura. Y que un nombre parezca equivalente («Canal de las Aves» ≈ «Caz de las Aves») no es localizar: la fuente de prensa decía que el camino NO conecta con la vía pecuaria. Si la fuente no da trazado ni coordenadas y no hay fuente independiente (ortofoto, plano del deslinde), el caso queda sin `tramo_linea` y, si ninguno del ámbito es localizable, se escala al fundador (CA4).
   - **Aplica a**: implementación y revisión (casos de validación con geometría).
+
 ## [2026-11-26] Historia #120 — ADR de imágenes de comparación
 
 - **Lección**: si un ADR trae una tabla de oráculos y las constantes de las que sale, el test de aceptación no se limita a comprobar propiedades de la tabla (lado múltiplo de 32, píxeles = 2·lado). Recalcula cada fila con una implementación de referencia mínima que **lee las constantes del texto del ADR** y exige igualdad exacta. Así, si alguien cambia una constante (margen, escalón, tope) sin rehacer la tabla, el test falla antes de que #121 programe contra oráculos caducados. La referencia vive solo en el test y no sustituye a la implementación de producción.
