@@ -1,0 +1,24 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis version="3.34.0" projectname="Kit de campo - Paso Común (ejemplo)">
+ <title>Kit de campo - Paso Común (ejemplo)</title>
+ <projectCrs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></projectCrs>
+ <projectlayers>
+  <maplayer type="vector" geometry="Point">
+   <id>avisos_ejemplo</id>
+   <datasource>./kit_campo_ejemplo.gpkg|layername=avisos</datasource>
+   <layername>Avisos de campo</layername>
+   <provider>ogr</provider>
+   <srs><spatialrefsys><authid>EPSG:4326</authid></spatialrefsys></srs>
+   <fieldConfiguration>
+    <field name="fid" configurationFlags="None"><editWidget type="TextEdit"/></field>
+    <field name="tipo_obstaculo" configurationFlags="None"><editWidget type="ValueMap"><config><Option type="Map"><Option name="map" type="List"><Option type="Map"><Option name="Cancela" type="QString" value="cancela"/></Option><Option type="Map"><Option name="Valla" type="QString" value="valla"/></Option><Option type="Map"><Option name="Cadena" type="QString" value="cadena"/></Option><Option type="Map"><Option name="Zanja" type="QString" value="zanja"/></Option><Option type="Map"><Option name="Bloques" type="QString" value="bloques"/></Option><Option type="Map"><Option name="Cartel de prohibido el paso" type="QString" value="cartel_prohibido"/></Option><Option type="Map"><Option name="Arado" type="QString" value="arado"/></Option><Option type="Map"><Option name="Vegetación" type="QString" value="vegetacion"/></Option></Option></Option></config></editWidget></field>
+    <field name="estado" configurationFlags="None"><editWidget type="ValueMap"><config><Option type="Map"><Option name="map" type="List"><Option type="Map"><Option name="Practicable" type="QString" value="practicable"/></Option><Option type="Map"><Option name="Tapado por la vegetación" type="QString" value="tapado_vegetacion"/></Option><Option type="Map"><Option name="Con obstáculo" type="QString" value="con_obstaculo"/></Option><Option type="Map"><Option name="Deteriorado por máquinas" type="QString" value="deteriorado_maquinas"/></Option></Option></Option></config></editWidget></field>
+    <field name="notas" configurationFlags="None"><editWidget type="TextEdit"/></field>
+    <field name="fecha" configurationFlags="None"><editWidget type="TextEdit"/></field>
+   </fieldConfiguration>
+   <attributeEditorForm/>
+  </maplayer>
+ </projectlayers>
+ <layer-tree-group><layer-tree-layer id="avisos_ejemplo" name="Avisos de campo" checked="Qt::Checked"/></layer-tree-group>
+ <projectMetadata><rights>Datos de Paso Común. Atribución de las capas: ver NOTICE (CC BY 4.0 de IDEM e IGN).</rights></projectMetadata>
+</qgis>
