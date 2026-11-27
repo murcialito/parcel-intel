@@ -817,3 +817,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: el filtro `BBOX` de una capa de recintos grandes trae montes de municipios vecinos y, al recortar con el límite del IGN, deja astillas de unos m² por la diferencia entre líneas municipales (Chinchón 122 m², Belmonte 1 920 m²). Se anotan en `REGISTRY.md` y no se filtran hasta decidir un umbral de publicación.
   - **Aplica a**: implementación (#224 al publicar la capa).
+## [2026-11-27] Historia #207 — Adapter de los vuelos históricos de Madrid
+
+- **Lección**: el WMS de la IDEM responde 200 con un PNG blanco fuera de cobertura (y la URL de `GetMap` que anuncia su `GetCapabilities` da 404); un `ServiceException` XML también llega con 200. El filtro fiable es validar la firma PNG antes de cachear y medir la varianza de gris (media de R, G, B) después. No hay Pillow en el proyecto: se reutiliza `adapters/evidence/png.py::decode_png`. Los identificadores `CM_*` son distintos de `AMS_1956-1957` del IGN: cada adapter rechaza con `InvalidHistoricalVintageError` los vuelos que no son suyos, y elegir adapter por vuelo es cosa de la composición (#208).
+  - **Aplica a**: implementación (#208 y cualquier otra fuente de ortofoto por WMS).
+
