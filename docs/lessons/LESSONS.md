@@ -855,6 +855,13 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: un proyecto QGIS/QField se puede generar sin QGIS (GeoPackage con `sqlite3` + `.qgs` XML a mano), pero eso solo prueba que el fichero es válido como SQLite y XML, no que QField lo abra. Dejar la apertura real como reserva `asumido` en `REGISTRY.md` y pedirla a quien tenga el móvil. `WebFetch` devuelve 404 en varias rutas de `docs.qfield.org` que salen en buscadores; hay que partir de las que enlaza la propia documentación.
   - **Aplica a**: la historia hija que genere el proyecto real por municipio | revisión.
 
+## [2026-11-27] Historia #223 — Kit de campo en el visor
+
+- **Lección**: los tests de #166, #171 y #185 fijan el marcado y `config.js` con regex frágiles: `<section class="pc-cuerpo">…</section>` no admite otro `<section>` dentro (cierra en el primero) y `id: "candidatos",\s*titulo:` exige que `titulo` siga a `id`. Una sección nueva del panel va en un `<div role="group">` y las claves nuevas de una capa (`kitNombre`) van después de `nombre`, no entre `id` y `titulo`. `grep` de esos patrones en `tests/acceptance/` antes de tocar `index.html` o `config.js`.
+  - **Aplica a**: implementación (cambios de `index.html` y de `config.js` del visor).
+
+- **Lección**: un recurso opcional del visor (el índice del kit) se carga en paralelo al índice principal con un `try/catch` propio que solo escribe en `console`, y el arranque lo espera, para que la sección salga ya al elegir municipio sin carreras. La validación de ese índice descarta entradas y claves (no lanza) y deriva el texto de las capas de `config.js`, nunca del dato.
+  - **Aplica a**: implementación (otros ficheros opcionales publicados en `site/datos/`, como el proyecto de campo de #222).
 ## [2026-11-27] Historia #222 — Proyecto de QField con formulario de incidencia
 
 - **Lección**: para generar un GeoPackage reproducible byte a byte basta construirlo en `sqlite3.connect(":memory:")` y volcar `connection.serialize()` (sin ficheros temporales ni marcas de tiempo del sistema); el ZIP necesita `ZipInfo` con fecha fija (1980-01-01), orden de nombres y `external_attr` fijos. Una función que añade un campo opcional a un índice público compartido (`kit/indice.json`) debe conservar lo que otro comando escribió en él, y por defecto no tocarlo si la publicación está condicionada a una comprobación manual pendiente.
@@ -868,4 +875,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: la capa derivada de vías pecuarias (#83) solo trae el área de la pieza recortada, no el `area_m2`/`length_m` del tramo completo de IDEM, y sin ellos no hay anchura oficial. Un cálculo que parta de la anchura oficial debe leer `MunicipalLivestockTrailLayer` (caché cruda de IDEM), no el GeoJSON derivado. Además, con la anchura catastral recortada a la franja, `A / W` es la fracción de la franja cubierta por parcelas VT: nunca supera 1, así que «A mayor que W» no existe como caso. Y `ruff format` sobre todo `src/` reformatea ficheros ajenos a la historia: formatear solo los ficheros propios.
   - **Aplica a**: implementación (señales de anchura, ventanas a lo largo del eje) | revisión.
+## [2026-11-27] Historia #279 — Catálogo de caminos de Cáceres
+
+- **Lección**: la URL de descarga que cita una ficha de datos.gob.es puede estar muerta o devolver la portada HTML con `200`; el recurso real está en el registro del propio portal (`package_show` de CKAN). Antes de dar un fichero por descargado, comprobar que es JSON (`head -c`), y si no lo es, no guardarlo con la extensión del dato.
+  - **Causa**: el endpoint `GetData?...format=geojson` de la ficha devolvió la portada de `opendata.caceres.es` (6.619 bytes, `text/html`) con código 200 tras una redirección a HTTPS con cadena de certificados incompleta. Los datos reales están en `ide.caceres.es` (WFS), que no respondió desde GitHub Actions: el contenido quedó `pendiente-local`.
+  - **Aplica a**: refinador (no citar una licencia o un formato de una ficha sin abrir el recurso) | implementación (un `200` no prueba que haya dato).
 

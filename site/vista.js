@@ -197,6 +197,47 @@ export function crearVista(documento, textos) {
     if (radio) radio.checked = true;
   }
 
+  // --- kit de campo (historia #223) ----------------------------------------------------
+  // Sección del panel con los enlaces de descarga del municipio actual. `null` la oculta y la
+  // vacía. Todo con createElement/textContent; el `href` viene de `config.kit.base` + una ruta ya
+  // validada por el controlador, nunca de una URL del dato.
+  function ponerKit(modelo) {
+    const seccion = porId("kit-campo");
+    const cuerpo = porId("kit-cuerpo");
+    cuerpo.replaceChildren();
+    if (modelo === null) {
+      seccion.setAttribute("hidden", "");
+      return;
+    }
+    const aviso = crear("p", "pc-kit__aviso");
+    aviso.appendChild(
+      crear("strong", "", textos.kitAvisoTitulo.replaceAll("{municipio}", modelo.municipio)),
+    );
+    aviso.appendChild(crear("span", "", ` ${textos.kitAvisoCuerpo}`));
+    cuerpo.appendChild(aviso);
+    cuerpo.appendChild(parrafo("ficha-aviso", textos.avisoIndicio));
+
+    const lista = crear("ul", "pc-kit__enlaces");
+    for (const e of modelo.enlaces) {
+      const item = documento.createElement("li");
+      const enlace = crear("a", "pc-boton", e.rotulo);
+      enlace.setAttribute("href", e.href);
+      enlace.setAttribute("download", e.archivo);
+      item.appendChild(enlace);
+      lista.appendChild(item);
+    }
+    cuerpo.appendChild(lista);
+    if (modelo.capas.length > 0) {
+      cuerpo.appendChild(parrafo("pc-kit__capas", `${textos.kitIncluye}: ${modelo.capas.join(", ")}.`));
+    }
+    if (modelo.capasNoPublicadas.length > 0) {
+      cuerpo.appendChild(
+        parrafo("pc-kit__capas", `${textos.kitSinPublicar}: ${modelo.capasNoPublicadas.join(", ")}.`),
+      );
+    }
+    seccion.removeAttribute("hidden");
+  }
+
   // --- mensajes ------------------------------------------------------------------------
   function mostrarMensaje(texto) {
     mensaje.textContent = texto;
@@ -487,6 +528,7 @@ export function crearVista(documento, textos) {
     ponerEstadoCapa,
     ponerResumenCapa,
     ponerRecuentoCapa,
+    ponerKit,
     marcarCapa,
     ponerFondo,
     mostrarMensaje,
