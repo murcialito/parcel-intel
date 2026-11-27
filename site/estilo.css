@@ -42,6 +42,8 @@ a { color: var(--color-accent); }
   min-height: 24rem;
   background-color: var(--fondo-mapa);
 }
+/* La ortofoto se atenúa en modo oscuro (token de #114). */
+#mapa .leaflet-tile-pane { filter: var(--map-tiles-filter); }
 .campo label { display: block; font-weight: var(--weight-bold); }
 .campo select {
   width: 100%;
@@ -64,9 +66,9 @@ legend { font-weight: var(--weight-bold); }
   vertical-align: middle;
   border-radius: 2px;
 }
-.muestra-vias_pecuarias { background: rgba(251, 146, 60, .5); border: 2px solid #c2410c; }
-.muestra-camino_actual { height: .3rem; background: #fde047; box-shadow: 0 0 0 1px #444; }
-.muestra-discrepancias { background: rgba(167, 139, 250, .3); border: 2px dashed #7c3aed; }
+.muestra-vias_pecuarias { background: var(--capa-vias); border: 2px solid var(--capa-vias-halo); }
+.muestra-camino_actual { height: .3rem; background: var(--capa-camino); box-shadow: 0 0 0 1px var(--capa-camino-halo); }
+.muestra-discrepancias { background: transparent; border: 3px dotted var(--capa-indicio); box-shadow: 0 0 0 1px var(--capa-indicio-halo); }
 .mensaje:not(:empty) {
   color: var(--error);
   border-left: 3px solid var(--error);

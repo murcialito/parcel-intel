@@ -22,7 +22,8 @@ ROOT = Path(__file__).resolve().parents[2]
 SITE = ROOT / "site"
 TEST_FILE = Path(__file__).with_name("visor.test.mjs")
 FIXTURES = ROOT / "tests" / "fixtures" / "visor" / "datos"
-MODULOS = ("config.js", "controlador.js", "mapa.js", "vista.js")
+DISENO = ROOT / "docs" / "design-system" / "site" / "js" / "estilos-capas.js"
+MODULOS = ("config.js", "controlador.js", "estilos-capas.js", "mapa.js", "vista.js")
 
 
 @dataclass(frozen=True)
@@ -55,6 +56,8 @@ def run_node_tests(pattern: str, workdir: Path) -> NodeResult:
         "VISOR_DIR": str(copia),
         "VISOR_FIXTURES": str(FIXTURES),
         "VISOR_DATOS": str(SITE / "datos"),
+        # Original del sistema de diseño, contra el que se compara estilos-capas.js (#165 CA1).
+        "VISOR_DISENO": str(DISENO),
         "VISOR_REFCAT_RE": CADASTRAL_REFERENCE_RE.pattern,
     }
     proceso = subprocess.run(

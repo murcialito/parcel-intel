@@ -33,13 +33,9 @@ export const CONFIG = Object.freeze({
       atribucion: "CC BY 4.0 Comunidad de Madrid",
       propiedadNombre: "nombre",
       tipo: "poligono",
-      estilo: Object.freeze({
-        color: "#c2410c",
-        weight: 2,
-        opacity: 1,
-        fillColor: "#fb923c",
-        fillOpacity: 0.35,
-      }),
+      // Los colores y trazos viven en estilos-capas.js (#165); aquí solo se nombra la clave.
+      estilo: Object.freeze({ clave: "viasPecuarias" }),
+      orden: 10,
     }),
     Object.freeze({
       id: "camino_actual",
@@ -48,11 +44,12 @@ export const CONFIG = Object.freeze({
       atribucion: "Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional",
       propiedadNombre: null,
       tipo: "linea",
-      estilo: Object.freeze({ color: "#fde047", weight: 3, opacity: 0.95 }),
+      estilo: Object.freeze({ clave: "caminoActual" }),
+      orden: 30,
     }),
     // Historia #95: indicios de discrepancia publicados por #94 (ADR 0044). Nace apagada: un
-    // indicio no debe ser lo primero que se lea del mapa. Trazo discontinuo para no confundirla
-    // con una vía pecuaria ni con el camino actual.
+    // indicio no debe ser lo primero que se lea del mapa. Su trazo punteado la distingue
+    // de una vía pecuaria y del camino actual.
     Object.freeze({
       id: "discrepancias",
       titulo: "Indicios a verificar (no son un dictamen)",
@@ -61,14 +58,17 @@ export const CONFIG = Object.freeze({
       propiedadNombre: null,
       tipo: "indicio",
       visibleInicial: false,
+      // Confianza ausente o desconocida: el nivel menos enfático, no se oculta el indicio.
       estilo: Object.freeze({
-        color: "#7c3aed",
-        weight: 3,
-        opacity: 1,
-        dashArray: "8 6",
-        fillColor: "#a78bfa",
-        fillOpacity: 0.2,
+        porPropiedad: "confianza",
+        claves: Object.freeze({
+          baja: "indicioBaja",
+          media: "indicioMedia",
+          alta: "indicioAlta",
+        }),
+        defecto: "indicioBaja",
       }),
+      orden: 40,
     }),
   ]),
 

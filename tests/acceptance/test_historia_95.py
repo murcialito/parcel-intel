@@ -159,7 +159,13 @@ def test_ca11_sitio_completo_leaflet_solo_en_mapa_js_y_nada_de_innerhtml() -> No
     html = _html()
     assert 'id="capa-discrepancias"' in html
     assert 'id="estado-discrepancias"' in html
-    assert not re.search(r"^\s*import\b", (SITE / "mapa.js").read_text("utf-8"), re.MULTILINE)
+    # Historia #165: mapa.js importa solo el módulo puro de estilos, nunca otro del visor.
+    importados = re.findall(
+        r"^\s*import\b.*?from\s+[\"']([^\"']+)[\"']",
+        (SITE / "mapa.js").read_text("utf-8"),
+        re.MULTILINE,
+    )
+    assert importados == ["./estilos-capas.js"]
 
 
 def test_ca12_cambiar_de_municipio_quita_los_indicios_y_manda_la_ultima_peticion(

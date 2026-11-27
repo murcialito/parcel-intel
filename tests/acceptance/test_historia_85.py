@@ -210,7 +210,14 @@ def test_ca1_recursos_locales_y_solo_teselas_ign_como_host_externo(tmp_path: Pat
             if url.startswith("//"):
                 continue  # comentario de línea
             assert url.startswith(WMTS_PERMITIDO), f"{modulo.name}: {url}"
-    assert importados == {"config.js", "controlador.js", "mapa.js", "vista.js"}, importados
+    # Historia #165: mapa.js y app.js importan además estilos-capas.js (módulo puro).
+    assert importados == {
+        "config.js",
+        "controlador.js",
+        "estilos-capas.js",
+        "mapa.js",
+        "vista.js",
+    }, importados
 
 
 def test_ca2_selector_con_los_municipios_del_indice_y_encuadre(tmp_path: Path) -> None:
