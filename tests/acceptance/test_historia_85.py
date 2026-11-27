@@ -175,7 +175,8 @@ def test_ca1_recursos_locales_y_solo_teselas_ign_como_host_externo(tmp_path: Pat
     assert scripts == ["vendor/leaflet/leaflet.js", "app.js"], scripts
     tipos = {attrs.get("src"): attrs.get("type") for tag, attrs in html.tags if tag == "script"}
     assert tipos["app.js"] == "module"
-    assert hojas == ["vendor/leaflet/leaflet.css", "estilo.css"], hojas
+    # #114 añade los tokens de diseño antes de estilo.css.
+    assert hojas == ["vendor/leaflet/leaflet.css", "css/tokens.css", "estilo.css"], hojas
     # Los <a href> externos son solo al repositorio y a las licencias.
     enlaces = [a.get("href") or "" for t, a in html.tags if t == "a"]
     for enlace in enlaces:
