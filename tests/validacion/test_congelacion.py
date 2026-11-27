@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.validacion.congelacion import (
+from parcel_intel.adapters.validation_cases.congelacion import (
     Congelado,
     ErrorCongelacion,
     calcular_huella,

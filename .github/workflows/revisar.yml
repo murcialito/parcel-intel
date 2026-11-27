@@ -7,13 +7,15 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
-concurrency:
-  group: revisar-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
-
 jobs:
   revision:
     if: startsWith(github.event.pull_request.head.ref, 'claude/') && !github.event.pull_request.draft
+    # concurrency a nivel de job y no de workflow: un job que se salta por el `if` (evento de una PR
+    # aún en borrador) no entra en el grupo y no cancela la revisión real. A nivel de workflow, el
+    # push y el `gh pr ready` casi simultáneos dejaron la PR #131 sin revisión (#115, 2026-11-27).
+    concurrency:
+      group: revisar-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:

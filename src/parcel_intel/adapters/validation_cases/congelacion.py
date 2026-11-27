@@ -1,6 +1,6 @@
 """Congelación del conjunto de validación (`docs/validacion/casos.json`). Historia #54.
 
-Solo stdlib. Es herramienta de prueba, como `casos_schema`, y reutiliza su validador.
+Solo stdlib. Vive en producción (historia #125) y reutiliza el validador de `casos_schema`.
 
 La huella es el SHA-256 de los bytes exactos de `casos.json`: cualquier byte distinto la cambia.
 Cada congelación vive en un fichero `CONGELADO.md` (v1) o `CONGELADO-v<N>.md` (N >= 2); la versión
@@ -14,7 +14,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from tests.validacion.casos_schema import validar_casos
+from parcel_intel.adapters.validation_cases.casos_schema import validar_casos
 
 MINIMO_TOTAL = 6
 MINIMO_AMBITO = 2

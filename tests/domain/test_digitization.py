@@ -9,6 +9,7 @@ from parcel_intel.domain.digitization import (
     InvalidDigitizationError,
     StaleApprovalError,
     check_approvals_current,
+    check_trail_municipalities,
     check_trails_in_image,
     to_historic_trail,
 )
@@ -206,6 +207,22 @@ def test_to_historic_trail_solo_acepta_aprobados() -> None:
     for other in (proposed, rejected):
         with pytest.raises(ValueError, match="approved"):
             to_historic_trail(unit(), other)
+
+
+def test_to_historic_trail_usa_el_municipio_del_trazado_o_el_de_la_unidad() -> None:
+    assert to_historic_trail(unit(), trail()).municipality_code == "28043"
+    assert to_historic_trail(unit(), trail(municipality_code="28052")).municipality_code == "28052"
+
+
+def test_municipality_code_mal_formado_se_rechaza() -> None:
+    with pytest.raises(InvalidDigitizationError, match="municipality_code"):
+        trail(municipality_code="2805")
+
+
+def test_check_trail_municipalities_rechaza_fuera_del_ambito_y_admite_none() -> None:
+    check_trail_municipalities([trail(), trail(trail_id="T002", municipality_code="28043")])
+    with pytest.raises(InvalidDigitizationError, match=r"T003 \(28079\).*no se carga nada"):
+        check_trail_municipalities([trail(trail_id="T003", municipality_code="28079")])
 
 
 def test_to_historic_trail_degenerado_tras_redondear() -> None:

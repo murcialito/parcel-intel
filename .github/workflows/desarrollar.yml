@@ -193,6 +193,23 @@ jobs:
           REPO: ${{ github.repository }}
         run: .github/scripts/ramas_en_conflicto.sh
 
+  correcciones-pendientes:
+    # Respaldo del job corregir: relanza las correcciones cuyo evento de etiqueta se perdió (PR en
+    # conflicto en ese momento, #114). También lo hace Fusionar tras cada CI o Revisar.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      issues: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: .github/scripts/correcciones_pendientes.sh
+
   corregir:
     # Solo lanza corregir.yml desde main. Este job se ejecuta con el workflow de la versión de la PR,
     # y claude-code-action se salta en silencio si no coincide con main: aquí no hay agente.

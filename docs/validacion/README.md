@@ -35,7 +35,7 @@ El fichero es un objeto con una lista `casos`. Cada caso tiene estos campos:
 
 ## Validación
 
-El validador es `tests/validacion/casos_schema.py` (`validar_casos`). Para comprobar el fichero:
+El validador es `src/parcel_intel/adapters/validation_cases/casos_schema.py` (`validar_casos`). Para comprobar el fichero:
 
 ```bash
 uv run pytest tests/validacion tests/acceptance/test_historia_51.py

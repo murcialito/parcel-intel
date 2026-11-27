@@ -110,6 +110,13 @@ uv run python -m parcel_intel.cli.main candidatos-corte --ambito
 # falla, si hay más de 400 ventanas (antes de pedir nada) o si el manifiesto pasa de 3.000.000 bytes. --sin-red: solo desde la caché.
 uv run python -m parcel_intel.cli.main imagenes-comparacion --municipio 28043 --tramos ruta/tramos.geojson [--sin-red] [--cache data/raw]
 
+# Medir los candidatos a corte (historia #111): ejecuta el arnés de #110 con MATCH_CRITERION_V1 sobre el conjunto de validación (casos.json,
+# con sus CONGELADO*.md en el mismo directorio) y los ficheros internos de candidatos (#128). Escribe el informe agregado en JSON (cobertura y
+# precisión —cota inferior— con sus recuentos, no evaluables con motivo, etiqueta, huella, fecha y versiones) y un resumen por stdout. Sin red.
+# Un municipio sin fichero de candidatos deja sus casos en sin_capas. Sale con 1, sin escribir, si casos.json no valida o un fichero de candidatos
+# es ilegible; con la huella distinta de la congelada no falla: avisa en stderr y marca el informe como «conjunto no congelado». Es un fichero de datos, no se publica.
+uv run python -m parcel_intel.cli.main medir-candidatos [--casos docs/validacion/casos.json] [--entrada data/derived/candidatos/interno] [--salida data/derived/validacion/medicion.json]
+
 # Georreferenciación histórica por unidad (historia #139, ADR 0043/0044): entrada humana en curated/historico/<unit_id>/ (unidad.json,
 # puntos_control.csv, trazados.geojson) e imagen de trabajo en data/raw/ign_planimetrias/<unit_id>.png (+ .provenance.json). Opciones, con
 # sus valores por defecto: --curated curated/historico, --cache data/raw/ign_planimetrias, --sin-red (solo desde la caché).
