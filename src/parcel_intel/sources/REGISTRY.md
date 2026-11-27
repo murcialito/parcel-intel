@@ -814,6 +814,74 @@ Las dos integraciones pendientes están en la #160.
   - `candidatos-corte`: **40 candidatos**. La señal `parcela_no_camino` tiene datos en todas las teselas (ninguna `sin_datos`).
   - Los 40 tienen la misma confianza, 0,415, porque solo hay una señal. Longitud: mínimo 50 m, mediana 153 m, máximo 1.259 m, 10,5 km en total.
 
+### Red asfaltada del IGN como contraparte (historia #183)
+
+ADR 0050. Misma fuente (`roadlink`, CC BY 4.0, #24) y mismo endpoint que #27; solo cambia el filtro: `filter=surfacecategory='paved'`. `camino-actual-municipios` escribe además `data/derived/camino_asfaltado/<ine>.geojson` (formato común, `fuente: ign_red_transporte`, `superficie: paved`), que **no se publica**: solo lo lee `discrepancias` como contraparte, nunca como sujeto. Estado: `confirmado`.
+
+Consulta real del **2026-11-27** con red (caché nueva en `data/raw`, límites del IGN, bbox del término con margen 2 m, EPSG:25830, `limit=500` y `offset`). Las cifras salen de pasar las respuestas íntegras por `RoadNetworkAdapter.query_roads(..., "paved")` y `ShapelyLineClipper` (lección #36):
+
+| INE | Municipio | `numberMatched` `paved` | `unpaved` (#27) + `paved` = sin filtro (#27) | Piezas en el término | `fictitious="true"` | Longitud (m) |
+| --- | --- | ---: | --- | ---: | ---: | ---: |
+| 28043 | Colmenar de Oreja | 2.222 | 1.774 + 2.222 = 3.996 ✔ | 1.184 | 1.077 | 166.382 |
+| 28013 | Aranjuez | 14.035 | 5.522 + 14.035 = 19.557 ✔ | 2.628 | 2.190 | 286.985 |
+| 28052 | Chinchón | 2.465 | 1.492 + 2.465 = 3.957 ✔ | 766 | 698 | 100.377 |
+| 28019 | Belmonte de Tajo | 608 | 523 + 608 = 1.131 ✔ | 308 | 279 | 27.178 |
+| 28170 | Villaconejos | 453 | 370 + 453 = 823 ✔ | 401 | 390 | 34.500 |
+| 28180 | Villarejo de Salvanés | 1.492 | 1.446 + 1.492 = 2.938 ✔ | 855 | 745 | 122.875 |
+| 28157 | Valdelaguna | 779 | 552 + 779 = 1.331 ✔ | 301 | 280 | 40.719 |
+
+- **No hay un tercer valor de `surfacecategory`** en ninguno de los 7 términos: `unpaved + paved` da el `numberMatched` sin filtro de #27.
+- A diferencia de los caminos, en la red asfaltada sí hay tramos `fictitious="false"` (107 de 1.184 piezas en Colmenar).
+- La misma pasada regeneró `camino_actual`: 893 tramos en Colmenar, y `publicar-capas --municipio 28043 --capa camino_actual` da un fichero idéntico al publicado salvo la `fecha_descarga` (caché nueva: 2026-11-27 en vez de 2026-11-26). `site/datos/camino_actual/` no cambia en esta historia (CA5).
+- **Fixtures**: `tests/fixtures/road_network/roadlink_paved_recorte_municipio_<ine>.json` son **recortes** de esa respuesta: 8 tramos reales por municipio, sin tocar geometría ni propiedades (2 que cruzan el límite, 2 de vecinos que no lo tocan, 2 no ficticios y el resto dentro), elegidos por orden de `id_tramo` con un script de Bloque 0 que pasa la respuesta por el adapter y el recorte; `numberMatched`/`numberReturned` ajustados a 8. Las fixtures de `tests/fixtures/asfaltado/` son **sintéticas** (ver su LEEME.md).
+
+#### Indicios antes y después, sin Catastro (Bloque 0, 2026-11-27)
+
+`discrepancias --ambito` y `publicar-discrepancias --ambito` sobre las capas reales recién regeneradas, sin `catastro_caminos` (Catastro ausente). «Antes» usa las mismas capas con `camino_asfaltado` vacío; reproduce **exactamente** los ids publicados hoy en `site/datos/discrepancias/` (que no tienen registros con Catastro).
+
+| INE | Municipio | Publicados antes | Publicados después | Ids que siguen | Antes → después por tipo |
+| --- | --- | ---: | ---: | ---: | --- |
+| 28043 | Colmenar de Oreja | 19 | 19 | 10 | `AUSENTE` 1 → 1, `DESPLAZAMIENTO` 2 → 2, `SOLAPE` 16 → 16 |
+| 28013 | Aranjuez | 27 | 27 | 14 | `AUSENTE` 5 → 3, `DESPLAZAMIENTO` 4 → 4, `SOLAPE` 18 → 20 |
+| 28052 | Chinchón | 19 | 17 | 11 | `AUSENTE` 4 → 3, `SOLAPE` 15 → 14 |
+| 28019 | Belmonte de Tajo | 0 | 0 | — | — |
+| 28170 | Villaconejos | 4 | 2 | 2 | `AUSENTE` 2 → 1, `SOLAPE` 2 → 1 |
+| 28180 | Villarejo de Salvanés | 5 | 5 | 2 | `DESPLAZAMIENTO` 1 → 1, `SOLAPE` 4 → 4 |
+| 28157 | Valdelaguna | 0 | 0 | — | — |
+
+Un `SOLAPE` reducido a su parte sin contraparte cambia de zona y por tanto de id: en Colmenar los 19 siguen siendo 19, pero 9 son `SOLAPE` nuevos más cortos (como mucho un 8,7 % de su zona a ≤ 15 m de asfalto) que sustituyen a 9 anteriores.
+
+**Los 3 indicios de Colmenar con ≥ 57 % de su zona a ≤ 15 m de un tramo `paved`** (medido con `shapely` sobre `site/datos/discrepancias/28043.geojson` de `main`, zonas reproyectadas a EPSG:25830; para un polígono, su contorno):
+
+| `public_id` | Tipo | Sobre asfalto | Después |
+| --- | --- | ---: | --- |
+| `228d09f82d066f2e` | `SOLAPE` vía → IGN | 82,2 % | deja de publicarse (reducido) |
+| `415956c18feed794` | `DESPLAZAMIENTO` IGN (sin asfaltar) → vía | 64,5 % | **sigue igual** |
+| `b1f47704c7f34945` | `SOLAPE` vía → IGN | 57,0 % | deja de publicarse (reducido) |
+
+`415956c18feed794` no cambia porque su sujeto es un camino **sin asfaltar** (`280430215621`) que corre a 24–40 m de la vía y a 13–25 m de una carretera; la vía, en ese tramo, no va por asfalto (1,9 % cubierta a ≤ 11,18 m). La red asfaltada no entra en esa comparación (su contraparte es la vía). Está abierto en el ADR 0050 y en la issue #183 para el fundador. Los otros tres que el arquitecto midió entre el 25 % y el 36 % (`58c697f68088debf`, `c6a7f6f2a943c5d9`, `a2d854c24b69ae92`) también se reducen.
+
+#### Paso local con Catastro (CA9 y CA13, `pendiente-local`)
+
+Pendiente de ejecutar en local (paso 11 del diseño de #183): `catastro-caminos --sin-red`, `vias-pecuarias-municipios --sin-red`, `camino-actual-municipios` (con red), `discrepancias --ambito`, `publicar-discrepancias --ambito`, `candidatos-corte --municipio 28043` y `revision-candidatos --municipio 28043`. Después, rellenar las dos tablas, subir `site/datos/discrepancias/` y pasar `uv run pytest -m "acceptance and integration" tests/acceptance/test_historia_183.py -k "ca9 or ca13"`.
+
+| INE | Municipio | Indicios publicados antes | Después |
+| --- | --- | ---: | ---: |
+| 28043 | Colmenar de Oreja | 19 | pendiente |
+| 28013 | Aranjuez | 27 | pendiente |
+| 28052 | Chinchón | 19 | pendiente |
+| 28019 | Belmonte de Tajo | 0 | pendiente |
+| 28170 | Villaconejos | 4 | pendiente |
+| 28180 | Villarejo de Salvanés | 5 | pendiente |
+| 28157 | Valdelaguna | 0 | pendiente |
+
+| Medida | Antes | Después |
+| --- | ---: | ---: |
+| candidatos de 28043 | 40 | pendiente |
+| aprobaciones vigentes | 40 | pendiente |
+| aprobaciones caducadas | 0 | pendiente |
+| revisiones huérfanas | 0 | pendiente |
+
 ---
 
 ## Resumen de fuentes no verificadas en esta pasada

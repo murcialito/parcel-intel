@@ -281,6 +281,9 @@ def test_ca7_un_municipio_que_falla_se_informa_y_los_demas_se_generan(
             str(cache_dir),
             "--salida",
             str(out_dir),
+            # Desde #183 el comando escribe también la red asfaltada: a tmp_path, no a data/.
+            "--salida-asfaltado",
+            str(tmp_path / "camino_asfaltado"),
         ],
     )
     with pytest.raises(SystemExit) as exit_info:
@@ -290,6 +293,9 @@ def test_ca7_un_municipio_que_falla_se_informa_y_los_demas_se_generan(
     captured = capsys.readouterr()
     assert "FALLO 28052 Chinchón" in captured.err
     assert sorted(p.name for p in out_dir.iterdir()) == sorted(
+        f"{ine}.geojson" for ine in AMBITO_HITO_INE if ine != "28052"
+    )
+    assert sorted(p.name for p in (tmp_path / "camino_asfaltado").iterdir()) == sorted(
         f"{ine}.geojson" for ine in AMBITO_HITO_INE if ine != "28052"
     )
     assert "28043 Colmenar de Oreja" in captured.out

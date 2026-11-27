@@ -50,7 +50,12 @@ def _write(
         if feature_surface is not None:
             feature_properties["superficie"] = feature_surface
         features.append(
-            {"type": "Feature", "id": identifier, "geometry": _LINE, "properties": feature_properties}
+            {
+                "type": "Feature",
+                "id": identifier,
+                "geometry": _LINE,
+                "properties": feature_properties,
+            }
         )
     document = {
         "type": "FeatureCollection",

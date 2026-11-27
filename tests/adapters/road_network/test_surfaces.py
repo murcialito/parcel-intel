@@ -88,7 +88,11 @@ def test_un_tramo_sin_asfaltar_en_una_consulta_asfaltada_se_descarta_en_el_clien
 
 def test_la_consulta_asfaltada_pagina_hasta_numbermatched() -> None:
     http_get = _Recorder(
-        {"0": _page("paved", [1, 2], 5), "2": _page("paved", [3, 4], 5), "4": _page("paved", [5], 5)}
+        {
+            "0": _page("paved", [1, 2], 5),
+            "2": _page("paved", [3, 4], 5),
+            "4": _page("paved", [5], 5),
+        }
     )
 
     result = RoadNetworkAdapter(http_get=http_get).query_roads(colmenar_window(), 2.0, "paved")

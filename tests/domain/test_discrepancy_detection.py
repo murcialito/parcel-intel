@@ -223,11 +223,12 @@ def test_un_trazado_solo_contraparte_nunca_es_sujeto() -> None:
     assert ign.trail_count == 1  # cuenta en el resumen aunque no sea sujeto
 
     # Guardia: sin la marca, el mismo tramo sí sería sujeto (la prueba discrimina).
+    unmarked_road = dataclasses.replace(asfaltado, counterpart_only=False)
     unmarked = detect_municipal_discrepancies(
         MUNICIPALITY,
         [
             make_layer("via_pecuaria_oficial", [via]),
-            make_layer("ign_red_transporte", [dataclasses.replace(asfaltado, counterpart_only=False)]),
+            make_layer("ign_red_transporte", [unmarked_road]),
             make_layer("catastro_vt", [catastro]),
         ],
         [],

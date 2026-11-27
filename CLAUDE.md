@@ -71,9 +71,13 @@ uv run python -m parcel_intel.cli.main review reject <identifier>
 uv run python -m parcel_intel.cli.main vias-pecuarias-municipios             # descarga y cachea en data/raw
 uv run python -m parcel_intel.cli.main vias-pecuarias-municipios --sin-red   # solo desde la caché
 
-# Capa de camino actual (red del IGN sin asfaltar) por municipio, en data/derived/camino_actual/<ine>.geojson (historia #27)
+# Capa de camino actual (red del IGN sin asfaltar) por municipio, en data/derived/camino_actual/<ine>.geojson (historia #27), y red
+# asfaltada en data/derived/camino_asfaltado/<ine>.geojson (historia #183, ADR 0050; solo contraparte de `discrepancias`, NUNCA se publica).
+# Dos consultas por municipio (unpaved y paved); todo o nada por municipio: si falla una, no escribe ninguno de sus dos ficheros, informa
+# `FALLO <ine> <nombre>: <superficie>: <motivo>` y sale con 1. La primera vez tras #183 necesita red (la caché no tiene las consultas paved).
 uv run python -m parcel_intel.cli.main camino-actual-municipios              # descarga y cachea en data/raw
 uv run python -m parcel_intel.cli.main camino-actual-municipios --sin-red    # solo desde la caché
+uv run python -m parcel_intel.cli.main camino-actual-municipios --salida data/derived/camino_actual --salida-asfaltado data/derived/camino_asfaltado
 
 # Capa interna de caminos de Catastro de un municipio (historia #37): parcelas >= 9000 de clase VT, por teselas de 900 m.
 # Capa de uso interno: NUNCA se publica (licencia INSPIRE). Sin fichero derivado: imprime el resumen. Caché inmutable en data/raw/catastro.
@@ -81,8 +85,10 @@ uv run python -m parcel_intel.cli.main camino-actual-municipios --sin-red    # s
 uv run python -m parcel_intel.cli.main catastro-caminos --provincia MADRID --municipio "COLMENAR DE OREJA" --codigo 28043 --bbox 449341,4431623,470702,4442906
 uv run python -m parcel_intel.cli.main catastro-caminos ... --sin-red        # solo desde la caché
 
-# Discrepancias entre capas de trazados por municipio (historia #32): lee data/derived/{vias_pecuarias,camino_actual,catastro_caminos}/<ine>.geojson
+# Discrepancias entre capas de trazados por municipio (historia #32): lee data/derived/{vias_pecuarias,camino_actual,camino_asfaltado,catastro_caminos}/<ine>.geojson
 # y escribe data/derived/discrepancias/{interno,publicable}/<ine>.geojson (el interno NUNCA se publica). Sin red. Sale con 1 si algún municipio falla.
+# La red del IGN es camino_actual ∪ camino_asfaltado (#183, ADR 0050): los asfaltados cuentan como contraparte, nunca como sujeto. Si falta uno
+# de los dos ficheros (capas anteriores a #183), ese municipio falla y pide regenerar con camino-actual-municipios; sin ninguno, la fuente consta ausente.
 uv run python -m parcel_intel.cli.main discrepancias --municipio 28043 [--municipio ...]
 uv run python -m parcel_intel.cli.main discrepancias --ambito                # los 7 municipios del primer hito
 
