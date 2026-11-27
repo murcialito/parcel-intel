@@ -781,4 +781,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: para que una salida con fecha sea reproducible byte a byte, la fecha entra por parámetro (el CLI la lee una vez) y nunca la lee el adapter; `xml.etree` con `ET.indent` y orden de entrada fijo basta, sin librerías nuevas.
   - **Aplica a**: implementación (ficheros publicados que llevan «fecha de generación»).
+## [2026-11-27] Historia #211 — Catastrones del IGN
+
+- **Lección**: el `GetFeatureInfo` de `primera-edicion-mtn` devuelve la hoja de un solo punto; para saber qué hojas cubren un término hay que muestrear una rejilla dentro del límite (2,5 km bastó) y contar puntos por hoja. Una sola consulta en el centro oculta las hojas de borde (Colmenar tiene dos; Chinchón, cuatro). Los enlaces de descarga del CNIG devuelven la ficha HTML con reCAPTCHA v3, no el zip: se anota `bloqueado` y se trabaja con el render del WMS.
+  - **Aplica a**: refinador, implementación (historias que inventarían la cobertura de un WMS histórico).
 
