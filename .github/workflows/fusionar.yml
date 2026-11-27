@@ -195,10 +195,12 @@ jobs:
           GH_TOKEN="$PROYECTO_TOKEN" gh api -X POST "repos/$REPO/issues/$pr/labels" -f "labels[]=cambios-pedidos" --silent
           echo "PR #$pr: CI rojo; se pide corrección."
 
-  correcciones-pendientes:
-    # Una cambios-pedidos puesta mientras la PR estaba en conflicto con main no dispara Corregir: GitHub
-    # no crea runs de pull_request en una PR con conflictos y el evento se pierde (#114). Tras cada CI o
-    # Revisar se buscan PRs así y se les lanza la corrección. Hay respaldo en el cron de desarrollar.yml.
+  pendientes:
+    # Eventos de PR que se pierden y dejan una PR parada. Tras cada CI o Revisar se buscan y se relanzan,
+    # con respaldo en el cron de desarrollar.yml:
+    #   - cambios-pedidos puesta con la PR en conflicto con main: no hay run de pull_request y no se
+    #     lanza Corregir (#114);
+    #   - push y `gh pr ready` casi a la vez: el commit de cabeza se queda sin revisión (#115).
     if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
@@ -212,3 +214,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: .github/scripts/correcciones_pendientes.sh
+      - name: Revisiones que se quedaron sin hacer
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: .github/scripts/revisiones_pendientes.sh

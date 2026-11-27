@@ -98,7 +98,7 @@ Definidos en `.claude/agents/` y lanzados por los workflows de `.github/workflow
 | `desarrollador` | `desarrollar.yml` | Etiqueta `estado:lista` en una historia, cada hora como cola |
 | `desarrollador` | `corregir.yml` | La etiqueta `cambios-pedidos` en su PR, que pone el revisor o Fusionar si falla CI. Se lanza desde `main` por `workflow_dispatch`: con el evento de etiqueta, el workflow sale de la versión de la PR y `claude-code-action` se salta si no coincide con `main`. Si la etiqueta se puso con la PR en conflicto, el evento se pierde (GitHub no crea runs de `pull_request` en una PR con conflictos): `correcciones_pendientes.sh` la relanza tras cada CI o Revisar (Fusionar) y cada hora (cron de `desarrollar.yml`) |
 | `desarrollador` | `actualizar-rama.yml` | Su PR queda en conflicto con `main` (lo detecta `fusionar.yml` tras cada merge, y la pasada diaria de `desbloquear.yml`): trae `main` a la rama con merge y vuelve a pasar CI y revisión |
-| `revisor` | `revisar.yml` | PR abierta o actualizada desde una rama `claude/` |
+| `revisor` | `revisar.yml` | PR abierta o actualizada desde una rama `claude/`. Si el commit de cabeza se queda sin revisión (push y `gh pr ready` casi a la vez), `revisiones_pendientes.sh` la vuelve a pedir tras cada CI o Revisar y cada hora, pasando la PR a borrador y a lista con `PROJECT_TOKEN` |
 | — | `fusionar.yml` | Termina CI o Revisar: fusiona si `checks` y `revision` están en verde sobre el último commit y no hay `veto` (ADR 0024) |
 | — | `ci.yml` | Toda PR y todo push a `main` |
 | Claude a demanda | `claude.yml` (del instalador de la app) | Escribes `@claude` en una issue o PR: pregunta o encargo puntual fuera del flujo |

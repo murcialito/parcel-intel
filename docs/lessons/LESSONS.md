@@ -664,6 +664,7 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: el revisor puso `cambios-pedidos` en la PR #129 (#114) mientras Actualizar rama la sacaba de un conflicto. No se lanzó ningún Corregir y la PR quedó parada hasta la revisión manual.
   - **Aplica a**: workflows (`.github/`).
 
-- **Lección**: en un workflow con `cancel-in-progress: true` y un `if` que puede saltar el job, la `concurrency` va en el job, no en el workflow. A nivel de workflow, un run que luego se salta cancela igualmente al anterior. El check queda en «skipped» sobre el último commit y Fusionar no fusiona nunca.
-  - **Causa**: el desarrollador de #115 hizo push y `gh pr ready` casi a la vez. El run de `ready_for_review` se canceló, y el del push, con la PR aún en borrador en su evento, se saltó.
+- **Lección**: `git push` seguido de `gh pr ready` deja el commit de cabeza sin revisión. El `synchronize` del commit nuevo sale con la PR aún en borrador, y su revisión se salta. El `ready_for_review` sale con el commit anterior, porque GitHub aún no ha movido la cabeza. Un evento de PR describe la PR en el instante en que se emite, no cuando corre el workflow. Por eso el barrido `revisiones_pendientes.sh` mira el estado de los checks del commit de cabeza (CI terminado y `revision` ausente, skipped o cancelled) y vuelve a pedir la revisión pasando la PR a borrador y a lista.
+  - **Causa**: PR #131 (#115). El push de 0887fd9 fue a las 08:35:15 y `gh pr ready` a las 08:35:19. La revisión de 0887fd9 se saltó y la del `ready_for_review` revisó 7b0e316.
+  - **También**: con `cancel-in-progress: true`, la `concurrency` va en el job y no en el workflow, porque así un run que se salta por el `if` no cancela al que sí revisa. Y si cambia `revisar.yml` en `main`, las PRs abiertas fallan la revisión con `SIN_VEREDICTO` hasta traerse `main`: la acción se salta si su workflow no coincide.
   - **Aplica a**: workflows (`.github/`).

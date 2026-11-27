@@ -193,9 +193,9 @@ jobs:
           REPO: ${{ github.repository }}
         run: .github/scripts/ramas_en_conflicto.sh
 
-  correcciones-pendientes:
-    # Respaldo del job corregir: relanza las correcciones cuyo evento de etiqueta se perdió (PR en
-    # conflicto en ese momento, #114). También lo hace Fusionar tras cada CI o Revisar.
+  pendientes:
+    # Respaldo de los eventos de PR que se pierden: correcciones cuya etiqueta llegó con la PR en
+    # conflicto (#114) y commits de cabeza sin revisión (#115). También lo hace Fusionar tras cada CI o Revisar.
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
@@ -209,6 +209,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: .github/scripts/correcciones_pendientes.sh
+      - name: Revisiones que se quedaron sin hacer
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: .github/scripts/revisiones_pendientes.sh
 
   corregir:
     # Solo lanza corregir.yml desde main. Este job se ejecuta con el workflow de la versión de la PR,
