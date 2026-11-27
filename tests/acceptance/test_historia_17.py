@@ -43,6 +43,7 @@ def _seccion() -> str:
 
 
 @pytest.mark.integration
+@pytest.mark.red
 def test_ca1_descarga_con_procedencia_por_imagen() -> None:
     """Dado el servicio de minutas del IGN, cuando se descarga la planimetría de Colmenar de
     Oreja (doc. 280075) y la hoja MTN50 0606, entonces quedan en `data/raw/ign_planimetrias/`

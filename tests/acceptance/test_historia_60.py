@@ -212,6 +212,7 @@ def test_ca1_sin_red_no_descarga_y_usa_la_procedencia_de_su_sidecar(
 
 
 @pytest.mark.integration
+@pytest.mark.red
 @pytest.mark.parametrize("unit_id", UNITS)
 def test_ca1_integracion_el_render_real_de_la_ventana_se_descarga(unit_id: str) -> None:
     """CA1 [integración la descarga real del render]: la URL `GetMap` de cada unidad devuelve

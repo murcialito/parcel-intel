@@ -678,3 +678,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: PR #131 (#115). El push de 0887fd9 fue a las 08:35:15 y `gh pr ready` a las 08:35:19. La revisión de 0887fd9 se saltó y la del `ready_for_review` revisó 7b0e316.
   - **También**: con `cancel-in-progress: true`, la `concurrency` va en el job y no en el workflow, porque así un run que se salta por el `if` no cancela al que sí revisa. Y si cambia `revisar.yml` en `main`, las PRs abiertas fallan la revisión con `SIN_VEREDICTO` hasta traerse `main`: la acción se salta si su workflow no coincide.
   - **Aplica a**: workflows (`.github/`).
+
+## [2026-11-27] Tubería — tests contra servicios en vivo en el check obligatorio
+
+- **Lección**: un test que llama en vivo a un servicio público no puede estar en el check del que depende el merge. Si el servicio cae o va lento, todas las PRs se quedan en rojo sin culpa suya, y los agentes «arreglan» CI marcando tests ajenos uno por uno. Esos tests llevan el marcador `red` y corren en el job `red-externa`, con `continue-on-error`, así que su resultado se ve sin bloquear. `fuera_de_ci` es para los servicios que rechazan siempre a GitHub (Catastro), no para una caída.
+  - **Causa**: el 2026-11-27 sobre las 09:45 UTC, `api-features.idee.es` empezó a agotar el tiempo de lectura (30 s) con las consultas reales, también desde local. La PR #174 (#169) gastó cuatro vueltas marcando `fuera_de_ci` tests de #84, #27 y #25, acabó en `veto`, y `main` se quedó en rojo.
+  - **Aplica a**: implementación, revisión y workflows.
