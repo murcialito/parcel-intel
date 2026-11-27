@@ -570,6 +570,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: al comprobar el orden de pasos de un runbook con `text.index`, la primera aparición de una palabra («CODEOWNERS») puede estar en la introducción; se indexan los encabezados de los pasos numerados, no las palabras sueltas.
   - **Aplica a**: implementación (tests de documentos).
 
+## [2026-11-27] Historia #56 — Fixture sintética de Chinchón (281287-w1)
+
+- **Lección**: el id de trazado del código es `<unit_id>-<trail_id>` (`281287-w1-T001`), no `281287:<trazado>` como decía el criterio: se verifica el formato real antes de copiar el literal del criterio y se anota en el docstring del test. Para una unidad con fecha genérica basta una fixture hermana con `document_date_precision: "year"`; un test «guardia» que cambia `"year"` por `"day"` demuestra que el test de CA5 falla si el marcado se pierde. El hash `control_points_sha256` de los aprobados debe recalcularse con `sha256sum` tras trasladar los puntos.
+  - **Aplica a**: implementación (fixtures hermanas de unidades históricas).
+
 - **Lección**: `ruff format .` sin límite reformatea decenas de ficheros ajenos a la historia (aquí 51, incluidos ADR y código de otras historias) y ensucia la PR. Formatea solo los ficheros que has tocado (`ruff format <rutas>`), o comprueba `git status` antes de hacer commit.
   - **Aplica a**: implementación.
 
