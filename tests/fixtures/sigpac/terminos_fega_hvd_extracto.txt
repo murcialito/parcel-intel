@@ -1,0 +1,23 @@
+# Extracto del PDF «Términos de uso de la información de alto valor del Sistema Integrado de Gestión y Control (SIGC)», FEGA.
+# Fuente: Terminos_de_uso_de_informacion_de_alto_valor_del_SIGC.pdf, incluido en spacm_sigpac.tm.28043.zip (descargado 2026-11-27).
+# Texto extraído del PDF (sin OCR); se transcriben solo los pasajes usados en REGISTRY.md (#216). Sin editar el contenido.
+
+TÉRMINOS DE USO DE LA INFORMACIÓN DE ALTO VALOR DEL SISTEMA INTEGRADO DE GESTIÓN Y CONTROL (SIGC)
+
+Conforme al Reglamento de Ejecución (UE) 2023/138, por el que se establece una lista de conjuntos de datos específicos de alto valor (HVD) ... los Recintos (capa RECINTOS) y los Elementos del paisaje (capa ELEMENTOS DEL PAISAJE) del SIGPAC, y las Líneas de declaración (capa LINEA DECLARACION) del Sistema Integrado de Gestión y Control (SIGC), tienen la consideración de datos específicos de alto valor, dentro de la categoría Geoespacial. Esta condición aplica a la versión más actualizada de las citadas capas, si bien el FONDO ESPAÑOL DE GARANTÍA AGRARIA O.A (FEGA) ha establecido que se extienda la consideración de datos HVD a los que en cada momento se visualizan en el Visor Sigpac (datos de la Campaña en curso y datos de la Campaña previa).
+
+... el FEGA pone a disposición de todos los usuarios que lo requieran, los datos gráficos y alfanuméricos de las capas RECINTOS, ELEMENTOS DEL PAISAJE y LINEA DECLARACIÓN, considerados de alto valor, para su reutilización en las condiciones de la licencia Creative Commons Atribución/Reconocimiento (CC BY 4.0).
+
+La licencia permite a los licenciatarios: compartir, copiar, redistribuir y divulgar públicamente, total o parcialmente, en cualquier medio o formato, la información distribuida por el FEGA; que la información distribuida pueda servir como base a obras derivadas como resultado de su análisis o estudio; utilizar la información distribuida con fines comerciales o no comerciales; modificar la información distribuida: remezclar, transformarla y adaptarla.
+
+Si bien el FEGA proporciona la información geoespacial de las capas de alto valor del SIGC mediante los sistemas informáticos dispuestos al efecto (Visor Sigpac, WMS, Servicio Atom y otros servicios en la nube) de forma gratuita, ...
+
+Fuente de los datos: FONDO ESPAÑOL DE GARANTÍA AGRARIA O.A.
+(cita obligatoria en toda copia redistribuida, también en las obras derivadas)
+
+En ningún caso está permitido que la redistribución sugiera que el licenciatario tiene el respaldo, participación o patrocinio del FEGA.
+
+El contenido de la información no debe ser alterado. El sentido de la información no debe ser desnaturalizado.
+Debe indicarse si se han realizado cambios en la información redistribuida respecto a la originalmente distribuida por el FEGA.
+
+Los licenciatarios que redistribuyan la información no podrán aplicar ninguna medida tecnológica efectiva o imponer términos legales que impida a otras personas el acceso a la información redistribuida en las condiciones que la licencia CC BY 4.0 establece.

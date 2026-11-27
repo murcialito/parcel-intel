@@ -1,0 +1,9 @@
+# Extracto de la ficha de datos.gob.es (descargada 2026-11-27, texto visible tras quitar el HTML). Fuente:
+# https://datos.gob.es/es/catalogo/a13002908-recintos-sigpac-de-la-comunidad-de-madrid
+# Sin editar el contenido; solo se transcriben los campos usados en REGISTRY.md (#216).
+
+Recintos SIGPAC de la Comunidad de Madrid
+Publicador: Comunidad de Madrid
+Nivel de administración: Administración Autonómica
+Licencia: https://creativecommons.org/licenses/by/4.0/legalcode.es
+Descripción: Recintos SIGPAC y sus atributos correspondientes para toda la Comunidad de Madrid y por término municipal actualizados anualmente.
