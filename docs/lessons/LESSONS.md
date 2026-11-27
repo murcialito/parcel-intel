@@ -706,5 +706,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en las Actions de los agentes, un heredoc (`cat >> f <<'EOF'`) con `{"` dentro se deniega («brace with quote character»). Para añadir código a un fichero, `Read` + `Edit`.
   - **Aplica a**: implementación.
 
+- **Lección**: el número de ADR «siguiente libre» se comprueba otra vez al fusionar `main` en la rama, no solo al crearlo: otra historia en desarrollo a la vez puede haber tomado el mismo número (aquí #165 fusionó su 0046 y este ADR pasó a 0047). El test de CA12 de #168 exige números de ADR únicos, y así el choque sale en CI.
+  - **Aplica a**: implementación | arquitecto (cuando el diseño fija el número del ADR).
+
 - **Lección**: un helper de test que «deja solo estas revisiones» debe partir de la fixture original (`generar.revision_document()`), no del fichero que el propio test acaba de reescribir: la segunda llamada encuentra un fichero ya recortado y falla con `KeyError`.
   - **Aplica a**: implementación (tests que mutan una copia de la fixture varias veces).
