@@ -880,4 +880,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: BA e implementación (cada canal de un registro de fuentes con su resultado, también cuando es ilegible).
 - **Lección**: cambiar el estado de filas de una tabla compartida rompe la guarda de otra historia que cuenta las mismas cadenas (`"| no encontrada |"` en #26). Se actualiza esa guarda al nuevo estado y se explica en la PR, en vez de mantener el dato viejo.
   - **Aplica a**: implementación (antes de editar una tabla de `REGISTRY.md`, buscar las guardas que la leen por rango o por cadena).
+## [2026-11-27] Historia #279 — Catálogo de caminos de Cáceres
+
+- **Lección**: la URL de descarga que cita una ficha de datos.gob.es puede estar muerta o devolver la portada HTML con `200`; el recurso real está en el registro del propio portal (`package_show` de CKAN). Antes de dar un fichero por descargado, comprobar que es JSON (`head -c`), y si no lo es, no guardarlo con la extensión del dato.
+  - **Causa**: el endpoint `GetData?...format=geojson` de la ficha devolvió la portada de `opendata.caceres.es` (6.619 bytes, `text/html`) con código 200 tras una redirección a HTTPS con cadena de certificados incompleta. Los datos reales están en `ide.caceres.es` (WFS), que no respondió desde GitHub Actions: el contenido quedó `pendiente-local`.
+  - **Aplica a**: refinador (no citar una licencia o un formato de una ficha sin abrir el recurso) | implementación (un `200` no prueba que haya dato).
 
