@@ -125,9 +125,18 @@ uv run python -m parcel_intel.cli.main revision-candidatos --ambito
 # Medir los candidatos a corte (historia #111): ejecuta el arnés de #110 con MATCH_CRITERION_V1 sobre el conjunto de validación (casos.json,
 # con sus CONGELADO*.md en el mismo directorio) y los ficheros internos de candidatos (#128). Escribe el informe agregado en JSON (cobertura y
 # precisión —cota inferior— con sus recuentos, no evaluables con motivo, etiqueta, huella, fecha y versiones) y un resumen por stdout. Sin red.
-# Un municipio sin fichero de candidatos deja sus casos en sin_capas. Sale con 1, sin escribir, si casos.json no valida o un fichero de candidatos
+# Lee los ficheros de candidatos de los municipios de los casos y de los 7 del ámbito (#170): los de un municipio sin casos cuentan como
+# candidatos no evaluables y su método entra en metodo_candidatos. Un municipio con casos y sin fichero de candidatos deja sus casos en sin_capas. Sale con 1, sin escribir, si casos.json no valida o un fichero de candidatos
 # es ilegible; con la huella distinta de la congelada no falla: avisa en stderr y marca el informe como «conjunto no congelado». Es un fichero de datos, no se publica.
 uv run python -m parcel_intel.cli.main medir-candidatos [--casos docs/validacion/casos.json] [--entrada data/derived/candidatos/interno] [--salida data/derived/validacion/medicion.json]
+
+# Publicar los tramos a verificar aprobados (historia #170, ADR 0048) en site/datos/candidatos/<ine>.geojson: EPSG:4326, ficha de #169, id
+# público propio, resumen de la medición («no calculable» si no hay evaluables) y «revisado a mano»; con su .procedencia.json y el índice.
+# Lee el informe de medir-candidatos (debe ser de un conjunto congelado y medir exactamente el método de los candidatos), el fichero interno
+# de candidatos (#128) y curated/candidatos/<ine>/revision.json (#168). Solo publica los aprobados vigentes. Sin red. Todo o nada: sale con 1 y
+# no escribe si falta o no vale el informe, si no hay aprobados, si hay aprobaciones caducadas o huérfanas, o si un aprobado no es publicable.
+# Solo municipios con código de Catastro verificado (hoy, 28043); sin --municipio sale con 1; no hay --ambito. Se ejecuta en local.
+uv run python -m parcel_intel.cli.main publicar-candidatos --municipio 28043 [--medicion data/derived/validacion/medicion.json] [--entrada data/derived/candidatos/interno] [--curated curated/candidatos] [--salida site/datos]
 
 # Georreferenciación histórica por unidad (historia #139, ADR 0043/0044): entrada humana en curated/historico/<unit_id>/ (unidad.json,
 # puntos_control.csv, trazados.geojson) e imagen de trabajo en data/raw/ign_planimetrias/<unit_id>.png (+ .provenance.json). Opciones, con

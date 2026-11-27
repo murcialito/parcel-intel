@@ -55,8 +55,10 @@ from parcel_intel.adapters.postgis.connection import get_connection
 from parcel_intel.adapters.postgis.georeference_repository import PostgisGeoreferenceRepository
 from parcel_intel.adapters.postgis.rule_repository import PostgisRuleRepository
 from parcel_intel.adapters.published_layers import (
+    GeoJsonPublishedCandidateSink,
     GeoJsonPublishedDiscrepancySink,
     GeoJsonPublishedLayerSink,
+    JsonMeasurementReportReader,
     PublishedLayerError,
 )
 from parcel_intel.adapters.raw_cache import (
@@ -107,6 +109,7 @@ from parcel_intel.application.list_candidate_reviews import (
     MunicipalReviewListing,
 )
 from parcel_intel.application.load_historic_trails import HistoricUnitUseCase
+from parcel_intel.application.publish_candidates import PublishCandidatesUseCase
 from parcel_intel.application.publish_discrepancies import PublishDiscrepanciesUseCase
 from parcel_intel.application.publish_layers import (
     DEFAULT_LAYERS,
@@ -871,7 +874,11 @@ def _medir_candidatos(args: argparse.Namespace) -> int:
     with_candidates: set[str] = set()
     methods: set[str] = set()
     try:
-        for code in sorted({case.municipality_ine for case in cases if case.municipality_ine}):
+        # Los municipios de los casos y los 7 del ámbito (historia #170, ADR 0048 §9): los
+        # candidatos de un municipio del ámbito sin casos cuentan como no evaluables, y así
+        # `metodo_candidatos` recoge lo que de verdad se midió.
+        case_codes = {case.municipality_ine for case in cases if case.municipality_ine}
+        for code in sorted(case_codes | set(HITO_MUNICIPALITY_CODES)):
             report = reader.get_report(code)
             if report is None:
                 continue
@@ -1069,6 +1076,67 @@ def _publicar_discrepancias(args: argparse.Namespace) -> int:
         )
         if published.over_threshold:
             print("  AVISO: por encima del umbral de peso (ver #96)")
+    return 0
+
+
+def build_publish_candidates_use_case(
+    measurement_path: Path,
+    candidates_dir: Path,
+    curated_dir: Path,
+    output_dir: Path,
+    size_threshold_bytes: int = PUBLISH_SIZE_THRESHOLD_BYTES,
+) -> PublishCandidatesUseCase:
+    """Composition root de `publicar-candidatos` (historia #170, ADR 0048). Solo
+    ficheros: nada con red, base de datos ni LLM."""
+    return PublishCandidatesUseCase(
+        measurement=JsonMeasurementReportReader(measurement_path),
+        candidates=GeoJsonCutCandidateReader(candidates_dir),
+        reviews=CuratedCandidateReviewFiles(curated_dir),
+        sink=GeoJsonPublishedCandidateSink(
+            output_dir, REPOSITORY_URL, size_threshold_bytes=size_threshold_bytes
+        ),
+    )
+
+
+def _publicar_candidatos(args: argparse.Namespace) -> int:
+    codes: list[str] = []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        print("Indica --municipio <INE> (repetible).", file=sys.stderr)
+        return 1
+    nothing_written = f"No se ha escrito nada en {args.salida}."
+    use_case = build_publish_candidates_use_case(
+        args.medicion, args.entrada, args.curated, args.salida
+    )
+    try:
+        result = use_case.execute(codes)
+    except (PublishedLayerError, OSError) as error:
+        print(f"ERROR al publicar: {error}", file=sys.stderr)
+        print(nothing_written, file=sys.stderr)
+        return 1
+    if result.measurement_error is not None:
+        print(f"ERROR informe de medición: {result.measurement_error}", file=sys.stderr)
+        print(nothing_written, file=sys.stderr)
+        return 1
+    for failure in result.failures:
+        code = failure.municipality_code
+        shown = code if code.isascii() and code.isdigit() and len(code) == 5 else "(no válido)"
+        print(f"ERROR {shown}: {failure.reason}", file=sys.stderr)
+    if result.failures:
+        print(nothing_written, file=sys.stderr)
+        return 1
+    counts = {code: (a, p, r) for code, a, p, r in result.counts}
+    for published in result.published:
+        approved, proposed, rejected = counts[published.municipality_code]
+        print(
+            f"publicado {args.salida / published.path} {published.size_bytes} bytes: "
+            f"{approved} tramos aprobados (sin publicar: {proposed} propuestos, "
+            f"{rejected} rechazados)"
+        )
+        if published.over_threshold:
+            print("  AVISO: por encima del umbral de peso")
+    if result.measurement_texts:
+        print("medición: " + " ".join(result.measurement_texts[:3]))
     return 0
 
 
@@ -1619,6 +1687,42 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio publicado del sitio",
     )
     indicios_parser.set_defaults(func=_publicar_discrepancias)
+
+    tramos_parser = subparsers.add_parser(
+        "publicar-candidatos",
+        help="Publica los tramos a verificar aprobados en site/datos (EPSG:4326, con su ficha)",
+    )
+    tramos_parser.add_argument(
+        "--municipio",
+        action="append",
+        default=[],
+        help="Código INE (repetible); solo se publican los de código de Catastro verificado",
+    )
+    tramos_parser.add_argument(
+        "--medicion",
+        type=Path,
+        default=Path("data/derived/validacion/medicion.json"),
+        help="Informe de `medir-candidatos` de la misma versión del método",
+    )
+    tramos_parser.add_argument(
+        "--entrada",
+        type=Path,
+        default=Path("data/derived/candidatos/interno"),
+        help="Directorio con los ficheros internos <codigo_ine>.geojson de candidatos",
+    )
+    tramos_parser.add_argument(
+        "--curated",
+        type=Path,
+        default=Path("curated/candidatos"),
+        help="Entrada humana versionada: <ine>/revision.json",
+    )
+    tramos_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("site/datos"),
+        help="Directorio publicado del sitio",
+    )
+    tramos_parser.set_defaults(func=_publicar_candidatos)
 
     comparacion_parser = subparsers.add_parser(
         "imagenes-comparacion",

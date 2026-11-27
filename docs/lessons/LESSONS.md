@@ -719,3 +719,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: los tests de contraste y de estilo leen las reglas reales de `estilo.css` (la primera fuera de `@media`), no una lista de tokens fijada en el test; así un token cambiado se detecta. Una regla de `@media (forced-colors)` con el mismo selector no debe fusionarse con la base.
   - **Aplica a**: implementación (tests sobre `estilo.css`).
+
+## [2026-11-27] Historia #170 — Publicar los tramos a verificar aprobados
+
+- **Lección**: una prohibición de texto como «nunca 0 %» no se prueba con una subcadena sobre el fichero entero: la ficha dice «el 80 % del tramo» y `"0 %" in texto` da un falso positivo (o, al revés, oculta el caso real si se relaja). Se acota al bloque que el criterio nombra (`medicion`) y se busca con límites (`(?<!\d)0 %`), más una comprobación de que no hay decimales.
+  - **Aplica a**: implementación y revisión (tests de «tal texto no aparece»).
+
+- **Lección**: un informe de agregados que solo lee los ficheros de los municipios **de los casos** deja fuera los municipios que se quieren publicar y no tienen casos (Colmenar). Su `metodo_candidatos` sale vacío y una regla «publica solo con la medición del mismo método» bloquearía siempre. Lo encontró el arquitecto en el diseño; el test de aceptación (CA16) encadena `medir-candidatos` → `publicar-candidatos` con un conjunto sin casos en 28043, como el real.
+  - **Aplica a**: arquitecto e implementación (una puerta que exige un dato de otro comando se prueba con el productor real y con la forma de los datos reales, no con un informe escrito a mano).
+
+- **Lección**: en las Actions de los agentes, `python -c "…"` con un salto de línea seguido de `#` dentro de la cadena se deniega («Newline followed by #»). Para cambios de varias líneas en un fichero, `Edit`.
+  - **Aplica a**: implementación.

@@ -1,0 +1,70 @@
+{
+ "etiqueta": "validacion-v1",
+ "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+ "congelado": true,
+ "fecha": "2026-11-27",
+ "metodo_candidatos": [
+  "candidato_corte@1"
+ ],
+ "criterio_casamiento": {
+  "identificador": "casamiento_candidato_caso",
+  "version": 1,
+  "distancia_max_m": 30.0,
+  "solape_min": 0.5,
+  "paso_muestreo_m": 1.0
+ },
+ "casos_total": 6,
+ "evaluables": {
+  "total": 0,
+  "casos": []
+ },
+ "no_evaluables": {
+  "total": 6,
+  "por_motivo": {
+   "fuera_del_ambito": 4,
+   "sin_geometria": 2
+  },
+  "casos": [
+   {
+    "caso": "fuera-0",
+    "motivo": "fuera_del_ambito"
+   },
+   {
+    "caso": "fuera-1",
+    "motivo": "fuera_del_ambito"
+   },
+   {
+    "caso": "fuera-2",
+    "motivo": "fuera_del_ambito"
+   },
+   {
+    "caso": "fuera-3",
+    "motivo": "fuera_del_ambito"
+   },
+   {
+    "caso": "sin-geometria-0",
+    "motivo": "sin_geometria"
+   },
+   {
+    "caso": "sin-geometria-1",
+    "motivo": "sin_geometria"
+   }
+  ]
+ },
+ "cobertura": {
+  "valor": null,
+  "casos_senalados": 0,
+  "casos_evaluables": 0,
+  "casos": []
+ },
+ "precision": {
+  "valor": null,
+  "cota": "inferior",
+  "candidatos_acertados": 0,
+  "candidatos_evaluables": 0
+ },
+ "candidatos": {
+  "no_evaluables": 5,
+  "descartados": 0
+ }
+}

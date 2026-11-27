@@ -271,6 +271,17 @@ class ComparisonManifestFileError(Exception):
         self.detail = detail
 
 
+class MeasurementReportUnavailableError(Exception):
+    """El informe de medición de `medir-candidatos` no existe, no se puede leer o le
+    falta alguna clave que se usa -- historia #170, ADR 0048. El detalle nombra la clave,
+    nunca su valor."""
+
+    def __init__(self, path: str, detail: str) -> None:
+        super().__init__(f"Informe de medición no disponible {path}: {detail}")
+        self.path = path
+        self.detail = detail
+
+
 class NoLandClassificationFoundError(Exception):
     """Ningún polígono de clasificación de suelo intersecta el bbox pedido.
     El servicio no distingue "fuera de cobertura de la Comunidad de Madrid"

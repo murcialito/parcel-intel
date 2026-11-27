@@ -1,0 +1,35 @@
+{
+ "municipio": "28043",
+ "revisiones": [
+  {
+   "candidate_id": "cb30d538bb5ea601",
+   "review": "aprobado",
+   "reviewed_by": "revisora-sintetica",
+   "reviewed_at": "2026-11-28T10:00:00+01:00",
+   "candidate_sha256": "4152fb777c2f06a1fed45b6b8557fce04fd439ae1cbc8bd2bbd1e86ce554e502",
+   "review_note": "Comparado con la ortofoto: el trazado no se distingue."
+  },
+  {
+   "candidate_id": "7107a7aa44addbb3",
+   "review": "rechazado",
+   "reviewed_by": "revisora-sintetica",
+   "reviewed_at": "2026-11-28T10:00:00+01:00",
+   "review_note": "El camino se ve en la ortofoto reciente; sin corte aparente."
+  },
+  {
+   "candidate_id": "910f248ab773fae8",
+   "review": "aprobado",
+   "reviewed_by": "revisora-sintetica",
+   "reviewed_at": "2026-11-28T10:00:00+01:00",
+   "candidate_sha256": "f281e5cc817b3b7516a51bf270a07f5c7972917dcf6bd7cc8931c040bedcbdb5",
+   "review_note": "Comparado con la ortofoto: las dos piezas no se distinguen."
+  },
+  {
+   "candidate_id": "5f1f40660b686e00",
+   "review": "aprobado",
+   "reviewed_by": "revisora-sintetica",
+   "reviewed_at": "2026-11-28T10:00:00+01:00",
+   "candidate_sha256": "e1ddecbc475cddf37125b6ba1f2c4b9ba3990b45a3d1a6f3d726486ee2129cbc"
+  }
+ ]
+}

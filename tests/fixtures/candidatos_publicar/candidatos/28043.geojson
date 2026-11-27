@@ -1,0 +1,450 @@
+{
+ "crs": {
+  "properties": {
+   "name": "urn:ogc:def:crs:EPSG::25830"
+  },
+  "type": "name"
+ },
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      [
+       460000.0,
+       4438000.0
+      ],
+      [
+       460090.0,
+       4438000.0
+      ]
+     ]
+    ],
+    "type": "MultiLineString"
+   },
+   "id": "12b804770c6c38bd",
+   "properties": {
+    "candidate_id": "12b804770c6c38bd",
+    "condiciones": [
+     "dentro_de_cierre"
+    ],
+    "confianza": 0.55,
+    "evidencia": [
+     {
+      "medida": "longitud_tramo_m",
+      "unidad": "m",
+      "valor": 90.0
+     },
+     {
+      "medida": "longitud_base_m",
+      "unidad": "m",
+      "valor": 90.0
+     },
+     {
+      "medida": "confianza_base",
+      "unidad": "fraccion",
+      "valor": 0.9
+     }
+    ],
+    "metodo": "candidato_corte@1",
+    "municipality_code": "28043",
+    "registros_base": [
+     "aaaaaaaaaaaaaaaa"
+    ],
+    "senales": [
+     {
+      "fraccion_apoyo": 0.9,
+      "fraccion_sin_dato": 0.0,
+      "procedencia": [
+       {
+        "fecha_descarga": "2026-11-26",
+        "fuente": "catastro_wfs_cp (sintético)",
+        "licencia": "licencia sintética",
+        "redistribucion": "solo_uso_interno",
+        "url": "https://example.invalid/catastro"
+       }
+      ],
+      "senal": {
+       "condicion": "dentro_de_cierre",
+       "identificador": "parcela_no_camino",
+       "version": 1
+      }
+     }
+    ],
+    "trazado": {
+     "fecha_dato": null,
+     "fuente": "via_pecuaria_oficial",
+     "id": "VP-SINT-4",
+     "procedencia": {
+      "fecha_descarga": "2026-11-26",
+      "fuente": "idem_vias_pecuarias (sintético)",
+      "licencia": "licencia sintética",
+      "redistribucion": "publicable",
+      "url": "https://example.invalid/idem"
+     }
+    }
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      [
+       460000.0,
+       4437500.0
+      ],
+      [
+       460150.0,
+       4437500.0
+      ]
+     ]
+    ],
+    "type": "MultiLineString"
+   },
+   "id": "5f1f40660b686e00",
+   "properties": {
+    "candidate_id": "5f1f40660b686e00",
+    "condiciones": [
+     "dentro_de_cierre"
+    ],
+    "confianza": 0.5,
+    "evidencia": [
+     {
+      "medida": "longitud_tramo_m",
+      "unidad": "m",
+      "valor": 150.0
+     },
+     {
+      "medida": "longitud_base_m",
+      "unidad": "m",
+      "valor": 150.0
+     },
+     {
+      "medida": "confianza_base",
+      "unidad": "fraccion",
+      "valor": 0.9
+     }
+    ],
+    "metodo": "candidato_corte@1",
+    "municipality_code": "28043",
+    "registros_base": [
+     "aaaaaaaaaaaaaaaa"
+    ],
+    "senales": [
+     {
+      "fraccion_apoyo": 0.8,
+      "fraccion_sin_dato": 0.0,
+      "procedencia": [
+       {
+        "fecha_descarga": "2026-11-26",
+        "fuente": "catastro_wfs_cp (sintético)",
+        "licencia": "licencia sintética",
+        "redistribucion": "solo_uso_interno",
+        "url": "https://example.invalid/catastro"
+       }
+      ],
+      "senal": {
+       "condicion": "dentro_de_cierre",
+       "identificador": "parcela_no_camino",
+       "version": 1
+      }
+     }
+    ],
+    "trazado": {
+     "fecha_dato": null,
+     "fuente": "via_pecuaria_oficial",
+     "id": "VP-SINT-3",
+     "procedencia": {
+      "fecha_descarga": "2026-11-26",
+      "fuente": "idem_vias_pecuarias (sintético)",
+      "licencia": "licencia sintética",
+      "redistribucion": "publicable",
+      "url": "https://example.invalid/idem"
+     }
+    }
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      [
+       460000.0,
+       4436500.0
+      ],
+      [
+       460120.0,
+       4436500.0
+      ]
+     ]
+    ],
+    "type": "MultiLineString"
+   },
+   "id": "7107a7aa44addbb3",
+   "properties": {
+    "candidate_id": "7107a7aa44addbb3",
+    "condiciones": [
+     "dentro_de_cierre"
+    ],
+    "confianza": 0.4,
+    "evidencia": [
+     {
+      "medida": "longitud_tramo_m",
+      "unidad": "m",
+      "valor": 120.0
+     },
+     {
+      "medida": "longitud_base_m",
+      "unidad": "m",
+      "valor": 120.0
+     },
+     {
+      "medida": "confianza_base",
+      "unidad": "fraccion",
+      "valor": 0.9
+     }
+    ],
+    "metodo": "candidato_corte@1",
+    "municipality_code": "28043",
+    "registros_base": [
+     "aaaaaaaaaaaaaaaa"
+    ],
+    "senales": [
+     {
+      "fraccion_apoyo": 0.6,
+      "fraccion_sin_dato": 0.0,
+      "procedencia": [
+       {
+        "fecha_descarga": "2026-11-26",
+        "fuente": "catastro_wfs_cp (sintético)",
+        "licencia": "licencia sintética",
+        "redistribucion": "solo_uso_interno",
+        "url": "https://example.invalid/catastro"
+       }
+      ],
+      "senal": {
+       "condicion": "dentro_de_cierre",
+       "identificador": "parcela_no_camino",
+       "version": 1
+      }
+     }
+    ],
+    "trazado": {
+     "fecha_dato": "2026-11-01",
+     "fuente": "catastro_vt",
+     "id": "99999A00109101",
+     "procedencia": {
+      "fecha_descarga": "2026-11-26",
+      "fuente": "catastro_wfs_cp (sintético)",
+      "licencia": "licencia sintética",
+      "redistribucion": "solo_uso_interno",
+      "url": "https://example.invalid/catastro"
+     }
+    }
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      [
+       460000.0,
+       4437000.0
+      ],
+      [
+       460100.0,
+       4437000.0
+      ]
+     ],
+     [
+      [
+       460130.0,
+       4437000.0
+      ],
+      [
+       460190.0,
+       4437000.0
+      ]
+     ]
+    ],
+    "type": "MultiLineString"
+   },
+   "id": "910f248ab773fae8",
+   "properties": {
+    "candidate_id": "910f248ab773fae8",
+    "condiciones": [
+     "dentro_de_cierre"
+    ],
+    "confianza": 0.45,
+    "evidencia": [
+     {
+      "medida": "longitud_tramo_m",
+      "unidad": "m",
+      "valor": 160.0
+     },
+     {
+      "medida": "longitud_base_m",
+      "unidad": "m",
+      "valor": 160.0
+     },
+     {
+      "medida": "confianza_base",
+      "unidad": "fraccion",
+      "valor": 0.9
+     }
+    ],
+    "metodo": "candidato_corte@1",
+    "municipality_code": "28043",
+    "registros_base": [
+     "aaaaaaaaaaaaaaaa"
+    ],
+    "senales": [
+     {
+      "fraccion_apoyo": 0.7,
+      "fraccion_sin_dato": 0.0,
+      "procedencia": [
+       {
+        "fecha_descarga": "2026-11-26",
+        "fuente": "catastro_wfs_cp (sintético)",
+        "licencia": "licencia sintética",
+        "redistribucion": "solo_uso_interno",
+        "url": "https://example.invalid/catastro"
+       }
+      ],
+      "senal": {
+       "condicion": "dentro_de_cierre",
+       "identificador": "parcela_no_camino",
+       "version": 1
+      }
+     }
+    ],
+    "trazado": {
+     "fecha_dato": null,
+     "fuente": "via_pecuaria_oficial",
+     "id": "VP-SINT-2",
+     "procedencia": {
+      "fecha_descarga": "2026-11-26",
+      "fuente": "idem_vias_pecuarias (sintético)",
+      "licencia": "licencia sintética",
+      "redistribucion": "publicable",
+      "url": "https://example.invalid/idem"
+     }
+    }
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      [
+       460000.0,
+       4436000.0
+      ],
+      [
+       460200.0,
+       4436000.0
+      ]
+     ]
+    ],
+    "type": "MultiLineString"
+   },
+   "id": "cb30d538bb5ea601",
+   "properties": {
+    "candidate_id": "cb30d538bb5ea601",
+    "condiciones": [
+     "dentro_de_cierre"
+    ],
+    "confianza": 0.5,
+    "evidencia": [
+     {
+      "medida": "longitud_tramo_m",
+      "unidad": "m",
+      "valor": 200.0
+     },
+     {
+      "medida": "longitud_base_m",
+      "unidad": "m",
+      "valor": 200.0
+     },
+     {
+      "medida": "confianza_base",
+      "unidad": "fraccion",
+      "valor": 0.9
+     }
+    ],
+    "metodo": "candidato_corte@1",
+    "municipality_code": "28043",
+    "registros_base": [
+     "aaaaaaaaaaaaaaaa"
+    ],
+    "senales": [
+     {
+      "fraccion_apoyo": 0.8,
+      "fraccion_sin_dato": 0.0,
+      "procedencia": [
+       {
+        "fecha_descarga": "2026-11-26",
+        "fuente": "catastro_wfs_cp (sintético)",
+        "licencia": "licencia sintética",
+        "redistribucion": "solo_uso_interno",
+        "url": "https://example.invalid/catastro"
+       }
+      ],
+      "senal": {
+       "condicion": "dentro_de_cierre",
+       "identificador": "parcela_no_camino",
+       "version": 1
+      }
+     }
+    ],
+    "trazado": {
+     "fecha_dato": null,
+     "fuente": "via_pecuaria_oficial",
+     "id": "VP-SINT-1",
+     "procedencia": {
+      "fecha_descarga": "2026-11-26",
+      "fuente": "idem_vias_pecuarias (sintético)",
+      "licencia": "licencia sintética",
+      "redistribucion": "publicable",
+      "url": "https://example.invalid/idem"
+     }
+    }
+   },
+   "type": "Feature"
+  }
+ ],
+ "properties": {
+  "aviso": "Indicios automáticos a verificar; no son un dictamen. Fichero interno: no se publica.",
+  "criterio_discrepancias": "criterio_sintetico@1",
+  "metodo": "candidato_corte@1",
+  "municipio": "28043",
+  "registros_base": [
+   "aaaaaaaaaaaaaaaa"
+  ],
+  "senales": [
+   {
+    "estado": "ejecutada",
+    "motivo": null,
+    "procedencia": [
+     {
+      "fecha_descarga": "2026-11-26",
+      "fuente": "catastro_wfs_cp (sintético)",
+      "licencia": "licencia sintética",
+      "redistribucion": "solo_uso_interno",
+      "url": "https://example.invalid/catastro"
+     }
+    ],
+    "senal": {
+     "condicion": "dentro_de_cierre",
+     "identificador": "parcela_no_camino",
+     "version": 1
+    }
+   }
+  ]
+ },
+ "type": "FeatureCollection"
+}
