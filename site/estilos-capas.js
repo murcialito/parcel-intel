@@ -12,6 +12,7 @@ export const CLAVES = Object.freeze([
   "indicioBaja",
   "indicioMedia",
   "indicioAlta",
+  "candidato",
 ]);
 
 const ESTADOS = Object.freeze(["normal", "hover", "seleccionado"]);
@@ -35,6 +36,9 @@ const claro = {
   indicioBaja: { color: "#56b4e9", weight: 5, opacity: 0.85, dashArray: "1 12", lineCap: "round", halo: { color: "#0b2433", extra: 3, opacity: 0.55, dashArray: "1 12" } },
   indicioMedia: { color: "#56b4e9", weight: 7, opacity: 0.95, dashArray: "1 11", lineCap: "round", halo: { color: "#0b2433", extra: 3, opacity: 0.65, dashArray: "1 11" } },
   indicioAlta: { color: "#56b4e9", weight: 9, opacity: 1, dashArray: "1 10", lineCap: "round", halo: { color: "#0b2433", extra: 3, opacity: 0.75, dashArray: "1 10" } },
+  // Tramos a verificar (historia #171): raya y punto en bermellón, distinta de las demás por
+  // color y por patrón. No es parte del sistema de diseño original (docs/design-system).
+  candidato: { color: "#d55e00", weight: 4, opacity: 1, dashArray: "14 6 2 6", lineCap: "butt", halo: { color: "#2b1100", extra: 3, opacity: 0.7, dashArray: "14 6 2 6" } },
 };
 
 // Modo oscuro: la ortofoto se atenúa por CSS; las líneas suben un punto de luminosidad.
@@ -43,6 +47,7 @@ oscuro.viasPecuarias.color = "#f2b33d";
 oscuro.caminoActual.color = "#fff6d6";
 oscuro.trazadoHistorico.color = "#edb9dd";
 for (const clave of ["indicioBaja", "indicioMedia", "indicioAlta"]) oscuro[clave].color = "#7cc8f0";
+oscuro.candidato.color = "#f08a3a";
 
 export const BASE = congelar({
   claro,

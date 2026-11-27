@@ -89,6 +89,10 @@ function crearVistaDoble() {
     ponerEstadoCapa(id, estado) {
       v.estados[id] = estado;
     },
+    resumenes: {},
+    ponerResumenCapa(id, resumen) {
+      v.resumenes[id] = resumen;
+    },
     mostrarMensaje(texto) {
       v.mensaje = texto;
       v.mensajes.push(texto);
@@ -161,7 +165,7 @@ class ElementoFalso {
 
 function documentoFalso() {
   const elementos = {};
-  for (const id of ["municipio", "mensaje", "aviso-base", "estado-vias_pecuarias", "estado-camino_actual", "estado-discrepancias"]) {
+  for (const id of ["municipio", "mensaje", "aviso-base", "estado-vias_pecuarias", "estado-camino_actual", "estado-discrepancias", "estado-candidatos", "resumen-candidatos"]) {
     elementos[id] = new ElementoFalso("div");
   }
   return {
@@ -1091,8 +1095,13 @@ function dibujar(mapa, reg, id, geojson, opciones) {
 
 test("H165 CA1: estilo() es idéntico al del sistema de diseño en todas las combinaciones", async () => {
   const original = await cargarOriginalDiseno();
-  assert.deepEqual(plano(BASE), plano(original.BASE));
-  assert.deepEqual(plano(ESTILOS), plano(original.ESTILOS));
+  // #171 añade la clave `candidato`, que no existe en el sistema de diseño original: se compara
+  // todo lo que el original define y se comprueba que `candidato` es lo único añadido.
+  const sinPropia = (o) => Object.fromEntries(Object.entries(plano(o)).filter(([k]) => k !== "candidato"));
+  const sinCandidato = (porTema) => Object.fromEntries(Object.entries(plano(porTema)).map(([t, v]) => [t, typeof v === "object" ? sinPropia(v) : v]));
+  assert.deepEqual(sinCandidato(BASE), plano(original.BASE));
+  assert.deepEqual(sinCandidato(ESTILOS), plano(original.ESTILOS));
+  assert.deepEqual([...CLAVES].filter((c) => !(c in original.BASE.claro)), ["candidato"]);
   for (const clave of ["viasPecuarias", "caminoActual", "trazadoHistorico", "indicioBaja", "indicioMedia", "indicioAlta"]) {
     for (const e of ESTADOS) {
       for (const t of TEMAS) {
@@ -1241,7 +1250,7 @@ test("H165 CA4: opcionesDeEstilo traduce config.js; confianza desconocida da ind
 });
 
 test("H165 CA6: el módulo exporta lo acordado, congelado, y estilo() devuelve copias", () => {
-  assert.deepEqual([...CLAVES], ["viasPecuarias", "caminoActual", "trazadoHistorico", "indicioBaja", "indicioMedia", "indicioAlta"]);
+  assert.deepEqual([...CLAVES], ["viasPecuarias", "caminoActual", "trazadoHistorico", "indicioBaja", "indicioMedia", "indicioAlta", "candidato"]);
   for (const nombre of ["BASE", "ESTILOS", "CLAVES", "RELLENO", "estilo", "estiloTrazado", "temaDe"]) {
     assert.ok(nombre in estilosMod, nombre);
   }
@@ -1308,7 +1317,7 @@ test("H165 CA8: cada capa tiene su pane con zIndex 400 + orden, sea cual sea el 
   assert.equal(z("discrepancias"), 440);
   assert.ok(z("vias_pecuarias") < z("camino_actual") && z("camino_actual") < z("discrepancias"));
   for (const capa of reg.geojsons) assert.ok(capa.opciones.pane.startsWith("pc-capa-"));
-  assert.deepEqual(CONFIG.capas.map((c) => [c.id, c.orden]), [["vias_pecuarias", 10], ["camino_actual", 30], ["discrepancias", 40]]);
+  assert.deepEqual(CONFIG.capas.map((c) => [c.id, c.orden]), [["vias_pecuarias", 10], ["camino_actual", 30], ["discrepancias", 40], ["candidatos", 50]]);
   // Volver a dibujar una capa reutiliza su pane.
   const antes = reg.panes["pc-capa-camino_actual"];
   dibujar(mapa, reg, "camino_actual", coleccionDe(), { clave: "caminoActual", orden: 30 });
@@ -1410,4 +1419,226 @@ test("H166 CA4: el error de una capa deja las otras dibujadas y en ok", async ()
   assert.equal(vista.estados.camino_actual, "ok");
   assert.ok(mapa.r.anadidas.some((a) => a.id === "camino_actual"));
   assert.ok(!mapa.r.anadidas.some((a) => a.id === "vias_pecuarias"));
+});
+
+// --- Historia #171: tramos a verificar (capa `candidatos`) ------------------------------------
+// Nombres «H171 CA<n>:». Fixture sintética generada con el sink de #170 (tests/fixtures/site).
+
+const CANDIDATOS = CONFIG.capas.find((c) => c.id === "candidatos");
+const RUTA_CAND = "candidatos/99001.geojson";
+const PUBLICADO = JSON.parse(await readFile(process.env.VISOR_CANDIDATOS, "utf8"));
+const copia = (x) => JSON.parse(JSON.stringify(x));
+const TODAS = ["camino_actual", "vias_pecuarias"];
+
+function cargadorCandidatos(respuesta, { enIndice = true } = {}) {
+  const llamadas = [];
+  const cargar = async (ruta) => {
+    llamadas.push(ruta);
+    if (ruta.endsWith("indice.json")) {
+      return {
+        municipios: INDICE.municipios.map((m, i) =>
+          i === 0 && enIndice ? { ...m, capas: { ...m.capas, candidatos: RUTA_CAND } } : m,
+        ),
+      };
+    }
+    if (ruta.endsWith(RUTA_CAND)) {
+      if (respuesta instanceof Error) throw respuesta;
+      return respuesta;
+    }
+    return cargarJsonFixture(ruta);
+  };
+  return { cargar, llamadas };
+}
+
+const nodoCand = (propiedades) => nodoDe(propiedades);
+
+test("H171 CA1: la capa está en el panel con su título, apagada, y su atribución solo si activa y cargada", async () => {
+  assert.equal(CANDIDATOS.titulo, "Tramos a verificar (no son un dictamen)");
+  assert.equal(CANDIDATOS.visibleInicial, false);
+  const { cargar, llamadas } = cargadorCandidatos(copia(PUBLICADO));
+  const { mapa, ctl } = await iniciado(cargar);
+  assert.ok(llamadas.includes(CONFIG.datos + RUTA_CAND));
+  assert.equal(mapa.presentes.get("candidatos"), false, "dibujada pero apagada");
+  const base = [...CONFIG.atribucionesBase, VIAS.atribucion, CAMINO.atribucion];
+  assert.deepEqual(ultima(mapa.r.atribuciones), base);
+  ctl.cambiarCapa("candidatos", true);
+  assert.deepEqual(ultima(mapa.r.atribuciones), [...base, CANDIDATOS.atribucion]);
+  ctl.cambiarCapa("candidatos", false);
+  assert.deepEqual(ultima(mapa.r.atribuciones), base);
+  // Activa pero sin cargar (municipio sin la capa): no aporta atribución.
+  const sin = cargadorCandidatos(copia(PUBLICADO), { enIndice: false });
+  const r = await iniciado(sin.cargar);
+  r.ctl.cambiarCapa("candidatos", true);
+  assert.deepEqual(ultima(r.mapa.r.atribuciones), base);
+});
+
+test("H171 CA2: la ficha muestra etiqueta, texto, aviso, confianza y fuentes; nada fuera de la lista blanca", async () => {
+  const { cargar } = cargadorCandidatos(copia(PUBLICADO));
+  const { mapa } = await iniciado(cargar);
+  const dibujada = mapa.r.anadidas.find((a) => a.id === "candidatos");
+  assert.deepEqual(
+    dibujada.geojson.features.map((f) => f.geometry.type),
+    ["LineString", "MultiLineString", "LineString"],
+  );
+  assert.equal(dibujada.opciones.clave, "candidato");
+  assert.equal(dibujada.opciones.orden, 50);
+  for (const f of PUBLICADO.features) {
+    const trampa = { ...f.properties, id: f.id, titular: "Persona Inventada", refcat: "99999A00100001" };
+    const ficha = dibujada.opciones.alPulsar(trampa).nodo;
+    assert.equal(ficha.disponible, true);
+    const t = nodoCand(trampa).textContent;
+    const p = f.properties;
+    const orden = [p.etiqueta, p.texto, `confianza ${p.confianza}`, p.aviso, `${p.evidencia[0].papel}: ${p.evidencia[0].fuente}`].map((s) => t.indexOf(s));
+    assert.ok(orden.every((i) => i >= 0), JSON.stringify(orden));
+    assert.deepEqual(orden, [...orden].sort((a, b) => a - b));
+    for (const e of p.evidencia) {
+      for (const s of [e.papel, e.fuente, e.fecha_descarga, e.licencia, e.atribucion]) assert.ok(t.includes(s), s);
+      assert.ok(t.includes("año no declarado"), "anio null");
+    }
+    assert.ok(t.includes("Dirección General del Catastro"), "el Catastro va atribuido");
+    for (const prohibido of [f.id, "Persona Inventada", "99999A00100001", "Criterio:"]) {
+      assert.ok(!t.includes(prohibido), prohibido);
+    }
+    assert.ok(!JSON.stringify(ficha).includes(f.id));
+    assert.deepEqual(Object.keys(ficha).sort(), [
+      "aviso", "avisoOmision", "confianza", "criterio", "descripcionCriterio",
+      "disponible", "etiqueta", "evidencia", "texto",
+    ]);
+    const a = enlaces(nodoCand(trampa));
+    assert.equal(a.length, p.evidencia.length, "las URL https son enlaces");
+  }
+  // Sin aviso en el feature se usa el fijo de config.js.
+  const { aviso: _quitado, ...sinAviso } = PUBLICADO.features[0].properties;
+  assert.equal(fichaIndicio(sinAviso, CONFIG).aviso, CONFIG.textos.avisoIndicio);
+  // Una URL no https no es enlace.
+  const ev = { ...PUBLICADO.features[0].properties.evidencia[0], url: "http://ejemplo.invalid/x" };
+  assert.equal(enlaces(nodoCand({ ...PUBLICADO.features[0].properties, evidencia: [ev] })).length, 0);
+});
+
+test("H171 CA3: el resumen muestra las cuatro frases y «revisado a mano» tal cual, en orden", async () => {
+  const { cargar } = cargadorCandidatos(copia(PUBLICADO));
+  const { vista } = await iniciado(cargar);
+  assert.deepEqual(vista.resumenes.candidatos, {
+    frases: PUBLICADO.properties.medicion.texto,
+    revisadoAMano: PUBLICADO.properties.revisado_a_mano,
+  });
+  // Una fixture con frases distintas se ve igual: el visor no recalcula nada.
+  const otro = copia(PUBLICADO);
+  otro.properties.medicion.texto = ["Uno <b>x</b>.", "Dos 99 %.", "Tres.", "Cuatro 1/1."];
+  otro.properties.medicion.cobertura = "0 %"; // cifras que NO deben usarse
+  otro.properties.revisado_a_mano = "Marca distinta.";
+  const r = await iniciado(cargadorCandidatos(otro).cargar);
+  assert.deepEqual(r.vista.resumenes.candidatos, { frases: otro.properties.medicion.texto, revisadoAMano: "Marca distinta." });
+  // La vista real las pone con textContent y en orden.
+  const doc = documentoFalso();
+  const vista2 = crearVista(doc, CONFIG.textos);
+  vista2.ponerResumenCapa("candidatos", r.vista.resumenes.candidatos);
+  const cont = doc.elementos["resumen-candidatos"];
+  assert.deepEqual(cont.children.map((c) => c.textContent), [...otro.properties.medicion.texto, "Marca distinta."]);
+  assert.ok(cont.children.every((c) => c.tagName === "p"));
+  vista2.ponerResumenCapa("candidatos", null);
+  assert.equal(cont.children.length, 0);
+});
+
+test("H171 CA4: fichero roto o sin medición da error de esa capa, sin tramos y sin resumen; las demás siguen", async () => {
+  const sinMedicion = copia(PUBLICADO);
+  delete sinMedicion.properties.medicion;
+  const treintas = copia(PUBLICADO);
+  treintas.properties.medicion.texto = treintas.properties.medicion.texto.slice(0, 3);
+  const vacia = copia(PUBLICADO);
+  vacia.properties.medicion.texto[2] = "  ";
+  const sinMarca = copia(PUBLICADO);
+  sinMarca.properties.revisado_a_mano = "";
+  const sinProps = copia(PUBLICADO);
+  delete sinProps.properties;
+  const noCadena = copia(PUBLICADO);
+  noCadena.properties.medicion.texto[0] = 4;
+  const rotas = [new Error("HTTP 404"), { type: "Feature" }, null, sinMedicion, treintas, vacia, sinMarca, sinProps, noCadena];
+  for (const respuesta of rotas) {
+    const { mapa, vista } = await iniciado(cargadorCandidatos(respuesta).cargar);
+    assert.equal(vista.estados.candidatos, "error");
+    assert.ok(vista.mensaje.includes(CANDIDATOS.titulo), vista.mensaje);
+    assert.equal(vista.resumenes.candidatos ?? null, null, "sin resumen");
+    assert.deepEqual(mapa.r.anadidas.map((a) => a.id).sort(), TODAS, "ningún tramo");
+  }
+  assert.throws(() => resumenMedicionDe({}), /medición/);
+});
+
+const resumenMedicionDe = controladorMod.resumenMedicion;
+
+test("H171 CA5: un municipio sin la capa en el índice dice «sin tramos a verificar publicados», sin error ni petición", async () => {
+  const { cargar, llamadas } = cargadorCandidatos(copia(PUBLICADO), { enIndice: false });
+  const { mapa, vista } = await iniciado(cargar);
+  assert.equal(vista.estados.candidatos, "sin_candidatos");
+  assert.equal(vista.mensaje, "");
+  assert.ok(!llamadas.some((r) => r.includes("candidatos")));
+  assert.deepEqual(mapa.r.anadidas.map((a) => a.id).sort(), TODAS);
+  const doc = documentoFalso();
+  crearVista(doc, CONFIG.textos).ponerEstadoCapa("candidatos", "sin_candidatos");
+  assert.equal(doc.elementos["estado-candidatos"].textContent, "sin tramos a verificar publicados");
+  assert.equal(CONFIG.textos.sinCandidatos, "sin tramos a verificar publicados");
+});
+
+test("H171 CA6: un fichero con cero tramos muestra el mismo estado vacío y no muestra el resumen", async () => {
+  const vacio = copia(PUBLICADO);
+  vacio.features = [];
+  const { mapa, vista } = await iniciado(cargadorCandidatos(vacio).cargar);
+  assert.equal(vista.estados.candidatos, "sin_candidatos");
+  assert.equal(vista.mensaje, "");
+  assert.equal(vista.resumenes.candidatos, null);
+  assert.ok(!mapa.r.anadidas.some((a) => a.id === "candidatos"));
+});
+
+test("H171: al cambiar de municipio se quita la capa y el resumen", async () => {
+  const { cargar } = cargadorCandidatos(copia(PUBLICADO));
+  const { mapa, vista, ctl } = await iniciado(cargar);
+  assert.ok(vista.resumenes.candidatos);
+  await ctl.elegirMunicipio(B.ine);
+  assert.equal(vista.resumenes.candidatos, null);
+  assert.equal(mapa.presentes.has("candidatos"), false);
+  assert.equal(vista.estados.candidatos, "sin_candidatos");
+});
+
+test("H171 CA7: la clave candidato se distingue de las demás, con tema oscuro, halo y orden por encima de los indicios", () => {
+  assert.ok(CLAVES.includes("candidato"));
+  assert.equal(CANDIDATOS.estilo.clave, "candidato");
+  const n = (clave, tema = "claro") => estilo(clave, "normal", tema);
+  const mio = n("candidato");
+  const otras = ["viasPecuarias", "caminoActual", "indicioBaja", "indicioMedia", "indicioAlta"];
+  for (const clave of otras) {
+    const o = n(clave);
+    assert.ok(o.linea.color !== mio.linea.color && o.linea.dashArray !== mio.linea.dashArray, clave);
+  }
+  assert.ok(mio.linea.dashArray, "con patrón, no solo color");
+  assert.notEqual(n("candidato", "oscuro").linea.color, mio.linea.color);
+  assert.ok(mio.halo.weight > mio.linea.weight && mio.halo.opacity > 0);
+  assert.equal(mio.halo.dashArray, mio.linea.dashArray);
+  assert.ok(CANDIDATOS.orden > INDICIOS.orden);
+  const { mapa, reg } = mapaReal();
+  dibujar(mapa, reg, "discrepancias", coleccionDe(), { clave: "indicioBaja", orden: INDICIOS.orden });
+  dibujar(mapa, reg, "candidatos", copia(PUBLICADO), { clave: "candidato", orden: CANDIDATOS.orden });
+  assert.ok(Number(reg.panes["pc-capa-candidatos"].style.zIndex) > Number(reg.panes["pc-capa-discrepancias"].style.zIndex));
+});
+
+test("H171 CA7: MultiLineString es un solo trazado con un único popup", () => {
+  const { mapa, reg } = mapaReal();
+  const trazados = dibujar(mapa, reg, "candidatos", copia(PUBLICADO), { clave: "candidato", orden: 50 });
+  assert.equal(trazados.length, 3);
+  assert.equal(trazados[1].linea.popups.length, 1);
+  assert.equal(trazados[1].linea.ultimoEstilo.fill, false);
+});
+
+test("H171 CA8: ningún texto del visor ni de la fixture lleva palabras vetadas ni referencias catastrales", () => {
+  const vetadas = JSON.parse(process.env.VISOR_BANNED_WORDS ?? "[]");
+  assert.ok(vetadas.length > 0, "la lista de palabras vetadas no está vacía");
+  const textos = [
+    CANDIDATOS.titulo, CANDIDATOS.fuente, CANDIDATOS.atribucion, CONFIG.textos.sinCandidatos,
+    ...Object.values(PUBLICADO.properties).filter((v) => typeof v === "string"),
+    ...PUBLICADO.properties.medicion.texto, ...PUBLICADO.properties.atribucion,
+    ...PUBLICADO.features.map((f) => nodoCand(f.properties).textContent),
+  ];
+  for (const t of textos) {
+    assert.ok(!REFCAT.test(t), t);
+    for (const palabra of vetadas) assert.ok(!t.toLowerCase().includes(palabra), `${palabra}: ${t}`);
+  }
 });

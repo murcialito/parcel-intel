@@ -70,6 +70,15 @@
             <li><svg class="pc-muestra pc-muestra--indicio pc-muestra--alta" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg> Confianza alta · punto grande y denso</li>
           </ul>
         </li>
+        <li class="pc-capa">
+          <label for="capa-candidatos" class="pc-capa__fila">
+            <svg class="pc-muestra pc-muestra--candidato" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg>
+            <span class="pc-capa__texto"><span class="pc-capa__nombre">Tramos a verificar (no son un dictamen)</span><span class="pc-capa__desc">Raya y punto · revisados a mano, a verificar sobre el terreno</span></span>
+            <input type="checkbox" role="switch" class="pc-switch" id="capa-candidatos" name="candidatos">
+          </label>
+          <div class="pc-capa__estado" id="estado-candidatos"></div>
+          <div class="pc-capa__resumen" id="resumen-candidatos"></div>
+        </li>
         </ul>
       </fieldset>
     </form>

@@ -730,3 +730,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: en las Actions de los agentes, `python -c "…"` con un salto de línea seguido de `#` dentro de la cadena se deniega («Newline followed by #»). Para cambios de varias líneas en un fichero, `Edit`.
   - **Aplica a**: implementación.
+
+## [2026-11-27] Historia #171 — Tramos a verificar en el visor
+
+- **Lección**: `site/css/tokens.css` es copia fiel de `docs/design-system/` (#114 CA4) y `estilo.css` no admite colores literales (#166 CA5): un color nuevo de capa va a **los dos** `tokens.css` a la vez (claro y los dos bloques oscuros). La clave nueva de `estilos-capas.js` no existe en el original de diseño, así que el test de #165 compara solo las claves del original y comprueba que `candidato` es la única añadida.
+  - **Aplica a**: implementación (capas nuevas del visor).
+
+- **Lección**: una capa con ficha de otro tipo reutiliza `fichaIndicio`/`nodoFichaIndicio` en lugar de duplicarla; lo que la ficha ya no puede dar por supuesto (aquí, el criterio vacío) se resuelve en la vista, sin pintar párrafos vacíos. Un resumen que viene del fichero se valida y se pasa tal cual: si falta, la capa va a error antes de dibujar ningún tramo.
+  - **Aplica a**: implementación y revisión (extensiones del visor).
+
+- **Lección**: en las Actions de los agentes, `mv`, `rm`, `cp` y `sed -i` sobre ficheros del repo piden aprobación. Para colocar un fichero generado, genéralo directamente en su ruta o léelo y escríbelo con `Write`, y no dejes carpetas temporales dentro del repo.
+  - **Aplica a**: implementación.

@@ -16,12 +16,14 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from parcel_intel.domain.public_card import BANNED_WORDS
 from parcel_intel.domain.published_discrepancy import CADASTRAL_REFERENCE_RE
 
 ROOT = Path(__file__).resolve().parents[2]
 SITE = ROOT / "site"
 TEST_FILE = Path(__file__).with_name("visor.test.mjs")
 FIXTURES = ROOT / "tests" / "fixtures" / "visor" / "datos"
+CANDIDATOS = ROOT / "tests" / "fixtures" / "site" / "candidatos_28043.geojson"
 DISENO = ROOT / "docs" / "design-system" / "site" / "js" / "estilos-capas.js"
 MODULOS = ("config.js", "controlador.js", "estilos-capas.js", "mapa.js", "vista.js")
 
@@ -56,9 +58,12 @@ def run_node_tests(pattern: str, workdir: Path) -> NodeResult:
         "VISOR_DIR": str(copia),
         "VISOR_FIXTURES": str(FIXTURES),
         "VISOR_DATOS": str(SITE / "datos"),
+        # Fichero publicado de tramos a verificar, sintético (historia #171).
+        "VISOR_CANDIDATOS": str(CANDIDATOS),
         # Original del sistema de diseño, contra el que se compara estilos-capas.js (#165 CA1).
         "VISOR_DISENO": str(DISENO),
         "VISOR_REFCAT_RE": CADASTRAL_REFERENCE_RE.pattern,
+        "VISOR_BANNED_WORDS": json.dumps([w.lower() for w in BANNED_WORDS]),
     }
     proceso = subprocess.run(
         [

@@ -70,10 +70,24 @@ export const CONFIG = Object.freeze({
       }),
       orden: 40,
     }),
+    // Historia #171: tramos a verificar aprobados a mano y publicados por #170 (ADR 0048). Nace
+    // apagada, como los indicios; su ficha es la de los indicios (misma forma, ADR 0044).
+    Object.freeze({
+      id: "candidatos",
+      titulo: "Tramos a verificar (no son un dictamen)",
+      fuente: "Paso Común, tramos a verificar revisados a mano",
+      atribucion: "Tramos a verificar elaborados por Paso Común a partir de las fuentes que cita cada ficha",
+      propiedadNombre: null,
+      tipo: "candidato",
+      visibleInicial: false,
+      estilo: Object.freeze({ clave: "candidato" }),
+      orden: 50,
+    }),
   ]),
 
   textos: Object.freeze({
     sinIndicios: "sin indicios publicados",
+    sinCandidatos: "sin tramos a verificar publicados",
     anioNoDeclarado: "año no declarado",
     fichaNoDisponible: "ficha no disponible",
     // Copia literal del aviso de #16 (ficha pública; también en cada feature y en el sidecar de
