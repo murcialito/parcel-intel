@@ -878,9 +878,23 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: refinador (al redactar criterios que describen el estado de una descarga o de un dato externo, citar el comentario que lo fija y su fecha) | implementación (leer los comentarios del issue completos, no solo el cuerpo, antes de dar por válido un CA de hecho).
 - **Lección**: una sección nueva de `REGISTRY.md` que se inserte antes de «## Resumen de fuentes no verificadas» cae dentro del rango de las guardas de otras historias (`index(...)` hasta el resumen). Se añade al final del fichero, para no tocar esos rangos, y la suite completa se ejecuta antes de abrir la PR.
   - **Aplica a**: implementación (al añadir secciones a `REGISTRY.md`) | revisión (comprobar con qué encabezado acota cada guarda antes de aceptar la posición de una sección nueva).
+## [2026-11-27] Historia #282 — Clasificación de vías pecuarias en BOE y BOCM
+
+- **Lección**: la búsqueda de texto libre del BOCM no exige todas las palabras: pone en la página 1 documentos de otros municipios con «Colmenar» o «vías pecuarias» (Colmenar del Arroyo, Chapinería), y el control con Villaconejos no lo deja arriba aunque el BOE tenga su orden. Un «no hay» en el BOCM solo vale con la frase exacta del título de la orden y con un control positivo que salga en primer lugar (Chapinería, orden 3/2011).
+  - **Causa**: sin control, la primera página de texto libre parecía un negativo válido para cuatro municipios y no lo era. Con la frase exacta, el control de Chapinería sí aparece el primero.
+  - **Aplica a**: BA (exigir control positivo antes de escribir «no localizada») | implementación (cualquier consulta a un buscador de boletines).
+- **Lección**: el buscador por título del BOE sirve como negativo cuando salen los controles positivos (Chinchón, Villaconejos, Villarejo), pero solo cubre el título. Un «no hay» en el texto completo o en los sumarios 1960–1990 no se afirma: esos canales se anotan «no se pudo leer» con su motivo.
+  - **Aplica a**: BA e implementación (cada canal de un registro de fuentes con su resultado, también cuando es ilegible).
+- **Lección**: cambiar el estado de filas de una tabla compartida rompe la guarda de otra historia que cuenta las mismas cadenas (`"| no encontrada |"` en #26). Se actualiza esa guarda al nuevo estado y se explica en la PR, en vez de mantener el dato viejo.
+  - **Aplica a**: implementación (antes de editar una tabla de `REGISTRY.md`, buscar las guardas que la leen por rango o por cadena).
 ## [2026-11-27] Historia #279 — Catálogo de caminos de Cáceres
 
 - **Lección**: la URL de descarga que cita una ficha de datos.gob.es puede estar muerta o devolver la portada HTML con `200`; el recurso real está en el registro del propio portal (`package_show` de CKAN). Antes de dar un fichero por descargado, comprobar que es JSON (`head -c`), y si no lo es, no guardarlo con la extensión del dato.
   - **Causa**: el endpoint `GetData?...format=geojson` de la ficha devolvió la portada de `opendata.caceres.es` (6.619 bytes, `text/html`) con código 200 tras una redirección a HTTPS con cadena de certificados incompleta. Los datos reales están en `ide.caceres.es` (WFS), que no respondió desde GitHub Actions: el contenido quedó `pendiente-local`.
   - **Aplica a**: refinador (no citar una licencia o un formato de una ficha sin abrir el recurso) | implementación (un `200` no prueba que haya dato).
+
+## [2026-11-27] Historia #281 — Órdenes de clasificación en el BOE
+
+- **Lección**: el PDF de una disposición del BOE se saca del enlace «PDF» de la ficha `doc.php?id=<BOE-A-…>` (patrón `/boe/dias/AAAA/MM/DD/pdfs/A<página inicial>-<final>.pdf`) y es la página entera del boletín, con otras disposiciones sin relación. El texto extraído confunde cifras («6,E9» por 6,69): una cifra se da por buena solo contra la imagen que devuelve `Read`. Si `Read` con `pages` falla por falta de `pdftoppm`, leerlo sin `pages`.
+  - **Aplica a**: implementación (fixtures de disposiciones: grabar el PDF íntegro, pero no copiar a texto los nombres de personas que cite la página).
 
