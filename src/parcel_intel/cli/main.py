@@ -2,7 +2,8 @@ import argparse
 import sys
 import time
 from collections import Counter
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -44,6 +45,7 @@ from parcel_intel.adapters.livestock_trails.adapter import LivestockTrailAdapter
 from parcel_intel.adapters.pnoa import client as pnoa_client
 from parcel_intel.adapters.pnoa.window import PnoaWindowAdapter
 from parcel_intel.adapters.postgis.connection import get_connection
+from parcel_intel.adapters.postgis.georeference_repository import PostgisGeoreferenceRepository
 from parcel_intel.adapters.postgis.rule_repository import PostgisRuleRepository
 from parcel_intel.adapters.published_layers import (
     GeoJsonPublishedDiscrepancySink,
@@ -81,6 +83,7 @@ from parcel_intel.application.build_trail_evidence import BuildTrailEvidenceUseC
 from parcel_intel.application.cut_signals import CadastralParcelSignalProvider
 from parcel_intel.application.detect_cut_candidates import DetectCutCandidatesUseCase
 from parcel_intel.application.detect_discrepancies import DetectDiscrepanciesUseCase
+from parcel_intel.application.load_historic_trails import HistoricUnitUseCase
 from parcel_intel.application.publish_discrepancies import PublishDiscrepanciesUseCase
 from parcel_intel.application.publish_layers import (
     DEFAULT_LAYERS,
@@ -92,7 +95,16 @@ from parcel_intel.domain.digitization import StaleApprovalError
 from parcel_intel.domain.discrepancy import DiscrepancyKind
 from parcel_intel.domain.discrepancy_report import LayerStatus
 from parcel_intel.domain.geometry import BBox
-from parcel_intel.domain.georeferencing import GeoreferenceRejectedError
+from parcel_intel.domain.georeferencing import (
+    ControlPointSet,
+    GeoreferenceFit,
+    GeoreferenceRejectedError,
+    UnitSpec,
+    Verdict,
+    WorkingImage,
+    occupied_quadrants,
+    thresholds_m,
+)
 from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
 from parcel_intel.domain.municipal_road_layer import MunicipalRoadLayerBatch
 from parcel_intel.domain.parcel import Parcel
@@ -116,6 +128,7 @@ from parcel_intel.ports.errors import (
     TruncatedAreaQueryError,
     WorkingImageUnavailableError,
 )
+from parcel_intel.ports.georeference_repository import GeoreferenceRepositoryPort
 from parcel_intel.ports.municipal_boundary import MunicipalBoundaryPort
 
 _LAYER_CHOICES = ["dph_cauce", "via_pecuaria", "red_natura_plan"]
@@ -812,6 +825,146 @@ def _imagenes_comparacion(args: argparse.Namespace) -> int:
     return 0
 
 
+def build_historic_unit_use_case(
+    curated: Path,
+    cache: Path,
+    offline: bool,
+    repository: GeoreferenceRepositoryPort | None = None,
+    http_get: HistoricHttpGet = historic_default_http_get,
+    today: Callable[[], date] = _today,
+) -> HistoricUnitUseCase:
+    """Composition root de `historico ajuste|cargar` (historia #139, ADR 0044).
+
+    `repository` solo hace falta para `cargar`; `ajuste` no usa la base."""
+    return HistoricUnitUseCase(
+        inputs=CuratedHistoricFiles(curated),
+        images=IgnHistoricImageAdapter(
+            raw_dir=cache, http_get=http_get, clock=today, offline=offline
+        ),
+        repository=repository,
+    )
+
+
+@contextmanager
+def _georeference_repository() -> Iterator[GeoreferenceRepositoryPort]:
+    connection = get_connection()
+    try:
+        yield PostgisGeoreferenceRepository(connection)
+    finally:
+        connection.close()
+
+
+def _format_fit(
+    spec: UnitSpec,
+    image: WorkingImage,
+    control_points: ControlPointSet,
+    fit: GeoreferenceFit,
+    verdict: Verdict,
+) -> list[str]:
+    points = control_points.points
+    loo_limit, max_limit = thresholds_m(spec.scale_denominator)
+    quadrants = occupied_quadrants(points, spec.image_width_px, spec.image_height_px)
+    lines = [
+        f"unidad: {spec.unit_id}",
+        f"documento: {spec.document_id}",
+        f"imagen_sha256: {image.sha256}",
+        f"puntos_sha256: {control_points.sha256}",
+        f"candidatos: {len(points)}",
+        f"retenidos: {fit.n_retained}",
+        f"descartados: {len(points) - fit.n_retained}",
+        f"cuadrantes: {quadrants}",
+        f"rmse_m: {fit.rmse_m:.2f}",
+        f"residuo_max_m: {fit.max_residual_m:.2f}",
+        f"rmse_loo_m: {fit.loo_rmse_m:.2f}",
+        f"umbral_rmse_loo_m: {loo_limit:.2f}",
+        f"umbral_residuo_max_m: {max_limit:.2f}",
+        "veredicto: aceptable"
+        if verdict.ok
+        else "veredicto: rechazada: " + "; ".join(verdict.reasons),
+    ]
+    retained = {p.point_id: p.retained for p in points}
+    for residual in fit.residuals:
+        state = "retenido" if retained[residual.point_id] else "descartado"
+        loo = "-" if residual.loo_residual_m is None else f"{residual.loo_residual_m:.2f}"
+        lines.append(f"{residual.point_id} {state} residuo_m={residual.residual_m:.2f} loo_m={loo}")
+    return lines
+
+
+def _historic_failure(error: Exception) -> str | None:
+    """Motivo de un rechazo de la unidad, o `None` si el error no es de los esperados."""
+    if isinstance(error, StaleApprovalError):
+        return (
+            "aprobación caducada: los puntos de control cambiaron; devolver a propuesto: "
+            + ", ".join(error.trail_ids)
+        )
+    if isinstance(
+        error,
+        GeoreferenceRejectedError
+        | RawImageMismatchError
+        | WorkingImageUnavailableError
+        | CuratedUnitNotFoundError
+        | ValueError,
+    ):
+        return str(error)
+    return None
+
+
+def _historico_ajuste(args: argparse.Namespace) -> int:
+    use_case = build_historic_unit_use_case(args.curated, args.cache, args.sin_red)
+    try:
+        assessment = use_case.assess(args.unit_id)
+    except Exception as error:
+        reason = _historic_failure(error)
+        if reason is None:
+            raise
+        print(f"ERROR {args.unit_id}: {reason}", file=sys.stderr)
+        return 1
+    for line in _format_fit(
+        assessment.spec,
+        assessment.image,
+        assessment.control_points,
+        assessment.fit,
+        assessment.verdict,
+    ):
+        print(line)
+    if not assessment.verdict.ok:
+        print(f"ERROR {args.unit_id}: " + "; ".join(assessment.verdict.reasons), file=sys.stderr)
+        return 1
+    return 0
+
+
+def _historico_cargar(args: argparse.Namespace) -> int:
+    try:
+        with _georeference_repository() as repository:
+            use_case = build_historic_unit_use_case(
+                args.curated, args.cache, args.sin_red, repository
+            )
+            outcome = use_case.load(args.unit_id)
+    except Exception as error:
+        reason = _historic_failure(error)
+        if reason is None:
+            raise
+        print(f"ERROR {args.unit_id}: {reason}; no se ha escrito nada", file=sys.stderr)
+        return 1
+    unit = outcome.unit
+    for line in _format_fit(
+        unit.spec, unit.image, unit.control_points, unit.fit, Verdict(ok=True, reasons=())
+    ):
+        print(line)
+    sync = outcome.sync
+    print(f"insertados: {len(sync.inserted)}")
+    print(f"actualizados: {len(sync.updated)}")
+    print(f"sin_cambios: {len(sync.unchanged)}")
+    print(f"retirados: {len(sync.withdrawn)}")
+    print(f"propuestos: {len(outcome.proposed)}")
+    print(f"rechazados: {len(outcome.rejected)}")
+    for trail_id, reason in outcome.extrapolated:
+        print(f"extrapolado {trail_id}: {reason}")
+    for attribution in outcome.attributions:
+        print(f"atribucion: {attribution}")
+    return 0
+
+
 def build_evidence_use_case(
     curated: Path,
     cache: Path,
@@ -1121,9 +1274,33 @@ def _build_parser() -> argparse.ArgumentParser:
     historico_parser = subparsers.add_parser(
         "historico", help="Trazados históricos georreferenciados de una unidad (ADR 0043)"
     )
-    historico_subparsers = historico_parser.add_subparsers(
-        dest="historico_command", required=True
-    )
+    historico_subparsers = historico_parser.add_subparsers(dest="historico_command", required=True)
+    for name, helptext, handler in (
+        (
+            "ajuste",
+            "Medir el ajuste de los puntos de control de una unidad (sin base)",
+            _historico_ajuste,
+        ),
+        ("cargar", "Cargar en PostGIS los trazados aprobados de una unidad", _historico_cargar),
+    ):
+        unit_parser = historico_subparsers.add_parser(name, help=helptext)
+        unit_parser.add_argument("unit_id", help="Identificador de la unidad, p. ej. 280075-w1")
+        unit_parser.add_argument(
+            "--curated",
+            type=Path,
+            default=Path("curated/historico"),
+            help="Directorio con una carpeta por unidad",
+        )
+        unit_parser.add_argument(
+            "--cache",
+            type=Path,
+            default=Path("data/raw/ign_planimetrias"),
+            help="Caché cruda de las imágenes de trabajo",
+        )
+        unit_parser.add_argument(
+            "--sin-red", action="store_true", help="Solo la caché; sin imagen es un error"
+        )
+        unit_parser.set_defaults(func=handler)
     evidencia_parser = historico_subparsers.add_parser(
         "evidencia",
         help="PNG de dos paneles de cada trazado propuesto de una unidad, para revisarlo",
