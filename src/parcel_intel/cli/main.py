@@ -11,6 +11,7 @@ import requests
 
 from parcel_intel.adapters.catastro import client as catastro_client
 from parcel_intel.adapters.catastro.area_adapter import (
+    CATASTRO_INSPIRE_LICENSE,
     CATASTRO_WFS_TILE_SIDE_M,
     CatastroAreaAdapter,
 )
@@ -21,6 +22,7 @@ from parcel_intel.adapters.comparison_files import (
     read_stretches,
 )
 from parcel_intel.adapters.curated_historic import CuratedHistoricFiles
+from parcel_intel.adapters.cut_candidate_files import GeoJsonCutCandidateWriter
 from parcel_intel.adapters.deepseek.adapter import DeepSeekAdapter, MissingDeepSeekApiKeyError
 from parcel_intel.adapters.deepseek.client import DeepSeekApiError
 from parcel_intel.adapters.discrepancy_files import (
@@ -65,7 +67,11 @@ from parcel_intel.adapters.road_layer_files import (
 from parcel_intel.adapters.road_network import client as roadlink_client
 from parcel_intel.adapters.road_network.adapter import RoadNetworkAdapter
 from parcel_intel.adapters.shapely_geometry import ShapelyLineClipper, ShapelyPolygonClipper
-from parcel_intel.adapters.trail_layers import GeoJsonTrailLayerReader, TrailLayerFormatError
+from parcel_intel.adapters.trail_layers import (
+    GeoJsonCadastralRoadWriter,
+    GeoJsonTrailLayerReader,
+    TrailLayerFormatError,
+)
 from parcel_intel.application.author_rule_proposal import AuthorRuleProposalUseCase
 from parcel_intel.application.build_cadastral_road_layer import BuildCadastralRoadLayerUseCase
 from parcel_intel.application.build_comparison_images import BuildComparisonImagesUseCase
@@ -79,6 +85,8 @@ from parcel_intel.application.build_municipal_livestock_trail_layers import (
 )
 from parcel_intel.application.build_municipal_road_layers import BuildMunicipalRoadLayersUseCase
 from parcel_intel.application.build_trail_evidence import BuildTrailEvidenceUseCase
+from parcel_intel.application.cut_signals import CadastralParcelSignalProvider
+from parcel_intel.application.detect_cut_candidates import DetectCutCandidatesUseCase
 from parcel_intel.application.detect_discrepancies import DetectDiscrepanciesUseCase
 from parcel_intel.application.load_historic_trails import HistoricUnitUseCase
 from parcel_intel.application.publish_discrepancies import PublishDiscrepanciesUseCase
@@ -91,7 +99,7 @@ from parcel_intel.domain.comparison_image import DegenerateStretchError
 from parcel_intel.domain.digitization import StaleApprovalError
 from parcel_intel.domain.discrepancy import DiscrepancyKind
 from parcel_intel.domain.discrepancy_report import LayerStatus
-from parcel_intel.domain.geometry import BBox
+from parcel_intel.domain.geometry import BBox, outward_integer_bbox, shape_bbox
 from parcel_intel.domain.georeferencing import (
     ControlPointSet,
     GeoreferenceFit,
@@ -104,7 +112,8 @@ from parcel_intel.domain.georeferencing import (
 )
 from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
 from parcel_intel.domain.municipal_road_layer import MunicipalRoadLayerBatch
-from parcel_intel.domain.provenance import Provenance
+from parcel_intel.domain.parcel import Parcel
+from parcel_intel.domain.provenance import Provenance, Redistribution
 from parcel_intel.domain.published_discrepancy import OmittedByLicense
 from parcel_intel.domain.published_layers import PUBLISHED_LAYERS, PublishedLayerId
 from parcel_intel.domain.rule import Rule, WithinDistanceCondition
@@ -125,6 +134,7 @@ from parcel_intel.ports.errors import (
     WorkingImageUnavailableError,
 )
 from parcel_intel.ports.georeference_repository import GeoreferenceRepositoryPort
+from parcel_intel.ports.municipal_boundary import MunicipalBoundaryPort
 
 _LAYER_CHOICES = ["dph_cauce", "via_pecuaria", "red_natura_plan"]
 
@@ -446,17 +456,64 @@ def _bbox_argument(value: str) -> BBox:
     return (numbers[0], numbers[1], numbers[2], numbers[3])
 
 
+def municipality_grid_bbox(
+    municipality_code: str,
+    cache_dir: Path,
+    offline: bool,
+    ign_http_get: HttpGet = ign_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> BBox:
+    """Bbox de la rejilla de teselas de un municipio (historia #160): el del límite del IGN
+    redondeado hacia fuera a metro entero, el mismo que usa `candidatos-corte`."""
+    fetcher = CachedRawFetcher(ign_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    boundaries = IgnAdministrativeUnitsAdapter(
+        AMBITO_HITO_BBOX_ETRS89, fetcher=fetcher, today=today
+    )
+    [boundary] = boundaries.get_municipal_boundaries([municipality_code])
+    return outward_integer_bbox(shape_bbox(boundary.geometry))
+
+
+def cadastral_road_layer_provenance(layer: CadastralRoadLayer) -> Provenance:
+    """Procedencia de la capa: la petición WFS más antigua de sus caminos (fecha real de
+    descarga); sin caminos, la fuente genérica con la fecha de hoy."""
+    if layer.roads:
+        first = min(layer.roads, key=lambda road: road.provenance.retrieved_at)
+        return first.provenance
+    return Provenance(
+        source="catastro_wfs_cp",
+        url=catastro_client.WFS_PARCEL_URL,
+        retrieved_at=_today(),
+        license=CATASTRO_INSPIRE_LICENSE,
+        redistribution=Redistribution.INTERNAL_ONLY,
+    )
+
+
+def _format_bbox(bbox: BBox) -> str:
+    return ",".join(f"{value:.2f}".rstrip("0").rstrip(".") for value in bbox)
+
+
 def _catastro_caminos(args: argparse.Namespace) -> int:
     try:
+        if args.bbox is None:
+            bbox = municipality_grid_bbox(args.codigo, args.cache, args.sin_red)
+        else:
+            bbox = args.bbox
         layer = build_cadastral_road_layer(
             args.provincia,
             args.municipio,
             args.codigo,
-            args.bbox,
+            bbox,
             args.cache_dir,
             args.sin_red,
         )
+        # Todo o nada: solo se escribe con la capa completa y validada.
+        path = GeoJsonCadastralRoadWriter(args.salida).write(
+            layer, cadastral_road_layer_provenance(layer)
+        )
     except (
+        MunicipalBoundaryNotFoundError,
+        MunicipalBoundaryUnusableError,
         AreaQueryLimitExceededError,
         TruncatedAreaQueryError,
         CadastralServiceError,
@@ -468,7 +525,12 @@ def _catastro_caminos(args: argparse.Namespace) -> int:
     except requests.RequestException as error:
         print(f"Error de red: {error}", file=sys.stderr)
         return 1
+    except OSError as error:
+        print(f"Error al escribir la capa: {error}", file=sys.stderr)
+        return 1
     print(_format_cadastral_road_layer(layer, args.municipio))
+    print(f"  rejilla: bbox {_format_bbox(bbox)} (teselas de {CATASTRO_WFS_TILE_SIDE_M:g} m)")
+    print(f"Capa escrita en {path}")
     return 0
 
 
@@ -527,6 +589,88 @@ def _discrepancias(args: argparse.Namespace) -> int:
             f"{code}: {len(report.records)} discrepancias ({summary}); "
             f"capas ausentes: {', '.join(absent) or 'ninguna'}; "
             f"{time.monotonic() - started:.1f} s -> {args.salida}"
+        )
+    return 1 if failed else 0
+
+
+class _CachedParcels:
+    """`ParcelsInAreaPort` sobre la caché cruda de Catastro. Una tesela que falta
+    en la caché (modo `--sin-red`) es «tesela sin datos», no un fallo del lote:
+    la señal queda `sin_datos` con su motivo."""
+
+    def __init__(self, inner: CatastroAreaAdapter) -> None:
+        self._inner = inner
+
+    def get_parcels_in_bbox(self, bbox: BBox) -> list[Parcel]:
+        try:
+            return self._inner.get_parcels_in_bbox(bbox)
+        except RawCacheMissError as error:
+            raise CadastralServiceError(f"tesela no cacheada y sin red: {error}") from error
+
+
+CUT_CANDIDATES_PROVINCE = "MADRID"
+
+
+def build_cut_candidate_use_case(
+    derived_dir: Path,
+    output_dir: Path,
+    cache_dir: Path,
+    offline: bool,
+    catastro_http_get: HttpGet = catastro_client.default_http_getter,
+    ign_http_get: HttpGet = ign_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+    boundaries: MunicipalBoundaryPort | None = None,
+) -> DetectCutCandidatesUseCase:
+    """Composition root de `candidatos-corte` (historia #128, ADR 0039 §8).
+
+    Lee el informe interno de discrepancias de `derived_dir/discrepancias/interno`
+    y las parcelas de Catastro (#37, interno) y escribe en `output_dir`. Sin LLM.
+    Con `offline=True` nada llama a la red: solo la caché cruda."""
+    catastro_fetcher = CachedRawFetcher(
+        catastro_http_get, cache_dir / "catastro", today, sleep=sleep, offline=offline
+    )
+    if boundaries is None:
+        ign_fetcher = CachedRawFetcher(ign_http_get, cache_dir, today, sleep=sleep, offline=offline)
+        boundaries = IgnAdministrativeUnitsAdapter(
+            AMBITO_HITO_BBOX_ETRS89, fetcher=ign_fetcher, today=today
+        )
+    provider = CadastralParcelSignalProvider(
+        parcels_for=lambda code: _CachedParcels(
+            CatastroAreaAdapter(CUT_CANDIDATES_PROVINCE, code, catastro_fetcher)
+        ),
+        boundaries=boundaries,
+        tile_side_m=CATASTRO_WFS_TILE_SIDE_M,
+    )
+    return DetectCutCandidatesUseCase(
+        reports=GeoJsonDiscrepancyReportReader(derived_dir / "discrepancias" / "interno"),
+        providers=[provider],
+        sink=GeoJsonCutCandidateWriter(output_dir),
+    )
+
+
+def _candidatos_corte(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        print("Indica --municipio <INE> (repetible) o --ambito.", file=sys.stderr)
+        return 1
+    use_case = build_cut_candidate_use_case(args.entrada, args.salida, args.cache, args.sin_red)
+    failed = False
+    for code in codes:
+        try:
+            report = use_case.execute(code)
+        except Exception as error:  # un municipio roto no frena el lote
+            print(f"FALLO {code}: {type(error).__name__}: {error}", file=sys.stderr)
+            failed = True
+            continue
+        if not report.discrepancy_criterion_id:
+            print(f"{code}: sin capas (sin informe de discrepancias); no se escribe fichero")
+            continue
+        no_data = [s.signal.identifier for s in report.signals if s.status == "sin_datos"]
+        print(
+            f"{code}: {len(report.candidates)} candidatos; "
+            f"señales sin_datos: {', '.join(no_data) or 'ninguna'} -> {args.salida}"
         )
     return 1 if failed else 0
 
@@ -1019,8 +1163,21 @@ def _build_parser() -> argparse.ArgumentParser:
     caminos_parser.add_argument(
         "--bbox",
         type=_bbox_argument,
-        required=True,
-        help="MINX,MINY,MAXX,MAXY del término en EPSG:25830 (orden E,N)",
+        default=None,
+        help="MINX,MINY,MAXX,MAXY en EPSG:25830 (E,N); por defecto, el límite del IGN "
+        "redondeado hacia fuera (la rejilla que usa candidatos-corte)",
+    )
+    caminos_parser.add_argument(
+        "--cache",
+        type=Path,
+        default=Path("data/raw"),
+        help="Caché cruda del límite del IGN (solo sin --bbox)",
+    )
+    caminos_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("data/derived/catastro_caminos"),
+        help="Directorio de los ficheros <codigo>.geojson (uso interno, nunca se publica)",
     )
     caminos_parser.add_argument(
         "--cache-dir",
@@ -1060,6 +1217,42 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio de salida (interno/ y publicable/)",
     )
     discrepancias_parser.set_defaults(func=_discrepancias)
+
+    candidatos_parser = subparsers.add_parser(
+        "candidatos-corte",
+        help="Candidatos a corte de uno o varios municipios, en un fichero interno (no se publica)",
+    )
+    candidatos_parser.add_argument(
+        "--municipio",
+        type=_municipality_code,
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible)",
+    )
+    candidatos_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito"
+    )
+    candidatos_parser.add_argument(
+        "--sin-red",
+        action="store_true",
+        help="Solo la caché cruda; una tesela que falta deja la señal sin_datos",
+    )
+    candidatos_parser.add_argument(
+        "--entrada",
+        type=Path,
+        default=Path("data/derived"),
+        help="Directorio con las capas derivadas (discrepancias/interno/)",
+    )
+    candidatos_parser.add_argument(
+        "--cache", type=Path, default=Path("data/raw"), help="Directorio de la caché cruda"
+    )
+    candidatos_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("data/derived/candidatos/interno"),
+        help="Directorio de salida de los ficheros internos <codigo_ine>.geojson",
+    )
+    candidatos_parser.set_defaults(func=_candidatos_corte)
 
     publicar_parser = subparsers.add_parser(
         "publicar-capas",

@@ -793,6 +793,24 @@ Ejecución real del 2026-11-26: `vias-pecuarias-municipios` y `camino-actual-mun
 
 Ningún fichero supera el umbral de simplificación (3 000 000 bytes). Belmonte de Tajo (28019) no tiene piezas de vías pecuarias, y su capa vacía no se publica (resuelto en #86, ADR 0036). El ámbito completo se publicó en #86: 13 capas, ninguna sobre el umbral.
 
+### Candidatos a corte — fichero interno (historia #128)
+
+`candidatos-corte` escribe `data/derived/candidatos/interno/<ine>.geojson` (EPSG:25830, fuera de git). **Deriva de Catastro** (parcelas del WFS de #37, licencia INSPIRE) y de las capas base de #94: es de **uso interno y no redistribuible**; la procedencia de cada señal (`redistribucion: solo_uso_interno`) viaja en el propio fichero. No lleva datos de titularidad, referencias catastrales ni geometría de parcela. Publicar candidatos es #103 y exigirá su propia redacción. Sin fuente nueva ni proveedor nuevo.
+
+Verificación con datos reales de Colmenar de Oreja (CA12, `integration` + `fuera_de_ci`), **en verde** en local el 2026-11-27, con `data/` generada por `catastro-caminos` (41 min), `camino-actual-municipios` y `discrepancias --municipio 28043`. El fichero se genera y el lector lo reconstruye, pero el resultado aún no sirve:
+
+- **0 candidatos**, sobre 17 registros base (discrepancias `SOLAPE` o `AUSENTE_EN_FUENTE` frente a la red del IGN).
+- Señal `parcela_no_camino` en **`sin_datos`**: 59 teselas no están en la caché. `candidatos-corte` corta las teselas con otra rejilla, de origen fraccionario, que la de `catastro-caminos` (bbox redondeado del término).
+- En `discrepancias` falta además la fuente `catastro_vt`, porque `catastro-caminos` no escribe `data/derived/catastro_caminos/<ine>.geojson`.
+
+Las dos integraciones pendientes están en la #160.
+
+### Integración de `catastro-caminos` con `discrepancias` y `candidatos-corte` (historia #160)
+
+- `catastro-caminos` escribe ahora `data/derived/catastro_caminos/<ine>.geojson` (formato común de #32, `fuente: catastro_vt`, EPSG:25830, `redistribucion: solo_uso_interno`; un feature por camino con id `VT-0001…`, sin referencias catastrales; atómico). **Nunca se publica** (INSPIRE). Sin fuente nueva ni proveedor nuevo.
+- La rejilla de teselas de un municipio es única: `municipality_tiles(bbox del límite del IGN, 900 m)`, con el bbox redondeado hacia fuera a metro entero (`domain/geometry.py`). Para Colmenar reproduce el bbox de #37 (`449341,4431623,470702,4442906`; origen `(449341, 4431623)`). Sin `--bbox`, `catastro-caminos` lo toma del límite del IGN; con `--bbox` se respeta y se imprime la rejilla usada.
+- **CA8 pendiente de pasar en local** (`PASO_COMUN_DATOS_LOCALES=1 uv run pytest -m "acceptance and integration" tests/acceptance/test_historia_160.py`; usa `data/` del fundador, no el CI). La caché de 107 MB de #128 se descargó con el mismo bbox de #37, así que sus teselas deberían encajar con la rejilla nueva; si alguna no encaja, anótalo en la PR y no se redescarga en el CI. Recuento de candidatos de Colmenar: _por anotar tras la ejecución local_ (sin nombres ni referencias catastrales).
+
 ---
 
 ## Resumen de fuentes no verificadas en esta pasada

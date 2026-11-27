@@ -11,8 +11,11 @@ from parcel_intel.domain.geometry import (
     bbox_with_margin,
     distance_polygon_to_line,
     geometries_overlap,
+    municipality_tiles,
+    outward_integer_bbox,
     point_in_any_ring,
     point_in_ring,
+    tile_bbox,
 )
 from tests.adapters.catastro.helpers import FIXTURES_DIR as CATASTRO_FIXTURES_DIR
 from tests.adapters.catastro.helpers import VILLACONEJOS_BARRANCO_DEL_MONTERO_M
@@ -263,3 +266,15 @@ def test_geometries_overlap_geometria_sin_anillos_lanza_error() -> None:
         geometries_overlap(vacia, cuadrado)
     with pytest.raises(EmptyGeometryError):
         geometries_overlap(cuadrado, vacia)
+
+
+def test_outward_integer_bbox_redondea_hacia_fuera() -> None:
+    assert outward_integer_bbox((1.9, 2.1, 5.2, 7.0)) == (1.0, 2.0, 6.0, 7.0)
+    assert outward_integer_bbox((-1.5, -0.2, 3.0, 4.0)) == (-2.0, -1.0, 3.0, 4.0)
+
+
+def test_municipality_tiles_parte_de_la_esquina_entera() -> None:
+    tiles = municipality_tiles((10.6, 20.9, 1000.2, 1000.5), 900.0)
+    assert tiles[0][:2] == (10.0, 20.0)
+    assert tiles == tile_bbox((10.0, 20.0, 1001.0, 1001.0), 900.0)
+    assert len(tiles) == 4
