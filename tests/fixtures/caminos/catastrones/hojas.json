@@ -1,0 +1,203 @@
+{
+  "fecha_consulta": "2026-11-27",
+  "wms": "https://www.ign.es/wms/primera-edicion-mtn",
+  "capa": "catastrones",
+  "municipios": {
+    "28043": {
+      "puntos_consultados": 19,
+      "puntos_sin_hoja": 0,
+      "hojas": [
+        {
+          "nombre": "Aranjuez",
+          "numero": "0605",
+          "anio": "1943",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0605-Aranjuez.zip",
+          "puntos": 2,
+          "ejemplo_25830": [
+            451842,
+            4436624
+          ]
+        },
+        {
+          "nombre": "Chinchón",
+          "numero": "0606",
+          "anio": "1963",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0606-Chinchon.zip",
+          "puntos": 17,
+          "ejemplo_25830": [
+            460214,
+            4437278
+          ]
+        }
+      ]
+    },
+    "28013": {
+      "puntos_consultados": 31,
+      "puntos_sin_hoja": 0,
+      "hojas": [
+        {
+          "nombre": "Aranjuez",
+          "numero": "0605",
+          "anio": "1943",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0605-Aranjuez.zip",
+          "puntos": 14,
+          "ejemplo_25830": [
+            444270,
+            4428814
+          ]
+        },
+        {
+          "nombre": "Yepes",
+          "numero": "0630",
+          "anio": "1945",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0630-Yepes.zip",
+          "puntos": 17,
+          "ejemplo_25830": [
+            427672,
+            4417772
+          ]
+        }
+      ]
+    },
+    "28052": {
+      "puntos_consultados": 20,
+      "puntos_sin_hoja": 0,
+      "hojas": [
+        {
+          "nombre": "Getafe",
+          "numero": "0582",
+          "anio": "1964",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0582-Getafe.zip",
+          "puntos": 3,
+          "ejemplo_25830": [
+            452983,
+            4448905
+          ]
+        },
+        {
+          "nombre": "Arganda",
+          "numero": "0583",
+          "anio": "1956",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0583-Arganda.zip",
+          "puntos": 9,
+          "ejemplo_25830": [
+            457983,
+            4446405
+          ]
+        },
+        {
+          "nombre": "Aranjuez",
+          "numero": "0605",
+          "anio": "1943",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0605-Aranjuez.zip",
+          "puntos": 2,
+          "ejemplo_25830": [
+            452983,
+            4441405
+          ]
+        },
+        {
+          "nombre": "Chinchón",
+          "numero": "0606",
+          "anio": "1963",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0606-Chinchon.zip",
+          "puntos": 6,
+          "ejemplo_25830": [
+            459937,
+            4445442
+          ]
+        }
+      ]
+    },
+    "28019": {
+      "puntos_consultados": 5,
+      "puntos_sin_hoja": 0,
+      "hojas": [
+        {
+          "nombre": "Chinchón",
+          "numero": "0606",
+          "anio": "1963",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0606-Chinchon.zip",
+          "puntos": 5,
+          "ejemplo_25830": [
+            471454,
+            4443086
+          ]
+        }
+      ]
+    },
+    "28170": {
+      "puntos_consultados": 6,
+      "puntos_sin_hoja": 0,
+      "hojas": [
+        {
+          "nombre": "Chinchón",
+          "numero": "0606",
+          "anio": "1963",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0606-Chinchon.zip",
+          "puntos": 6,
+          "ejemplo_25830": [
+            457397,
+            4440372
+          ]
+        }
+      ]
+    },
+    "28180": {
+      "puntos_consultados": 20,
+      "puntos_sin_hoja": 0,
+      "hojas": [
+        {
+          "nombre": "Arganda",
+          "numero": "0583",
+          "anio": "1956",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0583-Arganda.zip",
+          "puntos": 2,
+          "ejemplo_25830": [
+            475175,
+            4448518
+          ]
+        },
+        {
+          "nombre": "Chinchón",
+          "numero": "0606",
+          "anio": "1963",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0606-Chinchon.zip",
+          "puntos": 18,
+          "ejemplo_25830": [
+            478694,
+            4442650
+          ]
+        }
+      ]
+    },
+    "28157": {
+      "puntos_consultados": 7,
+      "puntos_sin_hoja": 0,
+      "hojas": [
+        {
+          "nombre": "Arganda",
+          "numero": "0583",
+          "anio": "1956",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0583-Arganda.zip",
+          "puntos": 5,
+          "ejemplo_25830": [
+            469175,
+            4447448
+          ]
+        },
+        {
+          "nombre": "Chinchón",
+          "numero": "0606",
+          "anio": "1963",
+          "enlace": "http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-0606-Chinchon.zip",
+          "puntos": 2,
+          "ejemplo_25830": [
+            466494,
+            4445159
+          ]
+        }
+      ]
+    }
+  }
+}
