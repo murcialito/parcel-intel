@@ -117,6 +117,15 @@ uv run python -m parcel_intel.cli.main publicar-discrepancias --ambito
 uv run python -m parcel_intel.cli.main publicar-kit-campo --municipio 28043 [--municipio ...] [--entrada site/datos] [--salida site/datos]
 uv run python -m parcel_intel.cli.main publicar-kit-campo --ambito
 
+# Estrechamiento de vías pecuarias (historia #243): compara la anchura oficial de cada pieza (`area_m2 / length_m` del tramo de IDEM) con la anchura CATASTRAL
+# de las parcelas de camino de Catastro (#37, clase VT) recortadas a la franja, y escribe el fichero INTERNO data/derived/estrechamiento/interno/<ine>.geojson
+# (EPSG:25830; deriva de Catastro: NUNCA se publica; nada va a site/). Una feature por pieza: indicio, sin_indicio, sin_parcela_camino o sin_datos (con motivo). Sin
+# referencias catastrales ni titularidad. Umbrales (razón 0,5, anchura mínima 3 m, pieza mínima 50 m) = valores iniciales NO validados. Anchura media por pieza: un
+# estrechamiento local queda diluido. Un municipio sin vías sale «sin vías» y no es fallo; uno que falla no frena el lote y sale con 1. Sin --municipio ni --ambito sale con 1.
+# --sin-red: solo la caché; una tesela que falta deja las piezas afectadas en sin_datos.
+uv run python -m parcel_intel.cli.main estrechamiento-via-pecuaria --municipio 28043 [--municipio ...] [--sin-red] [--cache data/raw] [--salida data/derived/estrechamiento/interno]
+uv run python -m parcel_intel.cli.main estrechamiento-via-pecuaria --ambito
+
 # Candidatos a corte por municipio (historia #128, ADR 0039): lee data/derived/discrepancias/interno/<ine>.geojson (#94) y las parcelas de Catastro
 # (#37, caché en data/raw/catastro) y escribe el fichero INTERNO data/derived/candidatos/interno/<ine>.geojson (EPSG:25830; deriva de Catastro: NUNCA se publica).
 # Un municipio sin informe de discrepancias se registra como «sin capas» (no escribe, no es fallo); uno que falla no frena el lote y hace salir con 1.
