@@ -679,6 +679,13 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **También**: con `cancel-in-progress: true`, la `concurrency` va en el job y no en el workflow, porque así un run que se salta por el `if` no cancela al que sí revisa. Y si cambia `revisar.yml` en `main`, las PRs abiertas fallan la revisión con `SIN_VEREDICTO` hasta traerse `main`: la acción se salta si su workflow no coincide.
   - **Aplica a**: workflows (`.github/`).
 
+## [2026-11-27] Historia #165 — Estilos de capa del sistema de diseño en el mapa
+
+- **Lección**: para no divergir de un paquete de diseño entregado como script global, el test ejecuta el original en `node:vm` con `window` y `document` falsos y compara con `deepStrictEqual`. Los objetos de otro contexto de `vm` tienen otro prototipo y `deepStrictEqual` los distingue: normaliza los dos lados con `JSON.parse(JSON.stringify(x))`. Un comentario del módulo que nombre `data-tema` o `window` rompe los tests estáticos que buscan esas palabras: reescríbelo.
+  - **Aplica a**: módulos del visor derivados de `docs/design-system/`.
+
+- **Lección**: al dibujar cada trazado en dos capas (halo y línea), el L falso guarda los `setStyle` por subcapa y expone `disparar(evento)`; los tests emparejan halo y línea por índice. En `reg.geojsons` el halo va justo antes que la línea, y los grupos (`layerGroup`) en `reg.grupos`. La fixture `propsIndicio` trae una confianza por defecto: para probar «sin confianza» hay que borrar la propiedad.
+  - **Aplica a**: tests de `mapa.js`.
 - **Lección**: nunca `uv run ruff format .` sobre todo el repo: reformatea decenas de ficheros ajenos (aquí 48, con ADR y tests de otras historias) y rompe tests que leen el texto de esos ficheros (`test_historia_109` busca una línea alineada de `cut_candidate.py`). Formatea solo los ficheros de la historia (`ruff format <rutas>`) y mira `git status` antes de seguir.
   - **Causa**: historia #169. Tras `ruff format .` falló un test de aceptación de #109 sin relación con el cambio; se restauró con `git checkout -- docs scripts src tests`.
   - **Aplica a**: desarrollo.

@@ -2,6 +2,7 @@
 // `node --test`, sin dependencias. Variables de entorno:
 //   VISOR_DIR       copia de los módulos de site/ (con package.json "type": "module")
 //   VISOR_FIXTURES  tests/fixtures/visor/datos (sintéticas)
+//   VISOR_DISENO    docs/design-system/site/js/estilos-capas.js (original, historia #165)
 // Los nombres empiezan por "CA<n>:" o "unidad:" para poder filtrarlos con --test-name-pattern.
 
 import assert from "node:assert/strict";
@@ -13,6 +14,7 @@ import { pathToFileURL } from "node:url";
 const VISOR_DIR = process.env.VISOR_DIR;
 const FIXTURES = process.env.VISOR_FIXTURES;
 const DATOS = process.env.VISOR_DATOS; // site/datos publicado (historia #95)
+const DISENO = process.env.VISOR_DISENO;
 const REFCAT = new RegExp(process.env.VISOR_REFCAT_RE ?? "(?!)"); // CADASTRAL_REFERENCE_RE de #94
 if (!VISOR_DIR || !FIXTURES) throw new Error("faltan VISOR_DIR o VISOR_FIXTURES");
 
@@ -21,6 +23,7 @@ const { CONFIG } = await importar("config.js");
 const controladorMod = await importar("controlador.js");
 const { crearControlador, validarIndice, fichaDe, atribucionesVisibles } = controladorMod;
 const { crearMapa, escaparTexto } = await importar("mapa.js");
+const estilosMod = await importar("estilos-capas.js");
 const { crearVista } = await importar("vista.js");
 const { fichaIndicio } = controladorMod;
 
@@ -170,7 +173,7 @@ function documentoFalso() {
 
 // L falso para mapa.js: registra llamadas.
 function instalarLFalso() {
-  const reg = { mapas: [], tiles: [], geojsons: [], controles: [] };
+  const reg = { mapas: [], tiles: [], geojsons: [], grupos: [], panes: {}, controles: [] };
   class Capa {
     constructor(tipo, datos, opciones) {
       Object.assign(this, { tipo, datos, opciones, eventos: {}, popups: [], subcapas: [] });
@@ -206,6 +209,11 @@ function instalarLFalso() {
           return m;
         },
         hasLayer: (capa) => presentes.has(capa),
+        getPane: (nombre) => reg.panes[nombre],
+        createPane(nombre) {
+          reg.panes[nombre] = { style: {} };
+          return reg.panes[nombre];
+        },
         fitBounds(b) {
           m.encuadres.push(b);
           return m;
@@ -242,18 +250,46 @@ function instalarLFalso() {
       reg.tiles.push(capa);
       return capa;
     },
+    layerGroup(capas) {
+      const grupo = new Capa("grupo", null, {});
+      grupo.capas = capas;
+      reg.grupos.push(grupo);
+      return grupo;
+    },
     geoJSON(geojson, opciones) {
       const capa = new Capa("geojson", geojson, opciones);
       for (const feature of geojson.features) {
         const sub = {
           feature,
           popups: [],
+          eventos: {},
+          estilos: [],
+          frentes: 0,
+          estiloInicial: opciones.style ? opciones.style(feature) : null,
           bindPopup(contenido) {
             sub.popups.push(contenido);
             return sub;
           },
+          on(evento, fn) {
+            sub.eventos[evento] = fn;
+            return sub;
+          },
+          disparar(evento) {
+            sub.eventos[evento]?.({});
+          },
+          setStyle(estilo) {
+            sub.estilos.push(estilo);
+            return sub;
+          },
+          bringToFront() {
+            sub.frentes += 1;
+            return sub;
+          },
+          get ultimoEstilo() {
+            return sub.estilos.length ? sub.estilos[sub.estilos.length - 1] : sub.estiloInicial;
+          },
         };
-        opciones.onEachFeature(feature, sub);
+        opciones.onEachFeature?.(feature, sub);
         capa.subcapas.push(sub);
       }
       reg.geojsons.push(capa);
@@ -348,21 +384,21 @@ test("CA3: la visibilidad elegida se conserva al cambiar de municipio", async ()
 test("CA3: mapa.js mostrarCapa quita y repone solo esa capa", () => {
   const { mapa, reg, m } = mapaReal();
   mapa.anadirCapa("vias_pecuarias", { type: "FeatureCollection", features: [] }, {
-    estilo: VIAS.estilo,
+    clave: "viasPecuarias",
     alPulsar: () => null,
   });
   mapa.anadirCapa("camino_actual", { type: "FeatureCollection", features: [] }, {
-    estilo: CAMINO.estilo,
+    clave: "caminoActual",
     alPulsar: () => null,
   });
-  const [vias, camino] = reg.geojsons;
+  const [vias, camino] = reg.grupos;
   mapa.mostrarCapa("vias_pecuarias", false);
   assert.equal(m.hasLayer(vias), false);
   assert.equal(m.hasLayer(camino), true);
   mapa.mostrarCapa("vias_pecuarias", true);
   assert.equal(m.hasLayer(vias), true);
   assert.equal(m.hasLayer(camino), true);
-  assert.equal(reg.geojsons.length, 2, "no se crea ninguna capa nueva");
+  assert.equal(reg.grupos.length, 2, "no se crea ninguna capa nueva");
 });
 
 // --- CA4 --------------------------------------------------------------------------------
@@ -471,13 +507,13 @@ test("CA6: mapa.js enlaza el popup con una función que devuelve el nodo de alPu
     type: "FeatureCollection",
     features: [{ type: "Feature", properties: TRAMPA, geometry: null }],
   }, {
-    estilo: VIAS.estilo,
+    clave: "viasPecuarias",
     alPulsar: (props) => {
       recibidas.push(props);
       return nodo;
     },
   });
-  const [popup] = reg.geojsons[0].subcapas[0].popups;
+  const [popup] = reg.geojsons[1].subcapas[0].popups; // [0] es el halo
   assert.equal(typeof popup, "function", "nunca una cadena HTML");
   assert.equal(popup(), nodo);
   assert.deepEqual(recibidas, [TRAMPA]);
@@ -550,7 +586,7 @@ test("CA10: el mapa base usa la URL de config.js y un fallo de tesela no quita c
   assert.equal(base.opciones.minZoom, 6);
   assert.equal(base.opciones.crossOrigin, false);
   mapa.anadirCapa("vias_pecuarias", { type: "FeatureCollection", features: [] }, {
-    estilo: VIAS.estilo,
+    clave: "viasPecuarias",
     alPulsar: () => null,
   });
   const presentesAntes = new Set(m.presentes);
@@ -558,7 +594,7 @@ test("CA10: el mapa base usa la URL de config.js y un fallo de tesela no quita c
   base.eventos.tileerror({});
   assert.equal(fallos.length, 2);
   assert.deepEqual(m.presentes, presentesAntes);
-  assert.ok(m.hasLayer(reg.geojsons[0]));
+  assert.ok(m.hasLayer(reg.grupos[0]));
 });
 
 test("CA10: el controlador avisa una vez del mapa base caído sin tocar las capas", async () => {
@@ -625,10 +661,10 @@ test("CA14: mapa.js da un único popup por trazado multiparte, igual en todas su
   const { mapa, reg } = mapaReal();
   const vias = await leer(A.capas.vias_pecuarias);
   mapa.anadirCapa("vias_pecuarias", vias, {
-    estilo: VIAS.estilo,
+    clave: "viasPecuarias",
     alPulsar: (props) => fichaDe(VIAS, props),
   });
-  const capa = reg.geojsons[0];
+  const capa = reg.geojsons[1]; // [0] es el halo, [1] la línea
   assert.equal(capa.datos, vias, "el GeoJSON llega sin trocear");
   assert.equal(capa.subcapas.length, vias.features.length, "una capa por trazado");
   const multi = capa.subcapas.find((s) => s.feature.geometry.type === "MultiPolygon");
@@ -799,11 +835,17 @@ test("H95 CA1: la capa de indicios se carga del índice y se dibuja con estilo d
   const dibujada = mapa.r.anadidas.find((a) => a.id === "discrepancias");
   assert.ok(dibujada, "se dibuja");
   assert.equal(INDICIOS.titulo, "Indicios a verificar (no son un dictamen)");
+  // Historia #165: el estilo ya no es un objeto plano sino una clave del sistema de diseño.
+  // Los indicios usan claves `indicio*`, distintas de las de las otras dos capas, y punteadas.
+  const clavesIndicio = Object.values(INDICIOS.estilo.claves);
+  assert.deepEqual(clavesIndicio, ["indicioBaja", "indicioMedia", "indicioAlta"]);
   for (const otra of [VIAS, CAMINO]) {
-    assert.notDeepEqual(dibujada.opciones.estilo, otra.estilo);
-    assert.equal(otra.estilo.dashArray, undefined);
+    assert.ok(!clavesIndicio.includes(otra.estilo.clave));
   }
-  assert.ok(INDICIOS.estilo.dashArray, "trazo discontinuo");
+  for (const clave of clavesIndicio) {
+    assert.ok(estilosMod.estilo(clave).linea.dashArray, "trazo punteado");
+  }
+  assert.equal(typeof dibujada.opciones.claveDe, "function");
   // La ficha de un indicio pulsado es la de indicios, no la genérica.
   assert.ok("nodo" in dibujada.opciones.alPulsar(propsIndicio()));
   assert.equal(dibujada.opciones.alPulsar(propsIndicio()).nodo.disponible, true);
@@ -1012,4 +1054,310 @@ test("unidad: visibleInicial manda; sin él una capa nace encendida", async () =
   assert.equal(ctl.estado.capas.discrepancias.visible, false);
   assert.equal(ctl.estado.capas.vias_pecuarias.visible, true);
   assert.equal(ctl.estado.capas.camino_actual.visible, true);
+});
+
+// --- Historia #165: estilos de capa del sistema de diseño -------------------------------------
+
+const { BASE, ESTILOS, CLAVES, RELLENO, estilo, estiloTrazado, temaDe } = estilosMod;
+const ESTADOS = ["normal", "hover", "seleccionado"];
+const TEMAS = ["claro", "oscuro"];
+const plano = (x) => JSON.parse(JSON.stringify(x)); // quita el prototipo de otro contexto de vm
+
+async function cargarOriginalDiseno() {
+  const vm = await import("node:vm");
+  const codigo = await readFile(DISENO, "utf8");
+  const ventana = {};
+  // `document` falso: el original solo lo lee en temaActual(), que aquí no se llama.
+  vm.runInNewContext(codigo, { window: ventana, document: {} });
+  return ventana.PasoComunEstilos;
+}
+
+const lineaDe = (coords) => ({ type: "LineString", coordinates: coords });
+const cuadro = {
+  type: "Polygon",
+  coordinates: [[[-3.4, 40.08], [-3.39, 40.08], [-3.39, 40.09], [-3.4, 40.08]]],
+};
+const feat = (geometry, properties = {}) => ({ type: "Feature", properties, geometry });
+const coleccionDe = (...features) => ({ type: "FeatureCollection", features });
+const SEGMENTO = [[-3.4, 40.08], [-3.39, 40.09]];
+
+// Capa dibujada con el L falso: devuelve el halo y la línea de cada trazado.
+function dibujar(mapa, reg, id, geojson, opciones) {
+  const desde = reg.geojsons.length;
+  mapa.anadirCapa(id, geojson, { alPulsar: () => null, ...opciones });
+  const [capaHalo, capaLinea] = reg.geojsons.slice(desde);
+  return capaLinea.subcapas.map((linea, i) => ({ linea, halo: capaHalo.subcapas[i] }));
+}
+
+test("H165 CA1: estilo() es idéntico al del sistema de diseño en todas las combinaciones", async () => {
+  const original = await cargarOriginalDiseno();
+  assert.deepEqual(plano(BASE), plano(original.BASE));
+  assert.deepEqual(plano(ESTILOS), plano(original.ESTILOS));
+  for (const clave of ["viasPecuarias", "caminoActual", "trazadoHistorico", "indicioBaja", "indicioMedia", "indicioAlta"]) {
+    for (const e of ESTADOS) {
+      for (const t of TEMAS) {
+        assert.deepEqual(plano(estilo(clave, e, t)), plano(original.estilo(clave, e, t)), `${clave} ${e} ${t}`);
+      }
+    }
+  }
+  assert.throws(() => estilo("noExiste", "normal", "claro"), Error);
+  assert.throws(() => estilo("viasPecuarias", "noExiste", "claro"), Error);
+  assert.throws(() => estilo("viasPecuarias", "normal", "noExiste"), Error);
+});
+
+test("H165 CA2: las familias se distinguen por trazo y los indicios crecen con la confianza", () => {
+  const n = (clave) => estilo(clave, "normal", "claro").linea;
+  const familias = ["viasPecuarias", "caminoActual", "trazadoHistorico", "indicioMedia"].map((c) => {
+    const { weight, dashArray } = n(c);
+    return JSON.stringify([weight, dashArray]);
+  });
+  assert.equal(new Set(familias).size, 4, "pares (weight, dashArray) distintos dos a dos");
+  assert.equal(n("viasPecuarias").dashArray, null);
+  assert.equal(n("caminoActual").dashArray, null);
+  assert.ok(n("viasPecuarias").weight > n("caminoActual").weight, "banda ancha frente a línea fina");
+  const hueco = (c) => Number(n(c).dashArray.split(" ")[1]);
+  const [baja, media, alta] = ["indicioBaja", "indicioMedia", "indicioAlta"];
+  assert.ok(n(baja).weight < n(media).weight && n(media).weight < n(alta).weight);
+  assert.ok(n(baja).opacity < n(media).opacity && n(media).opacity < n(alta).opacity);
+  assert.ok(hueco(baja) > hueco(media) && hueco(media) > hueco(alta));
+});
+
+test("H165 CA3: hover engorda y conserva el halo; seleccionar pinta el halo de selección", () => {
+  for (const t of TEMAS) {
+    const normal = estilo("caminoActual", "normal", t);
+    const hover = estilo("caminoActual", "hover", t);
+    const sel = estilo("caminoActual", "seleccionado", t);
+    assert.ok(hover.linea.weight > normal.linea.weight && hover.halo.weight > normal.halo.weight);
+    assert.equal(hover.halo.color, normal.halo.color);
+    assert.equal(sel.halo.color, BASE.seleccionHalo[t]);
+    assert.ok(sel.linea.weight > normal.linea.weight);
+  }
+  assert.equal(BASE.seleccionHalo.claro, "#ffffff");
+  assert.equal(BASE.seleccionHalo.oscuro, "#e8ebe8");
+});
+
+test("H165 CA3: una sola selección en todo el mapa; mouseout no la suelta y cerrar el popup sí", () => {
+  const { mapa, reg } = mapaReal();
+  const [a] = dibujar(mapa, reg, "vias_pecuarias", coleccionDe(feat(lineaDe(SEGMENTO))), { clave: "viasPecuarias", orden: 10 });
+  const [b] = dibujar(mapa, reg, "camino_actual", coleccionDe(feat(lineaDe(SEGMENTO))), { clave: "caminoActual", orden: 30 });
+  const sel = (clave) => estiloTrazado(clave, "seleccionado", "claro", false);
+  const nor = (clave) => estiloTrazado(clave, "normal", "claro", false);
+
+  a.linea.disparar("mouseover");
+  assert.deepEqual(a.linea.ultimoEstilo, estiloTrazado("viasPecuarias", "hover", "claro", false).linea);
+  assert.equal(a.halo.ultimoEstilo.color, nor("viasPecuarias").halo.color, "el halo conserva su color");
+  a.linea.disparar("mouseout");
+  assert.deepEqual(a.linea.ultimoEstilo, nor("viasPecuarias").linea);
+
+  a.linea.disparar("click");
+  assert.deepEqual(a.linea.ultimoEstilo, sel("viasPecuarias").linea);
+  assert.equal(a.halo.ultimoEstilo.color, BASE.seleccionHalo.claro);
+  assert.equal(a.halo.frentes, 1);
+  assert.equal(a.linea.frentes, 1);
+
+  b.linea.disparar("click");
+  assert.deepEqual(b.linea.ultimoEstilo, sel("caminoActual").linea);
+  assert.deepEqual(a.linea.ultimoEstilo, nor("viasPecuarias").linea, "A vuelve a normal");
+  assert.deepEqual(a.halo.ultimoEstilo, nor("viasPecuarias").halo);
+
+  b.linea.disparar("mouseover");
+  b.linea.disparar("mouseout");
+  assert.deepEqual(b.linea.ultimoEstilo, sel("caminoActual").linea, "mouseout no la suelta");
+  a.linea.disparar("popupclose");
+  assert.deepEqual(b.linea.ultimoEstilo, sel("caminoActual").linea, "cerrar el popup de otro no la suelta");
+  b.linea.disparar("popupclose");
+  assert.deepEqual(b.linea.ultimoEstilo, nor("caminoActual").linea);
+  assert.deepEqual(b.halo.ultimoEstilo, nor("caminoActual").halo);
+});
+
+// `propsIndicio` trae una confianza por defecto: aquí se quita para probar la propiedad ausente.
+function sinConfianza(extra) {
+  const props = propsIndicio(extra);
+  if (!("confianza" in extra)) delete props.confianza;
+  return props;
+}
+
+function indiciosConConfianzas() {
+  const confianzas = [{ confianza: "baja" }, { confianza: "media" }, { confianza: "alta" }, { confianza: null }, { confianza: "ALTA" }, {}];
+  return coleccionDe(...confianzas.map((c, i) => feat(i % 2 === 0 ? lineaDe(SEGMENTO) : cuadro, sinConfianza(c))));
+}
+
+test("H165 CA4: cada capa usa su clave, con halo debajo y línea encima en el mismo pane", async () => {
+  const reg = instalarLFalso();
+  const mapa = crearMapa("contenedor", { teselas: CONFIG.teselas, tema: "claro" });
+  const { cargar } = cargadorIndicios(indiciosConConfianzas());
+  const vista = crearVista(documentoFalso(), CONFIG.textos);
+  const ctl = crearControlador({ mapa, cargarJson: cargar, vista, config: CONFIG });
+  await ctl.iniciar();
+  assert.equal(reg.geojsons.length, 6, "tres capas, dos dibujos cada una");
+  const [viasH, viasL, camH, camL, indH, indL] = reg.geojsons;
+
+  for (const [halo, linea] of [[viasH, viasL], [camH, camL], [indH, indL]]) {
+    assert.equal(halo.opciones.interactive, false);
+    assert.notEqual(linea.opciones.interactive, false);
+    assert.equal(halo.opciones.pane, linea.opciones.pane, "mismo pane");
+    assert.ok(reg.geojsons.indexOf(halo) < reg.geojsons.indexOf(linea), "el halo se añade antes");
+    assert.equal(halo.subcapas.length, linea.subcapas.length);
+  }
+  const poli = (f) => ["Polygon", "MultiPolygon"].includes(f.geometry?.type);
+  for (const s of viasL.subcapas) {
+    assert.deepEqual(s.estiloInicial, estiloTrazado("viasPecuarias", "normal", "claro", poli(s.feature)).linea);
+  }
+  for (const s of camL.subcapas) {
+    assert.deepEqual(s.estiloInicial, estiloTrazado("caminoActual", "normal", "claro", poli(s.feature)).linea);
+  }
+  const esperadas = ["indicioBaja", "indicioMedia", "indicioAlta", "indicioBaja", "indicioBaja", "indicioBaja"];
+  indL.subcapas.forEach((s, i) => {
+    assert.deepEqual(s.estiloInicial, estiloTrazado(esperadas[i], "normal", "claro", poli(s.feature)).linea, `indicio ${i}`);
+  });
+  // Pulsar sigue mostrando la ficha: un nodo construido con textContent, no una cadena HTML.
+  const popup = indL.subcapas[0].popups[0];
+  assert.equal(typeof popup, "function");
+  const nodo = popup();
+  assert.equal(typeof nodo, "object");
+  assert.ok(nodo.children.length > 0);
+  assert.equal(typeof viasL.subcapas[0].popups[0](), "object");
+});
+
+test("H165 CA4: anadirCapa exige exactamente una clave válida o claveDe", () => {
+  const { mapa } = mapaReal();
+  const vacio = coleccionDe();
+  assert.throws(() => mapa.anadirCapa("x", vacio, { alPulsar: () => null }), Error);
+  assert.throws(() => mapa.anadirCapa("x", vacio, { clave: "viasPecuarias", claveDe: () => "caminoActual", alPulsar: () => null }), Error);
+  assert.throws(() => mapa.anadirCapa("x", vacio, { clave: "noExiste", alPulsar: () => null }), Error);
+});
+
+test("H165 CA4: opcionesDeEstilo traduce config.js; confianza desconocida da indicioBaja", () => {
+  const { opcionesDeEstilo } = controladorMod;
+  assert.deepEqual(opcionesDeEstilo(VIAS), { clave: "viasPecuarias" });
+  assert.deepEqual(opcionesDeEstilo(CAMINO), { clave: "caminoActual" });
+  const { claveDe } = opcionesDeEstilo(INDICIOS);
+  assert.equal(claveDe({ confianza: "baja" }), "indicioBaja");
+  assert.equal(claveDe({ confianza: "media" }), "indicioMedia");
+  assert.equal(claveDe({ confianza: "alta" }), "indicioAlta");
+  for (const raro of [{ confianza: null }, { confianza: "ALTA" }, {}, null, undefined, { confianza: "__proto__" }, { confianza: "toString" }]) {
+    assert.equal(claveDe(raro), "indicioBaja", JSON.stringify(raro));
+  }
+});
+
+test("H165 CA6: el módulo exporta lo acordado, congelado, y estilo() devuelve copias", () => {
+  assert.deepEqual([...CLAVES], ["viasPecuarias", "caminoActual", "trazadoHistorico", "indicioBaja", "indicioMedia", "indicioAlta"]);
+  for (const nombre of ["BASE", "ESTILOS", "CLAVES", "RELLENO", "estilo", "estiloTrazado", "temaDe"]) {
+    assert.ok(nombre in estilosMod, nombre);
+  }
+  const congelado = (o) => Object.isFrozen(o) && Object.values(o).every((v) => v === null || typeof v !== "object" || congelado(v));
+  assert.ok(congelado(BASE), "BASE congelado en profundidad");
+  assert.deepEqual({ ...RELLENO }, { viasPecuarias: 0.15, indicioBaja: 0.1, indicioMedia: 0.1, indicioAlta: 0.1 });
+  for (const clave of CLAVES) assert.ok(ESTILOS.claro[clave].normal.linea && ESTILOS.oscuro[clave].seleccionado.halo, clave);
+  const primero = estilo("indicioAlta", "hover", "oscuro");
+  primero.linea.weight = 999;
+  primero.halo.color = "rojo";
+  const segundo = estilo("indicioAlta", "hover", "oscuro");
+  assert.notEqual(segundo.linea.weight, 999);
+  assert.notEqual(segundo.halo.color, "rojo");
+  assert.equal(BASE.oscuro.indicioAlta.weight, 9);
+});
+
+test("H165 CA7: un polígono lleva halo sin relleno y línea con relleno tenue; las líneas, sin relleno", () => {
+  const { mapa, reg } = mapaReal();
+  const multi = { type: "MultiPolygon", coordinates: [cuadro.coordinates, cuadro.coordinates] };
+  const multiLinea = { type: "MultiLineString", coordinates: [SEGMENTO, [[-3.3, 40.08], [-3.29, 40.09]]] };
+  const trazados = dibujar(mapa, reg, "vias_pecuarias", coleccionDe(feat(cuadro), feat(multi), feat(lineaDe(SEGMENTO)), feat(multiLinea)), { clave: "viasPecuarias", orden: 10 });
+  const [pol, mpol, lin, mlin] = trazados;
+  for (const t of [pol, mpol]) {
+    const normal = t.linea.ultimoEstilo;
+    assert.equal(t.halo.ultimoEstilo.fill, false);
+    assert.equal(normal.fill, true);
+    assert.equal(normal.fillColor, normal.color);
+    assert.equal(normal.fillOpacity, RELLENO.viasPecuarias);
+    t.linea.disparar("mouseover");
+    assert.equal(t.linea.ultimoEstilo.fillOpacity, RELLENO.viasPecuarias + 0.1);
+    assert.equal(t.halo.ultimoEstilo.fill, false);
+    t.linea.disparar("mouseout");
+    t.linea.disparar("click");
+    assert.equal(t.linea.ultimoEstilo.fillOpacity, RELLENO.viasPecuarias + 0.1);
+    assert.equal(t.linea.ultimoEstilo.fill, true);
+    assert.equal(t.halo.ultimoEstilo.fill, false);
+  }
+  for (const t of [lin, mlin]) {
+    assert.equal(t.linea.ultimoEstilo.fill, false);
+    assert.equal(t.halo.ultimoEstilo.fill, false);
+  }
+  // Un MultiPolygon de dos partes es un solo trazado: un popup y una selección.
+  assert.equal(mpol.linea.popups.length, 1);
+  assert.equal(trazados.length, 4);
+  mpol.linea.disparar("click");
+  pol.linea.disparar("click");
+  assert.equal(mpol.linea.ultimoEstilo.fillOpacity, RELLENO.viasPecuarias, "la anterior vuelve a normal");
+  // Indicios de la misma forma.
+  const ind = dibujar(mapa, reg, "discrepancias", coleccionDe(feat(cuadro, { confianza: "alta" })), { claveDe: () => "indicioAlta", orden: 40 });
+  assert.equal(ind[0].linea.ultimoEstilo.fillOpacity, RELLENO.indicioAlta);
+  assert.equal(ind[0].halo.ultimoEstilo.fill, false);
+  // Una clave sin relleno (camino actual) nunca rellena.
+  assert.equal(estiloTrazado("caminoActual", "normal", "claro", true).linea.fill, false);
+});
+
+test("H165 CA8: cada capa tiene su pane con zIndex 400 + orden, sea cual sea el orden de carga", () => {
+  const { mapa, reg } = mapaReal();
+  dibujar(mapa, reg, "camino_actual", coleccionDe(), { clave: "caminoActual", orden: 30 });
+  dibujar(mapa, reg, "vias_pecuarias", coleccionDe(), { clave: "viasPecuarias", orden: 10 });
+  dibujar(mapa, reg, "discrepancias", coleccionDe(), { claveDe: () => "indicioBaja", orden: 40 });
+  const z = (id) => Number(reg.panes["pc-capa-" + id].style.zIndex);
+  assert.equal(reg.panes["pc-capa-vias_pecuarias"].style.zIndex, "410");
+  assert.equal(z("camino_actual"), 430);
+  assert.equal(z("discrepancias"), 440);
+  assert.ok(z("vias_pecuarias") < z("camino_actual") && z("camino_actual") < z("discrepancias"));
+  for (const capa of reg.geojsons) assert.ok(capa.opciones.pane.startsWith("pc-capa-"));
+  assert.deepEqual(CONFIG.capas.map((c) => [c.id, c.orden]), [["vias_pecuarias", 10], ["camino_actual", 30], ["discrepancias", 40]]);
+  // Volver a dibujar una capa reutiliza su pane.
+  const antes = reg.panes["pc-capa-camino_actual"];
+  dibujar(mapa, reg, "camino_actual", coleccionDe(), { clave: "caminoActual", orden: 30 });
+  assert.equal(reg.panes["pc-capa-camino_actual"], antes);
+});
+
+test("H165 CA9: quitar una capa suelta la selección; ponerTema reestila todo y conserva la selección", () => {
+  const { mapa, reg } = mapaReal();
+  const [a] = dibujar(mapa, reg, "vias_pecuarias", coleccionDe(feat(cuadro)), { clave: "viasPecuarias", orden: 10 });
+  a.linea.disparar("click");
+  mapa.quitarCapa("vias_pecuarias");
+  const llamadas = a.linea.estilos.length + a.halo.estilos.length;
+  const [b] = dibujar(mapa, reg, "vias_pecuarias", coleccionDe(feat(cuadro)), { clave: "viasPecuarias", orden: 10 });
+  b.linea.disparar("click");
+  assert.equal(a.linea.estilos.length + a.halo.estilos.length, llamadas, "no se restaura el trazado quitado");
+  assert.deepEqual(b.linea.ultimoEstilo, estiloTrazado("viasPecuarias", "seleccionado", "claro", true).linea);
+
+  const [c] = dibujar(mapa, reg, "camino_actual", coleccionDe(feat(lineaDe(SEGMENTO))), { clave: "caminoActual", orden: 30 });
+  mapa.ponerTema("oscuro");
+  assert.deepEqual(b.linea.ultimoEstilo, estiloTrazado("viasPecuarias", "seleccionado", "oscuro", true).linea, "sigue seleccionado");
+  assert.equal(b.halo.ultimoEstilo.color, BASE.seleccionHalo.oscuro);
+  assert.deepEqual(c.linea.ultimoEstilo, estiloTrazado("caminoActual", "normal", "oscuro", false).linea);
+  assert.deepEqual(c.halo.ultimoEstilo, estiloTrazado("caminoActual", "normal", "oscuro", false).halo);
+  // Una capa añadida después usa el tema vigente.
+  const [d] = dibujar(mapa, reg, "discrepancias", coleccionDe(feat(cuadro, { confianza: "media" })), { claveDe: () => "indicioMedia", orden: 40 });
+  assert.equal(d.linea.ultimoEstilo.color, BASE.oscuro.indicioMedia.color);
+});
+
+test("H165 CA10: temaDe — el forzado gana; si no, la preferencia del sistema", () => {
+  assert.equal(temaDe("claro", true), "claro");
+  assert.equal(temaDe("oscuro", false), "oscuro");
+  assert.equal(temaDe(null, true), "oscuro");
+  assert.equal(temaDe(undefined, false), "claro");
+  assert.equal(temaDe("otro", true), "oscuro");
+  assert.equal(temaDe("", false), "claro");
+});
+
+test("H165 CA10: crearMapa recibe el tema inicial", () => {
+  const { mapa, reg } = mapaReal({ tema: "oscuro" });
+  const [t] = dibujar(mapa, reg, "camino_actual", coleccionDe(feat(lineaDe(SEGMENTO))), { clave: "caminoActual" });
+  assert.equal(t.linea.ultimoEstilo.color, BASE.oscuro.caminoActual.color);
+});
+
+test("H165 CA11: config.js sin colores y con claves del sistema de diseño", () => {
+  assert.ok(!/#[0-9a-fA-F]{6}\b/.test(JSON.stringify(CONFIG.capas)));
+  for (const capa of CONFIG.capas) {
+    assert.equal(typeof capa.orden, "number");
+    const e = capa.estilo;
+    const nombradas = e.clave !== undefined ? [e.clave] : [...Object.values(e.claves), e.defecto];
+    for (const clave of nombradas) assert.ok(CLAVES.includes(clave), clave);
+  }
 });
