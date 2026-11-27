@@ -249,6 +249,28 @@ class CutCandidateFileError(Exception):
         self.detail = detail
 
 
+class CandidateReviewFileError(Exception):
+    """El fichero de revisión de candidatos (`curated/candidatos/<ine>/revision.json`)
+    no cumple el formato -- historia #168, ADR 0046. Se rechaza entero. El detalle
+    nombra campos, posiciones y `candidate_id` ya validados; nunca el valor rechazado."""
+
+    def __init__(self, path: str, detail: str) -> None:
+        super().__init__(f"Fichero de revisión de candidatos no válido {path}: {detail}")
+        self.path = path
+        self.detail = detail
+
+
+class ComparisonManifestFileError(Exception):
+    """El manifiesto de imágenes de comparación de un municipio existe pero no se
+    puede leer, no cumple el formato o es de otro municipio -- historia #168. No
+    equivale a «sin manifiesto» (`None`)."""
+
+    def __init__(self, path: str, detail: str) -> None:
+        super().__init__(f"Manifiesto de imágenes de comparación no válido {path}: {detail}")
+        self.path = path
+        self.detail = detail
+
+
 class NoLandClassificationFoundError(Exception):
     """Ningún polígono de clasificación de suelo intersecta el bbox pedido.
     El servicio no distingue "fuera de cobertura de la Comunidad de Madrid"

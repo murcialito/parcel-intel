@@ -18,6 +18,7 @@ from typing import Literal, get_args
 from parcel_intel.domain.geometry import LineGeometry
 from parcel_intel.domain.georeferencing import GeoreferenceUnit, round_mm
 from parcel_intel.domain.historic_trail import METRIC_SRID, HistoricTrail, ReviewStatus
+from parcel_intel.domain.human_review import is_github_user
 from parcel_intel.domain.municipality import HITO_MUNICIPALITY_CODES
 
 TrailKind = Literal["camino", "via_pecuaria", "senda", "otro"]
@@ -27,7 +28,6 @@ MAX_LABEL_LENGTH = 80
 _TRAIL_ID_RE = re.compile(r"T[0-9]{3,4}")
 _SHA256_RE = re.compile(r"[0-9a-f]{64}")
 _MUNICIPALITY_RE = re.compile(r"[0-9]{5}")
-_GITHUB_USER_RE = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})")
 
 
 class InvalidDigitizationError(ValueError):
@@ -100,7 +100,7 @@ class DigitizedTrail:
             if self.reviewed_by is not None or self.reviewed_at is not None:
                 self._fail("un trazado proposed no puede tener reviewed_by ni reviewed_at")
             return
-        if self.reviewed_by is None or not _GITHUB_USER_RE.fullmatch(self.reviewed_by):
+        if not is_github_user(self.reviewed_by):
             self._fail(f"un trazado {self.status} necesita reviewed_by (usuario de GitHub)")
         if not isinstance(self.reviewed_at, datetime) or self.reviewed_at.tzinfo is None:
             self._fail(f"un trazado {self.status} necesita reviewed_at con zona horaria")

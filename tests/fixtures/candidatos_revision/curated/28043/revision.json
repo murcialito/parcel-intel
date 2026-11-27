@@ -1,0 +1,39 @@
+{
+ "municipio": "28043",
+ "revisiones": [
+  {
+   "candidate_id": "cb30d538bb5ea601",
+   "review": "aprobado",
+   "reviewed_by": "revisora-sintetica",
+   "reviewed_at": "2026-11-28T10:00:00+01:00",
+   "candidate_sha256": "4152fb777c2f06a1fed45b6b8557fce04fd439ae1cbc8bd2bbd1e86ce554e502",
+   "review_note": "Comparado con la ortofoto: el trazado no se distingue."
+  },
+  {
+   "candidate_id": "7107a7aa44addbb3",
+   "review": "rechazado",
+   "reviewed_by": "revisora-sintetica",
+   "reviewed_at": "2026-11-28T10:00:00+01:00",
+   "review_note": "El camino se ve en la ortofoto reciente; sin corte aparente."
+  },
+  {
+   "candidate_id": "910f248ab773fae8",
+   "review": "propuesto",
+   "review_note": "Pendiente de imágenes."
+  },
+  {
+   "candidate_id": "5f1f40660b686e00",
+   "review": "aprobado",
+   "reviewed_by": "revisora-sintetica",
+   "reviewed_at": "2026-11-28T10:00:00+01:00",
+   "candidate_sha256": "f4cec96027e3589cedda1611076cf8341ddf68213ceb36c9426475c80a32a2d2"
+  },
+  {
+   "candidate_id": "5ab1a16b087fdf00",
+   "review": "aprobado",
+   "reviewed_by": "revisora-sintetica",
+   "reviewed_at": "2026-11-28T10:00:00+01:00",
+   "candidate_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  }
+ ]
+}
