@@ -41,10 +41,12 @@ def test_ca2_citas_trla_y_rdph() -> None:
     assert "https://www.boe.es/buscar/act.php?id=BOE-A-2001-14276" in s
     assert "https://www.boe.es/buscar/act.php?id=BOE-A-1986-10638" in s
     assert "a) A una zona de servidumbre de cinco metros de anchura" in s
-    assert "Paso para servicio del personal de vigilancia del cauce" in s
-    assert "Paso para el ejercicio de actividades de pesca fluvial" in s
-    assert "Paso para el salvamento de personas o bienes" in s
+    assert "Protección del ecosistema fluvial y del dominio público hidráulico" in s
+    assert "Paso público peatonal y para el desarrollo de los servicios de vigilancia" in s
     assert "Varado y amarre de embarcaciones" in s
+    assert "redacción anterior" in s
+    assert "pesca fluvial" not in s.split("redacción anterior")[0]
+    assert "no enumeran el tránsito general" not in s
     assert "los terrenos que lindan con los cauces" in s
     assert "desde qué línea exacta" in s
 
