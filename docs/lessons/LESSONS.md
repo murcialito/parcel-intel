@@ -826,3 +826,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el WMS de la IDEM responde 200 con un PNG blanco fuera de cobertura (y la URL de `GetMap` que anuncia su `GetCapabilities` da 404); un `ServiceException` XML también llega con 200. El filtro fiable es validar la firma PNG antes de cachear y medir la varianza de gris (media de R, G, B) después. No hay Pillow en el proyecto: se reutiliza `adapters/evidence/png.py::decode_png`. Los identificadores `CM_*` son distintos de `AMS_1956-1957` del IGN: cada adapter rechaza con `InvalidHistoricalVintageError` los vuelos que no son suyos, y elegir adapter por vuelo es cosa de la composición (#208).
   - **Aplica a**: implementación (#208 y cualquier otra fuente de ortofoto por WMS).
 
+## [2026-11-27] Historia #209 — Catastro a una fecha
+
+- **Lección**: la verificación de Catastro se parte por dónde se puede leer. Desde GitHub Actions se leen las páginas de ayuda y los PDF de licencias de `www.catastro.hacienda.gob.es` (responden 200); no se puede pedir nada a `ovc.catastro.meh.es` (WMS, WFS, REST), que rechaza a los runners. Lo primero va en la historia de lectura; lo segundo, en una hija `fuera_de_ci` que se pasa en local.
+  - **Causa**: la ayuda de antecedentes describe la consulta a una fecha pero no nombra el parámetro WMS, así que «`TIME` funciona» queda `pendiente` hasta la petición real. Además `Licencia.pdf` usa fuentes con codificación propia: ni `WebFetch` ni descomprimir los flujos dan texto, y las citas literales se reutilizaron de #21 diciéndolo. Para releerla, usar un visor de PDF fuera de la sandbox del agente.
+  - **Aplica a**: BA (al partir historias de Catastro, separar lo legible en la web de lo que exige `ovc.catastro.meh.es`) | implementación (no inventar un parámetro que la documentación no nombra; marcarlo `pendiente`).
+

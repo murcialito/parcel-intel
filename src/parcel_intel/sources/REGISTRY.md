@@ -1060,6 +1060,57 @@ Límites: el año de la minuta no es el año del camino; la resolución efectiva
 >
 ---
 
+## Catastro a una fecha (historia #209)
+
+Hija de #201. Solo recoge lo **legible desde GitHub Actions** (páginas de ayuda y texto de licencia). Las peticiones reales a `ovc.catastro.meh.es` van en #236 y se pasan en local, porque esa máquina rechaza las conexiones de los runners (lección de #37).
+
+### Qué dice la ayuda de antecedentes — según la documentación, sin verificar con petición real
+
+Canal: `https://www.catastro.hacienda.gob.es/ayuda/ayuda_antecedentes.htm` (HTTP 200, HTML, leída el 2026-11-27). Resumen, no copia:
+
+- Existe una capa del visor de la Sede Electrónica llamada «Cartografía a una fecha» («Antecedentes Cartografía»), con un calendario para elegir día, mes y año.
+- Rango: «una consulta estable y fluida desde el 1 de enero de 2005 hasta la actualidad». Hay municipios cuya cartografía digital es posterior a 2005; si no aparece a la fecha elegida, es que no existía.
+- Capas: la cartografía digital catastral histórica (líneas de parcelas y edificios) sobre la ortofoto PNOA actual como fondo.
+- Es un **WMS**: solo visualización. La página dice que «no permite descargar las geometrías históricas». Tampoco permite consultar datos no protegidos históricos de una parcela.
+- Uso responsable: servicio libre y gratuito; el abuso puede acarrear restricciones.
+- Para tener las geometrías, remite a la Difusión de Datos Catastrales (Shapefile) y a filtrar la tabla por los campos `FECHAALTA` y `FECHABAJA` para ver la geometría a una fecha.
+- **La página no nombra el parámetro WMS** (`TIME` u otro) ni la capa. Que el WMS acepte `TIME` es una suposición hasta #236.
+- Canales no consultados: el `GetCapabilities` del WMS (es `ovc.catastro.meh.es`, no legible desde Actions) y la descarga de Shapefile.
+
+### Licencia: ¿puede una fecha derivada apoyar un indicio publicado?
+
+Documento primario: `https://www.catastro.hacienda.gob.es/webinspire/documentos/Licencia.pdf` (HTTP 200, PDF de 3 páginas, 2026-11-27). **Limitación:** el PDF usa fuentes con codificación propia y no se pudo extraer su texto en esta pasada (ni con `WebFetch` ni descomprimiendo los flujos). Las citas literales de abajo son las que ya se anotaron al leerlo en #21 (2026-11-25), arriba, en «Catastro INSPIRE»; **no se han releído en #209**. Quien pueda abrir el PDF en un visor debería confirmar la numeración de las cláusulas.
+
+- «sea transformada» — condición para «la elaboración y distribución de nuevos productos de valor añadido».
+- Prohibido difundir la información original «por Internet ni por ningún otro medio sin su previa transformación».
+- La transformación no puede alterar ni desnaturalizar el contenido; el producto no se identifica como «cartografía catastral» ni «información catastral».
+- La información distribuida a terceros «carecerá de fehaciencia».
+
+**Conclusión con cautela (no es un permiso):** una **fecha** o un intervalo de fechas, sin geometría ni referencia de parcela, no reproduce la información original y parece encajar en lo derivado que ya se publica (indicios, señales y candidatos, ADR 0041). Pero el texto no habla de fechas sueltas, y una fecha de alta/baja procede del dato original. **Pregunta abierta para el fundador:** ¿basta con que la fecha sea un intervalo con fuente y aviso para publicarlo? Hasta que responda, no se publica ninguna fecha derivada de Catastro.
+
+### Cómo expresar la fecha: intervalo con evidencia
+
+`FECHAALTA`/`FECHABAJA` (y la fecha del WMS) son del **registro de la parcela**, no de cuándo se cerró o desapareció el camino físico: una parcela se da de baja o se parte por un trámite que puede ir años por detrás o por delante del hecho. Por eso:
+
+- Se expresa como intervalo «**entre A y B**», nunca como fecha puntual del corte.
+- Cada extremo lleva su **fuente y su evidencia**: A = última fecha en que el trazado aparece (p. ej. «consta en la cartografía a fecha A», o un vuelo o minuta del año A); B = primera fecha en que ya no aparece (p. ej. «ya no consta a fecha B»). Con extremo desconocido, se escribe «sin dato», no se inventa.
+- Ejemplo con datos inventados: «entre 2009 y 2015 — extremo inicial: cartografía catastral a fecha 2009-01-01, consta; extremo final: cartografía catastral a fecha 2015-01-01, no consta».
+- Un único extremo de Catastro no basta: el intervalo se estrecha con las demás fuentes (vuelos históricos, minutas).
+- El texto que se publique no dice «se cortó en…» ni da un año como hecho.
+
+### Pendiente de peticiones reales (#236)
+
+| Qué | Estado | Dónde se resuelve |
+|---|---|---|
+| WMS con `TIME` (nombre de capa, formato de fecha, qué devuelve para 2005 y para hoy) | `pendiente` | [#236](https://github.com/murcialito/paso-comun/issues/236), en local |
+| Campos `FECHAALTA`/`FECHABAJA` del WFS (¿existen, con qué formato?) | `pendiente` | [#236](https://github.com/murcialito/paso-comun/issues/236), en local |
+
+### Fixtures sintéticas
+
+`tests/fixtures/catastro_historico/` contiene solo ejemplos **inventados** (ADR 0040); su README lo declara. No hay ninguna respuesta real de Catastro en git.
+
+---
+
 ## Resumen de fuentes no verificadas en esta pasada
 
 Fuera de alcance de la historia 0001 (ver sección "Fuera de alcance" de `docs/stories/0001-registro-fuentes.md`): vías pecuarias, Red Natura 2000, concesiones de agua, inventario municipal de caminos. SNCZI/dominio público hidráulico, que figuraba aquí mismo hasta la historia 0012, quedó verificado en esa historia (ver sección "SNCZI / Dominio Público Hidráulico — MITECO" más arriba: cursos de agua y peligrosidad por inundación `confirmado`, deslinde legal de DPH y zonas de servidumbre/policía `bloqueado`). Vías pecuarias, que figuraba aquí mismo hasta la historia 0014, quedó verificada en esa historia (ver sección "Vías pecuarias — IDEM, Comunidad de Madrid" más arriba: `confirmado`, un único servicio real encontrado bajo el workspace `Zonas` del mismo GeoServer de IDEM). Red Natura 2000, que figuraba aquí mismo hasta la historia 0015, quedó verificada en esa historia (ver sección "Red Natura 2000 y espacios protegidos — IDEM, Comunidad de Madrid" más arriba: `confirmado` como fuente real de planes de gestión, con el alcance explícito de que modela zonificación de planes, no el límite oficial de cada sitio individual con código EU). Concesiones de agua e inventario municipal de caminos quedan para una iteración posterior del registro, cuando las historias de reglas/afecciones las necesiten.
