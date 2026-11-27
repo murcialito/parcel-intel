@@ -27,7 +27,7 @@ INE = {
 }
 EXTRACTOS = {
     "clasificacion_282_extracto_boe.txt": (
-        "5735e1f3fbf06c25f3664a7b02e7e46793c577bed93417214116cfc60a273fc1"
+        "4c6d18d0c2d0b2c889115865ca40a74b3d3c67b5e494d9742619cc0ba1c96a4d"
     ),
     "clasificacion_282_extracto_bocm.txt": (
         "937b1b75bfd399d521b69fbbe75acbfcf174055af74aacea8fd028455c55ebd0"
