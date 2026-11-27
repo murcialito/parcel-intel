@@ -471,6 +471,7 @@ def test_ca11_gitattributes_y_sha256_del_csv_versionado() -> None:
 
 
 @pytest.mark.integration
+@pytest.mark.red
 def test_ca12_integracion_wms_real_devuelve_png_500x500(tmp_path: Path) -> None:
     """[integración] Dada una caché vacía en `tmp_path`, cuando se pide la unidad de la fixture
     contra el WMS real, entonces devuelve un PNG de 500 × 500 y escribe su procedencia. Si el sha256

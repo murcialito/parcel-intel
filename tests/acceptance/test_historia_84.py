@@ -688,7 +688,7 @@ def test_ca14_multiparte_conserva_tipo_partes_y_anillos_cerrados(
 
 
 @pytest.mark.integration
-@pytest.mark.fuera_de_ci  # api-features.idee.es agota el tiempo (30 s) desde GitHub Actions
+@pytest.mark.red
 def test_ca15_integracion_colmenar_real_19_vias_y_893_tramos(tmp_path: Path) -> None:
     """[integración, red] Dada la ejecución real de `camino-actual-municipios` y
     `vias-pecuarias-municipios` y luego `publicar-capas --municipio 28043`, entonces la PR incluye

@@ -122,6 +122,7 @@ def test_ca6_error_o_json_malformado_lanza_error_de_port() -> None:
 
 
 @pytest.mark.integration
+@pytest.mark.red
 def test_ca7_integracion_bbox_real_de_colmenar_devuelve_unpaved() -> None:
     """[integración] Dado el bbox real de Colmenar cuando se consulta el servicio entonces
     devuelve tramos `unpaved`."""

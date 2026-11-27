@@ -299,6 +299,7 @@ def test_ca8_fallo_de_escritura_se_informa_sin_fichero_a_medias_y_sale_con_1(
 
 
 @pytest.mark.integration
+@pytest.mark.red
 def test_ca9_integracion_con_red_y_luego_sin_red_da_ficheros_identicos(tmp_path: Path) -> None:
     """[integración] Dado el IDEM real, cuando se ejecuta con red una vez y luego `--sin-red`,
     entonces los ficheros de la segunda ejecución son idénticos a los de la primera."""

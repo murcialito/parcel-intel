@@ -46,6 +46,7 @@ Cualquier estado ──► estado:bloqueada ──► (se cierran sus dependenci
 | `estado:en-revision` | Hay PR abierta | Agente de desarrollo |
 | `cambios-pedidos` (en la PR) | La revisión encontró problemas bloqueantes | Agente de revisión |
 | `veto` (en la PR o la issue) | El fundador para el merge automático | El fundador |
+| `red` (marcador de test) | Llama en vivo a un servicio público externo (IGN, IDEE, PNOA…). CI lo ejecuta en el job `red-externa`, que no bloquea el merge: la caída de un servicio ajeno no para la tubería (2026-11-27, IDEE) | El desarrollador |
 | `pendiente-local` (en la PR) | Tiene tests `fuera_de_ci` (servicios que rechazan a GitHub, como Catastro) por pasar en local; Fusionar espera | El desarrollador; la quita quien lo pasa en local |
 
 ## Cuándo te necesito

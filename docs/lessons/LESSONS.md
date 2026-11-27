@@ -682,3 +682,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: nunca `uv run ruff format .` sobre todo el repo: reformatea decenas de ficheros ajenos (aquí 48, con ADR y tests de otras historias) y rompe tests que leen el texto de esos ficheros (`test_historia_109` busca una línea alineada de `cut_candidate.py`). Formatea solo los ficheros de la historia (`ruff format <rutas>`) y mira `git status` antes de seguir.
   - **Causa**: historia #169. Tras `ruff format .` falló un test de aceptación de #109 sin relación con el cambio; se restauró con `git checkout -- docs scripts src tests`.
   - **Aplica a**: desarrollo.
+## [2026-11-27] Tubería — tests contra servicios en vivo en el check obligatorio
+
+- **Lección**: un test que llama en vivo a un servicio público no puede estar en el check del que depende el merge. Si el servicio cae o va lento, todas las PRs se quedan en rojo sin culpa suya, y los agentes «arreglan» CI marcando tests ajenos uno por uno. Esos tests llevan el marcador `red` y corren en el job `red-externa`, con `continue-on-error`, así que su resultado se ve sin bloquear. `fuera_de_ci` es para los servicios que rechazan siempre a GitHub (Catastro), no para una caída.
+  - **Causa**: el 2026-11-27 sobre las 09:45 UTC, `api-features.idee.es` empezó a agotar el tiempo de lectura (30 s) con las consultas reales, también desde local. La PR #174 (#169) gastó cuatro vueltas marcando `fuera_de_ci` tests de #84, #27 y #25, acabó en `veto`, y `main` se quedó en rojo.
+  - **Aplica a**: implementación, revisión y workflows.

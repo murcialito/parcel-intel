@@ -201,6 +201,7 @@ def test_ca6_number_matched_distinto_de_features_lanza_error(tmp_path: Path) -> 
 
 
 @pytest.mark.integration
+@pytest.mark.red
 def test_ca7_integracion_wfs_real_devuelve_los_7_sin_huecos(tmp_path: Path) -> None:
     """[integración] Dado el WFS real del IGN, cuando se piden los 7 códigos del ámbito con el
     bbox del hito, entonces se obtienen los 7, sin huecos y con `numberMatched` igual a las

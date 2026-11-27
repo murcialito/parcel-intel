@@ -433,6 +433,7 @@ def test_ca9_respuesta_que_no_es_png_no_entra_en_la_cache(setup: _Setup) -> None
 
 
 @pytest.mark.integration
+@pytest.mark.red
 def test_ca10_pnoa_real_devuelve_un_png_legible(tmp_path: Path) -> None:
     """CA10. [integración] Dada la ventana PNOA de CA1, cuando se pide contra la red real,
     entonces devuelve un PNG que el decodificador propio lee. `REGISTRY.md` anota la URL, los

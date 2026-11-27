@@ -177,6 +177,7 @@ def test_ca1_sin_red_no_descarga_y_registra_la_procedencia(
 
 
 @pytest.mark.integration
+@pytest.mark.red
 def test_ca1_integracion_el_render_real_de_la_ventana_se_descarga() -> None:
     """CA1 [integración la descarga real]: la URL `GetMap` de la unidad devuelve un PNG del
     tamaño declarado."""

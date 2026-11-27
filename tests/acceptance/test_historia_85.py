@@ -443,6 +443,7 @@ def test_ca10_fondo_neutro_y_fallo_de_teselas(tmp_path: Path) -> None:
 
 
 @pytest.mark.integration
+@pytest.mark.red
 def test_ca10_integracion_servicio_real_del_mapa_base() -> None:
     """CA10. [integración] Contra el servicio real: la URL de `config.js` devuelve
     `200 image/jpeg` para la tesela `z=15, x=16075, y=12392` (casco de Colmenar de Oreja, 28043),
