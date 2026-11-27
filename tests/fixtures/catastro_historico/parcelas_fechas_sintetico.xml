@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SINTÉTICO: datos inventados, formato supuesto. Ver README.md. -->
+<FeatureCollection>
+  <member>
+    <Parcela>
+      <referencia>99999A00000001</referencia>
+      <FECHAALTA>20050101</FECHAALTA>
+      <FECHABAJA>20120615</FECHABAJA>
+    </Parcela>
+  </member>
+  <member>
+    <Parcela>
+      <referencia>99999A00000002</referencia>
+      <FECHAALTA>20120615</FECHAALTA>
+      <FECHABAJA>99999999</FECHABAJA>
+    </Parcela>
+  </member>
+</FeatureCollection>
