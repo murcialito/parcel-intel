@@ -39,7 +39,21 @@ export function crearVista(documento, textos) {
 
   function ponerEstadoCapa(id, estado) {
     const elemento = porId(`estado-${id}`);
-    elemento.textContent = TEXTO_ESTADO[estado] ?? "";
+    const texto = TEXTO_ESTADO[estado] ?? "";
+    elemento.replaceChildren();
+    // En carga, una barra decorativa (`aria-hidden`) antes del texto (historia #166, CA4).
+    if (estado === "cargando") {
+      const progreso = documento.createElement("div");
+      progreso.className = "pc-progreso";
+      progreso.setAttribute("aria-hidden", "true");
+      progreso.appendChild(documento.createElement("i"));
+      elemento.appendChild(progreso);
+    }
+    if (texto !== "") {
+      const span = documento.createElement("span");
+      span.textContent = texto;
+      elemento.appendChild(span);
+    }
     elemento.dataset.estado = estado;
   }
 

@@ -298,7 +298,7 @@ def test_ca5_aviso_de_vias_pecuarias_e_indicios_en_html_estatico() -> None:
     assert "indicios a verificar" in texto
     # No depende de ningún estado: no está en ningún elemento que el JS reescriba.
     reescritos = {"mensaje", "aviso-base", "municipio", "estado-vias_pecuarias",
-                  "estado-camino_actual", "mapa"}
+                  "estado-camino_actual", "estado-discrepancias", "mapa"}
     html = (SITE / "index.html").read_text(encoding="utf-8")
     for ident in reescritos:
         bloque = re.search(rf'<[^>]*id="{ident}"[^>]*>(.*?)</', html, re.DOTALL)

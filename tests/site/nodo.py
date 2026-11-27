@@ -93,3 +93,29 @@ def assert_node_tests_pass(pattern: str, workdir: Path, minimum: int = 1) -> Nod
         f"{resultado.output}"
     )
     return resultado
+
+
+def volcar_base(workdir: Path) -> dict[str, object]:
+    """`BASE` de `site/estilos-capas.js` como JSON (historia #166, CA2), sin tocar `site/`."""
+    node = shutil.which("node")
+    assert node is not None, "No se encuentra `node` en el PATH."
+    copia = workdir / "base"
+    copia.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(SITE / "estilos-capas.js", copia / "estilos-capas.js")
+    (copia / "package.json").write_text(json.dumps({"type": "module"}), encoding="utf-8")
+    proceso = subprocess.run(
+        [
+            node,
+            "--input-type=module",
+            "-e",
+            'import { BASE } from "./estilos-capas.js"; console.log(JSON.stringify(BASE));',
+        ],
+        capture_output=True,
+        text=True,
+        cwd=copia,
+        timeout=60,
+        check=False,
+    )
+    assert proceso.returncode == 0, proceso.stderr
+    base: dict[str, object] = json.loads(proceso.stdout)
+    return base
