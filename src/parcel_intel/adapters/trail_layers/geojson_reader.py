@@ -68,7 +68,14 @@ def _line(positions: Sequence[Sequence[float]]) -> Line:
 
 
 def _shape(model: FeatureModel) -> TrailShape:
-    geometry = model.geometry
+    return geometry_to_shape(model.geometry)
+
+
+def geometry_to_shape(
+    geometry: PolygonModel | MultiPolygonModel | LineStringModel | MultiLineStringModel,
+) -> TrailShape:
+    """GeoJSON validado → forma del dominio en EPSG:25830. La comparte el lector de
+    discrepancias (#94); lanza `ValueError` si una posición no tiene X e Y."""
     if isinstance(geometry, PolygonModel):
         # Solo el anillo exterior (ADR 0011/0014: `Geometry` no modela huecos).
         rings: tuple[Ring, ...] = (_line(geometry.coordinates[0]),) if geometry.coordinates else ()

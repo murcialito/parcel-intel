@@ -7,6 +7,7 @@ import requests
 
 from parcel_intel.cli import main
 from parcel_intel.domain.norm import Norm, Provision
+from parcel_intel.domain.published_discrepancy import DiscrepancyPublicationResult
 from parcel_intel.domain.published_layers import PublicationResult
 from parcel_intel.domain.rule import (
     AttributeCondition,
@@ -262,6 +263,27 @@ def test_review_reject_exitoso(capsys: pytest.CaptureFixture[str]) -> None:
     assert _FakeRuleRepository.rejected == ["madrid-proposed-dph_cauce-aaaaaaaa"]
 
 
+def test_imagenes_comparacion_exige_municipio_y_tramos() -> None:
+    parser = main._build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["imagenes-comparacion", "--tramos", "t.geojson"])
+    with pytest.raises(SystemExit):
+        parser.parse_args(["imagenes-comparacion", "--municipio", "28043"])
+    with pytest.raises(SystemExit):
+        parser.parse_args(["imagenes-comparacion", "--municipio", "28", "--tramos", "t"])
+
+
+def test_imagenes_comparacion_fichero_de_tramos_ilegible_sale_con_1(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    parser = main._build_parser()
+    args = parser.parse_args(
+        ["imagenes-comparacion", "--municipio", "28043", "--tramos", str(tmp_path / "no.geojson")]
+    )
+    assert args.func(args) == 1
+    assert "Fichero de tramos no válido" in capsys.readouterr().err
+
+
 
 class _FakePublishUseCase:
     def __init__(self) -> None:
@@ -322,3 +344,45 @@ def test_publicar_capas_una_capa_sin_repetidos(monkeypatch: pytest.MonkeyPatch) 
 def test_publicar_capas_rechaza_una_capa_desconocida() -> None:
     with pytest.raises(SystemExit):
         main._build_parser().parse_args(["publicar-capas", "--ambito", "--capa", "catastro"])
+
+
+class _FakePublishDiscrepanciesUseCase:
+    def __init__(self) -> None:
+        self.calls: list[list[str]] = []
+
+    def execute(self, codes: list[str]) -> DiscrepancyPublicationResult:
+        self.calls.append(list(codes))
+        return DiscrepancyPublicationResult(published=(), empty=(), omitted=(), failures=())
+
+
+def _patch_publish_discrepancies(
+    monkeypatch: pytest.MonkeyPatch,
+) -> _FakePublishDiscrepanciesUseCase:
+    fake = _FakePublishDiscrepanciesUseCase()
+    monkeypatch.setattr(main, "build_publish_discrepancies_use_case", lambda *a, **k: fake)
+    return fake
+
+
+def test_publicar_discrepancias_sin_municipio_sale_con_2(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fake = _patch_publish_discrepancies(monkeypatch)
+    args = main._build_parser().parse_args(["publicar-discrepancias"])
+
+    assert args.func(args) == 2
+    assert fake.calls == []
+    assert "--ambito" in capsys.readouterr().err
+
+
+def test_publicar_discrepancias_ambito_sin_repetidos_y_rutas_por_defecto(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake = _patch_publish_discrepancies(monkeypatch)
+    args = main._build_parser().parse_args(
+        ["publicar-discrepancias", "--ambito", "--municipio", "28043"]
+    )
+
+    assert args.func(args) == 0
+    assert fake.calls == [list(main.AMBITO_HITO_INE)]
+    assert args.entrada == Path("data/derived/discrepancias/publicable")
+    assert args.salida == Path("site/datos")

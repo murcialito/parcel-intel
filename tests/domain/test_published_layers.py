@@ -1,7 +1,12 @@
 from pathlib import Path
 from typing import get_args
 
-from parcel_intel.domain.published_layers import PUBLISHED_LAYERS, PublishedLayerId
+from parcel_intel.domain.published_layers import (
+    INDEXED_LAYER_IDS,
+    PUBLISHED_LAYERS,
+    IndexedLayerId,
+    PublishedLayerId,
+)
 
 NOTICE = Path(__file__).resolve().parents[2] / "NOTICE"
 
@@ -25,3 +30,10 @@ def test_la_atribucion_es_literal_de_notice() -> None:
         assert f"Atribución: `{spec.attribution}`" in notice or (
             f"Atribución declarada por el servicio: `{spec.attribution}`" in notice
         )
+
+
+def test_capas_del_indice_son_las_de_trazados_mas_los_indicios() -> None:
+    """#94 (ADR 0044): la capa de indicios entra en el índice sin entrar en PUBLISHED_LAYERS."""
+    assert set(INDEXED_LAYER_IDS) == set(PUBLISHED_LAYERS) | {"discrepancias"}
+    assert set(INDEXED_LAYER_IDS) == set(get_args(IndexedLayerId))
+    assert list(INDEXED_LAYER_IDS) == sorted(INDEXED_LAYER_IDS)

@@ -1,0 +1,25 @@
+{
+ "type": "FeatureCollection",
+ "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::25830"}},
+ "properties": {
+  "fuente": "ign_red_transporte",
+  "municipio": "28045",
+  "nombre_municipio": "Municipio sintético 28045",
+  "procedencia": {
+   "fuente": "SINTÉTICO capa de camino actual",
+   "url": "https://example.invalid/camino_actual?bbox=470000.0%2C4446000.0%2C470200.0%2C4446000.0",
+   "fecha_descarga": "2026-11-22",
+   "licencia": "SINTÉTICA CC BY 4.0, solo para pruebas",
+   "redistribucion": "publicable"
+  },
+  "aviso": "SINTÉTICO: capa inventada para pruebas, no es cartografía real."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "R-9",
+   "geometry": {"type": "LineString", "coordinates": [[470000, 4446000], [470200, 4446000]]},
+   "properties": {"fecha_dato": "2025-03-15"}
+  }
+ ]
+}

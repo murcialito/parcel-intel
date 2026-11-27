@@ -21,16 +21,23 @@ una porción significativa de parcelas vecinas en parcelas urbanas pequeñas
 _IMAGE_WIDTH_PX = 512
 _IMAGE_HEIGHT_PX = 512
 
-_HISTORICAL_FLIGHTS = {"AMS_1956-1957", "Interministerial_1973-1986", "Nacional_1981-1986"}
-_HISTORICAL_YEARS = range(2004, 2025)  # confirmado en REGISTRY.md: PNOA2004..PNOA2024
+HISTORICAL_FLIGHTS = {
+    "AMS_1956-1957",
+    "Interministerial_1973-1986",
+    "Nacional_1981-1986",
+    "SIGPAC",
+    "OLISTAT",
+}
+"""Vuelos con nombre del WMS histórico; compartido con `window.py` (ADR 0042 §3)."""
+HISTORICAL_YEARS = range(2004, 2025)  # confirmado en REGISTRY.md: PNOA2004..PNOA2024
 
 
-def _historical_layer_name(vintage: HistoricalVintage) -> str:
+def historical_layer_name(vintage: HistoricalVintage) -> str:
     if isinstance(vintage, int):
-        if vintage not in _HISTORICAL_YEARS:
+        if vintage not in HISTORICAL_YEARS:
             raise InvalidHistoricalVintageError(vintage)
         return f"PNOA{vintage}"
-    if vintage in _HISTORICAL_FLIGHTS:
+    if vintage in HISTORICAL_FLIGHTS:
         return vintage
     raise InvalidHistoricalVintageError(vintage)
 
@@ -60,7 +67,7 @@ class PnoaAdapter:
     def get_historical_orthophoto(
         self, geometry: Geometry, margin_m: float, vintage: HistoricalVintage
     ) -> Orthophoto:
-        layer = _historical_layer_name(vintage)
+        layer = historical_layer_name(vintage)
         return self._fetch(
             geometry=geometry,
             margin_m=margin_m,

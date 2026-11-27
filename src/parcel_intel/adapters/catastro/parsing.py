@@ -56,9 +56,57 @@ def _rings_from_feature(feature: ET.Element) -> tuple[Ring, ...]:
     return tuple(rings)
 
 
-def parse_wfs_parcels(xml_bytes: bytes) -> list[RawParcel]:
-    """Parsea un `GetFeature` de `cp:CadastralParcel` a una lista de dicts planos."""
+def _exterior_rings_from_feature(feature: ET.Element) -> tuple[Ring, ...]:
+    """Solo los anillos `gml:exterior` (uno por polígono); los `gml:interior` (huecos)
+    se descartan: `Geometry` no los modela (lecciones 0011 y 0015, ADR 0028)."""
+    rings: list[Ring] = []
+    for exterior in feature.iter(f"{{{_GML_NS}}}exterior"):
+        for pos_list in exterior.iter(f"{{{_GML_NS}}}posList"):
+            if pos_list.text is None:
+                continue
+            values = [float(v) for v in pos_list.text.split()]
+            rings.append(tuple(zip(values[0::2], values[1::2], strict=True)))
+    return tuple(rings)
+
+
+class RawParcelCollection(TypedDict):
+    number_matched: int | None
+    number_returned: int | None
+    exception_text: str | None
+    parcels: list[RawParcel]
+
+
+def _optional_int(value: str | None) -> int | None:
+    return int(value) if value is not None and value.strip().isdigit() else None
+
+
+def parse_wfs_parcel_collection(xml_bytes: bytes) -> RawParcelCollection:
+    """`GetFeature` de parcelas con sus contadores (`numberMatched`/`numberReturned`) y,
+    si el servicio respondió con un `ExceptionReport`, el texto de la excepción."""
     root = ET.fromstring(xml_bytes)
+    if _local_name(root.tag) == "ExceptionReport":
+        text = " ".join(t.strip() for t in root.itertext() if t.strip())
+        return {
+            "number_matched": None,
+            "number_returned": None,
+            "exception_text": text or "ExceptionReport",
+            "parcels": [],
+        }
+    return {
+        "number_matched": _optional_int(root.get("numberMatched")),
+        "number_returned": _optional_int(root.get("numberReturned")),
+        "exception_text": None,
+        "parcels": _parcels_from_root(root),
+    }
+
+
+def parse_wfs_parcels(xml_bytes: bytes) -> list[RawParcel]:
+    """Parsea un `GetFeature` de `cp:CadastralParcel` a una lista de dicts planos
+    (solo anillos exteriores)."""
+    return _parcels_from_root(ET.fromstring(xml_bytes))
+
+
+def _parcels_from_root(root: ET.Element) -> list[RawParcel]:
     parcels: list[RawParcel] = []
     for feature in root.iter():
         if _local_name(feature.tag) != "CadastralParcel":
@@ -81,7 +129,7 @@ def parse_wfs_parcels(xml_bytes: bytes) -> list[RawParcel]:
             {
                 "reference": ref_el.text,
                 "area_m2": float(area_el.text) if area_el is not None and area_el.text else 0.0,
-                "rings": _rings_from_feature(feature),
+                "rings": _exterior_rings_from_feature(feature),
             }
         )
     return parcels

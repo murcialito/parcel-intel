@@ -1,0 +1,37 @@
+{
+ "type": "FeatureCollection",
+ "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::25830"}},
+ "properties": {
+  "fuente": "catastro_vt",
+  "municipio": "28043",
+  "nombre_municipio": "Colmenar de Oreja",
+  "procedencia": {
+   "fuente": "SINTÉTICO capa de caminos de Catastro",
+   "url": "https://example.invalid/catastro_caminos?bbox=465000.0%2C4440000.0%2C465300.0%2C4442100.0",
+   "fecha_descarga": "2026-11-24",
+   "licencia": "SINTÉTICA, solo para pruebas (licencia INSPIRE de Catastro, no redistribuible)",
+   "redistribucion": "solo_uso_interno"
+  },
+  "aviso": "SINTÉTICO: capa inventada para pruebas, no es cartografía real."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "99043A00109001",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [[[465000, 4440000], [465200, 4440000], [465200, 4440010], [465000, 4440010], [465000, 4440000]]]
+   },
+   "properties": {"fecha_dato": "2026-06-01"}
+  },
+  {
+   "type": "Feature",
+   "id": "99043A00109002",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [[[465000, 4442000], [465200, 4442000], [465200, 4442010], [465000, 4442010], [465000, 4442000]]]
+   },
+   "properties": {"fecha_dato": "2026-06-01"}
+  }
+ ]
+}

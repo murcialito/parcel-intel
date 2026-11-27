@@ -1,0 +1,37 @@
+{
+ "atribucion": [
+  "CC BY 4.0 Comunidad de Madrid. Cartografía informativa, no es un deslinde.",
+  "Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional"
+ ],
+ "aviso": "Esto no es un dictamen ni afirma que haya ninguna irregularidad. Es un indicio automático, con la confianza indicada, que debe contrastarse con la administración competente.",
+ "capa": "discrepancias",
+ "criterio": "discrepancia_trazados v1",
+ "fecha_descarga": "2026-11-26",
+ "fuente": "Parcel Intel, indicios de discrepancia entre trazados",
+ "fuentes": [
+  {
+   "atribucion": "CC BY 4.0 Comunidad de Madrid. Cartografía informativa, no es un deslinde.",
+   "fecha_descarga": "2026-11-26",
+   "licencia": "CC BY 4.0 Comunidad de Madrid",
+   "origen": "idem",
+   "url": "https://idem.comunidad.madrid/geoidem/Zonas/wfs?bbox=453172.18168090016%2C4437295.510828527%2C461568.46545723954%2C4443411.475342063%2CEPSG%3A25830&request=GetFeature&service=WFS&typenames=Zonas%3AIDEM_MA_VIAS_PECUARIAS&version=2.0.0"
+  },
+  {
+   "atribucion": "Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional",
+   "fecha_descarga": "2026-11-26",
+   "licencia": "CC BY 4.0 — «Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional» (REGISTRY.md, historia #24)",
+   "origen": "ign-roadlink",
+   "url": "https://api-features.idee.es/collections/roadlink/items?bbox=453172.18168090016%2C4437295.510828527%2C461568.46545723954%2C4443411.475342063&bbox-crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F25830&crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F25830&f=json&filter=surfacecategory%3D%27unpaved%27&limit=500"
+  }
+ ],
+ "licencia": "CC BY 4.0",
+ "municipio": "28170",
+ "redistribucion": "publicable",
+ "transformacion": {
+  "crs_destino": "EPSG:4326",
+  "crs_origen": "EPSG:25830",
+  "decimales": 6,
+  "simplificacion": null
+ },
+ "url": "https://github.com/murcialito/paso-comun"
+}

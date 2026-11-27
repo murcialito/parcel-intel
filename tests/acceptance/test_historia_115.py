@@ -203,7 +203,9 @@ def test_ca6_solo_ficheros_de_marca_usados() -> None:
         "paso-comun-horizontal.svg",
     ]
     assert not (SITE / "img" / "iconos").exists()
-    for ausente in ("componentes.html", "css", "js", "fonts"):
+    # `css/` y `fonts/` los añadió #114 (tokens y tipografía, ya fusionada): esta historia no los
+    # copia, pero ya no pueden exigirse ausentes.
+    for ausente in ("componentes.html", "js"):
         assert not (SITE / ausente).exists(), ausente
     assert not list(SITE.rglob("parcel-intel-*"))
 

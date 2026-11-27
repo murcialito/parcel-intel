@@ -9,41 +9,37 @@ lo ya publicado.
 """
 
 import json
-import re
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from parcel_intel.adapters.published_layers.geometry import shape_to_geojson
 from parcel_intel.adapters.published_layers.index import (
+    INDEX_FILENAME,
+    PROVENANCE_SUFFIX,
     IndexEntry,
     PublishedLayerError,
     build_index,
     entry_from_document,
+    read_existing_entries,
 )
 from parcel_intel.adapters.published_layers.projection import (
     DECIMALS,
     SOURCE_CRS,
     TARGET_CRS,
-    to_lonlat,
 )
 from parcel_intel.adapters.published_layers.simplification import simplify_layer
 from parcel_intel.adapters.road_layer_files.common import write_atomic
-from parcel_intel.domain.geometry import Geometry, Ring, TrailShape
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.domain.published_layers import (
-    PUBLISHED_LAYERS,
     PublishedFile,
     Simplification,
     TrailLayerPublication,
 )
 from parcel_intel.domain.trail import Trail
 
-PROVENANCE_SUFFIX = ".procedencia.json"
-INDEX_FILENAME = "indice.json"
 DEFAULT_SIZE_THRESHOLD_BYTES = 3_000_000
 DEFAULT_SIMPLIFY_TOLERANCE_M = 2.0
-
-_MUNICIPALITY_FILE_RE = re.compile(r"(\d{5})\.geojson")
 
 
 def dump_compact(document: object) -> str:
@@ -68,25 +64,8 @@ def provenance_document(provenance: Provenance) -> dict[str, object]:
     }
 
 
-def _closed(ring: Ring) -> Ring:
-    return ring if ring[0] == ring[-1] else (*ring, ring[0])
-
-
 def _geometry(trail: Trail) -> dict[str, object]:
-    shape: TrailShape = trail.geometry
-    if isinstance(shape, Geometry):
-        rings = [to_lonlat(_closed(ring)) for ring in shape.rings if ring]
-        if not rings:
-            raise PublishedLayerError(f"trazado {trail.identifier!r} sin geometría")
-        if len(rings) == 1:
-            return {"type": "Polygon", "coordinates": [rings[0]]}
-        return {"type": "MultiPolygon", "coordinates": [[ring] for ring in rings]}
-    lines = [to_lonlat(line) for line in shape.lines if line]
-    if not lines:
-        raise PublishedLayerError(f"trazado {trail.identifier!r} sin geometría")
-    if len(lines) == 1:
-        return {"type": "LineString", "coordinates": lines[0]}
-    return {"type": "MultiLineString", "coordinates": lines}
+    return shape_to_geojson(trail.geometry, f"trazado {trail.identifier!r}")
 
 
 def _feature(trail: Trail) -> dict[str, object]:
@@ -190,7 +169,8 @@ class GeoJsonPublishedLayerSink:
             return ()
         serialized = [self._serialize(publication) for publication in publications]
         new_keys = {(item.entry.layer_id, item.entry.municipality_code) for item in serialized}
-        entries = [item.entry for item in serialized] + self._existing_entries(skip=new_keys)
+        entries = [item.entry for item in serialized]
+        entries += read_existing_entries(self._directory, skip=new_keys)
         index, index_provenance = build_index(entries, self._repository_url)
         index_text = dump_compact(index)
         index_provenance_text = dump_provenance(index_provenance)
@@ -242,29 +222,3 @@ class GeoJsonPublishedLayerSink:
             entry=entry,
         )
 
-    def _existing_entries(self, skip: set[tuple[str, str]]) -> list[IndexEntry]:
-        """Entradas del índice de los ficheros ya publicados que no se van a reemplazar.
-
-        Los `(capa, ine)` de `skip` no se leen: así un fichero publicado ilegible
-        se repara volviendo a publicarlo (Diseño de #84, §2).
-        """
-        entries: list[IndexEntry] = []
-        for layer_id in sorted(PUBLISHED_LAYERS):
-            directory = self._directory / layer_id
-            if not directory.is_dir():
-                continue
-            for path in sorted(directory.iterdir()):
-                match = _MUNICIPALITY_FILE_RE.fullmatch(path.name)
-                if match is None or not path.is_file():
-                    continue
-                if (layer_id, match.group(1)) in skip:
-                    continue
-                try:
-                    document = json.loads(path.read_text(encoding="utf-8"))
-                    entries.append(entry_from_document(layer_id, match.group(1), document))
-                except (OSError, UnicodeDecodeError, ValueError) as error:
-                    # `PublishedLayerError` es un `ValueError`, como el de JSON ilegible.
-                    raise PublishedLayerError(
-                        f"fichero publicado ilegible {path}: {error}"
-                    ) from error
-        return entries

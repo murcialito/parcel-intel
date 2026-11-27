@@ -176,3 +176,23 @@ def test_trazado_con_geometria_vacia_en_la_capa_contraria_no_rompe() -> None:
     ign = next(s for s in report.layers if s.source == "ign_red_transporte")
     assert ign.empty_geometry_ids == ("R0",)
     assert [r.discrepancy.kind for r in report.records] == ["AUSENTE_EN_FUENTE"]
+
+
+def test_el_informe_lleva_el_nombre_del_municipio_de_sus_capas() -> None:
+    """#94: el nombre del municipio sale de las capas y se conserva al redactar."""
+    via = make_trail("V1", "via_pecuaria_oficial", line_shape((0, 0), (100, 0)))
+    road = make_trail("R1", "ign_red_transporte", line_shape((0, 500), (100, 500)))
+    named = dataclasses.replace(
+        make_layer("via_pecuaria_oficial", [via]), municipality_name="Colmenar de Oreja"
+    )
+    unnamed = make_layer("ign_red_transporte", [road])
+    report = detect_municipal_discrepancies(MUNICIPALITY, [named, unnamed], [])
+    assert report.municipality_name == "Colmenar de Oreja"
+    assert redact_for_publication(report).municipality_name == "Colmenar de Oreja"
+
+    nameless = detect_municipal_discrepancies(MUNICIPALITY, [unnamed], [])
+    assert nameless.municipality_name is None
+
+    other = dataclasses.replace(unnamed, municipality_name="Chinchón")
+    with pytest.raises(InconsistentLayersError, match="nombres de municipio distintos"):
+        detect_municipal_discrepancies(MUNICIPALITY, [named, other], [])

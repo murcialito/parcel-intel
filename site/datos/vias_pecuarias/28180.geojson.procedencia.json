@@ -1,0 +1,23 @@
+{
+ "atribucion": "CC BY 4.0 Comunidad de Madrid",
+ "aviso": "cartografía informativa, no deslinde",
+ "capa": "vias_pecuarias",
+ "fecha_descarga": "2026-11-26",
+ "fuente": "idem",
+ "licencia": "CC BY 4.0 Comunidad de Madrid",
+ "municipio": "28180",
+ "procedencia_limite": {
+  "fecha_descarga": "2026-11-26",
+  "fuente": "ign_unidades_administrativas",
+  "licencia": "CC BY 4.0 ign.es",
+  "url": "https://www.ign.es/wfs-inspire/unidades-administrativas?bbox=39.98%2C-3.62%2C40.22%2C-3.15%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A4258&count=200&request=GetFeature&service=WFS&typeNames=au%3AAdministrativeUnit&version=2.0.0"
+ },
+ "redistribucion": "publicable",
+ "transformacion": {
+  "crs_destino": "EPSG:4326",
+  "crs_origen": "EPSG:25830",
+  "decimales": 6,
+  "simplificacion": null
+ },
+ "url": "https://idem.comunidad.madrid/geoidem/Zonas/wfs?bbox=470173.1391980562%2C4433515.89948871%2C483164.45611997315%2C4451633.093908208%2CEPSG%3A25830&request=GetFeature&service=WFS&typenames=Zonas%3AIDEM_MA_VIAS_PECUARIAS&version=2.0.0"
+}

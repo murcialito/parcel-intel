@@ -4,8 +4,10 @@
 # Entradas por entorno: GH_TOKEN (pull-requests: read, actions: write), REPO.
 set -euo pipefail
 
-for pr in $(gh pr list -R "$REPO" --state open --json number,headRefName,isDraft \
-              --jq '.[] | select(.headRefName | startswith("claude/")) | select(.isDraft | not) | .number'); do
+# Las PRs con veto no se tocan: Actualizar rama las rechazaría y fallaría en cada pasada.
+for pr in $(gh pr list -R "$REPO" --state open --json number,headRefName,isDraft,labels \
+              --jq '.[] | select(.headRefName | startswith("claude/")) | select(.isDraft | not)
+                    | select([.labels[].name] | index("veto") | not) | .number'); do
   estado=""
   for _ in 1 2 3 4 5 6; do  # GitHub calcula "mergeable" en diferido tras cada cambio en main
     estado=$(gh api "repos/$REPO/pulls/$pr" --jq '.mergeable_state')

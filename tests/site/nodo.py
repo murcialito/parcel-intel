@@ -16,6 +16,8 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from parcel_intel.domain.published_discrepancy import CADASTRAL_REFERENCE_RE
+
 ROOT = Path(__file__).resolve().parents[2]
 SITE = ROOT / "site"
 TEST_FILE = Path(__file__).with_name("visor.test.mjs")
@@ -48,7 +50,13 @@ def run_node_tests(pattern: str, workdir: Path) -> NodeResult:
     for nombre in MODULOS:
         shutil.copyfile(SITE / nombre, copia / nombre)
     (copia / "package.json").write_text(json.dumps({"type": "module"}), encoding="utf-8")
-    env = {**os.environ, "VISOR_DIR": str(copia), "VISOR_FIXTURES": str(FIXTURES)}
+    env = {
+        **os.environ,
+        "VISOR_DIR": str(copia),
+        "VISOR_FIXTURES": str(FIXTURES),
+        "VISOR_DATOS": str(SITE / "datos"),
+        "VISOR_REFCAT_RE": CADASTRAL_REFERENCE_RE.pattern,
+    }
     proceso = subprocess.run(
         [
             node,
