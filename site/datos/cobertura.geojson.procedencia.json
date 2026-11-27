@@ -1,0 +1,27 @@
+{
+ "atribucion": "CC BY 4.0 ign.es",
+ "aviso": "Límite administrativo de referencia, no es un deslinde.",
+ "capa": "cobertura",
+ "fecha_descarga": "2026-11-27",
+ "fuente": "ign_unidades_administrativas",
+ "licencia": "CC BY 4.0 ign.es",
+ "municipios": [
+  "28013",
+  "28019",
+  "28043",
+  "28052",
+  "28157",
+  "28170",
+  "28180"
+ ],
+ "redistribucion": "publicable",
+ "transformacion": {
+  "crs_destino": "EPSG:4326",
+  "crs_origen": "EPSG:25830",
+  "decimales": 6,
+  "simplificacion": {
+   "tolerancia_m": 15.0
+  }
+ },
+ "url": "https://www.ign.es/wfs-inspire/unidades-administrativas?bbox=39.98%2C-3.62%2C40.22%2C-3.15%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A4258&count=200&request=GetFeature&service=WFS&typeNames=au%3AAdministrativeUnit&version=2.0.0"
+}

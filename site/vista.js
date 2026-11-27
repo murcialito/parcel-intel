@@ -1,9 +1,13 @@
-// Vista del visor (historia #85): el único módulo, junto con app.js, que toca el DOM.
-// Recibe el `document` por inyección (se prueba con un documento falso en Node).
-// Todo texto que viene de datos se inserta con `textContent`, nunca como HTML (CA6).
+// Vista del visor (historia #85; rediseño #185): el único módulo, junto con app.js, que toca el
+// DOM. Recibe el `document` por inyección (se prueba con un documento falso en Node).
+// Todo texto que viene de datos se inserta con `textContent`, nunca como HTML (CA6 de #85).
 
 // Solo `https:` seguido de dos barras y algo más (en minúsculas, sin espacios).
 const ENLACE_SEGURO = /^https:\/\/\S/;
+
+// Espacio de nombres de SVG: un identificador, no una URL que se pida. Partido en dos para que
+// el escáner de URL absolutas de #85 (CA1) no lo tome por un recurso externo.
+const SVG_NS = "http:" + "//www.w3.org/2000/svg";
 
 export function crearVista(documento, textos) {
   const porId = (id) => {
@@ -11,7 +15,6 @@ export function crearVista(documento, textos) {
     if (!elemento) throw new Error(`falta el elemento #${id}`);
     return elemento;
   };
-  const selector = porId("municipio");
   const mensaje = porId("mensaje");
   const avisoBase = porId("aviso-base");
 
@@ -21,38 +24,152 @@ export function crearVista(documento, textos) {
     vacia: textos.sinTrazados,
     sin_indicios: textos.sinIndicios,
     sin_candidatos: textos.sinCandidatos,
+    sin_municipio: textos.sinMunicipio,
     error: textos.errorCapa,
   };
 
+  // Acciones que la ficha y el buscador llaman; las conecta app.js.
+  let acciones = {};
+  function conectar(nuevas) {
+    acciones = { ...acciones, ...nuevas };
+  }
+
+  function crear(tag, clase, texto) {
+    const e = documento.createElement(tag);
+    if (clase) e.className = clase;
+    if (texto !== undefined) e.textContent = texto;
+    return e;
+  }
+  const parrafo = (clase, contenido) => crear("p", clase, contenido);
+
+  // --- buscador ------------------------------------------------------------------------
+  let municipios = [];
+  let sugeridas = [];
+  let activa = -1;
+
+  function ponerMunicipios(lista) {
+    municipios = lista.map(({ ine, nombre }) => ({ ine, nombre }));
+  }
+
+  function cerrarSugerencias() {
+    const lista = porId("sugerencias");
+    const entrada = porId("buscar");
+    lista.replaceChildren();
+    lista.setAttribute("hidden", "");
+    entrada.setAttribute("aria-expanded", "false");
+    entrada.removeAttribute("aria-activedescendant");
+    sugeridas = [];
+    activa = -1;
+  }
+
+  // `lista`: municipios que casan; vacía, se dice que aún no hay cobertura (`sinCoincidencias`).
+  function mostrarSugerencias(lista, sinCoincidencias = "") {
+    const contenedor = porId("sugerencias");
+    const entrada = porId("buscar");
+    contenedor.replaceChildren();
+    sugeridas = lista;
+    activa = -1;
+    entrada.removeAttribute("aria-activedescendant");
+    if (lista.length === 0) {
+      const li = crear("li", "pc-sugerencias__vacio", sinCoincidencias);
+      li.setAttribute("role", "presentation");
+      contenedor.appendChild(li);
+    }
+    lista.forEach(({ ine, nombre }, i) => {
+      const li = crear("li", "pc-sugerencias__opcion", nombre);
+      li.setAttribute("role", "option");
+      li.setAttribute("id", `sugerencia-${ine}`);
+      li.setAttribute("aria-selected", "false");
+      li.dataset.ine = ine;
+      // `mousedown` y no `click`: elige antes de que el campo pierda el foco.
+      li.addEventListener("mousedown", (evento) => {
+        evento?.preventDefault?.();
+        elegir(i);
+      });
+      contenedor.appendChild(li);
+    });
+    contenedor.removeAttribute("hidden");
+    entrada.setAttribute("aria-expanded", "true");
+  }
+
+  function marcarActiva(i) {
+    const opciones = Array.from(porId("sugerencias").children).filter((li) => li.dataset?.ine);
+    activa = i;
+    opciones.forEach((li, j) => li.setAttribute("aria-selected", String(j === i)));
+    const entrada = porId("buscar");
+    if (i >= 0 && opciones[i]) {
+      entrada.setAttribute("aria-activedescendant", opciones[i].getAttribute("id"));
+      opciones[i].scrollIntoView?.({ block: "nearest" });
+    } else {
+      entrada.removeAttribute("aria-activedescendant");
+    }
+  }
+
+  function elegir(i) {
+    const m = sugeridas[i];
+    if (!m) return;
+    cerrarSugerencias();
+    porId("buscar").value = m.nombre;
+    acciones.alElegirMunicipio?.(m.ine);
+  }
+
+  // Teclado del combobox (patrón ARIA «combobox con lista»): flechas, Intro y Escape.
+  function teclaBuscador(evento) {
+    const total = sugeridas.length;
+    if (evento.key === "ArrowDown") {
+      evento.preventDefault?.();
+      if (porId("buscar").getAttribute("aria-expanded") !== "true") acciones.alEscribir?.(porId("buscar").value);
+      else if (total > 0) marcarActiva((activa + 1) % total);
+    } else if (evento.key === "ArrowUp") {
+      evento.preventDefault?.();
+      if (total > 0) marcarActiva(activa <= 0 ? total - 1 : activa - 1);
+    } else if (evento.key === "Enter") {
+      evento.preventDefault?.();
+      if (total > 0) elegir(activa >= 0 ? activa : 0);
+    } else if (evento.key === "Escape") {
+      cerrarSugerencias();
+    }
+  }
+
+  // --- municipio y cobertura -----------------------------------------------------------
+  function seleccionarMunicipio(ine, nombre = "") {
+    const enEspana = ine === null || ine === undefined;
+    porId("ambito-nombre").textContent = enEspana ? textos.espana : nombre;
+    const boton = porId("ver-espana");
+    if (enEspana) boton.setAttribute("hidden", "");
+    else boton.removeAttribute("hidden");
+    porId("buscar").value = enEspana ? "" : nombre;
+    documento.body?.setAttribute?.("data-ambito", enEspana ? "espana" : "municipio");
+  }
+
+  function ponerResumenCobertura(texto) {
+    porId("ambito-resumen").textContent = texto;
+  }
+
+  // Etiqueta del primer hito sobre el mapa de España: un nodo de texto, no HTML.
+  function nodoEtiquetaHito(texto) {
+    const nodo = crear("span", "pc-hito__texto", texto);
+    return nodo;
+  }
+
+  // --- capas ---------------------------------------------------------------------------
   // Resumen de la medición bajo la capa de tramos a verificar (historia #171): las frases y la
-  // marca «revisado a mano» tal cual, con textContent. `null` lo vacía.
+  // marca «revisado a mano» tal cual, con textContent. `null` lo vacía. Desde #185 (feedback del
+  // fundador) la marca queda a la vista y las frases se pliegan en «Cómo se ha medido», para ver
+  // todas las capas a la vez sin desplazar el panel.
   function ponerResumenCapa(id, resumen) {
     const contenedor = porId(`resumen-${id}`);
     contenedor.replaceChildren();
     if (resumen === null) return;
-    for (const frase of resumen.frases) {
-      const p = documento.createElement("p");
-      p.textContent = frase;
-      contenedor.appendChild(p);
-    }
-    const marca = documento.createElement("p");
-    marca.className = "pc-capa__revisado";
-    marca.textContent = resumen.revisadoAMano;
-    contenedor.appendChild(marca);
+    contenedor.appendChild(parrafo("pc-capa__revisado", resumen.revisadoAMano));
+    const plegable = detalle(textos.comoSeMide, "pc-medicion");
+    for (const frase of resumen.frases) plegable.appendChild(parrafo("", frase));
+    contenedor.appendChild(plegable);
   }
 
-  function ponerMunicipios(lista) {
-    selector.replaceChildren();
-    for (const { ine, nombre } of lista) {
-      const opcion = documento.createElement("option");
-      opcion.value = ine;
-      opcion.textContent = nombre;
-      selector.appendChild(opcion);
-    }
-  }
-
-  function seleccionarMunicipio(ine) {
-    selector.value = ine;
+  function ponerRecuentoCapa(id, n) {
+    const elemento = documento.getElementById(`recuento-${id}`);
+    if (elemento) elemento.textContent = typeof n === "number" && n > 0 ? String(n) : "";
   }
 
   function ponerEstadoCapa(id, estado) {
@@ -61,20 +178,26 @@ export function crearVista(documento, textos) {
     elemento.replaceChildren();
     // En carga, una barra decorativa (`aria-hidden`) antes del texto (historia #166, CA4).
     if (estado === "cargando") {
-      const progreso = documento.createElement("div");
-      progreso.className = "pc-progreso";
+      const progreso = crear("div", "pc-progreso");
       progreso.setAttribute("aria-hidden", "true");
       progreso.appendChild(documento.createElement("i"));
       elemento.appendChild(progreso);
     }
-    if (texto !== "") {
-      const span = documento.createElement("span");
-      span.textContent = texto;
-      elemento.appendChild(span);
-    }
+    if (texto !== "") elemento.appendChild(crear("span", "", texto));
     elemento.dataset.estado = estado;
   }
 
+  function marcarCapa(id, visible) {
+    const casilla = documento.getElementById(`capa-${id}`);
+    if (casilla) casilla.checked = Boolean(visible);
+  }
+
+  function ponerFondo(id) {
+    const radio = documento.getElementById(`fondo-${id}`);
+    if (radio) radio.checked = true;
+  }
+
+  // --- mensajes ------------------------------------------------------------------------
   function mostrarMensaje(texto) {
     mensaje.textContent = texto;
   }
@@ -83,40 +206,63 @@ export function crearVista(documento, textos) {
     mensaje.textContent = "";
   }
 
+  // Móvil: las hojas tapan el pie del mapa, así que repiten en su pie fijo las atribuciones
+  // visibles (revisión de #185). Texto plano, la misma lista que el control del mapa.
+  function ponerAtribuciones(lista) {
+    const texto = lista.join(" · ");
+    for (const id of ["panel-atribucion", "ficha-atribucion"]) {
+      const elemento = documento.getElementById(id);
+      if (elemento) elemento.textContent = texto;
+    }
+  }
+
   function mostrarAvisoBase(texto) {
     avisoBase.textContent = texto;
   }
 
-  function nodoFicha({ titulo, fuente, nombre }) {
-    const ficha = documento.createElement("div");
-    ficha.className = "ficha";
-    const cabecera = documento.createElement("strong");
-    cabecera.textContent = titulo;
-    ficha.appendChild(cabecera);
-    if (nombre) {
-      const p = documento.createElement("p");
-      p.textContent = nombre;
-      ficha.appendChild(p);
-    }
-    const pie = documento.createElement("p");
-    pie.className = "ficha-fuente";
-    pie.textContent = `Fuente: ${fuente}`;
-    ficha.appendChild(pie);
+  let temporizador = null;
+  function avisar(texto) {
+    const toast = documento.getElementById("aviso-flotante");
+    if (!toast) return;
+    toast.textContent = texto;
+    if (temporizador !== null) globalThis.clearTimeout?.(temporizador);
+    temporizador = globalThis.setTimeout?.(() => {
+      toast.textContent = "";
+    }, 2500) ?? null;
+  }
+
+  // --- ficha ---------------------------------------------------------------------------
+  // Ficha de un trazado de referencia (vía pecuaria, camino actual): fuente y atribución.
+  function nodoFicha({ titulo, fuente, nombre }, atribucion = "") {
+    const ficha = crear("div", "ficha");
+    if (nombre) ficha.appendChild(parrafo("ficha-capa", titulo));
+    ficha.appendChild(parrafo("ficha-fuente", `${textos.fuente}: ${fuente}`));
+    if (atribucion) ficha.appendChild(parrafo("ficha-fuente", atribucion));
     return ficha;
   }
 
-  function parrafo(clase, contenido) {
-    const p = documento.createElement("p");
-    if (clase) p.className = clase;
-    p.textContent = contenido;
-    return p;
+  // Muestra de la confianza: la misma línea punteada que en el mapa y la leyenda.
+  function muestraConfianza(nivel) {
+    const svg = documento.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("class", `pc-muestra pc-muestra--indicio pc-muestra--${nivel}`);
+    svg.setAttribute("viewBox", "0 0 44 16");
+    svg.setAttribute("aria-hidden", "true");
+    for (const clase of ["h", "l"]) {
+      const linea = documento.createElementNS(SVG_NS, "line");
+      for (const [k, v] of [["class", clase], ["x1", "4"], ["y1", "8"], ["x2", "40"], ["y2", "8"]]) {
+        linea.setAttribute(k, v);
+      }
+      svg.appendChild(linea);
+    }
+    return svg;
   }
 
-  // Ficha de un indicio (historia #95): solo createElement y textContent. El enlace de una
-  // fuente se crea únicamente si la URL es https con dos barras; si no, se muestra como texto.
-  // Espacio de nombres de SVG: un identificador, no una URL que se pida. Partido en dos para que
-  // el escáner de URL absolutas de #85 (CA1) no lo tome por un recurso externo.
-  const SVG_NS = "http:" + "//www.w3.org/2000/svg";
+  // Bloque plegable del detalle: `<details>` con su `<summary>`.
+  function detalle(titulo, clase = "") {
+    const d = crear("details", `pc-detalle ${clase}`.trim());
+    d.appendChild(crear("summary", "pc-detalle__titulo", titulo));
+    return d;
+  }
 
   // Trazo sobre la imagen (ADR 0042 §6): `svg` con `viewBox` en píxeles de la imagen y una
   // `polyline` por parte, todo con createElementNS y atributos; nada de HTML como cadena.
@@ -136,10 +282,8 @@ export function crearVista(documento, textos) {
   }
 
   function nodoImagenComparacion(imagen, ventana, comparacion) {
-    const figura = documento.createElement("figure");
-    figura.className = "pc-comparacion__imagen";
-    const lienzo = documento.createElement("div");
-    lienzo.className = "pc-comparacion__lienzo";
+    const figura = crear("figure", "pc-comparacion__imagen");
+    const lienzo = crear("div", "pc-comparacion__lienzo");
     if (ENLACE_SEGURO.test(imagen.url)) {
       const img = documento.createElement("img");
       img.setAttribute("src", imagen.url);
@@ -165,35 +309,35 @@ export function crearVista(documento, textos) {
   }
 
   function nodoComparacion(comparacion) {
-    const seccion = documento.createElement("div");
-    seccion.className = "pc-comparacion";
-    const titulo = documento.createElement("strong");
-    titulo.textContent = textos.tituloComparacion;
-    seccion.appendChild(titulo);
+    const imagenes = comparacion.ventanas.reduce((n, v) => n + v.imagenes.length, 0);
+    const seccion = detalle(`${textos.tituloComparacion} (${imagenes})`, "pc-comparacion");
 
     // Control accesible: botón con `aria-pressed`; oculta o muestra todos los trazos de la ficha.
-    const control = documento.createElement("button");
+    const control = crear("button", "pc-boton pc-boton--texto pc-comparacion__control", textos.mostrarTrazo);
     control.setAttribute("type", "button");
     control.setAttribute("aria-pressed", "true");
-    control.className = "pc-comparacion__control";
-    control.textContent = textos.mostrarTrazo;
     seccion.appendChild(control);
 
-    const trazos = [];
+    const rejilla = crear("div", "pc-comparacion__rejilla");
     for (const ventana of comparacion.ventanas) {
       for (const imagen of ventana.imagenes) {
-        const figura = nodoImagenComparacion(imagen, ventana, comparacion);
-        seccion.appendChild(figura);
-      }
-      for (const omitida of ventana.omitidas) {
-        seccion.appendChild(parrafo("ficha-aviso", `${omitida.franja}: ${omitida.texto}`));
+        rejilla.appendChild(nodoImagenComparacion(imagen, ventana, comparacion));
       }
     }
+    seccion.appendChild(rejilla);
+    for (const ventana of comparacion.ventanas) {
+      for (const omitida of ventana.omitidas) {
+        seccion.appendChild(parrafo("ficha-nota", `${omitida.franja}: ${omitida.texto}`));
+      }
+    }
+    const trazos = [];
     const recoger = (nodo) => {
-      if (nodo.tagName === "svg") trazos.push(nodo);
+      if (nodo.tagName === "svg" || nodo.tagName === "SVG") {
+        if (String(nodo.getAttribute?.("class") ?? "").includes("pc-comparacion__trazo")) trazos.push(nodo);
+      }
       for (const hijo of nodo.children ?? []) recoger(hijo);
     };
-    recoger(seccion);
+    recoger(rejilla);
     control.addEventListener("click", () => {
       const visible = control.getAttribute("aria-pressed") !== "true";
       control.setAttribute("aria-pressed", String(visible));
@@ -203,44 +347,30 @@ export function crearVista(documento, textos) {
       }
     });
 
-    for (const hueco of comparacion.huecos) seccion.appendChild(parrafo("ficha-aviso", hueco));
+    for (const hueco of comparacion.huecos) seccion.appendChild(parrafo("ficha-nota", hueco));
     if (comparacion.servidasPor !== "") {
       seccion.appendChild(parrafo("ficha-fuente", comparacion.servidasPor));
     }
     return seccion;
   }
 
-  function nodoFichaIndicio(ficha, comparacion = null) {
-    const nodo = documento.createElement("div");
-    nodo.className = "ficha ficha-indicio";
-    if (!ficha.disponible) {
-      nodo.appendChild(parrafo("", textos.fichaNoDisponible));
-      nodo.appendChild(parrafo("ficha-aviso", ficha.aviso));
-      return nodo;
-    }
-    const cabecera = documento.createElement("strong");
-    cabecera.textContent = ficha.etiqueta;
-    nodo.appendChild(cabecera);
-    nodo.appendChild(parrafo("", ficha.texto));
-    if (ficha.confianza) nodo.appendChild(parrafo("ficha-confianza", ficha.confianza));
-    nodo.appendChild(parrafo("ficha-aviso", ficha.aviso));
-
-    const lista = documento.createElement("ul");
-    lista.className = "ficha-fuentes";
-    for (const e of ficha.evidencia) {
+  function nodoFuentes(evidencia) {
+    const seccion = detalle(`${textos.fuentes} (${evidencia.length})`, "pc-fuentes");
+    const lista = crear("ul", "ficha-fuentes");
+    for (const e of evidencia) {
       const item = documento.createElement("li");
-      item.appendChild(parrafo("", `${e.papel}: ${e.fuente} (${e.anio})`));
+      item.appendChild(parrafo("ficha-fuentes__nombre", `${e.papel}: ${e.fuente} (${e.anio})`));
       item.appendChild(parrafo("ficha-fuente", `Descargada el ${e.fechaDescarga}`));
       item.appendChild(parrafo("ficha-fuente", `Licencia: ${e.licencia}`));
       item.appendChild(parrafo("ficha-fuente", e.atribucion));
+      // El enlace se crea solo si la URL es https con dos barras; si no, va como texto.
       if (ENLACE_SEGURO.test(e.url)) {
-        const enlace = documento.createElement("a");
+        const enlace = crear("a", "ficha-enlace", textos.abrirConsulta);
         enlace.setAttribute("href", e.url);
+        enlace.setAttribute("title", e.url);
         enlace.setAttribute("rel", "noopener noreferrer");
         enlace.setAttribute("target", "_blank");
-        enlace.textContent = e.url;
-        const p = documento.createElement("p");
-        p.className = "ficha-fuente";
+        const p = crear("p", "ficha-fuente");
         p.appendChild(enlace);
         item.appendChild(p);
       } else if (e.url !== "") {
@@ -248,27 +378,127 @@ export function crearVista(documento, textos) {
       }
       lista.appendChild(item);
     }
-    nodo.appendChild(lista);
+    seccion.appendChild(lista);
+    return seccion;
+  }
 
-    // Los tramos a verificar (#171) no traen criterio: no se pintan párrafos vacíos.
-    if (ficha.criterio !== "") nodo.appendChild(parrafo("ficha-criterio", `Criterio: ${ficha.criterio}`));
-    if (ficha.descripcionCriterio !== "") {
-      nodo.appendChild(parrafo("ficha-criterio", ficha.descripcionCriterio));
+  function nodoAcciones() {
+    const barra = crear("div", "pc-ficha__acciones");
+    const acercar = crear("button", "pc-boton", textos.acercar);
+    acercar.setAttribute("type", "button");
+    acercar.addEventListener("click", () => acciones.alAcercar?.());
+    const copiar = crear("button", "pc-boton", textos.copiarEnlace);
+    copiar.setAttribute("type", "button");
+    copiar.addEventListener("click", () => acciones.alCopiarEnlace?.());
+    barra.appendChild(acercar);
+    barra.appendChild(copiar);
+    return barra;
+  }
+
+  // Cuerpo de la ficha de un indicio o tramo (historias #95, #171, #185). Primero el resumen
+  // (texto validado, confianza y aviso, que nunca se pliega); después el detalle plegable.
+  function nodoFichaIndicio(ficha, comparacion = null) {
+    const nodo = crear("div", "ficha ficha-indicio");
+    if (!ficha.disponible) {
+      nodo.appendChild(parrafo("", textos.fichaNoDisponible));
+      nodo.appendChild(parrafo("ficha-aviso", ficha.aviso));
+      return nodo;
     }
+    nodo.appendChild(parrafo("ficha-texto", ficha.texto));
+    if (ficha.confianza) {
+      const p = crear("p", "ficha-confianza");
+      p.appendChild(muestraConfianza(ficha.confianza.replace("confianza ", "")));
+      p.appendChild(crear("span", "", ficha.confianza));
+      nodo.appendChild(p);
+    }
+    nodo.appendChild(parrafo("ficha-aviso", ficha.aviso));
     if (ficha.avisoOmision !== null) nodo.appendChild(parrafo("ficha-aviso", ficha.avisoOmision));
+    nodo.appendChild(nodoAcciones());
     if (comparacion !== null) nodo.appendChild(nodoComparacion(comparacion));
+    nodo.appendChild(nodoFuentes(ficha.evidencia));
+    // Los tramos a verificar (#171) no traen criterio: no se pintan párrafos vacíos.
+    if (ficha.criterio !== "" || ficha.descripcionCriterio !== "") {
+      const como = detalle(textos.comoSeCalcula, "pc-criterio");
+      if (ficha.criterio !== "") como.appendChild(parrafo("ficha-criterio", `Criterio: ${ficha.criterio}`));
+      if (ficha.descripcionCriterio !== "") {
+        como.appendChild(parrafo("ficha-criterio", ficha.descripcionCriterio));
+      }
+      nodo.appendChild(como);
+    }
     return nodo;
   }
 
+  // Abre el panel (escritorio) u hoja inferior (móvil) con la ficha del modelo del controlador.
+  function abrirFicha(modelo) {
+    const panel = porId("ficha");
+    porId("ficha-tipo").textContent = modelo.nombreCapa;
+    let titulo;
+    let cuerpo;
+    if (modelo.tipo === "trazado") {
+      titulo = modelo.ficha.nombre ?? modelo.ficha.titulo;
+      cuerpo = nodoFicha(modelo.ficha, modelo.atribucion);
+    } else {
+      titulo = modelo.ficha.disponible && modelo.ficha.etiqueta ? modelo.ficha.etiqueta : modelo.nombreCapa;
+      cuerpo = nodoFichaIndicio(modelo.ficha, modelo.comparacion);
+    }
+    porId("ficha-titulo").textContent = titulo;
+    porId("ficha-cuerpo").replaceChildren(cuerpo);
+    panel.dataset.tipo = modelo.tipo;
+    panel.removeAttribute("hidden");
+    ampliarFicha(false);
+    documento.body?.setAttribute?.("data-ficha", "abierta");
+    // El foco pasa al panel si estaba en la página (clic en el mapa, teclado); al abrir desde
+    // un enlace no se mueve, para no pintar el anillo sin que nadie haya interactuado.
+    if (documento.activeElement && documento.activeElement !== documento.body) {
+      panel.focus?.({ preventScroll: true });
+    }
+  }
+
+  function cerrarFicha() {
+    const panel = porId("ficha");
+    panel.setAttribute("hidden", "");
+    porId("ficha-cuerpo").replaceChildren();
+    documento.body?.removeAttribute?.("data-ficha");
+  }
+
+  // Móvil: la hoja se abre a media altura (resumen) y se amplía para leer el detalle.
+  function ampliarFicha(ampliada) {
+    const boton = porId("ficha-ampliar");
+    boton.setAttribute("aria-expanded", String(Boolean(ampliada)));
+    boton.setAttribute("aria-label", ampliada ? "Reducir la ficha" : "Ampliar la ficha");
+    porId("ficha").dataset.ampliada = String(Boolean(ampliada));
+  }
+
+  function plegarPanel(abierto) {
+    const boton = porId("plegar");
+    boton.setAttribute("aria-expanded", String(Boolean(abierto)));
+    documento.body?.setAttribute?.("data-panel", abierto ? "abierto" : "plegado");
+  }
+
   return {
-    nodoFichaIndicio,
+    conectar,
     ponerMunicipios,
+    mostrarSugerencias,
+    cerrarSugerencias,
+    teclaBuscador,
     seleccionarMunicipio,
+    ponerResumenCobertura,
+    nodoEtiquetaHito,
     ponerEstadoCapa,
     ponerResumenCapa,
+    ponerRecuentoCapa,
+    marcarCapa,
+    ponerFondo,
     mostrarMensaje,
     limpiarMensaje,
     mostrarAvisoBase,
+    ponerAtribuciones,
+    avisar,
     nodoFicha,
+    nodoFichaIndicio,
+    abrirFicha,
+    cerrarFicha,
+    ampliarFicha,
+    plegarPanel,
   };
 }

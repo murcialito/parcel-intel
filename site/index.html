@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Paso Común · Mapa de vías pecuarias y caminos</title>
-<meta name="description" content="Paso Común: mapa abierto de vías pecuarias y caminos sin asfaltar en Colmenar de Oreja y su entorno. Señala indicios a verificar, nunca ilegalidades.">
+<meta name="description" content="Paso Común: mapa abierto de vías pecuarias y caminos sin asfaltar en España, empezando por Colmenar de Oreja y su entorno. Señala indicios a verificar, nunca ilegalidades.">
 <meta name="theme-color" content="#2f6b3f">
 <meta property="og:title" content="Paso Común · Mapa de vías pecuarias y caminos">
 <meta property="og:description" content="Paso Común: mapa abierto de vías pecuarias y caminos sin asfaltar en Colmenar de Oreja y su entorno. Señala indicios a verificar, nunca ilegalidades.">
@@ -22,29 +22,44 @@
 <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
-<header class="cabecera">
-  <h1><picture>
-    <source srcset="img/logo/paso-comun-horizontal-oscuro.svg" media="(prefers-color-scheme: dark)">
-    <img class="logo" src="img/logo/paso-comun-horizontal.svg" alt="Paso Común">
-  </picture></h1>
-  <p>Mapa abierto y sin ánimo de lucro de los trazados que deberían ser públicos en Colmenar de Oreja y su entorno. El mapa señala <strong>indicios a verificar</strong>, nunca ilegalidades, y no muestra datos de propietarios.</p>
-</header>
+<main class="pc-app">
+  <div id="mapa" class="pc-mapa" role="region" aria-label="Mapa"></div>
 
-<main class="visor">
-  <aside class="panel" aria-label="Controles del mapa">
-    <form class="controles" autocomplete="off">
-      <p class="campo">
-        <label for="municipio">Municipio</label>
-        <select id="municipio" name="municipio"></select>
-      </p>
+  <div class="pc-panel">
+    <header class="pc-barra cabecera">
+      <h1><picture>
+        <source srcset="img/logo/paso-comun-horizontal-oscuro.svg" media="(prefers-color-scheme: dark)">
+        <img class="logo" src="img/logo/paso-comun-horizontal.svg" alt="Paso Común">
+      </picture></h1>
+      <p class="pc-lema">Señala <strong>indicios a verificar</strong>, nunca ilegalidades.</p>
+      <form class="pc-buscador" role="search" autocomplete="off">
+        <label for="buscar" class="pc-oculto">Buscar municipio</label>
+        <svg class="pc-buscador__icono" aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="21" y2="21"/></svg>
+        <input id="buscar" type="search" placeholder="Buscar municipio" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sugerencias">
+        <ul id="sugerencias" class="pc-sugerencias" role="listbox" aria-label="Municipios con datos" hidden></ul>
+      </form>
+    </header>
 
-      <fieldset>
-        <legend>Capas</legend>
-        <ul class="pc-capas">
+    <section class="pc-cuerpo" aria-label="Capas y leyenda">
+      <button type="button" class="pc-cuerpo__asa" id="plegar" aria-expanded="false" aria-controls="panel-contenido"><span class="pc-cuerpo__tirador" aria-hidden="true"></span><span>Capas y leyenda</span></button>
+      <div class="pc-cuerpo__contenido" id="panel-contenido">
+        <div class="pc-ambito">
+          <p class="pc-ambito__nombre" id="ambito-nombre">España</p>
+          <p class="pc-ambito__resumen" id="ambito-resumen"></p>
+          <button type="button" class="pc-boton pc-boton--texto" id="ver-espana" hidden>Ver toda España</button>
+        </div>
+
+        <div id="mensaje" class="mensaje" role="status" aria-live="polite"></div>
+        <div id="aviso-base" class="aviso-base" role="status" aria-live="polite"></div>
+
+        <form class="controles" autocomplete="off">
+          <fieldset class="pc-grupo">
+            <legend>Capas</legend>
+            <ul class="pc-capas">
         <li class="pc-capa">
           <label for="capa-vias_pecuarias" class="pc-capa__fila">
             <svg class="pc-muestra pc-muestra--vias" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg>
-            <span class="pc-capa__texto"><span class="pc-capa__nombre">Vías pecuarias (Comunidad de Madrid)</span><span class="pc-capa__desc">Banda ancha continua · informativa, no deslinde</span></span>
+            <span class="pc-capa__texto"><span class="pc-capa__nombre">Vías pecuarias</span> <span class="pc-capa__recuento" id="recuento-vias_pecuarias"></span><span class="pc-capa__desc">Comunidad de Madrid · informativa, no deslinde</span></span>
             <input type="checkbox" role="switch" class="pc-switch" id="capa-vias_pecuarias" name="vias_pecuarias" checked>
           </label>
           <div class="pc-capa__estado" id="estado-vias_pecuarias"></div>
@@ -52,7 +67,7 @@
         <li class="pc-capa">
           <label for="capa-camino_actual" class="pc-capa__fila">
             <svg class="pc-muestra pc-muestra--camino" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg>
-            <span class="pc-capa__texto"><span class="pc-capa__nombre">Camino actual (red de transporte del IGN, sin asfaltar)</span><span class="pc-capa__desc">Línea fina continua · tramos sin asfaltar (IGN)</span></span>
+            <span class="pc-capa__texto"><span class="pc-capa__nombre">Camino actual</span> <span class="pc-capa__recuento" id="recuento-camino_actual"></span><span class="pc-capa__desc">Red del IGN, tramos sin asfaltar</span></span>
             <input type="checkbox" role="switch" class="pc-switch" id="capa-camino_actual" name="camino_actual" checked>
           </label>
           <div class="pc-capa__estado" id="estado-camino_actual"></div>
@@ -60,44 +75,60 @@
         <li class="pc-capa">
           <label for="capa-discrepancias" class="pc-capa__fila">
             <svg class="pc-muestra pc-muestra--indicio pc-muestra--media" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg>
-            <span class="pc-capa__texto"><span class="pc-capa__nombre">Indicios a verificar (no son un dictamen)</span><span class="pc-capa__desc">Punteada · a verificar sobre el terreno</span></span>
+            <span class="pc-capa__texto"><span class="pc-capa__nombre">Indicios a verificar (no son un dictamen)</span> <span class="pc-capa__recuento" id="recuento-discrepancias"></span><span class="pc-capa__desc">Punteada · a verificar sobre el terreno</span></span>
             <input type="checkbox" role="switch" class="pc-switch" id="capa-discrepancias" name="discrepancias">
           </label>
           <div class="pc-capa__estado" id="estado-discrepancias"></div>
-          <ul class="pc-capa__niveles">
-            <li><svg class="pc-muestra pc-muestra--indicio pc-muestra--baja" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg> Confianza baja · punto pequeño y espaciado</li>
-            <li><svg class="pc-muestra pc-muestra--indicio pc-muestra--media" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg> Confianza media · punto mediano</li>
-            <li><svg class="pc-muestra pc-muestra--indicio pc-muestra--alta" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg> Confianza alta · punto grande y denso</li>
-          </ul>
+          <p class="pc-capa__niveles"><span>Confianza:</span> <span class="pc-nivel"><svg class="pc-muestra pc-muestra--indicio pc-muestra--baja" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg> baja</span> <span class="pc-nivel"><svg class="pc-muestra pc-muestra--indicio pc-muestra--media" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg> media</span> <span class="pc-nivel"><svg class="pc-muestra pc-muestra--indicio pc-muestra--alta" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg> alta</span></p>
         </li>
         <li class="pc-capa">
           <label for="capa-candidatos" class="pc-capa__fila">
             <svg class="pc-muestra pc-muestra--candidato" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg>
-            <span class="pc-capa__texto"><span class="pc-capa__nombre">Tramos a verificar (no son un dictamen)</span><span class="pc-capa__desc">Raya y punto · revisados a mano, a verificar sobre el terreno</span></span>
+            <span class="pc-capa__texto"><span class="pc-capa__nombre">Tramos a verificar (no son un dictamen)</span> <span class="pc-capa__recuento" id="recuento-candidatos"></span><span class="pc-capa__desc">Raya y punto · revisados a mano</span></span>
             <input type="checkbox" role="switch" class="pc-switch" id="capa-candidatos" name="candidatos">
           </label>
           <div class="pc-capa__estado" id="estado-candidatos"></div>
           <div class="pc-capa__resumen" id="resumen-candidatos"></div>
         </li>
-        </ul>
-      </fieldset>
-    </form>
+            </ul>
+          </fieldset>
 
-    <div id="mensaje" class="mensaje" role="status" aria-live="polite"></div>
-    <div id="aviso-base" class="aviso-base" role="status" aria-live="polite"></div>
+          <fieldset class="pc-grupo pc-fondo">
+            <legend>Fondo</legend>
+            <div class="pc-segmentos">
+              <input type="radio" name="fondo" id="fondo-mapa" value="mapa" checked><label for="fondo-mapa">Mapa</label>
+              <input type="radio" name="fondo" id="fondo-ortofoto" value="ortofoto"><label for="fondo-ortofoto">Ortofoto</label>
+            </div>
+          </fieldset>
+        </form>
 
-    <p class="pc-aviso"><strong>Aviso:</strong> la capa de vías pecuarias es cartografía de carácter informativo, no un deslinde. Ningún trazado de este mapa prueba por sí solo que un camino sea público ni que esté cortado.</p>
+        <p class="pc-leyenda-cobertura"><span class="pc-leyenda-cobertura__con" aria-hidden="true"></span> Con datos <span class="pc-leyenda-cobertura__sin" aria-hidden="true"></span> Aún sin cobertura</p>
+
+        <p class="pc-aviso"><strong>Aviso:</strong> la capa de vías pecuarias es cartografía de carácter informativo, no un deslinde. Ningún trazado de este mapa prueba por sí solo que un camino sea público ni que esté cortado.</p>
+
+        <footer class="pie">
+          <p>Mapa abierto y sin ánimo de lucro de los trazados que deberían ser públicos. No muestra datos de propietarios.</p>
+          <p>Datos publicados con licencia <a href="https://creativecommons.org/licenses/by/4.0/deed.es">CC BY 4.0</a>; la atribución de cada capa se muestra junto al mapa. Código con licencia Apache 2.0. <a href="https://github.com/murcialito/paso-comun">Código, fuentes y avance del proyecto</a>.</p>
+        </footer>
+      </div>
+      <p class="pc-hoja__atribucion" id="panel-atribucion"></p>
+    </section>
+  </div>
+
+  <aside id="ficha" class="pc-ficha" aria-labelledby="ficha-titulo" tabindex="-1" hidden>
+    <div class="pc-ficha__cabecera">
+      <button type="button" class="pc-ficha__asa" id="ficha-ampliar" aria-expanded="false" aria-controls="ficha-cuerpo" aria-label="Ampliar la ficha"><span class="pc-cuerpo__tirador" aria-hidden="true"></span></button>
+      <p class="pc-ficha__tipo" id="ficha-tipo"></p>
+      <h2 class="pc-ficha__titulo" id="ficha-titulo"></h2>
+      <button type="button" class="pc-boton pc-boton--icono pc-ficha__cerrar" id="ficha-cerrar" aria-label="Cerrar la ficha"><svg aria-hidden="true" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+    </div>
+    <div class="pc-ficha__cuerpo" id="ficha-cuerpo"></div>
+    <p class="pc-hoja__atribucion" id="ficha-atribucion"></p>
   </aside>
 
-  <div class="pc-mapa">
-    <div id="mapa" role="region" aria-label="Mapa"></div>
-    <div class="pc-avisos" role="note" aria-label="Avisos"><p class="pc-aviso"><strong>Cartografía informativa, no es un deslinde.</strong> Indicios a verificar, no ilegalidades.</p></div>
-  </div>
+  <div class="pc-avisos" role="note" aria-label="Avisos"><p class="pc-aviso"><strong>Cartografía informativa, no es un deslinde.</strong> Indicios a verificar, no ilegalidades.</p></div>
+  <div id="aviso-flotante" class="pc-toast" role="status" aria-live="polite"></div>
 </main>
-
-<footer class="pie">
-  <p>Datos publicados con licencia <a href="https://creativecommons.org/licenses/by/4.0/deed.es">CC BY 4.0</a>; la atribución de cada capa se muestra junto al mapa. Código con licencia Apache 2.0. <a href="https://github.com/murcialito/paso-comun">Código, fuentes y avance del proyecto</a>.</p>
-</footer>
 
 <script src="vendor/leaflet/leaflet.js"></script>
 <script type="module" src="app.js"></script>

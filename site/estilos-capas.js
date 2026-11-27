@@ -119,3 +119,21 @@ export function temaDe(forzado, prefiereOscuro) {
   if (forzado === "claro" || forzado === "oscuro") return forzado;
   return prefiereOscuro ? "oscuro" : "claro";
 }
+
+// Cobertura (historia #185): velo gris sobre lo que aún no tiene datos y contorno de cada
+// municipio cubierto, con un halo claro para que se lea sobre el mapa y la ortofoto. No es
+// una capa de trazados: no entra en CLAVES ni en el sistema de diseño original de #165.
+export const COBERTURA = congelar({
+  claro: {
+    velo: { color: "#2e3430", opacity: 0.22 },
+    borde: { color: "#2f6b3f", weight: 2.5, opacity: 1 },
+    halo: { color: "#ffffff", weight: 6, opacity: 0.9 },
+    activo: { color: "#2f6b3f", weight: 3.5, opacity: 1 },
+  },
+  oscuro: {
+    velo: { color: "#000000", opacity: 0.28 },
+    borde: { color: "#7cc290", weight: 2.5, opacity: 1 },
+    halo: { color: "#151816", weight: 6, opacity: 0.9 },
+    activo: { color: "#95d0a6", weight: 3.5, opacity: 1 },
+  },
+});

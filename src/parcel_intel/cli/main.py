@@ -3,7 +3,7 @@ import json
 import sys
 import time
 from collections import Counter
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -48,6 +48,7 @@ from parcel_intel.adapters.ign_admin_units import client as ign_client
 from parcel_intel.adapters.ign_historic import HttpGet as HistoricHttpGet
 from parcel_intel.adapters.ign_historic import IgnHistoricImageAdapter
 from parcel_intel.adapters.ign_historic import default_http_get as historic_default_http_get
+from parcel_intel.adapters.kit_campo import FileFieldKitSink, PublishedLayerFileReader
 from parcel_intel.adapters.livestock_trails import client as livestock_client
 from parcel_intel.adapters.livestock_trails.adapter import LivestockTrailAdapter
 from parcel_intel.adapters.pnoa import client as pnoa_client
@@ -55,7 +56,10 @@ from parcel_intel.adapters.pnoa.window import PnoaWindowAdapter
 from parcel_intel.adapters.postgis.connection import get_connection
 from parcel_intel.adapters.postgis.georeference_repository import PostgisGeoreferenceRepository
 from parcel_intel.adapters.postgis.rule_repository import PostgisRuleRepository
+from parcel_intel.adapters.public_utility_forests import client as forest_client
+from parcel_intel.adapters.public_utility_forests.adapter import PublicUtilityForestAdapter
 from parcel_intel.adapters.published_layers import (
+    GeoJsonCoverageSink,
     GeoJsonPublishedCandidateSink,
     GeoJsonPublishedDiscrepancySink,
     GeoJsonPublishedLayerSink,
@@ -70,8 +74,13 @@ from parcel_intel.adapters.raw_cache import (
 )
 from parcel_intel.adapters.road_layer_files import (
     GeoJsonLivestockTrailLayerWriter,
+    GeoJsonPublicUtilityForestLayerWriter,
     GeoJsonRoadLayerWriter,
     LivestockTrailLayerFileError,
+    PublicUtilityForestLayerFileError,
+)
+from parcel_intel.adapters.road_layer_files.public_utility_forest_writer import (
+    layer_to_geojson_text as forest_layer_to_geojson_text,
 )
 from parcel_intel.adapters.road_network import client as roadlink_client
 from parcel_intel.adapters.road_network.adapter import RoadNetworkAdapter
@@ -99,18 +108,23 @@ from parcel_intel.application.build_municipal_comparisons import (
 from parcel_intel.application.build_municipal_livestock_trail_layers import (
     BuildMunicipalLivestockTrailLayersUseCase,
 )
+from parcel_intel.application.build_municipal_public_utility_forest_layers import (
+    BuildMunicipalPublicUtilityForestLayersUseCase,
+)
 from parcel_intel.application.build_municipal_road_layers import BuildMunicipalRoadLayersUseCase
 from parcel_intel.application.build_trail_evidence import BuildTrailEvidenceUseCase
 from parcel_intel.application.cut_signals import CadastralParcelSignalProvider
 from parcel_intel.application.detect_cut_candidates import DetectCutCandidatesUseCase
 from parcel_intel.application.detect_discrepancies import DetectDiscrepanciesUseCase
 from parcel_intel.application.evaluate_candidates import EvaluateCandidatesUseCase
+from parcel_intel.application.kit_campo import PublishFieldKitUseCase
 from parcel_intel.application.list_candidate_reviews import (
     ListCandidateReviewsUseCase,
     MunicipalReviewListing,
 )
 from parcel_intel.application.load_historic_trails import HistoricUnitUseCase
 from parcel_intel.application.publish_candidates import PublishCandidatesUseCase
+from parcel_intel.application.publish_coverage import PublishCoverageUseCase
 from parcel_intel.application.publish_discrepancies import PublishDiscrepanciesUseCase
 from parcel_intel.application.publish_layers import (
     DEFAULT_LAYERS,
@@ -139,10 +153,12 @@ from parcel_intel.domain.georeferencing import (
     thresholds_m,
 )
 from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
+from parcel_intel.domain.municipal_public_utility_forests import MunicipalPublicUtilityForestLayer
 from parcel_intel.domain.municipal_road_layer import MunicipalRoadLayerBatch
 from parcel_intel.domain.municipality import HITO_MUNICIPALITY_CODES
 from parcel_intel.domain.parcel import Parcel
 from parcel_intel.domain.provenance import Provenance, Redistribution
+from parcel_intel.domain.publication import NotRedistributableError
 from parcel_intel.domain.published_discrepancy import OmittedByLicense
 from parcel_intel.domain.published_layers import PUBLISHED_LAYERS, PublishedLayerId
 from parcel_intel.domain.road_segment import ROAD_SURFACES, RoadSurface
@@ -165,6 +181,7 @@ from parcel_intel.ports.errors import (
     WorkingImageUnavailableError,
 )
 from parcel_intel.ports.georeference_repository import GeoreferenceRepositoryPort
+from parcel_intel.ports.kit_campo import KitSinkError
 from parcel_intel.ports.municipal_boundary import MunicipalBoundaryPort
 
 _LAYER_CHOICES = ["dph_cauce", "via_pecuaria", "red_natura_plan"]
@@ -373,6 +390,93 @@ def _vias_pecuarias_municipios(args: argparse.Namespace) -> int:
             failed = True
             continue
         print(_format_layer(layer))
+        print(f"  fichero: {path}")
+    return 1 if failed else 0
+
+
+def _format_forest_layer(layer: MunicipalPublicUtilityForestLayer) -> str:
+    municipality = layer.municipality
+    lines = [
+        f"{municipality.ine_code} {municipality.name}",
+        f"  aviso: {layer.notice}",
+        f"  límite: {_format_provenance(municipality.provenance)}",
+    ]
+    if not layer.forests:
+        lines.append("  sin montes")
+        return "\n".join(lines)
+    lines.append(f"  piezas: {len(layer.forests)}")
+    for piece in layer.forests:
+        source = piece.source
+        lines.append(
+            f"    forest_code={source.forest_code} name={source.name} "
+            f"area_m2={piece.area_m2:.2f}"
+        )
+        lines.append(f"      procedencia: {_format_provenance(piece.provenance)}")
+    return "\n".join(lines)
+
+
+def build_municipal_forest_layers(
+    cache_dir: Path,
+    offline: bool,
+    ine_codes: Sequence[str] = AMBITO_HITO_INE,
+    ign_http_get: HttpGet = ign_client.default_http_getter,
+    idem_http_get: HttpGet = forest_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> tuple[MunicipalPublicUtilityForestLayer, ...]:
+    """Composition root de la capa de montes de utilidad pública por municipio (historia #220).
+
+    Misma caché cruda inmutable que las demás capas (la clave es la URL completa).
+    Con `offline=True` nada llama a la red."""
+    ign_fetcher = CachedRawFetcher(ign_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    idem_fetcher = CachedRawFetcher(idem_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    use_case = BuildMunicipalPublicUtilityForestLayersUseCase(
+        boundaries=IgnAdministrativeUnitsAdapter(
+            AMBITO_HITO_BBOX_ETRS89, fetcher=ign_fetcher, today=today
+        ),
+        forests=PublicUtilityForestAdapter(fetcher=idem_fetcher, today=today),
+        clipper=ShapelyPolygonClipper(),
+    )
+    return use_case.execute(ine_codes)
+
+
+def _montes_utilidad_publica_municipios(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        codes = list(AMBITO_HITO_INE)
+    try:
+        layers = build_municipal_forest_layers(args.cache, args.sin_red, codes)
+        # Todo o nada: se serializan todas las capas antes de escribir ninguna.
+        for layer in layers:
+            forest_layer_to_geojson_text(layer)
+    except (
+        MunicipalBoundaryNotFoundError,
+        MunicipalBoundaryUnusableError,
+        IncompleteWfsResponseError,
+        ClippedGeometryHasHolesError,
+        RawCacheMissError,
+        RawCacheCorruptError,
+        PublicUtilityForestLayerFileError,
+    ) as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    except requests.RequestException as error:
+        print(f"Error de red: {error}", file=sys.stderr)
+        return 1
+    writer = GeoJsonPublicUtilityForestLayerWriter(args.salida)
+    failed = False
+    for layer in layers:
+        try:
+            path = writer.write(layer)
+        except OSError as error:
+            print(
+                f"FALLO {layer.municipality.ine_code} {layer.municipality.name}: {error}",
+                file=sys.stderr,
+            )
+            failed = True
+            continue
+        print(_format_forest_layer(layer))
         print(f"  fichero: {path}")
     return 1 if failed else 0
 
@@ -979,6 +1083,56 @@ _REGENERATE_HINT = (
 )
 
 
+def build_publish_coverage_use_case(
+    cache_dir: Path,
+    output_dir: Path,
+    offline: bool,
+    ign_http_get: HttpGet = ign_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> PublishCoverageUseCase:
+    """Composition root de `publicar-cobertura` (historia #185, ADR 0051): límites del IGN
+    desde la caché cruda (la misma que `vias-pecuarias-municipios`) a `output_dir`."""
+    fetcher = CachedRawFetcher(ign_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    return PublishCoverageUseCase(
+        boundaries=IgnAdministrativeUnitsAdapter(
+            AMBITO_HITO_BBOX_ETRS89, fetcher=fetcher, today=today
+        ),
+        sink=GeoJsonCoverageSink(output_dir),
+    )
+
+
+def _publicar_cobertura(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        print("Indica --municipio <INE> (repetible) o --ambito.", file=sys.stderr)
+        return 2
+    use_case = build_publish_coverage_use_case(args.cache, args.salida, args.sin_red)
+    try:
+        published = use_case.execute(codes)
+    except (
+        MunicipalBoundaryNotFoundError,
+        MunicipalBoundaryUnusableError,
+        NotRedistributableError,
+        RawCacheMissError,
+        RawCacheCorruptError,
+        PublishedLayerError,
+        OSError,
+    ) as error:
+        print(f"ERROR al publicar la cobertura: {error}; no se ha publicado nada", file=sys.stderr)
+        return 1
+    except requests.RequestException as error:
+        print(f"Error de red: {error}; no se ha publicado nada", file=sys.stderr)
+        return 1
+    print(
+        f"publicada {args.salida / published.path} {published.size_bytes} bytes "
+        f"({len(published.municipality_codes)} municipios: "
+        f"{', '.join(published.municipality_codes)})"
+    )
+    return 0
+
+
 def _publicar_capas(args: argparse.Namespace) -> int:
     codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
     codes.extend(code for code in args.municipio if code not in codes)
@@ -1160,6 +1314,43 @@ def _publicar_candidatos(args: argparse.Namespace) -> int:
         )
     if result.measurement_texts:
         print("medición: " + " ".join(result.measurement_texts[:3]))
+    return 0
+
+
+def build_field_kit_use_case(input_dir: Path, output_dir: Path) -> PublishFieldKitUseCase:
+    """Composition root de `publicar-kit-campo` (historia #213): lee lo ya publicado en
+    `input_dir` (normalmente `site/datos`) y escribe en `output_dir`. Sin red ni LLM."""
+    return PublishFieldKitUseCase(
+        source=PublishedLayerFileReader(input_dir),
+        sink=FileFieldKitSink(output_dir, REPOSITORY_URL),
+    )
+
+
+def _publicar_kit_campo(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        print("Indica --municipio <INE> (repetible) o --ambito.", file=sys.stderr)
+        return 2
+    use_case = build_field_kit_use_case(args.entrada, args.salida)
+    try:
+        result = use_case.execute(codes, _today())
+    except (KitSinkError, OSError) as error:
+        print(f"ERROR al escribir el kit: {error}", file=sys.stderr)
+        print(f"No se ha escrito nada en {args.salida}.", file=sys.stderr)
+        return 1
+    for failure in result.failures:
+        print(f"ERROR {failure.municipality_code}: {failure.reason}", file=sys.stderr)
+    if result.failures:
+        print(f"No se ha escrito nada en {args.salida}.", file=sys.stderr)
+        return 1
+    for code, included, missing in result.included:
+        print(
+            f"kit {code}: capas incluidas: {', '.join(included)}; "
+            f"capas que faltaban: {', '.join(missing) or 'ninguna'}"
+        )
+    for published in result.published:
+        print(f"publicado {args.salida / published.path} {published.size_bytes} bytes")
     return 0
 
 
@@ -1468,6 +1659,34 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     vias_parser.set_defaults(func=_vias_pecuarias_municipios)
 
+    montes_parser = subparsers.add_parser(
+        "montes-utilidad-publica-municipios",
+        help="Capa de montes de utilidad pública recortada al término de cada municipio",
+    )
+    montes_parser.add_argument(
+        "--municipio",
+        type=_municipality_code,
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible)",
+    )
+    montes_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito (por defecto)"
+    )
+    montes_parser.add_argument(
+        "--sin-red", action="store_true", help="Solo la caché cruda; falla si falta algo"
+    )
+    montes_parser.add_argument(
+        "--cache", type=Path, default=Path("data/raw"), help="Directorio de la caché cruda"
+    )
+    montes_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("data/derived/montes_utilidad_publica"),
+        help="Directorio de los ficheros <codigo_ine>.geojson",
+    )
+    montes_parser.set_defaults(func=_montes_utilidad_publica_municipios)
+
     camino_parser = subparsers.add_parser(
         "camino-actual-municipios",
         help=(
@@ -1692,6 +1911,31 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     publicar_parser.set_defaults(func=_publicar_capas)
 
+    cobertura_parser = subparsers.add_parser(
+        "publicar-cobertura",
+        help="Publica en site/datos los contornos de los municipios cubiertos (visor)",
+    )
+    cobertura_parser.add_argument(
+        "--municipio",
+        type=_municipality_code,
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible)",
+    )
+    cobertura_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito"
+    )
+    cobertura_parser.add_argument(
+        "--sin-red", action="store_true", help="Solo la caché cruda; falla si falta algo"
+    )
+    cobertura_parser.add_argument(
+        "--cache", type=Path, default=Path("data/raw"), help="Directorio de la caché cruda"
+    )
+    cobertura_parser.add_argument(
+        "--salida", type=Path, default=Path("site/datos"), help="Directorio publicado del sitio"
+    )
+    cobertura_parser.set_defaults(func=_publicar_cobertura)
+
     indicios_parser = subparsers.add_parser(
         "publicar-discrepancias",
         help="Publica los indicios de discrepancia en site/datos (EPSG:4326, con su ficha)",
@@ -1719,6 +1963,31 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio publicado del sitio",
     )
     indicios_parser.set_defaults(func=_publicar_discrepancias)
+
+    kit_parser = subparsers.add_parser(
+        "publicar-kit-campo",
+        help="Exporta los tramos publicados de un municipio a GPX y KML en site/datos/kit",
+    )
+    kit_parser.add_argument(
+        "--municipio",
+        type=_municipality_code,
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible)",
+    )
+    kit_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito"
+    )
+    kit_parser.add_argument(
+        "--entrada",
+        type=Path,
+        default=Path("site/datos"),
+        help="Directorio publicado con las capas (site/datos)",
+    )
+    kit_parser.add_argument(
+        "--salida", type=Path, default=Path("site/datos"), help="Directorio publicado del sitio"
+    )
+    kit_parser.set_defaults(func=_publicar_kit_campo)
 
     tramos_parser = subparsers.add_parser(
         "publicar-candidatos",

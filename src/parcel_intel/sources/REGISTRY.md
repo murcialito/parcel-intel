@@ -135,8 +135,20 @@ Mapa base del visor estático (`site/config.js`, ADR 0037). Verificado por el ar
   - fila «Ortofotos PNOA anuales», producto `PNOA`, fecha `2023` → `PNOA 2023 CC-BY 4.0 scne.es` (vuelo de julio de 2023 en el ámbito: `GetFeatureInfo` de `OI.MosaicElement` en Colmenar `467400,4441800,467800,4442200` EPSG:25830 → «Fecha 2023-07», repetido el 2026-11-26);
   - fila «MosaicoSentinel2», fecha `2018-2026` → `MosaicoSentinel2 2018-2026 CC-BY 4.0 ign.es`.
   Las teselas se muestran sin transformar, así que va la forma sin «Obra derivada de». El visor muestra las dos siempre.
-- **IGN-Base** (`https://www.ign.es/wmts/ign-base`): responde con `CC BY 4.0 scne.es`, pero no se usa (atribución de producto sin verificar; el fundador pidió la ortofoto). Queda como alternativa.
+- **IGN-Base** (`https://www.ign.es/wmts/ign-base`): desde la historia #185 se usa su capa `IGNBase-gris` como fondo cartográfico del visor (ver la sección siguiente). La ortofoto sigue siendo el otro fondo.
 - **Caducidad del año:** la tabla del SCNE ya lista un vuelo PNOA 2024 con la Comunidad de Madrid entre los organismos, pero el servicio sigue sirviendo 2023-07 en Colmenar. Cuando cambie, el criterio `[integración]` CA10 de `tests/acceptance/test_historia_85.py` falla y hay que actualizar `NOTICE`, este registro y `site/config.js` juntos.
+
+### WMTS IGN-Base gris (visor, historia #185, ADR 0051) — `confirmado`
+
+Fondo cartográfico del visor para la vista de España y alternativa a la ortofoto. Verificado el 2026-11-27 con peticiones reales (`User-Agent: paso-comun-verificacion/0.1`).
+
+- **Servicio:** WMTS 1.0.0 `https://www.ign.es/wmts/ign-base`, capa `IGNBase-gris` (título «Callejero gris»), estilo `default`, `GoogleMapsCompatible`, solo `image/jpeg`, niveles 0-20. Solo KVP. Plantilla: `https://www.ign.es/wmts/ign-base?service=WMTS&request=GetTile&version=1.0.0&layer=IGNBase-gris&style=default&tilematrixset=GoogleMapsCompatible&format=image/jpeg&tilematrix={z}&tilerow={y}&tilecol={x}`.
+- **Peticiones reales:** `GetCapabilities` → 200, 150.325 bytes (fixture `tests/fixtures/ign_base/wmts_ign_base_getcapabilities.xml`; capas `IGNBase-gris`, `IGNBaseTodo`, `IGNBaseTodo-nofondo`, `IGNBaseOrto`, `IGNBaseSimplificado`). `GetTile` z=6 fila 24 col 31 (centro y sureste peninsular) → `200 image/jpeg`, 9.460 bytes (fixture `tests/fixtures/ign_base/wmts_ignbase_gris_z6.jpg`, no se publica en `site/`). z=15 sobre Colmenar → `200 image/jpeg`, 11.273 bytes; z=17 → 200. Un nombre que no existe (`IGNBaseTodo-gris`) da **400** `text/xml`, no una imagen.
+- **Cabeceras:** `access-control-allow-origin: *`, `cache-control: max-age=31536000`. Sin clave ni `Referer`.
+- **Licencia:** `ows:AccessConstraints` = `CC BY 4.0 scne.es` (`ows:Fees` = `No se aplican condiciones`, que no es la licencia, lección 0021). La licencia es la del documento del IGN (`https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf`), CC BY 4.0, con atribución visible junto a los datos.
+- **Atribución:** la tabla de productos del SCNE (`https://www.scne.es/tablaProductos.php`, leída en bruto el 2026-11-27) **no lista IGN-Base** como producto; IGN-Base combina varios productos del SCNE. El visor muestra el identificador de la capa y la atribución declarada por el servicio, sin completar el formato del SCNE: `IGNBase-gris CC BY 4.0 scne.es`. Formato «<producto> <fecha> CC-BY 4.0 scne.es»: pendiente de verificar.
+- **Conclusión:** **Publicar** (las teselas se muestran sin transformar), con esa atribución siempre visible mientras el fondo esté activo.
+- **Rótulos sobre la ortofoto (`IGNBaseOrto`, «Callejero para imagen»)**: mismo servicio y licencia; PNG RGBA transparente con nombres de población, carreteras y su numeración. Peticiones reales del 2026-11-27: z=11 fila 774 col 1004 → `200 image/png`, 15.824 bytes; z=13 fila 3098 col 4018 (Colmenar de Oreja y la M-318) → 6.410 bytes (fixture `tests/fixtures/ign_base/wmts_ignbaseorto_z13.png`); z=15 sobre el casco → 7.311 bytes. Niveles 0-20 en `GoogleMapsCompatible`. El visor la pone encima de la ortofoto, en escala de grises (sus carreteras en naranja claro se confundirían con las vías pecuarias) y por debajo de los trazados. Atribución, con el mismo criterio que `IGNBase-gris`: `IGNBaseOrto CC BY 4.0 scne.es`.
 
 ### Imágenes de comparación (historia #120, ADR 0042) — `confirmado`
 
@@ -445,6 +457,31 @@ Verificado el 2026-11-26. Las 7 respuestas reales de IDEM por bbox del término 
 - **Tramo real elegido para el test de dos municipios**: `2801308`, "Vereda de Colmenar" (`MultiSurface` de 2 partes). Área del original 106 767,37 m²; pieza en Colmenar de Oreja 8 020,96 m² (1 anillo); pieza en Aranjuez 98 746,41 m² (3 anillos); suma igual al original con diferencia < 0,01 m². No cae en ningún otro municipio del ámbito.
 - **Guarda de truncado**: cada respuesta de IDEM trae `numberMatched`; si no coincide con las features parseadas, el adapter lanza `IncompleteWfsResponseError` y no cachea. Las 7 respuestas reales cumplen la guarda (CA5 de #36, integración).
 - **Licencia**: `CC BY 4.0 Comunidad de Madrid`, leída de `AccessConstraints` (sección anterior); el adapter ya la rellena en `Provenance.license`.
+
+## Montes de utilidad pública — IDEM, Comunidad de Madrid (`Zonas:IDEM_MA_MONTES_UP`, historia #220)
+
+Verificado el 2026-11-27 (peticiones reales; fixtures en `tests/fixtures/public_utility_forests/`).
+
+- **Servicio**: mismo GeoServer y workspace que las vías pecuarias, WFS 2.0.0 en `https://idem.comunidad.madrid/geoidem/Zonas/wfs`, capa `Zonas:IDEM_MA_MONTES_UP`, EPSG:25830. 208 elementos en toda la Comunidad.
+- **Esquema** (`DescribeFeatureType`, `wfs_describefeaturetype_montes_up.xml`): `CD_UP` (decimal), `DS_ELENCO`, `DS_NOMBRE`, `DS_MUNICIPIO`, `CD_COMARCA`, `DS_PROPIETARIO`, `DS_NOM_PROPIETARIO`, `DS_GESTION`, `CD_ANNO_INCOR_CAT`, `DS_DESLINDE`, `FC_APROB_DESLINDE`, `DS_AMOJONAMIENTO`, `FC_APROB_AMOJONA`, `NM_SUPERF_CATALOGO`, `GEOMETRY1`.
+- **Titularidad**: la capa publica `DS_PROPIETARIO` y `DS_NOM_PROPIETARIO`. El parser lee solo `CD_UP`, `DS_NOMBRE`, `DS_MUNICIPIO` y la geometría (lista blanca); esos dos campos no entran en el dominio ni en ningún fichero. En las fixtures, sus valores reales están sustituidos por «PROPIETARIO FICTICIO» y «TITULAR FICTICIO».
+- **Licencia**: `CC BY 4.0 Comunidad de Madrid`, `AccessConstraints` del workspace `Zonas` (mismo texto que vías pecuarias; el proveedor no publica un documento aparte). El test de integración de #220 la vuelve a leer del `GetCapabilities`.
+- **Cobertura del ámbito** (bbox de cada término, margen 2 m; `numberMatched` y piezas tras recortar con el límite del IGN):
+
+| INE | Municipio | `numberMatched` | Piezas tras recortar |
+| --- | --- | --- | --- |
+| 28043 | Colmenar de Oreja | 0 | 0 |
+| 28013 | Aranjuez | 1 | 1 (`208` Soto de las Cuevas) |
+| 28052 | Chinchón | 1 | 1 (`184`, 122 m²: astilla de borde) |
+| 28019 | Belmonte de Tajo | 2 | 1 (`182`, 1 920 m²: astilla de borde) |
+| 28170 | Villaconejos | 0 | 0 |
+| 28180 | Villarejo de Salvanés | 1 | 0 |
+| 28157 | Valdelaguna | 2 | 2 (`182` y `184`, multiparte) |
+
+- **Colmenar de Oreja no tiene ningún monte**: la capa sale vacía y es un resultado válido («sin montes»).
+- **Astillas**: dos piezas (Chinchón, Belmonte) son diferencia entre la línea municipal de IDEM y la del IGN. No se filtran (como en vías pecuarias, ADR 0032).
+- **Anillos interiores**: las respuestas de Valdelaguna traen `gml:interior` (21 contra 28 `gml:exterior`). El parser solo lee `gml:exterior` (ADR 0011): el área de la pieza puede sobrestimar el monte si hay claros dentro. Pendiente si algún día se publica el área.
+- **No usado**: el catálogo nacional de MITECO; la capa autonómica es de la misma administración, ya en EPSG:25830 y con licencia leída.
 
 ## Red Natura 2000 y espacios protegidos — IDEM, Comunidad de Madrid (Planes de Gestión)
 
@@ -882,6 +919,213 @@ Pendiente de ejecutar en local (paso 11 del diseño de #183): `catastro-caminos 
 | aprobaciones caducadas | 0 | pendiente |
 | revisiones huérfanas | 0 | pendiente |
 
+---
+
+## Sitios de interés — fuentes candidatas (historia #214)
+
+Verificado el 2026-11-27 para valorar si un tramo da acceso a una fuente, una ermita, un mirador, un yacimiento o un núcleo. Solo verificación de fuentes: no hay adapter ni datos en `data/` ni la prioridad de los tramos (historia posterior, #202). Ámbito de referencia: Colmenar de Oreja (INE 28043). Los recuentos de NGBE se hicieron con la caja `40.02,-3.47,40.13,-3.27` (WGS84) filtrada por el polígono municipal del IGN (`tests/fixtures/caminos/ign_au_ambito_7_municipios.xml`, EPSG:4258). Son topónimos y registros de inventario, no prueba de que el sitio exista ni de su acceso.
+
+| Fuente | Formato y vía de acceso | Cobertura en Colmenar | Frecuencia | Licencia (cita) | Estado | Conclusión | Tipos de sitio |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Nomenclátor Geográfico Básico (NGBE), IGN/CNIG | API de entidades `https://api-features.ign.es/collections/namedplace/items` (GeoJSON, leído el 2026-11-27); descarga en el [Centro de Descargas del CNIG](https://centrodedescargas.cnig.es/CentroDescargas/buscadorCatalogo.do?codFamilia=NGBES) (no descargada en esta pasada). Ficha primaria: [datos.gob.es](https://datos.gob.es/es/catalogo/e0dat0002-nomenclator-geografico-basico-de-espana1) | 230 topónimos en la caja; **99 dentro del término**: 30 parajes, 26 caminos y vías pecuarias, 12 edificaciones, 11 cursos de agua, 3 entidades singulares, 1 núcleo de población (Colmenar de Oreja), 2 fuentes («Fuente de la Salceda», «Fuente de Arriba»), 2 ermitas («Ermita de San Isidro», «Ermita del Cristo»), 0 miradores, 0 yacimientos. 91 de los 99 vienen de la BTN25 (campo `fuente`) | Continua (tabla de productos de [scne.es](http://www.scne.es/tablaProductos.php), leída por resumen) | Ficha datos.gob.es: licencia «CC BY 4.0» (URI `http://publications.europa.eu/resource/authority/licence/CC_BY_4_0`). Condiciones del IGN (`https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf`, leídas el 2026-11-27): el uso de los productos «definidos en el ámbito de la Orden FOM/2807/2015» «conlleva la aceptación por el usuario de una licencia CC - BY 4.0». Si el NGBE está en ese ámbito no se comprueba aquí: `asumido` | `verificado` (API) | **Publicar**, con la atribución «NGBE Continua CC-BY 4.0 Instituto Geográfico Nacional» (tabla de scne.es leída por resumen: `asumido` hasta cotejar el texto literal). **Usar primero** | Fuente, ermita, núcleo, paraje |
+| Bienes de Interés Cultural / Patrimonio de la Comunidad de Madrid | CSV en datos.comunidad.madrid: [inmuebles BIC](https://datos.comunidad.madrid/dataset/dde86e1d-a06b-4f65-8668-920a566fa264/resource/1804d79a-8643-4f06-8c20-7a0e40641be0/download/inmuebles_bic.csv), [inmuebles BIP](https://datos.comunidad.madrid/dataset/dde86e1d-a06b-4f65-8668-920a566fa264/resource/a20388c0-645d-48fe-81f5-847bcb07ecdf/download/inmuebles_bip.csv) (descargados el 2026-11-27). Ficha primaria: [datos.gob.es](https://datos.gob.es/es/catalogo/a13002908-patrimonio-cultural-protegido-en-la-comunidad-de-madrid). Columnas: denominación, autor, situación, incoación, declaración, número de registro, naturaleza, categoría, municipio. **Sin coordenadas** | 3 inmuebles BIC (iglesia parroquial Santa María la Mayor; «Ciudad de Colmenar de Oreja», conjunto histórico; zona arqueológica del término) y 1 BIP (Museo Ulpiano Checa) | Fecha de última actualización de la ficha: 4/11/2026. Frecuencia no consta | Ficha datos.gob.es: «https://creativecommons.org/licenses/by/4.0/legalcode.es». Ficha de datos.comunidad.madrid no leída en esta pasada | `verificado` | **Publicar** es posible con atribución «Comunidad de Madrid, CC BY 4.0» (`asumido`, forma exacta no leída). **Descartar** como fuente de acceso: pocos registros en el término y sin posición | Núcleo (conjunto histórico) y yacimiento (zona arqueológica), casi nada de fuente, ermita o mirador |
+| Base Topográfica Nacional (BTN25), IGN | Ficha primaria: [datos.gob.es, «Base Topográfica Nacional»](https://datos.gob.es/ca/catalogo/datos-gob-es-es-catalogo-edit-e00125901-spaignbtnserie) (frecuencia «Mensual», formato SHP en la serie CNIG `codSerie=02101`, WMS `https://www.ign.es/wms-inspire/ign-base`). Especificación leída: [ESPBTN25.pdf](https://www.ign.es/web/resources/docs/IGNCnig/BTN/ESPBTN25.pdf), versión **1.0 de 2009**, que dice que desde septiembre de 2021 la sustituye ESPBTN_MOD21 (desactualizada); catálogo de fenómenos v1 de 2017-08-03 leído en ese mismo PDF | **No contada en Colmenar de Oreja**: el SHP no se descargó en esta pasada. Proxy: los 217 de 230 topónimos del NGBE de la caja que vienen de la BTN25 (91 de 99 dentro del término). El catálogo define ERMITA (edificio religioso), surgencia con tipo FUENTE y yacimiento arqueológico | Mensual (ficha datos.gob.es) | Condiciones del IGN (mismo documento que en NGBE): atribución de ejemplo en la propia tabla «BTN25 2014 - 2015 CC - BY 4.0 ign.es». En la parte leída de la tabla de scne.es (resumen de `WebFetch`, lectura parcial) no aparece la fila BTN25; sí «BTN Continua CC-BY 4.0» | `bloqueado` (SHP no descargado; la tabla de productos no confirma la BTN25) | **Interno** hasta confirmar la fila y la atribución. No hace falta para el primer uso, porque el NGBE ya trae esa geometría con nombre | Fuente, ermita, yacimiento (catálogo), núcleo |
+| OpenStreetMap | Overpass API: `https://overpass-api.de/api/interpreter` y el espejo `https://overpass.kumi.systems/api/interpreter` (JSON). Respuesta: «The data is made available under ODbL» | **Sin recuento válido en Colmenar.** 2026-11-27: `overpass-api.de` devolvió `502` «at capacity» en dos consultas (una por área `ref:INE=28043` y otra por caja con `historic`, `tourism=viewpoint`, `amenity=drinking_water`, `place` y `natural=spring`); en un primer intento devolvió 200 con cero nodos, que no es un recuento válido. En el espejo `overpass.kumi.systems`, la consulta por área dio 0 elementos y la búsqueda de relaciones con `ref:INE=28043` también 0: esa etiqueta no está en OSM, así que el cero no vale. Agotaron el tiempo la búsqueda por nombre (120 s), la consulta por caja (300 s) y la de solo manantiales y agua potable (110 s). La wiki de estado de Overpass (leída por resumen de `WebFetch`, 2026-11-27) recoge timeouts recientes y un bloqueo temporal de rangos de Azure y AWS | Edición continua | Licencia ODbL, «compartir igual». Cita de la respuesta de Overpass, leída el 2026-11-27: «The data is made available under ODbL». `https://www.openstreetmap.org/copyright` no se leyó en esta pasada (`asumido`) | `bloqueado` (Overpass saturado o sin respuesta; no hay recuento) | **Interno**, como señal (ya así en el resumen de la historia 0021). Para un recuento hay que reintentar en otro momento o con instancia propia, como pide la propia página de Overpass para uso automatizado | Fuente (`natural=spring`, `amenity=drinking_water`), mirador (`tourism=viewpoint`), ermita y yacimiento (`historic=*`), núcleo (`place=*`) |
+
+**Canales consultados sin lectura completa.** El PDF de la BTN25 pesa 15 MB: `WebFetch` no lo leyó y se extrajo con un lector propio (zlib) del mismo PDF; la especificación leída es la v1.0 de 2009. Las tablas de scne.es se leyeron por resumen de `WebFetch`, no literalmente: antes de citar la atribución del NGBE o de la BTN25 hay que copiarla del texto de la tabla. Ninguna fila de esta sección se apoya en un resultado de búsqueda sin abrir el documento primario.
+
+### Recomendación
+
+- **Usar primero el NGBE.** Es la única fuente de las cuatro que hoy es `verificada`, con licencia CC BY 4.0 leída y cobertura contada dentro del término (2 fuentes, 2 ermitas y el núcleo). Permite **Publicar** con atribución. Limitación: es un topónimo. Una «Fuente de la Salceda» en el registro no demuestra que el manantial exista ni que dé acceso; eso lo tendría que confirmar una comprobación posterior sobre ortofoto o en el terreno. El NGBE no trae **miradores** ni **yacimientos** en el término.
+- **Descartar primero el BIC/Patrimonio para este fin.** Aporta 4 registros en Colmenar y sin coordenadas: sirve como contexto de un bien protegido, no como sitio de acceso.
+- **Mantener OSM como `Interno` y reintentarlo.** Es la única fuente con miradores y yacimientos etiquetados de forma abierta, pero no hay recuento. Mientras Overpass esté saturado, no hay que construir nada que dependa de ella, y el uso automatizado desde CI sigue siendo un riesgo de bloqueo.
+- **BTN25 en espera.** Sus datos ya están en el NGBE. Solo hace falta si se necesita la geometría de los puntos, y entonces hay que confirmar la fila y la atribución de la tabla de productos.
+
+Tipos de sitio que queda sin cubrir con fuentes `verificadas`: **mirador** y **yacimiento** en el término (el NGBE no los trae y el BIC solo tiene una zona arqueológica sin posición).
+
+---
+
+## Vuelos históricos de la Comunidad de Madrid — 1956, 1975, 1991 (IDEM, historia #206)
+
+Verificado el 2026-11-27 (15:49–15:53 UTC) con peticiones reales desde GitHub Actions, con `User-Agent: paso-comun-verificacion/0.1 (proyecto abierto sin animo de lucro)`. Cierra, para la Comunidad de Madrid, el hueco 1957–1997 que la sección del WMS histórico del IGN daba por perdido (el IGN solo sirve AMS 1956-57 y PNOA desde 1997). Fixtures en `tests/fixtures/idem_vuelos/`; ninguna imagen va a `site/`.
+
+**Estado por vuelo** (lo que #207 y #208 deben tomar como cierto):
+
+| Vuelo | Estado | Motivo |
+|---|---|---|
+| 1956 | `confirmado` | Imagen real en los 7 municipios, WMS y WMTS. Licencia CC BY 4.0 en la ficha; origen en fondos del CECAF/CEGET (ver «Licencia»). |
+| 1975 | `confirmado` | Imagen real en los 7 municipios, WMS y WMTS. Licencia CC BY 4.0 Comunidad de Madrid. |
+| 1991 | `confirmado` | Imagen real en los 7 municipios, WMS y WMTS. Licencia CC BY 4.0 Comunidad de Madrid. |
+
+«Confirmado» vale para un punto representativo por municipio (CA3), no para todo el término: la cobertura se describe abajo tal cual.
+
+### Capas y teselas (CA1) — `confirmado`
+
+`GetCapabilities` WMTS: https://idem.comunidad.madrid/visor/release/vgcm/statics/capabilities/produccion/srvimagenes2_visorcartografia2.xml (200, `application/xml`, 13.991.110 bytes, 2026-11-27). El documento completo pesa 14 MB; la fixture `capabilities_wmts_extracto.xml` guarda solo las tres capas (sin sus `TileMatrixLimits`) y los dos `TileMatrixSet` relevantes.
+
+| Vuelo | Identificador de capa | Título |
+|---|---|---|
+| 1956 | `fotosAereasHistoricas_1950-1959_1956-CT-50cm-mosaico` | `1956 - Ortofoto 50cm` |
+| 1975 | `fotosAereasHistoricas_1970-1979_orto-1975-ed50` | `1975 - Ortofoto 50cm` |
+| 1991 | `fotosAereasHistoricas_1990-1999_orto-1991-ed50` | `1991 - Ortofoto 50cm` |
+
+Iguales en las tres capas:
+
+- **Formatos**: `image/png`, `image/jpeg`, `image/png8`, `image/jpegxr`, `image/webp`. Estilo `default`. `InfoFormat`: `text/plain`, `text/xml`.
+- **`TileMatrixSet` enlazados**: `EPSG3857`, `MD:GoogleMapsCompatible`, `OGC:1.0:GlobalCRS84Pixel`, `OGC:1.0:GoogleMapsCompatible`, `VGCM:epsg:25830` y `VGCM:epsg:4326` (más `VGCM:epsg:4230` en 1956 y `VGCM:epsg:4258` en 1975 y 1991).
+- **Tamaño de tesela**: 256 × 256 px en todos los niveles.
+- **Niveles**: 0 a 20 en los `TileMatrixSetLimits` de cada capa (las matrices están definidas hasta el 25 en `EPSG3857`, hasta el 20 en `VGCM:epsg:25830`).
+- **`EPSG3857`** (3857): esquina superior izquierda (−20037508,34, 20037508,34), escala 559082264,03 en el nivel 0, la habitual de Google Maps.
+- **`VGCM:epsg:25830`** (EPSG:25830, el CRS del proyecto): esquina superior izquierda (E −510000, N 4560000), escala 279541132,014 en el nivel 0, con tamaño de píxel `escala × 0,00028 / 2^nivel`.
+- **Plantilla REST**: **no**. Solo KVP: la operación `GetTile` anuncia `GetEncoding = KVP` en `https://idem.comunidad.madrid/srvimagenes2/ogc/wmts/visorcartografia2?`, y las capas no traen `ResourceURL`.
+- **Cobertura declarada de cada capa** (caja WGS84): 1956, lon −4,6846 a −3,0134, lat 39,8244 a 41,2121; 1975, lon −4,7163 a −2,9365, lat 39,8210 a 41,2096; 1991, lon −4,6719 a −2,9943, lat 39,8737 a 41,1680.
+
+### Teselas reales sobre Colmenar de Oreja (CA2) — `confirmado`
+
+Petición (plantilla KVP; fila y columna calculadas para el punto representativo del término, 40,08498° N, −3,42488° E):
+
+```
+https://idem.comunidad.madrid/srvimagenes2/ogc/wmts/visorcartografia2?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=<capa>&STYLE=default&FORMAT=image/png&TILEMATRIXSET=EPSG3857&TILEMATRIX=18&TILEROW=99161&TILECOL=128578
+```
+
+- **Nivel «0,5 m»**: en `EPSG3857` el nivel 18 mide 0,5971 m por píxel en el ecuador y **0,457 m por píxel de terreno a 40,085° N** (×cos(latitud)); es el más cercano a los 0,5 m nativos. En el `TileMatrixSet` propio `VGCM:epsg:25830`, el nivel 17 da 0,597 m por píxel y el 18, 0,299 m (no hay un nivel de 0,5 m exactos). Las tres fixtures son del nivel 18 de `EPSG3857`. Con `VGCM:epsg:25830` se probaron también los niveles 17 y 18 (fila 802, columna 6369, y fila 1605, columna 12739): 200 con imagen real en los tres vuelos, no se guardan.
+- **Resultado** (2026-11-27, todas con 200 y `Content-Type: image/png`; 256 × 256 px):
+
+| Vuelo | Hora UTC | Bytes | Varianza (gris) | Niveles de gris distintos | Fixture |
+|---|---|---|---|---|---|
+| 1956 | 15:50:57 | 46.251 | 310,1 | 157 | `tesela_1956_colmenar_z18.png` |
+| 1975 | 15:51:02 | 92.250 | 3.181,9 | 247 | `tesela_1975_colmenar_z18.png` |
+| 1991 | 15:51:05 | 68.472 | 1.540,7 | 224 | `tesela_1991_colmenar_z18.png` |
+
+- **Método de «no está en blanco»**: se decodifica el PNG, se pasa a gris (media de R, G, B) y se calcula la varianza y el número de niveles de gris distintos. Una imagen es **en blanco** si la varianza es menor que 1 o solo tiene 1 nivel. Las teselas reales tienen varianza ≥ 114 y ≥ 81 niveles (sobre todas las pruebas); la de 1956 es la menos contrastada (película gris, pero se ve el parcelario).
+- **Sorpresa del 200 en blanco**: una tesela **fuera de la cobertura** (UTM 440000, 4380000, nivel 18) devuelve también 200 con `image/png`, pero es blanca (255 en todo, varianza 0, 1 nivel, 854 bytes en los tres vuelos): sin la comprobación de varianza no se distingue de una buena. Fixture de referencia: `tesela_1956_fuera_cobertura_z18.png`.
+- Los bytes de una misma tesela no son estables entre peticiones (la de 1991 pesó 68.472 y 66.229 bytes en dos peticiones sobre la misma fila y columna): la caché no debe comparar hashes con otra petición.
+
+### Tabla municipio × vuelo (CA3) — nivel 18 de `EPSG3857`
+
+Un punto por municipio: el punto representativo (`representative_point`) del contorno que publica `publicar-cobertura --ambito`. **No se generaliza** al resto del término.
+
+| Municipio (INE) | 1956 | 1975 | 1991 |
+|---|---|---|---|
+| Aranjuez (28013) | con imagen | con imagen | con imagen |
+| Belmonte de Tajo (28019) | con imagen | con imagen | con imagen |
+| Colmenar de Oreja (28043) | con imagen | con imagen | con imagen |
+| Chinchón (28052) | con imagen | con imagen | con imagen |
+| Valdelaguna (28157) | con imagen | con imagen | con imagen |
+| Villaconejos (28170) | con imagen | con imagen | con imagen |
+| Villarejo de Salvanés (28180) | con imagen | con imagen | con imagen |
+
+Las 21 peticiones: 200, `image/png`, entre 47.356 y 102.254 bytes, varianza entre 237 y 3.182, entre 156 y 256 niveles. Ninguna `en blanco` ni `error`. Ningún otro punto del término se ha probado: el borde de la caja de cada capa (sobre todo la de 1991, más estrecha al norte y al sur) no se ha explorado.
+
+### Licencia y atribución (CA4) — `confirmado` en la ficha, con una reserva en 1956
+
+Documentos primarios leídos el 2026-11-27: las fichas ISO 19139 del catálogo IDEM, en `https://idem.comunidad.madrid/catalogocartografia/srv/api/records/<id>/formatters/xml` con `<id>` = `spacm_vuelo1956_50cm`, `spacm_vuelo1975_50cm`, `spacm_vuelo1991_50cm` (200, `application/xml`), y el aviso legal que enlazan: https://idem.comunidad.madrid/recursos_cat_geo/Catalogo/aviso_legal.htm (200, `text/html`).
+
+- **Restricciones de la ficha** (`gmd:otherConstraints`): `Sin limitaciones al acceso público.` (INSPIRE `LimitationsOnPublicAccess/noLimitations`) y, como condición de uso, **`CC BY 4.0`** en 1956 y **`CC BY 4.0 Comunidad de Madrid`** en 1975 y 1991, con enlace a https://creativecommons.org/licenses/by/4.0/deed.es.
+- **Aviso legal, cita textual** de la condición de uso: «El acceso a los datos geográficos digitales y a los servicios de información geográfica disponibles en el Geoportal de la Infraestructura de Datos Espaciales de la Comunidad de Madrid (IDEM) […] tiene carácter libre y gratuito siempre que se mencione la fuente original y la propiedad de los mismos de la siguiente manera: "Información geográfica de la Comunidad de Madrid. Acceso público y gratuito en CC BY 4.0 Comunidad de Madrid ."». Y la cautela: «Los datos geográficos y servicios de información geográfica que se facilitan tienen carácter meramente orientativo y en ningún caso podrán ser vinculantes para la resolución de los procedimientos administrativos […]».
+- **Conclusión**: la ficha permite reutilizar y redistribuir con atribución (CC BY 4.0), así que la **imagen derivada en el visor y en el dossier** (un recorte con el trazo dibujado encima) está permitida con la atribución literal del aviso legal. No se supone CC BY 4.0 por lo que dijera la issue padre: la ficha de cada vuelo lo dice.
+- **Reserva en 1956**: la ficha dice que el vuelo es del Army Map Service de EEUU, escaneado por el CEGET, con «Fondos del CECAF […] y CEGET […] cedidos al Centro Nacional de Información Geográfica para su distribución. Ortorrectificación y mosaicado realizado por la Comunidad de Madrid», y que es «Vuelo no disponible para descarga, ni para su certificación» (competencia del CECAF). La licencia CC BY 4.0 de la ficha es la de la ortofoto de la Comunidad de Madrid; la del IGN para el mismo vuelo (AMS 1956-57) también es CC BY 4.0, con atribución `ejercito.defensa.gob.es` (ver `NOTICE`). No se ha leído un documento del CECAF que condicione la reutilización de la ortofoto de la Comunidad de Madrid; queda como riesgo a confirmar antes de publicar recortes de 1956.
+- **Canales no leídos**: el visor `https://idem.comunidad.madrid/visor/` (aplicación de JavaScript) y el catálogo en `catalog.search#/…` (no se renderizan sin navegador); la fuente es la API XML de la ficha, que es el mismo registro.
+
+### Petición por ventana (CA5) — `confirmado`, hay WMS
+
+El WMS de la IDEM publica las mismas tres capas, con el **mismo identificador** y `EPSG:25830` entre sus CRS:
+
+- `GetCapabilities`: `https://idem.comunidad.madrid/srvimagenes2/ogc/wms/visorcartografia2?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0` (200, `text/xml`, 941.429 bytes, ERDAS APOLLO Core 2016). Cajas nativas en `EPSG:25830` con `resx = 0,5`: 1956, E 358750–498850, N 4409575–4562300; 1975 y 1991 con resolución 0,49999… m.
+- **Sorpresa**: el `GetMap` que anuncia el documento (`http://idem.comunidad.madrid/erdas-iws/ogc/wms/visorcartografia2?`) responde **404**; el que funciona es el de `srvimagenes2/ogc/wms/visorcartografia2` (el mismo de `GetCapabilities`).
+- **`GetMap` real** (2026-11-27, 15:52:56–15:52:58 UTC), 1.3.0, `CRS=EPSG:25830` (ejes E, N), `BBOX=463700,4437200,463828,4437328` (128 m sobre Colmenar de Oreja), 256 × 256 px = 0,5 m por píxel, `FORMAT=image/png`:
+
+| Vuelo | Código | `Content-Type` | Bytes | Varianza (gris) | Niveles |
+|---|---|---|---|---|---|
+| 1956 | 200 | `image/png` | 47.620 | 202,1 | 154 |
+| 1975 | 200 | `image/png` | 91.685 | 2.414,1 | 247 |
+| 1991 | 200 | `image/png` | 69.328 | 1.047,6 | 217 |
+
+- **Consecuencia para #207**: hay ventana directa por `GetMap` en EPSG:25830 con 0,5 m por píxel, igual que el WMS del IGN de #122/#124; **no hace falta mosaico y recorte de teselas**. Las teselas WMTS (solo KVP, `EPSG3857` o `VGCM:epsg:25830`) quedan como alternativa. Hay que aplicar a cada respuesta la comprobación de varianza, porque fuera de cobertura el servicio responde 200 con una imagen blanca. No se ha probado el límite de tamaño de ventana de este WMS.
+- **COG**: la ficha de 1956 lista «ortofotos en formato tiff, ecw, cog» pero «Vuelo no disponible para descarga»; no se ha probado ni se usa. Las de 1975 y 1991 solo listan «mosaico en formato ecw».
+
+### Fecha y cobertura de cada vuelo (CA6)
+
+| Vuelo | Fecha del vuelo | Fuente | Cobertura |
+|---|---|---|---|
+| 1956 | solo el año (1956); la ficha pone `1956-01-01` como fecha de la cita, no es un mes | ficha `spacm_vuelo1956_50cm`; título del WMTS «Vuelo Americano AMS SERIE B de 1956» | región entera según el título; caja WGS84 de la capa, arriba |
+| 1975 | solo el año (1975); `1975-01-01` en la ficha es la fecha de la cita | ficha `spacm_vuelo1975_50cm`, «Vuelo a escala 1:15.000 […] Comisión de Planeamiento y Coordinación del Area Metropolitana de Madrid» | «Ortoimagen histórica del total de la Comunidad de Madrid» |
+| 1991 | solo el año (1991); `1991-01-01` en la ficha es la fecha de la cita | ficha `spacm_vuelo1991_50cm`, «Vuelo 1:18.000 Consejería de Política Territorial. Comunidad de Madrid» | «total de la Comunidad de Madrid» |
+
+Ninguna ficha publica mes. Las tres fichas declaran la misma caja (lon −4,61284 a −2,97615, lat 39,83781 a 41,20036), pero las cajas de las capas del WMTS son distintas (arriba) y la de 1991 es la más estrecha: «total de la Comunidad» es lo que dice el proveedor, no lo que se ha medido. Los 7 municipios del ámbito caen dentro de las tres cajas y dan imagen en el punto probado.
+
+---
+
+## Catastrones (minutas MTN50 del IGN): cobertura, año y atribución en el ámbito (historia #211)
+
+Verificado el **2026-11-27** para la [historia #211](https://github.com/murcialito/paso-comun/issues/211) (hija de #195). Pregunta: ¿qué hojas de catastrones cubren los 7 municipios del ámbito, de qué año son, con qué atribución se pueden publicar y merece la pena georreferenciarlas? Servicio: `https://www.ign.es/wms/primera-edicion-mtn`, capa `catastrones` (WMS 1.3.0, EPSG:25830). Script puntual: `scripts/verificar_catastrones.py` (`hojas`, `imagenes`, `descargas`, `fixtures`). Fixtures en `tests/fixtures/caminos/catastrones/` (`GetFeatureInfo` de cada hoja, recortes de 1 km a 2 m/px, `hojas.json`, `imagenes.json`, `descargas.json`, ficha del Centro de Descargas de la 0606, `procedencia.json`). Crudos en `data/raw/ign_catastrones/`, fuera de git. Ninguna prueba llama a red.
+
+### CA1 — Hojas que cubren cada municipio (`GetFeatureInfo`, `confirmado`)
+
+Método: rejilla de 2,5 km dentro del término (límite del IGN, fixture `ign_au_ambito_7_municipios.xml`) más un punto interior; un `GetFeatureInfo` por punto sobre una ventana de 100 m (`text/html`). Todos los puntos devolvieron hoja (0 «sin hoja»). Año = «Año de edición» de la tabla; ninguna hoja salió «sin año». Entre paréntesis, puntos de la rejilla que caen en esa hoja.
+
+| Municipio (INE) | Puntos | Hojas (número, nombre, año) |
+|---|---|---|
+| Colmenar de Oreja (28043) | 19 | **0606** Chinchón 1963 (17); 0605 Aranjuez 1943 (2) |
+| Aranjuez (28013) | 31 | 0630 Yepes 1945 (17); 0605 Aranjuez 1943 (14) |
+| Chinchón (28052) | 20 | 0606 Chinchón 1963 (6); 0583 Arganda 1956 (9); 0582 Getafe 1964 (3); 0605 Aranjuez 1943 (2) |
+| Belmonte de Tajo (28019) | 5 | 0606 Chinchón 1963 (5) |
+| Villaconejos (28170) | 6 | 0606 Chinchón 1963 (6) |
+| Villarejo de Salvanés (28180) | 20 | 0606 Chinchón 1963 (18); 0583 Arganda 1956 (2) |
+| Valdelaguna (28157) | 7 | 0583 Arganda 1956 (5); 0606 Chinchón 1963 (2) |
+
+Cinco hojas en total: 0582 (1964), 0583 (1956), 0605 (1943), 0606 (1963) y 0630 (1945). Las cinco son posteriores a 1881 y la mitad anteriores al vuelo AMS de 1956-57: son una fuente distinta del MTN50 de 1881 y de las planimetrías de #17. Los recuentos son de una rejilla, no una medición de área: una hoja con pocos puntos solo toca el borde del término.
+
+### CA2 — `GetMap` con contenido (`confirmado`)
+
+`GetMap` de 1 km × 1 km (500 × 500 px, 2 m/px) centrado en un punto de cada hoja dentro de cada municipio: **14 de 14 combinaciones municipio-hoja devuelven `image/png` con contenido** (200 OK; 353.043 a 557.674 bytes; desviación típica de gris 25 a 40; fracción de píxeles no blancos ≥ 0,9999). Ejemplos (sha256 completo en `imagenes.json`; el recorte de cada hoja está en `recorte_<hoja>_1km_2mpx.png`):
+
+| Hoja | Municipio de la ventana | Bytes | sha256 (inicio) |
+|---|---|---|---|
+| 0582 | Chinchón | 540.585 | `877af140d9f3` |
+| 0583 | Chinchón | 435.344 | `06d28048ecf0` |
+| 0605 | Colmenar de Oreja | 489.424 | `7bb04c2b6c1a` |
+| 0606 | Colmenar de Oreja | 416.485 | `247a1b994963` |
+| 0630 | Aranjuez | 353.043 | `20f43e017f42` |
+
+**Resolución efectiva** (curva de gradiente de `verificar_planimetrias.py`, ventana de 300 m pedida a 0,25 m/px): la curva normalizada es ≈ 1,00 hasta 1 m y cae a 0,86-0,90 a 2 m y a 0,68-0,76 a 4 m en las 14 ventanas, así que el detalle real se agota hacia **1 a 2 m/px** (escala 1:25.000 escaneada). Es `asumido` como estimación, no medido contra el original. Un recorte de 1 km a 2 m/px basta para ver caminos con nombre.
+
+### CA3 — Atribución (`confirmado` salvo el identificador exacto)
+
+- **Licencia**: CC BY 4.0. El `GetCapabilities` declara `AccessConstraints` = `CC BY 4.0 ign.es` (fixture `ign_primera-edicion-mtn_getcapabilities.xml`). La capa `catastrones` solo declara `Attribution` = «Instituto Geográfico Nacional» (enlace a `https://www.ign.es`); no lleva texto de licencia propio.
+- **Licencia de uso del IGN** (fixture `ign_licencia_condiciones_uso.txt`, Orden FOM/2807/2015, art. 4): el uso es libre y gratuito mencionando origen y propiedad. Para un **servicio sin modificar** vale la fórmula de `AccessConstraints`: «CC BY 4.0 ign.es». Para una **obra derivada** (cualquier georreferenciación o trazado que hagamos sobre la minuta) la fórmula es «Obra derivada de `<identificador del producto>` `<fecha>` CC-BY 4.0 `<atribución de productores>`», visible junto a los datos.
+- **Atribución literal propuesta** para lo que salga de catastrones: «Obra derivada de Minutas MTN50 (catastrones) 1910-1970 CC-BY 4.0 © Instituto Geográfico Nacional de España». Es la misma construcción que ya usan `scripts/verificar_planimetrias.py` y el sitio para planimetrías y MTN50.
+- **¿Basta el aviso «© Instituto Geográfico Nacional de España» del WMS?** No para una obra derivada: falta «Obra derivada de», el producto, la fecha y «CC-BY 4.0». Para mostrar la imagen del WMS sin modificar bastaría «CC BY 4.0 ign.es» más ese reconocimiento; para el resto hay que añadir lo anterior.
+- **`asumido`**: el identificador y el rango de fechas exactos de la tabla de productos de `scne.es/productos.html` no se pudieron leer (la página cerró la conexión TLS y su contenido es dinámico). Se usa el título del servicio («Minutas del Mapa Topográfico Nacional 1:50.000 (catastrones) 1910-1970»). Si el IGN publica otro identificador, corregir la cadena antes de publicar.
+
+### CA4 — Descarga del original (`bloqueado` por reCAPTCHA para un script)
+
+Los enlaces de `GetFeatureInfo` (`http://centrodedescargas.cnig.es/CentroDescargas/busquedaRedirigida.do?ruta=PUBLICACION_CNIG_DATOS_VARIOS/Minutas_MTN50/MinutaMTN50-<hoja>-<Nombre>.zip`) redirigen a HTTPS y devuelven la **ficha HTML** del producto (200, `text/html`), no el zip. La descarga se autoriza con una llamada a `preAutorizarDescarga` que exige un token de **reCAPTCHA v3** (`grecaptcha.execute`, acción `preautorizar_descarga`), igual que la ficha de ALTI de #17: no hay descarga directa sin navegador. Los datos de las fichas sí se leen:
+
+| Hoja | Fichero | Fecha | Tamaño | Formato | Estado |
+|---|---|---|---|---|---|
+| 0582 Getafe | `MINUTAMTN50-0582-GETAFE.ZIP` | 1964 | 141,14 MB | JPG + ECW | `bloqueado` (reCAPTCHA v3) |
+| 0583 Arganda | `MINUTAMTN50-0583-ARGANDA.ZIP` | 1956 | 132,75 MB | JPG + ECW | `bloqueado` (reCAPTCHA v3) |
+| 0605 Aranjuez | `MINUTAMTN50-0605-ARANJUEZ.ZIP` | 1943 | 125,25 MB | JPG + ECW | `bloqueado` (reCAPTCHA v3) |
+| 0606 Chinchón | `MINUTAMTN50-0606-CHINCHON.ZIP` | 1963 | 125,14 MB | JPG + ECW | `bloqueado` (reCAPTCHA v3) |
+| 0630 Yepes | `MINUTAMTN50-0630-YEPES.ZIP` | 1945 | 126,76 MB | JPG + ECW | `bloqueado` (reCAPTCHA v3) |
+
+Escala declarada en la ficha: 25.000. Sistema: ETRS89, coordenadas geográficas. Unidad de descarga: hoja del MTN50. **No hay manera de automatizar el original**: o lo baja una persona en el navegador, o se trabaja con el render del WMS cacheado (opción A de #17: cero coste, 1-2 m/px, ya reproyectado). No se bajó ningún zip.
+
+### CA5 — Recomendación por hoja
+
+El WMS entrega una imagen ya georreferenciada por el IGN, así que «georreferenciar» aquí significa medir su desajuste frente a PNOA y, si hace falta, corregirlo con puntos de control (como #139), no escanear nada.
+
+| Hoja | Año | Municipios | Recomendación |
+|---|---|---|---|
+| **0606** Chinchón | 1963 | 6 de 7 (todos salvo Aranjuez) | **Georreferenciar, prioridad 1**: cubre casi todo el ámbito, caminos con nombre y es la única con cobertura completa de Colmenar de Oreja, Belmonte de Tajo y Villaconejos. |
+| **0605** Aranjuez | 1943 | Aranjuez, borde de Colmenar y Chinchón | **Georreferenciar, prioridad 2**: la más antigua y anterior al vuelo de 1956; da una fecha distinta para Aranjuez y el sur de Colmenar. |
+| **0583** Arganda | 1956 | Valdelaguna, Chinchón, Villarejo de Salvanés | **Georreferenciar, prioridad 2**: es de 1956, el mismo año que el vuelo AMS de PNOA histórico, lo que permite contrastar minuta y foto. |
+| **0630** Yepes | 1945 | Aranjuez (17 de 31 puntos) | **Georreferenciar, prioridad 3**: solo aporta a Aranjuez; hacerlo si Aranjuez entra en un hito. |
+| 0582 Getafe | 1964 | Chinchón (3 de 20 puntos, borde) | **Descartar por ahora**: solo toca el borde norte de un término; el 1963 de la 0606 ya cubre esa zona. |
+
+Límites: el año de la minuta no es el año del camino; la resolución efectiva es de 1 a 2 m/px; el original no se puede bajar sin captcha. La recomendación no mide el desajuste frente a PNOA (queda para la historia hermana de georreferenciación).
+>
 ---
 
 ## Resumen de fuentes no verificadas en esta pasada

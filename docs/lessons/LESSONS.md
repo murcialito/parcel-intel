@@ -768,3 +768,65 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: cuando un comando pasa a escribir un fichero más con un directorio por defecto bajo `data/`, todo test que lo invoca por la CLI debe pasar también la opción nueva a `tmp_path`; si no, el test escribe en el `data/` del repo. Y los ayudantes compartidos que imitan al productor (`write_real_derived_layers`, `prepare_road_cache`) se actualizan para escribir también el fichero nuevo, aunque no estén en la línea `Toca:`: si no, cada consumidor (#94 CA7) falla con «falta la capa complementaria».
   - **Aplica a**: implementación (`grep` del nombre del comando y de los ayudantes de `tests/` antes de cambiar lo que escribe).
+## [2026-11-27] Historia #185 — Rediseño del visor
+
+- **Lección**: un nombre de capa que viene de un texto validado (aquí «Tramos a verificar (no son un dictamen)», `CANDIDATE_LAYER_NAME` de #169) no se acorta en la interfaz aunque el diseño lo pida: el test de #171 exige el literal en `index.html`. Se acortan solo los rótulos que no son texto validado (vías pecuarias, camino actual) y la salvedad se mantiene. Antes de cambiar un rótulo, `grep` del literal en `src/parcel_intel/domain/` y en `tests/acceptance/`.
+  - **Aplica a**: diseño e implementación (rótulos del visor).
+
+- **Lección**: al añadir una petición al arranque del visor (aquí `datos/cobertura.geojson`), los tests de carrera que sueltan las cargas «a mano» se cuelgan o se vuelven frágiles: la promesa nueva también queda en espera. Se resuelve al momento lo que no es objeto del test (índice, cobertura) y se espera a la condición (`esperas.length === 2`) en lugar de a un número fijo de vueltas del bucle.
+  - **Aplica a**: tests de `tests/site/visor.test.mjs`.
+
+- **Lección**: el Leaflet falso de los tests solo conoce lo que se usaba (`geoJSON` sobre colecciones, sin `setStyle` en grupos, sin `marker`); un `L.geoJSON` sobre un `Feature` suelto o un `setStyle` de grupo rompen en el doble y no en el navegador. Se amplía el doble en el mismo cambio y se comprueba el resultado en un navegador real (`preview_start` con la configuración `visor` de `.claude/launch.json`, o `scripts/capturar_visor.mjs`).
+  - **Aplica a**: implementación (cambios de `mapa.js`).
+
+- **Lección**: una captura de una fixture sintética sobre el mapa real (un tramo inventado con texto de indicio en un punto de Colmenar) parece un hallazgo real. Esas capturas se enseñan en local y no se suben a `docs/`.
+  - **Aplica a**: diseño (capturas de la PR).
+
+## [2026-11-27] Historia #214 — Fuentes de sitios de interés
+
+- **Lección**: un servicio público que responde 200 no es un recuento. Overpass dio un 200 con cero nodos porque la consulta por `area["ref:INE"="28043"]` no encontró el área (la relación de Colmenar no lleva esa etiqueta en OSM), y la búsqueda de relaciones con la misma etiqueta también dio cero. Un cero solo vale si antes se ha comprobado que el objeto de referencia existe en la fuente. Lo que no responde se anota como `bloqueado`, con el intento, no como negativo.
+  - **Causa**: el espejo agotó el tiempo en las consultas por caja y el servidor principal devolvió 502 «at capacity» en varios intentos.
+  - **Aplica a**: BA (al exigir un recuento, pedir el canal y el intento fallido) | implementación (antes de registrar un recuento de OSM o de un servicio público, comprobar que el objeto de referencia existe).
+
+- **Lección**: dos fuentes que parecen independientes pueden ser la misma geometría. El Nomenclátor (NGBE) trae 217 de 230 topónimos de la caja con el campo `fuente` igual a `MITMA.IGN.BTN25`. Antes de sumar cobertura de dos fuentes, mirar el campo de procedencia.
+  - **Aplica a**: BA e implementación (fuentes del IGN que se solapan; no contar dos veces el mismo dato como verificación cruzada).
+
+- **Lección**: una especificación de producto descargada de la web puede estar sustituida. La BTN25 que se encuentra en ign.es es la v1.0 de 2009, y dice que desde septiembre de 2021 la sustituye ESPBTN_MOD21. Anotar la versión y la fecha de la especificación leída, y comprobar si hay una vigente antes de citar sus códigos.
+  - **Aplica a**: BA (al verificar un producto, anotar la versión y la fecha de la especificación leída).
+
+- **Lección**: un PDF de más de 10 MB no pasa por `WebFetch` y `pdftoppm` no está instalado. Descargar con `curl` a un directorio aparte y extraer el texto de los flujos Flate con `zlib` (`python3 -I`) sirve para buscar cláusulas. Ese texto no es una cita certificada: las citas se copian de él y se marcan como extraídas.
+  - **Aplica a**: implementación (verificación de licencias en PDF de gran tamaño).
+## [2026-11-27] Historia #213 — Kit de campo GPX/KML
+
+- **Lección**: un exportador de lo ya publicado (GPX/KML) no copia propiedades: construye cada descripción solo desde la lista blanca de la ficha y falla si llega una clave de más o una de titularidad/catastral, incluso anidada. El aviso se exige por elemento y en la procedencia de cada capa; un exportador que «omite lo que no encuentra» deja un tramo sin aviso (lecciones 95 y 169).
+  - **Aplica a**: implementación de cualquier exportación derivada de `site/datos/` (descargas, enlaces, QField).
+
+- **Lección**: para que una salida con fecha sea reproducible byte a byte, la fecha entra por parámetro (el CLI la lee una vez) y nunca la lee el adapter; `xml.etree` con `ET.indent` y orden de entrada fijo basta, sin librerías nuevas.
+  - **Aplica a**: implementación (ficheros publicados que llevan «fecha de generación»).
+## [2026-11-27] Historia #206 — Vuelos históricos de la Comunidad de Madrid
+
+- **Lección**: un servicio de imágenes responde **200 con una tesela blanca** fuera de su cobertura (la IDEM: 854 bytes, un solo nivel de gris), igual que el IGN. «200 + `image/png`» no prueba que haya imagen: se decodifica y se mide varianza y niveles distintos (en blanco si varianza < 1). Cualquier adapter de #207 debe aplicarlo a cada respuesta.
+  - **Aplica a**: implementación (adapters de imágenes) | revisión.
+
+- **Lección**: el `GetCapabilities` del WMS de la IDEM anuncia un `GetMap` (`http://…/erdas-iws/ogc/wms/visorcartografia2`) que responde 404; el que funciona es `https://idem.comunidad.madrid/srvimagenes2/ogc/wms/visorcartografia2`. Una URL que da el propio documento de capacidades tampoco vale hasta probarla (lección 0001). El `GetCapabilities` WMTS pesa 14 MB: se guarda solo un extracto.
+  - **Aplica a**: implementación (#207).
+
+- **Lección**: los píxeles de un `TileMatrixSet` `EPSG3857` miden `escala × 0,00028 × cos(latitud)` en el terreno: el nivel 18 («0,597 m») son 0,457 m en Colmenar. Se calcula la resolución real a la latitud del ámbito antes de elegir nivel. Los bytes de una misma tesela cambian entre peticiones, así que no sirven como huella.
+  - **Aplica a**: implementación (#207) | BA (criterios de «resolución»).
+## [2026-11-27] Historia #211 — Catastrones del IGN
+
+- **Lección**: el `GetFeatureInfo` de `primera-edicion-mtn` devuelve la hoja de un solo punto; para saber qué hojas cubren un término hay que muestrear una rejilla dentro del límite (2,5 km bastó) y contar puntos por hoja. Una sola consulta en el centro oculta las hojas de borde (Colmenar tiene dos; Chinchón, cuatro). Los enlaces de descarga del CNIG devuelven la ficha HTML con reCAPTCHA v3, no el zip: se anota `bloqueado` y se trabaja con el render del WMS.
+  - **Aplica a**: refinador, implementación (historias que inventarían la cobertura de un WMS histórico).
+
+## [2026-11-27] Historia #220 — Montes de utilidad pública (IDEM)
+
+- **Lección**: cuando una fuente pública publica campos de titularidad (aquí `DS_PROPIETARIO` y `DS_NOM_PROPIETARIO`, incluso de entes públicos), el parser lee solo una lista blanca de campos y falla si se le pide otro; no se parsea todo y se «filtra después». En la fixture se sustituyen los valores reales por unos ficticios, y un test comprueba que ni nombres ni valores llegan a ningún fichero derivado.
+  - **Aplica a**: implementación de adapters de cualquier capa con campos de propietario (otras capas de `Zonas`, Catastro) | revisión.
+
+- **Lección**: el filtro `BBOX` de una capa de recintos grandes trae montes de municipios vecinos y, al recortar con el límite del IGN, deja astillas de unos m² por la diferencia entre líneas municipales (Chinchón 122 m², Belmonte 1 920 m²). Se anotan en `REGISTRY.md` y no se filtran hasta decidir un umbral de publicación.
+  - **Aplica a**: implementación (#224 al publicar la capa).
+## [2026-11-27] Historia #207 — Adapter de los vuelos históricos de Madrid
+
+- **Lección**: el WMS de la IDEM responde 200 con un PNG blanco fuera de cobertura (y la URL de `GetMap` que anuncia su `GetCapabilities` da 404); un `ServiceException` XML también llega con 200. El filtro fiable es validar la firma PNG antes de cachear y medir la varianza de gris (media de R, G, B) después. No hay Pillow en el proyecto: se reutiliza `adapters/evidence/png.py::decode_png`. Los identificadores `CM_*` son distintos de `AMS_1956-1957` del IGN: cada adapter rechaza con `InvalidHistoricalVintageError` los vuelos que no son suyos, y elegir adapter por vuelo es cosa de la composición (#208).
+  - **Aplica a**: implementación (#208 y cualquier otra fuente de ortofoto por WMS).
+

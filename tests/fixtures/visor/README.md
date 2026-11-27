@@ -13,3 +13,6 @@ formato que publica `publicar-capas` (#84). No son datos reales de ninguna fuent
 
 Las propiedades trampa de CA6 (`titular`, `refcat`, `<b>`) no están aquí: el test las inyecta en
 memoria, para que estas fixtures pasen la lista blanca de CA8.
+
+`cobertura.geojson` (historia #185) es también sintético: un rectángulo por municipio, igual a su
+`bbox` del índice, con la forma que publica `publicar-cobertura`.
