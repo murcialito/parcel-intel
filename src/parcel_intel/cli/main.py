@@ -1,4 +1,5 @@
 import argparse
+import json
 import sys
 import time
 from collections import Counter
@@ -22,7 +23,10 @@ from parcel_intel.adapters.comparison_files import (
     read_stretches,
 )
 from parcel_intel.adapters.curated_historic import CuratedHistoricFiles
-from parcel_intel.adapters.cut_candidate_files import GeoJsonCutCandidateWriter
+from parcel_intel.adapters.cut_candidate_files import (
+    GeoJsonCutCandidateReader,
+    GeoJsonCutCandidateWriter,
+)
 from parcel_intel.adapters.deepseek.adapter import DeepSeekAdapter, MissingDeepSeekApiKeyError
 from parcel_intel.adapters.deepseek.client import DeepSeekApiError
 from parcel_intel.adapters.discrepancy_files import (
@@ -72,6 +76,13 @@ from parcel_intel.adapters.trail_layers import (
     GeoJsonTrailLayerReader,
     TrailLayerFormatError,
 )
+from parcel_intel.adapters.validation_cases.casos_json import parse_validation_cases
+from parcel_intel.adapters.validation_cases.congelacion import (
+    ErrorCongelacion,
+    calcular_huella,
+    cargar_casos,
+    versiones,
+)
 from parcel_intel.application.author_rule_proposal import AuthorRuleProposalUseCase
 from parcel_intel.application.build_cadastral_road_layer import BuildCadastralRoadLayerUseCase
 from parcel_intel.application.build_comparison_images import BuildComparisonImagesUseCase
@@ -88,6 +99,7 @@ from parcel_intel.application.build_trail_evidence import BuildTrailEvidenceUseC
 from parcel_intel.application.cut_signals import CadastralParcelSignalProvider
 from parcel_intel.application.detect_cut_candidates import DetectCutCandidatesUseCase
 from parcel_intel.application.detect_discrepancies import DetectDiscrepanciesUseCase
+from parcel_intel.application.evaluate_candidates import EvaluateCandidatesUseCase
 from parcel_intel.application.load_historic_trails import HistoricUnitUseCase
 from parcel_intel.application.publish_discrepancies import PublishDiscrepanciesUseCase
 from parcel_intel.application.publish_layers import (
@@ -95,6 +107,12 @@ from parcel_intel.application.publish_layers import (
     PublishLayersUseCase,
 )
 from parcel_intel.domain.cadastral_road import CadastralRoadLayer
+from parcel_intel.domain.candidate_evaluation import (
+    MATCH_CRITERION_V1,
+    CandidateEvaluationInputError,
+    EvaluableCandidate,
+    EvaluationResult,
+)
 from parcel_intel.domain.comparison_image import DegenerateStretchError
 from parcel_intel.domain.digitization import StaleApprovalError
 from parcel_intel.domain.discrepancy import DiscrepancyKind
@@ -122,6 +140,7 @@ from parcel_intel.ports.errors import (
     CadastralServiceError,
     ClippedGeometryHasHolesError,
     CuratedUnitNotFoundError,
+    CutCandidateFileError,
     EvidenceImageFormatError,
     IncompleteWfsResponseError,
     InvalidLlmProposalError,
@@ -673,6 +692,149 @@ def _candidatos_corte(args: argparse.Namespace) -> int:
             f"señales sin_datos: {', '.join(no_data) or 'ninguna'} -> {args.salida}"
         )
     return 1 if failed else 0
+
+
+def _ratio_entry(value: float | None, **counts: int | str | list[str]) -> dict[str, object]:
+    return {"valor": None if value is None else round(value, 4), **counts}
+
+
+def build_measurement_report(
+    result: EvaluationResult,
+    *,
+    label: str | None,
+    sha256: str,
+    frozen: bool,
+    run_date: date,
+    candidate_methods: list[str],
+    total_cases: int,
+) -> dict[str, object]:
+    """Informe agregado de `medir-candidatos` (historia #111). Solo ids públicos de caso
+    y agregados: ni ids de candidato, ni descripciones, ni referencias catastrales."""
+    reasons = Counter(item.reason for item in result.not_evaluable_cases)
+    criterion = result.criterion
+    return {
+        "etiqueta": label,
+        "sha256": sha256,
+        "congelado": frozen,
+        "fecha": run_date.isoformat(),
+        "metodo_candidatos": candidate_methods,
+        "criterio_casamiento": {
+            "identificador": criterion.identifier,
+            "version": criterion.version,
+            "distancia_max_m": criterion.max_distance_m,
+            "solape_min": criterion.min_overlap,
+            "paso_muestreo_m": result.sample_step_m,
+        },
+        "casos_total": total_cases,
+        "evaluables": {
+            "total": len(result.evaluable_case_ids),
+            "casos": list(result.evaluable_case_ids),
+        },
+        "no_evaluables": {
+            "total": len(result.not_evaluable_cases),
+            "por_motivo": {reason: reasons[reason] for reason in sorted(reasons)},
+            "casos": [
+                {"caso": item.case_id, "motivo": item.reason} for item in result.not_evaluable_cases
+            ],
+        },
+        "cobertura": _ratio_entry(
+            result.coverage,
+            casos_senalados=len(result.flagged_case_ids),
+            casos_evaluables=len(result.evaluable_case_ids),
+            casos=list(result.flagged_case_ids),
+        ),
+        "precision": _ratio_entry(
+            result.precision,
+            cota="inferior",
+            candidatos_acertados=result.hit_candidates,
+            candidatos_evaluables=result.evaluable_candidates,
+        ),
+        "candidatos": {
+            "no_evaluables": result.not_evaluable_candidates,
+            "descartados": result.discarded_candidates,
+        },
+    }
+
+
+def _percent(entry: object) -> str:
+    value = entry.get("valor") if isinstance(entry, dict) else None
+    return "no calculable" if value is None else f"{value * 100:.1f} %"
+
+
+def _medir_candidatos(args: argparse.Namespace) -> int:
+    """Composition root de `medir-candidatos` (historia #111). Sin red ni LLM."""
+    casos_path: Path = args.casos
+    try:
+        raw_cases = cargar_casos(casos_path)
+        frozen_versions = versiones(casos_path.parent)
+        cases = parse_validation_cases({"casos": raw_cases})
+    except (ErrorCongelacion, ValueError, OSError) as error:
+        print(f"ERROR en el conjunto de validación: {error}", file=sys.stderr)
+        return 1
+    sha256 = calcular_huella(casos_path)
+    current = frozen_versions[-1] if frozen_versions else None
+    frozen = current is not None and current.sha256 == sha256
+    if not frozen:
+        reason = (
+            "no hay ningún CONGELADO*.md"
+            if current is None
+            else f"la huella no coincide con la de {current.etiqueta}"
+        )
+        print(f"AVISO: conjunto no congelado: {reason}", file=sys.stderr)
+
+    reader = GeoJsonCutCandidateReader(args.entrada)
+    candidates: list[EvaluableCandidate] = []
+    with_candidates: set[str] = set()
+    methods: set[str] = set()
+    try:
+        for code in sorted({case.municipality_ine for case in cases if case.municipality_ine}):
+            report = reader.get_report(code)
+            if report is None:
+                continue
+            with_candidates.add(code)
+            methods.add(f"{report.method.identifier}@{report.method.version}")
+            candidates.extend(
+                EvaluableCandidate(c.candidate_id, c.municipality_code, c.stretch)
+                for c in report.candidates
+            )
+        result = EvaluateCandidatesUseCase().execute(
+            cases, candidates, with_candidates, MATCH_CRITERION_V1
+        )
+    except CutCandidateFileError as error:
+        print(f"ERROR fichero de candidatos {error.path}: {error.detail}", file=sys.stderr)
+        print("No se ha escrito el informe.", file=sys.stderr)
+        return 1
+    except CandidateEvaluationInputError as error:
+        print(f"ERROR en la evaluación: {error}; no se ha escrito el informe.", file=sys.stderr)
+        return 1
+
+    report_data = build_measurement_report(
+        result,
+        label=current.etiqueta if frozen and current is not None else None,
+        sha256=sha256,
+        frozen=frozen,
+        run_date=_today(),
+        candidate_methods=sorted(methods),
+        total_cases=len(cases),
+    )
+    if not frozen:
+        report_data["aviso"] = "conjunto no congelado: la huella no coincide con la vigente"
+    args.salida.parent.mkdir(parents=True, exist_ok=True)
+    args.salida.write_text(
+        json.dumps(report_data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    no_eval = report_data["no_evaluables"]
+    assert isinstance(no_eval, dict)
+    print(
+        f"Casos: {len(cases)}; evaluables: {len(result.evaluable_case_ids)}; "
+        f"no evaluables: {no_eval['total']} {no_eval['por_motivo']}\n"
+        f"Cobertura: {_percent(report_data['cobertura'])} "
+        f"({len(result.flagged_case_ids)}/{len(result.evaluable_case_ids)} casos)\n"
+        f"Precisión (cota inferior): {_percent(report_data['precision'])} "
+        f"({result.hit_candidates}/{result.evaluable_candidates} candidatos)\n"
+        f"-> {args.salida}"
+    )
+    return 0
 
 
 def build_publish_use_case(
@@ -1253,6 +1415,30 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio de salida de los ficheros internos <codigo_ine>.geojson",
     )
     candidatos_parser.set_defaults(func=_candidatos_corte)
+
+    medir_parser = subparsers.add_parser(
+        "medir-candidatos",
+        help="Cobertura y precisión de los candidatos a corte frente al conjunto de validación",
+    )
+    medir_parser.add_argument(
+        "--casos",
+        type=Path,
+        default=Path("docs/validacion/casos.json"),
+        help="casos.json; los CONGELADO*.md se buscan en su directorio",
+    )
+    medir_parser.add_argument(
+        "--entrada",
+        type=Path,
+        default=Path("data/derived/candidatos/interno"),
+        help="Directorio con los ficheros internos <codigo_ine>.geojson de candidatos",
+    )
+    medir_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("data/derived/validacion/medicion.json"),
+        help="Informe agregado en JSON (fichero de datos, no se publica)",
+    )
+    medir_parser.set_defaults(func=_medir_candidatos)
 
     publicar_parser = subparsers.add_parser(
         "publicar-capas",
