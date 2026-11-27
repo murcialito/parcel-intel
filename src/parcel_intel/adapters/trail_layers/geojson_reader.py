@@ -9,6 +9,7 @@ convierte en "ausente").
 import json
 import re
 from collections.abc import Mapping, Sequence
+from dataclasses import replace
 from pathlib import Path
 
 from pydantic import ValidationError
@@ -94,11 +95,42 @@ def geometry_to_shape(
     )
 
 
-class GeoJsonTrailLayerReader:
-    """Implementa `MunicipalTrailLayerPort` sobre ficheros derivados."""
+class IncompleteTrailLayerError(TrailLayerFormatError):
+    """Una fuente con fichero complementario tiene solo uno de los dos ficheros
+    (p. ej. `camino_actual/` sin `camino_asfaltado/`, historia #183). `path` es el
+    fichero que falta. Es un fallo real: leer solo la mitad daría en silencio
+    discrepancias distintas."""
 
-    def __init__(self, paths: Mapping[SourceKind, Path]) -> None:
+
+_COMPLEMENT_MISSING_DETAIL = (
+    "falta la capa complementaria (tramos asfaltados del IGN); la capa es anterior a "
+    "la historia #183: regenera con `camino-actual-municipios` (con red: la caché no "
+    "tiene aún las consultas `paved`)"
+)
+_PRINCIPAL_MISSING_DETAIL = (
+    "falta la capa principal (tramos sin asfaltar del IGN) junto a la complementaria: "
+    "regenera las dos con `camino-actual-municipios`"
+)
+_PRINCIPAL_SURFACE = "unpaved"
+_COMPLEMENT_SURFACE = "paved"
+
+
+class GeoJsonTrailLayerReader:
+    """Implementa `MunicipalTrailLayerPort` sobre ficheros derivados.
+
+    `complements` da, por fuente, un segundo directorio cuyo fichero se une al
+    principal en una sola capa (ADR 0050): para `discrepancias`,
+    `ign_red_transporte` = `camino_actual` (sin asfaltar) ∪ `camino_asfaltado`
+    (asfaltado). Los trazados del complemento entran con `counterpart_only=True`.
+    Sin `complements`, el lector se comporta como en #32 (así lo usa `publicar-capas`)."""
+
+    def __init__(
+        self,
+        paths: Mapping[SourceKind, Path],
+        complements: Mapping[SourceKind, Path] | None = None,
+    ) -> None:
         self._paths = paths
+        self._complements: Mapping[SourceKind, Path] = complements or {}
 
     def get_layer(self, source: SourceKind, municipality_code: str) -> TrailLayer:
         if not _MUNICIPALITY_RE.fullmatch(municipality_code):
@@ -109,13 +141,37 @@ class GeoJsonTrailLayerReader:
                 source, municipality_code, "fuente sin directorio de capas configurado"
             )
         path = directory / f"{municipality_code}.geojson"
-        if not path.is_file():
+        complement_directory = self._complements.get(source)
+        if complement_directory is None:
+            if not path.is_file():
+                raise TrailLayerUnavailableError(
+                    source, municipality_code, f"sin capa derivada en caché ({path})"
+                )
+            return self._parse(source, municipality_code, path)
+
+        complement_path = complement_directory / f"{municipality_code}.geojson"
+        has_principal, has_complement = path.is_file(), complement_path.is_file()
+        if not has_principal and not has_complement:
             raise TrailLayerUnavailableError(
                 source, municipality_code, f"sin capa derivada en caché ({path})"
             )
-        return self._parse(source, municipality_code, path)
+        if not has_complement:
+            raise IncompleteTrailLayerError(source, complement_path, _COMPLEMENT_MISSING_DETAIL)
+        if not has_principal:
+            raise IncompleteTrailLayerError(source, path, _PRINCIPAL_MISSING_DETAIL)
+        principal = self._parse(source, municipality_code, path, surface=_PRINCIPAL_SURFACE)
+        complement = self._parse(
+            source, municipality_code, complement_path, surface=_COMPLEMENT_SURFACE
+        )
+        return _union(source, principal, complement, complement_path)
 
-    def _parse(self, source: SourceKind, municipality_code: str, path: Path) -> TrailLayer:
+    def _parse(
+        self,
+        source: SourceKind,
+        municipality_code: str,
+        path: Path,
+        surface: str | None = None,
+    ) -> TrailLayer:
         try:
             raw = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, UnicodeDecodeError, ValueError) as error:
@@ -142,6 +198,8 @@ class GeoJsonTrailLayerReader:
                 f"la capa declara el municipio {model.properties.municipio!r}, "
                 f"se esperaba {municipality_code!r}",
             )
+        if surface is not None:
+            _check_surface(source, path, model, surface)
 
         layer_provenance = _provenance(model.properties.procedencia)
         character = model.properties.aviso or _DEFAULT_CHARACTER
@@ -182,6 +240,64 @@ class GeoJsonTrailLayerReader:
                 else None
             ),
         )
+
+
+def _check_surface(source: str, path: Path, model: LayerFileModel, expected: str) -> None:
+    """El principal admite `superficie` ausente (ficheros de #27) o `unpaved`; el
+    complemento exige `paved`. Lo mismo en cada feature que la declare (CA11 de #183)."""
+    declared = model.properties.superficie
+    allowed = (None, expected) if expected == _PRINCIPAL_SURFACE else (expected,)
+    if declared not in allowed:
+        raise TrailLayerFormatError(
+            source,
+            path,
+            f"la capa declara la superficie {declared!r}, se esperaba {expected!r} "
+            "(¿directorios camino_actual/ y camino_asfaltado/ intercambiados?)",
+        )
+    for feature in model.features:
+        feature_surface = feature.properties.superficie
+        if feature_surface is not None and feature_surface != expected:
+            raise TrailLayerFormatError(
+                source,
+                path,
+                f"feature {feature.id!r}: superficie {feature_surface!r}, "
+                f"se esperaba {expected!r}",
+            )
+
+
+def _union(
+    source: SourceKind, principal: TrailLayer, complement: TrailLayer, complement_path: Path
+) -> TrailLayer:
+    """Una sola capa: la procedencia, el nombre y el límite del principal; los
+    trazados del complemento marcados como solo contraparte (ADR 0050)."""
+    if (
+        principal.municipality_name
+        and complement.municipality_name
+        and principal.municipality_name != complement.municipality_name
+    ):
+        raise TrailLayerFormatError(
+            source,
+            complement_path,
+            f"la capa declara el municipio {complement.municipality_name!r}, "
+            f"la principal {principal.municipality_name!r}",
+        )
+    principal_ids = {trail.identifier for trail in principal.trails}
+    repeated = sorted(t.identifier for t in complement.trails if t.identifier in principal_ids)
+    if repeated:
+        raise TrailLayerFormatError(
+            source,
+            complement_path,
+            f"identificador presente también en la capa principal: {repeated[0]!r}",
+        )
+    return TrailLayer(
+        source=source,
+        municipality_code=principal.municipality_code,
+        provenance=principal.provenance,
+        trails=principal.trails
+        + tuple(replace(trail, counterpart_only=True) for trail in complement.trails),
+        municipality_name=principal.municipality_name,
+        boundary_provenance=principal.boundary_provenance,
+    )
 
 
 def _summarize(error: ValidationError) -> str:

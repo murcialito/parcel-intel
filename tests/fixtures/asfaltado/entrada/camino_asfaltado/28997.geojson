@@ -1,0 +1,20 @@
+{
+ "type": "FeatureCollection",
+ "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::25830"}},
+ "properties": {
+  "fuente": "ign_red_transporte",
+  "municipio": "28997",
+  "nombre_municipio": "Municipio sintético 28997",
+  "superficie": "paved",
+  "procedencia": {"fuente": "SINTÉTICO capa de red asfaltada", "url": "https://example.invalid/roadlink?filter=surfacecategory%3D%27paved%27", "fecha_descarga": "2026-11-27", "licencia": "SINTÉTICA CC BY 4.0, solo para pruebas", "redistribucion": "publicable"},
+  "aviso": "SINTÉTICO: capa inventada para pruebas (historia #183), no es cartografía real."
+ },
+ "features": [
+  {"type": "Feature", "id": "900000000001", "properties": {"id_tramo": 900000000001, "superficie": "paved", "fecha_dato": "2025-03-15"},
+   "geometry": {"type": "LineString", "coordinates": [[450000.0, 4435002.0], [451000.0, 4435002.0]]}},
+  {"type": "Feature", "id": "900000000003", "properties": {"id_tramo": 900000000003, "superficie": "paved", "fecha_dato": "2025-03-15"},
+   "geometry": {"type": "LineString", "coordinates": [[450000.0, 4437002.0], [450600.0, 4437002.0]]}},
+  {"type": "Feature", "id": "900000000004", "properties": {"id_tramo": 900000000004, "superficie": "paved", "fecha_dato": "2025-03-15"},
+   "geometry": {"type": "LineString", "coordinates": [[450000.0, 4438020.0], [451000.0, 4438020.0]]}}
+ ]
+}

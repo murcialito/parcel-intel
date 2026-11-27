@@ -13,6 +13,7 @@ fuente. Cada capa lo dice en su `aviso` y en su `procedencia`.
 | `catastro_caminos/28043.geojson` | C-1 sobre VP-1; C-2 sin equivalente en ninguna otra capa |
 | `vias_pecuarias/28045.geojson`, `camino_actual/28045.geojson` | municipio sin Catastro ni histórico |
 | `camino_actual/28044.geojson` | JSON corrupto a propósito (lote con un fallo) |
+| `camino_asfaltado/<ine>.geojson` | red asfaltada **vacía** junto a cada `camino_actual/` (historia #183): `discrepancias` exige los dos ficheros, y vacía no cambia ningún oráculo |
 
 Resultado esperado de 28043 sin Catastro (fijado a mano antes de implementar, lección
 0017): un `DESPLAZAMIENTO` de 12,5 m (R-3 frente a VP-3; tolerancia del par

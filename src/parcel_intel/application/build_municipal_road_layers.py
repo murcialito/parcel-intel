@@ -8,6 +8,7 @@ from parcel_intel.domain.municipal_road_layer import (
     MunicipalRoadLayerBatch,
 )
 from parcel_intel.domain.municipality import MunicipalBoundary
+from parcel_intel.domain.road_segment import RoadSurface
 from parcel_intel.ports.line_clipping import LineClippingPort
 from parcel_intel.ports.municipal_boundary import MunicipalBoundaryPort
 from parcel_intel.ports.road_segment import RoadSegmentPort
@@ -20,8 +21,9 @@ _SRID = 25830
 
 
 class BuildMunicipalRoadLayersUseCase:
-    """Una capa de "camino actual" por municipio: tramos sin asfaltar de la red
-    del IGN recortados a su término (historia #27).
+    """Una capa por municipio con los tramos de una superficie de la red del IGN
+    recortados a su término: `unpaved` es el "camino actual" (historia #27) y
+    `paved` la red asfaltada que solo sirve de contraparte (historia #183).
 
     Un tramo que cruza dos términos aparece en las dos capas, cada una con su
     parte. Los `fictitious` se conservan. Un municipio que falla no detiene el
@@ -32,10 +34,12 @@ class BuildMunicipalRoadLayersUseCase:
         boundaries: MunicipalBoundaryPort,
         roads: RoadSegmentPort,
         clipper: LineClippingPort,
+        surface: RoadSurface = "unpaved",
     ) -> None:
         self._boundaries = boundaries
         self._roads = roads
         self._clipper = clipper
+        self._surface: RoadSurface = surface
 
     def execute(self, ine_codes: Sequence[str]) -> MunicipalRoadLayerBatch:
         boundaries = self._boundaries.get_municipal_boundaries(ine_codes)
@@ -60,9 +64,14 @@ class BuildMunicipalRoadLayersUseCase:
                 f"el límite de {boundary.ine_code} está en EPSG:{boundary.geometry.srid}, "
                 f"se esperaba EPSG:{_SRID}"
             )
-        result = self._roads.query_unpaved_roads(boundary.geometry, BBOX_MARGIN_M)
+        result = self._roads.query_roads(boundary.geometry, BBOX_MARGIN_M, self._surface)
         pieces: list[ClippedRoadSegment] = []
         for segment in result.segments:
+            if segment.surface_category != self._surface:
+                raise ValueError(
+                    f"el tramo {segment.segment_id} tiene superficie "
+                    f"{segment.surface_category!r}, se esperaba {self._surface!r}"
+                )
             if segment.geometry.srid != _SRID:
                 raise ValueError(
                     f"el tramo {segment.segment_id} está en EPSG:{segment.geometry.srid}, "
@@ -83,5 +92,8 @@ class BuildMunicipalRoadLayersUseCase:
             )
         pieces.sort(key=lambda p: p.source.segment_id)
         return MunicipalRoadLayer(
-            municipality=boundary, segments=tuple(pieces), provenance=result.provenance
+            municipality=boundary,
+            segments=tuple(pieces),
+            provenance=result.provenance,
+            surface=self._surface,
         )

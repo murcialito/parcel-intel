@@ -80,6 +80,8 @@ def test_data_date_con_fecha_se_acepta() -> None:
         ({"data_date": datetime(2026, 1, 1, 12, 0)}, "data_date"),
         ({"data_date": "2026-01-01"}, "data_date"),
         ({"provenance": "idem"}, "provenance"),
+        ({"counterpart_only": 1}, "counterpart_only"),
+        ({"counterpart_only": "true"}, "counterpart_only"),
         ({"geometry": LineGeometry(points=((0.0, 0.0), (1.0, 1.0)), srid=METRIC_SRID)}, "geometry"),
         ({"geometry": MultiLineGeometry(lines=(), srid=4326)}, "geometry.srid"),
         (
@@ -102,6 +104,11 @@ def test_geometria_con_partes_de_un_solo_punto_se_acepta() -> None:
     trail = _trail(geometry=MultiLineGeometry(lines=(((1.0, 1.0),),), srid=METRIC_SRID))
 
     assert trail.geometry == MultiLineGeometry(lines=(((1.0, 1.0),),), srid=METRIC_SRID)
+
+
+def test_counterpart_only_es_false_por_defecto_y_se_puede_marcar() -> None:
+    assert _trail().counterpart_only is False
+    assert dataclasses.replace(_trail(), counterpart_only=True).counterpart_only is True
 
 
 def test_replace_con_campo_invalido_vuelve_a_validar() -> None:

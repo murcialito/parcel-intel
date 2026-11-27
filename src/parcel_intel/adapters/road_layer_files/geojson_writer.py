@@ -1,4 +1,6 @@
-"""Escritor del fichero estático de la capa de camino actual (historia #27).
+"""Escritor del fichero estático de la capa de camino actual (historia #27) y de la
+red asfaltada (historia #183): el mismo formato, con `superficie` en la colección y
+en cada feature; el composition root da un directorio por superficie.
 
 Formato común de capa derivada fijado por la historia #15 (ADR 0030): una
 `FeatureCollection` en EPSG:25830 con `fuente`, `municipio` y `procedencia` en la
@@ -46,6 +48,7 @@ def _feature(piece: ClippedRoadSegment) -> dict[str, object]:
             "longitud_m": round(piece.length_m, 2),
             "parte_del_tramo": round(piece.share_of_source, 4),
             "procedencia": provenance_properties(source.provenance),
+            "superficie": source.surface_category,
         },
     }
 
@@ -62,6 +65,7 @@ def layer_to_geojson_text(layer: MunicipalRoadLayer) -> str:
             "procedencia_limite": provenance_properties(layer.municipality.provenance),
             "atribucion": layer.attribution,
             "aviso": layer.notice,
+            "superficie": layer.surface,
         },
         "features": [_feature(piece) for piece in layer.segments],
     }

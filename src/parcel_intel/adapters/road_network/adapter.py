@@ -18,7 +18,12 @@ from parcel_intel.adapters.road_network.parsing import (
 )
 from parcel_intel.domain.geometry import Geometry, LineGeometry, bbox_with_margin
 from parcel_intel.domain.provenance import Provenance, Redistribution
-from parcel_intel.domain.road_segment import RoadQueryResult, RoadSegment
+from parcel_intel.domain.road_segment import (
+    ROAD_SURFACES,
+    RoadQueryResult,
+    RoadSegment,
+    RoadSurface,
+)
 from parcel_intel.ports.errors import RoadNetworkError
 
 DEFAULT_MARGIN_M = 2.0
@@ -26,7 +31,8 @@ DEFAULT_MARGIN_M = 2.0
 negocio (mismo criterio que `adapters/hydrography`). Quien consulte con un
 entorno mayor pasa su propio `margin_m`."""
 
-UNPAVED = "unpaved"
+UNPAVED: RoadSurface = "unpaved"
+PAVED: RoadSurface = "paved"
 SOURCE = "ign-roadlink"
 LICENSE = (
     "CC BY 4.0 — «Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional» "
@@ -57,7 +63,8 @@ class RoadNetworkAdapter:
     """Implementa `RoadSegmentPort` contra la colección `roadlink` de IDEE
     (OGC API Features).
 
-    Pide solo los tramos `surfacecategory='unpaved'` (filtro del servidor) y
+    Pide solo los tramos de una superficie (`surfacecategory='unpaved'` o
+    `'paved'`, filtro del servidor, comprobado otra vez en el cliente) y
     pagina con `offset` hasta tener todos los que declara `numberMatched`: un
     término municipal entero trae miles de tramos asfaltados y una sola página
     de 500 dejaría fuera caminos sin avisar (historia #27). Sin `fetcher` hace
@@ -85,6 +92,15 @@ class RoadNetworkAdapter:
         return list(self.query_unpaved_roads(geometry, margin_m).segments)
 
     def query_unpaved_roads(self, geometry: Geometry, margin_m: float) -> RoadQueryResult:
+        return self.query_roads(geometry, margin_m, UNPAVED)
+
+    def query_roads(
+        self, geometry: Geometry, margin_m: float, surface: RoadSurface
+    ) -> RoadQueryResult:
+        """Con `surface="unpaved"` los parámetros son idénticos a los de #27, así
+        que la clave de la caché cruda no cambia (historia #183)."""
+        if surface not in ROAD_SURFACES:
+            raise ValueError(f"superficie no reconocida: {surface!r}")
         minx, miny, maxx, maxy = bbox_with_margin(geometry, margin_m)
         crs_uri = _crs_uri(geometry.srid)
         params = {
@@ -92,7 +108,7 @@ class RoadNetworkAdapter:
             "bbox": f"{minx},{miny},{maxx},{maxy}",
             "bbox-crs": crs_uri,
             "crs": crs_uri,
-            "filter": f"surfacecategory='{UNPAVED}'",
+            "filter": f"surfacecategory='{surface}'",
             "limit": str(_LIMIT),
         }
         raw_segments: list[RawRoadSegment] = []
@@ -137,6 +153,6 @@ class RoadNetworkAdapter:
                 provenance=provenance,
             )
             for raw in raw_segments
-            if raw["surface_category"] == UNPAVED
+            if raw["surface_category"] == surface  # se comprueba de nuevo en el cliente
         )
         return RoadQueryResult(segments=segments, provenance=provenance)
