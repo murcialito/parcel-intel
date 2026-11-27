@@ -458,6 +458,31 @@ Verificado el 2026-11-26. Las 7 respuestas reales de IDEM por bbox del término 
 - **Guarda de truncado**: cada respuesta de IDEM trae `numberMatched`; si no coincide con las features parseadas, el adapter lanza `IncompleteWfsResponseError` y no cachea. Las 7 respuestas reales cumplen la guarda (CA5 de #36, integración).
 - **Licencia**: `CC BY 4.0 Comunidad de Madrid`, leída de `AccessConstraints` (sección anterior); el adapter ya la rellena en `Provenance.license`.
 
+## Montes de utilidad pública — IDEM, Comunidad de Madrid (`Zonas:IDEM_MA_MONTES_UP`, historia #220)
+
+Verificado el 2026-11-27 (peticiones reales; fixtures en `tests/fixtures/public_utility_forests/`).
+
+- **Servicio**: mismo GeoServer y workspace que las vías pecuarias, WFS 2.0.0 en `https://idem.comunidad.madrid/geoidem/Zonas/wfs`, capa `Zonas:IDEM_MA_MONTES_UP`, EPSG:25830. 208 elementos en toda la Comunidad.
+- **Esquema** (`DescribeFeatureType`, `wfs_describefeaturetype_montes_up.xml`): `CD_UP` (decimal), `DS_ELENCO`, `DS_NOMBRE`, `DS_MUNICIPIO`, `CD_COMARCA`, `DS_PROPIETARIO`, `DS_NOM_PROPIETARIO`, `DS_GESTION`, `CD_ANNO_INCOR_CAT`, `DS_DESLINDE`, `FC_APROB_DESLINDE`, `DS_AMOJONAMIENTO`, `FC_APROB_AMOJONA`, `NM_SUPERF_CATALOGO`, `GEOMETRY1`.
+- **Titularidad**: la capa publica `DS_PROPIETARIO` y `DS_NOM_PROPIETARIO`. El parser lee solo `CD_UP`, `DS_NOMBRE`, `DS_MUNICIPIO` y la geometría (lista blanca); esos dos campos no entran en el dominio ni en ningún fichero. En las fixtures, sus valores reales están sustituidos por «PROPIETARIO FICTICIO» y «TITULAR FICTICIO».
+- **Licencia**: `CC BY 4.0 Comunidad de Madrid`, `AccessConstraints` del workspace `Zonas` (mismo texto que vías pecuarias; el proveedor no publica un documento aparte). El test de integración de #220 la vuelve a leer del `GetCapabilities`.
+- **Cobertura del ámbito** (bbox de cada término, margen 2 m; `numberMatched` y piezas tras recortar con el límite del IGN):
+
+| INE | Municipio | `numberMatched` | Piezas tras recortar |
+| --- | --- | --- | --- |
+| 28043 | Colmenar de Oreja | 0 | 0 |
+| 28013 | Aranjuez | 1 | 1 (`208` Soto de las Cuevas) |
+| 28052 | Chinchón | 1 | 1 (`184`, 122 m²: astilla de borde) |
+| 28019 | Belmonte de Tajo | 2 | 1 (`182`, 1 920 m²: astilla de borde) |
+| 28170 | Villaconejos | 0 | 0 |
+| 28180 | Villarejo de Salvanés | 1 | 0 |
+| 28157 | Valdelaguna | 2 | 2 (`182` y `184`, multiparte) |
+
+- **Colmenar de Oreja no tiene ningún monte**: la capa sale vacía y es un resultado válido («sin montes»).
+- **Astillas**: dos piezas (Chinchón, Belmonte) son diferencia entre la línea municipal de IDEM y la del IGN. No se filtran (como en vías pecuarias, ADR 0032).
+- **Anillos interiores**: las respuestas de Valdelaguna traen `gml:interior` (21 contra 28 `gml:exterior`). El parser solo lee `gml:exterior` (ADR 0011): el área de la pieza puede sobrestimar el monte si hay claros dentro. Pendiente si algún día se publica el área.
+- **No usado**: el catálogo nacional de MITECO; la capa autonómica es de la misma administración, ya en EPSG:25830 y con licencia leída.
+
 ## Red Natura 2000 y espacios protegidos — IDEM, Comunidad de Madrid (Planes de Gestión)
 
 Verificado en profundidad el 2026-10-16, para la historia 0015, a partir de un hallazgo de pasada de la historia 0014 (`Zonas:IDEM_MA_RED_NATURA_PLAN`, mismo workspace `Zonas` del GeoServer de IDEM ya usado para vías pecuarias) — nunca dado por bueno solo por el nombre de la capa, verificado con el mismo rigor que el resto de fuentes.

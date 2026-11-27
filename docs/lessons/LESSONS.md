@@ -810,3 +810,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el `GetFeatureInfo` de `primera-edicion-mtn` devuelve la hoja de un solo punto; para saber qué hojas cubren un término hay que muestrear una rejilla dentro del límite (2,5 km bastó) y contar puntos por hoja. Una sola consulta en el centro oculta las hojas de borde (Colmenar tiene dos; Chinchón, cuatro). Los enlaces de descarga del CNIG devuelven la ficha HTML con reCAPTCHA v3, no el zip: se anota `bloqueado` y se trabaja con el render del WMS.
   - **Aplica a**: refinador, implementación (historias que inventarían la cobertura de un WMS histórico).
 
+## [2026-11-27] Historia #220 — Montes de utilidad pública (IDEM)
+
+- **Lección**: cuando una fuente pública publica campos de titularidad (aquí `DS_PROPIETARIO` y `DS_NOM_PROPIETARIO`, incluso de entes públicos), el parser lee solo una lista blanca de campos y falla si se le pide otro; no se parsea todo y se «filtra después». En la fixture se sustituyen los valores reales por unos ficticios, y un test comprueba que ni nombres ni valores llegan a ningún fichero derivado.
+  - **Aplica a**: implementación de adapters de cualquier capa con campos de propietario (otras capas de `Zonas`, Catastro) | revisión.
+
+- **Lección**: el filtro `BBOX` de una capa de recintos grandes trae montes de municipios vecinos y, al recortar con el límite del IGN, deja astillas de unos m² por la diferencia entre líneas municipales (Chinchón 122 m², Belmonte 1 920 m²). Se anotan en `REGISTRY.md` y no se filtran hasta decidir un umbral de publicación.
+  - **Aplica a**: implementación (#224 al publicar la capa).

@@ -71,6 +71,11 @@ uv run python -m parcel_intel.cli.main review reject <identifier>
 uv run python -m parcel_intel.cli.main vias-pecuarias-municipios             # descarga y cachea en data/raw
 uv run python -m parcel_intel.cli.main vias-pecuarias-municipios --sin-red   # solo desde la caché
 
+# Capa de montes de utilidad pública por municipio (historia #220): IDEM `Zonas:IDEM_MA_MONTES_UP`, recorte con los límites del IGN, en
+# data/derived/montes_utilidad_publica/<ine>.geojson con procedencia. Nunca lee ni escribe los campos de titularidad (lista blanca). Un municipio sin montes
+# (Colmenar de Oreja) sale «sin montes» y no es fallo. Sin --municipio ni --ambito, el ámbito. Todo o nada: sale con 1 si falta algo en la caché o un límite.
+uv run python -m parcel_intel.cli.main montes-utilidad-publica-municipios [--municipio 28013 ...] [--ambito] [--sin-red] [--cache data/raw] [--salida data/derived/montes_utilidad_publica]
+
 # Capa de camino actual (red del IGN sin asfaltar) por municipio, en data/derived/camino_actual/<ine>.geojson (historia #27)
 uv run python -m parcel_intel.cli.main camino-actual-municipios              # descarga y cachea en data/raw
 uv run python -m parcel_intel.cli.main camino-actual-municipios --sin-red    # solo desde la caché
