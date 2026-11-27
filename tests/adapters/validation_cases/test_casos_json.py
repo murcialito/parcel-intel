@@ -13,9 +13,9 @@ from parcel_intel.adapters.validation_cases.casos_json import (
     MUNICIPALITY_INE,
     parse_validation_cases,
 )
+from parcel_intel.adapters.validation_cases.casos_schema import MUNICIPIOS_HITO, validar_casos
 from parcel_intel.cli.main import AMBITO_HITO_INE
 from parcel_intel.domain.geometry import LineGeometry
-from tests.validacion.casos_schema import MUNICIPIOS_HITO, validar_casos
 
 REPO = Path(__file__).resolve().parents[3]
 CASOS_JSON = REPO / "docs" / "validacion" / "casos.json"
