@@ -135,8 +135,19 @@ Mapa base del visor estático (`site/config.js`, ADR 0037). Verificado por el ar
   - fila «Ortofotos PNOA anuales», producto `PNOA`, fecha `2023` → `PNOA 2023 CC-BY 4.0 scne.es` (vuelo de julio de 2023 en el ámbito: `GetFeatureInfo` de `OI.MosaicElement` en Colmenar `467400,4441800,467800,4442200` EPSG:25830 → «Fecha 2023-07», repetido el 2026-11-26);
   - fila «MosaicoSentinel2», fecha `2018-2026` → `MosaicoSentinel2 2018-2026 CC-BY 4.0 ign.es`.
   Las teselas se muestran sin transformar, así que va la forma sin «Obra derivada de». El visor muestra las dos siempre.
-- **IGN-Base** (`https://www.ign.es/wmts/ign-base`): responde con `CC BY 4.0 scne.es`, pero no se usa (atribución de producto sin verificar; el fundador pidió la ortofoto). Queda como alternativa.
+- **IGN-Base** (`https://www.ign.es/wmts/ign-base`): desde la historia #185 se usa su capa `IGNBase-gris` como fondo cartográfico del visor (ver la sección siguiente). La ortofoto sigue siendo el otro fondo.
 - **Caducidad del año:** la tabla del SCNE ya lista un vuelo PNOA 2024 con la Comunidad de Madrid entre los organismos, pero el servicio sigue sirviendo 2023-07 en Colmenar. Cuando cambie, el criterio `[integración]` CA10 de `tests/acceptance/test_historia_85.py` falla y hay que actualizar `NOTICE`, este registro y `site/config.js` juntos.
+
+### WMTS IGN-Base gris (visor, historia #185, ADR 0051) — `confirmado`
+
+Fondo cartográfico del visor para la vista de España y alternativa a la ortofoto. Verificado el 2026-11-27 con peticiones reales (`User-Agent: paso-comun-verificacion/0.1`).
+
+- **Servicio:** WMTS 1.0.0 `https://www.ign.es/wmts/ign-base`, capa `IGNBase-gris` (título «Callejero gris»), estilo `default`, `GoogleMapsCompatible`, solo `image/jpeg`, niveles 0-20. Solo KVP. Plantilla: `https://www.ign.es/wmts/ign-base?service=WMTS&request=GetTile&version=1.0.0&layer=IGNBase-gris&style=default&tilematrixset=GoogleMapsCompatible&format=image/jpeg&tilematrix={z}&tilerow={y}&tilecol={x}`.
+- **Peticiones reales:** `GetCapabilities` → 200, 150.325 bytes (fixture `tests/fixtures/ign_base/wmts_ign_base_getcapabilities.xml`; capas `IGNBase-gris`, `IGNBaseTodo`, `IGNBaseTodo-nofondo`, `IGNBaseOrto`, `IGNBaseSimplificado`). `GetTile` z=6 fila 24 col 31 (centro y sureste peninsular) → `200 image/jpeg`, 9.460 bytes (fixture `tests/fixtures/ign_base/wmts_ignbase_gris_z6.jpg`, no se publica en `site/`). z=15 sobre Colmenar → `200 image/jpeg`, 11.273 bytes; z=17 → 200. Un nombre que no existe (`IGNBaseTodo-gris`) da **400** `text/xml`, no una imagen.
+- **Cabeceras:** `access-control-allow-origin: *`, `cache-control: max-age=31536000`. Sin clave ni `Referer`.
+- **Licencia:** `ows:AccessConstraints` = `CC BY 4.0 scne.es` (`ows:Fees` = `No se aplican condiciones`, que no es la licencia, lección 0021). La licencia es la del documento del IGN (`https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf`), CC BY 4.0, con atribución visible junto a los datos.
+- **Atribución:** la tabla de productos del SCNE (`https://www.scne.es/tablaProductos.php`, leída en bruto el 2026-11-27) **no lista IGN-Base** como producto; IGN-Base combina varios productos del SCNE. El visor muestra el identificador de la capa y la atribución declarada por el servicio, sin completar el formato del SCNE: `IGNBase-gris CC BY 4.0 scne.es`. Formato «<producto> <fecha> CC-BY 4.0 scne.es»: pendiente de verificar.
+- **Conclusión:** **Publicar** (las teselas se muestran sin transformar), con esa atribución siempre visible mientras el fondo esté activo.
 
 ### Imágenes de comparación (historia #120, ADR 0042) — `confirmado`
 

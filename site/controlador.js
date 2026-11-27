@@ -49,16 +49,47 @@ export function validarIndice(json) {
   });
 }
 
-// Lista completa de atribuciones a mostrar: las del mapa base siempre, y la de cada capa
-// solo si está cargada en el mapa y activa.
+// Lista completa de atribuciones a mostrar: las del fondo activo siempre, la de la cobertura
+// si está dibujada, y la de cada capa solo si está cargada en el mapa y activa.
 export function atribucionesVisibles(config, estado) {
+  const fondo = config.fondos.find((f) => f.id === estado.fondo) ?? config.fondos[0];
   const deCapas = config.capas
     .filter((capa) => {
       const e = estado.capas[capa.id];
       return Boolean(e && e.cargada && e.visible);
     })
     .map((capa) => capa.atribucion);
-  return [...config.atribucionesBase, ...deCapas];
+  const cobertura = estado.cobertura ? [config.cobertura.atribucion] : [];
+  return [...fondo.atribuciones, ...cobertura, ...deCapas];
+}
+
+// Texto sin tildes ni mayúsculas, para buscar «chinchon» y encontrar «Chinchón».
+export function normalizar(texto) {
+  return String(texto)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+// Municipios cubiertos que casan con lo escrito: primero los que empiezan por ello, luego los
+// que lo contienen; sin texto, todos en el orden del índice.
+export function filtrarMunicipios(municipios, consulta) {
+  const q = normalizar(consulta ?? "");
+  if (q === "") return [...municipios];
+  const empiezan = [];
+  const contienen = [];
+  for (const m of municipios) {
+    const nombre = normalizar(m.nombre);
+    if (nombre.startsWith(q) || m.ine === q) empiezan.push(m);
+    else if (nombre.includes(q)) contienen.push(m);
+  }
+  return [...empiezan, ...contienen];
+}
+
+// Sustituye «{n}» en una plantilla de config.js.
+export function conNumero(plantilla, n) {
+  return String(plantilla).replaceAll("{n}", String(n));
 }
 
 // Ficha de un trazado: SOLO título y fuente de la capa y, si la capa lo define, el nombre del
@@ -232,8 +263,19 @@ export function resumenMedicion(propiedadesColeccion) {
   return { frases: [...frases], revisadoAMano: p.revisado_a_mano };
 }
 
-export function crearControlador({ mapa, cargarJson, vista, config }) {
-  const estado = { municipios: [], actual: null, peticion: 0, avisoBase: false, capas: {} };
+export function crearControlador({ mapa, cargarJson, vista, config, alCambiarEnlace }) {
+  const estado = {
+    municipios: [],
+    actual: null, // ine del municipio abierto; null = vista de España
+    peticion: 0,
+    avisoBase: false,
+    capas: {},
+    datos: {}, // id de capa -> GeoJSON cargado del municipio actual
+    seleccion: null, // { capaId, id }
+    fondo: config.fondoInicial,
+    fondoElegido: false, // la persona eligió fondo: ya no se cambia solo
+    cobertura: false,
+  };
   for (const capa of config.capas) {
     estado.capas[capa.id] = { cargada: false, visible: capa.visibleInicial ?? true };
   }
@@ -242,42 +284,136 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
   const esCandidato = (capa) => capa.tipo === "candidato";
   const estadoVacio = (capa) =>
     esCandidato(capa) ? "sin_candidatos" : esIndicio(capa) ? "sin_indicios" : "vacia";
+  const capaPorId = (id) => config.capas.find((c) => c.id === id);
 
   function actualizarAtribuciones() {
     mapa.ponerAtribuciones(atribucionesVisibles(config, estado));
   }
 
+  function avisarEnlace() {
+    if (typeof alCambiarEnlace !== "function") return;
+    const tramo =
+      estado.seleccion && esIndicio(capaPorId(estado.seleccion.capaId)) ? estado.seleccion.id : null;
+    alCambiarEnlace({ municipio: estado.actual, tramo });
+  }
+
+  function ponerFondo(id, porPersona = false) {
+    if (!config.fondos.some((f) => f.id === id)) return;
+    if (porPersona) estado.fondoElegido = true;
+    estado.fondo = id;
+    mapa.ponerFondo(id);
+    vista.ponerFondo?.(id);
+    actualizarAtribuciones();
+  }
+
   async function cargarCapa(capa, ruta) {
     const json = await cargarJson(config.datos + ruta);
     if (!esFeatureCollection(json)) throw new Error("no es un FeatureCollection");
-    // Sin medición no se enseña ningún tramo: la capa va a error (CA4).
+    // Sin medición no se enseña ningún tramo: la capa va a error (CA4 de #171).
     const resumen = esCandidato(capa) ? resumenMedicion(json.properties) : null;
     return { json, resumen };
   }
 
-  // Ficha de un tramo o indicio; los tramos llevan además sus imágenes de comparación (#178).
-  function fichaDeCapa(capa, json) {
-    const notas = esCandidato(capa) ? notasComparacion(json.properties) : null;
-    return (propiedades) => {
-      const comparacion = esCandidato(capa) ? fichaComparacion(propiedades, notas, config) : null;
-      return vista.nodoFichaIndicio(fichaIndicio(propiedades, config), comparacion);
+  // Modelo de la ficha de un trazado, para el panel (historia #185). Los indicios y tramos
+  // llevan la ficha de #94/#169 y los tramos además sus imágenes de comparación (#178).
+  function modeloFicha(capa, json, propiedades, id) {
+    if (esIndicio(capa)) {
+      const notas = esCandidato(capa) ? notasComparacion(json?.properties) : null;
+      return {
+        tipo: capa.tipo,
+        capaId: capa.id,
+        id,
+        nombreCapa: capa.nombre ?? capa.titulo,
+        ficha: fichaIndicio(propiedades, config),
+        comparacion: esCandidato(capa) ? fichaComparacion(propiedades, notas, config) : null,
+      };
+    }
+    return {
+      tipo: "trazado",
+      capaId: capa.id,
+      id,
+      nombreCapa: capa.nombre ?? capa.titulo,
+      ficha: fichaDe(capa, propiedades),
+      atribucion: capa.atribucion,
     };
   }
 
-  async function elegirMunicipio(ine) {
-    const municipio = estado.municipios.find((m) => m.ine === ine);
-    if (!municipio) return;
-    const peticion = ++estado.peticion;
-    estado.actual = municipio.ine;
-    vista.limpiarMensaje();
-    vista.seleccionarMunicipio(municipio.ine);
+  function abrirFicha(capa, propiedades, id) {
+    estado.seleccion = { capaId: capa.id, id };
+    vista.abrirFicha(modeloFicha(capa, estado.datos[capa.id], propiedades, id));
+    avisarEnlace();
+  }
+
+  function cerrarFicha() {
+    if (estado.seleccion === null) return;
+    estado.seleccion = null;
+    mapa.deseleccionar();
+    vista.cerrarFicha();
+    avisarEnlace();
+  }
+
+  function quitarCapasDelMunicipio() {
     for (const capa of config.capas) {
       mapa.quitarCapa(capa.id);
       estado.capas[capa.id].cargada = false;
+      delete estado.datos[capa.id];
       if (esCandidato(capa)) vista.ponerResumenCapa(capa.id, null);
+      vista.ponerRecuentoCapa?.(capa.id, null);
     }
+  }
+
+  function verEspana() {
+    ++estado.peticion; // anula cargas en curso
+    if (estado.seleccion !== null) {
+      estado.seleccion = null;
+      vista.cerrarFicha();
+    }
+    estado.actual = null;
+    vista.limpiarMensaje();
+    quitarCapasDelMunicipio();
+    for (const capa of config.capas) vista.ponerEstadoCapa(capa.id, "sin_municipio");
+    vista.seleccionarMunicipio(null);
+    mapa.resaltarMunicipio?.(null);
+    if (!estado.fondoElegido) ponerFondo(config.fondoInicial);
+    actualizarAtribuciones();
+    mapa.encuadrar(config.espana);
+    avisarEnlace();
+  }
+
+  // Encuadra los municipios cubiertos sin abrir ninguno (etiqueta del primer hito).
+  function verHito() {
+    if (estado.municipios.length === 0) return;
+    const cajas = estado.municipios.map((m) => m.bbox);
+    mapa.encuadrar([
+      Math.min(...cajas.map((b) => b[0])),
+      Math.min(...cajas.map((b) => b[1])),
+      Math.max(...cajas.map((b) => b[2])),
+      Math.max(...cajas.map((b) => b[3])),
+    ]);
+  }
+
+  // `tramo`: id de un indicio o tramo a verificar que abrir al terminar de cargar (enlace).
+  async function elegirMunicipio(ine, { tramo = null } = {}) {
+    const municipio = estado.municipios.find((m) => m.ine === ine);
+    if (!municipio) return;
+    if (estado.actual === municipio.ine && tramo === null) {
+      cerrarFicha();
+      return;
+    }
+    const peticion = ++estado.peticion;
+    if (estado.seleccion !== null) {
+      estado.seleccion = null;
+      vista.cerrarFicha();
+    }
+    estado.actual = municipio.ine;
+    vista.limpiarMensaje();
+    vista.seleccionarMunicipio(municipio.ine, municipio.nombre);
+    mapa.resaltarMunicipio?.(municipio.ine);
+    quitarCapasDelMunicipio();
+    if (!estado.fondoElegido) ponerFondo(config.fondoMunicipio);
     actualizarAtribuciones();
     mapa.encuadrar(municipio.bbox);
+    avisarEnlace();
 
     const pendientes = config.capas.filter((capa) => capa.id in municipio.capas);
     for (const capa of config.capas) {
@@ -298,29 +434,55 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
         return;
       }
       const { json: geojson, resumen } = resultado.value;
-      // Cero tramos: el mismo estado vacío y sin resumen (CA6); no hay nada que dibujar.
+      // Cero tramos: el mismo estado vacío y sin resumen (CA6 de #171); nada que dibujar.
       if (esCandidato(capa) && geojson.features.length === 0) {
         vista.ponerEstadoCapa(capa.id, estadoVacio(capa));
         return;
       }
+      estado.datos[capa.id] = geojson;
       mapa.anadirCapa(capa.id, geojson, {
         ...opcionesDeEstilo(capa),
         orden: capa.orden,
-        alPulsar: esIndicio(capa)
-          ? fichaDeCapa(capa, geojson)
-          :(propiedades) => vista.nodoFicha(fichaDe(capa, propiedades)),
+        alPulsar: (propiedades, id) => abrirFicha(capa, propiedades, id),
       });
       mapa.mostrarCapa(capa.id, estado.capas[capa.id].visible);
       estado.capas[capa.id].cargada = true;
       vista.ponerEstadoCapa(capa.id, geojson.features.length === 0 ? estadoVacio(capa) : "ok");
+      vista.ponerRecuentoCapa?.(capa.id, geojson.features.length);
       if (resumen) vista.ponerResumenCapa(capa.id, resumen);
     });
     if (errores.length > 0) vista.mostrarMensaje(errores.join(" "));
     actualizarAtribuciones();
+    if (tramo !== null) abrirTramo(tramo);
   }
 
-  async function iniciar() {
-    mapa.ponerAtribuciones([...config.atribucionesBase]);
+  // Abre por id un indicio o tramo del municipio actual; enciende su capa si estaba apagada.
+  function abrirTramo(id) {
+    for (const capa of config.capas.filter(esIndicio)) {
+      const json = estado.datos[capa.id];
+      const feature = json?.features.find((f) => String(f.id) === String(id));
+      if (!feature) continue;
+      if (!estado.capas[capa.id].visible) {
+        cambiarCapa(capa.id, true);
+        vista.marcarCapa?.(capa.id, true);
+      }
+      mapa.seleccionar(capa.id, String(id));
+      // Primero la ficha: así el encuadre ya cuenta con el panel o la hoja que ocupa.
+      abrirFicha(capa, feature.properties ?? {}, String(id));
+      mapa.encuadrarRasgo?.(capa.id, String(id));
+      return true;
+    }
+    vista.mostrarMensaje(config.textos.tramoNoPublicado);
+    avisarEnlace();
+    return false;
+  }
+
+  function acercarSeleccion() {
+    if (estado.seleccion) mapa.encuadrarRasgo?.(estado.seleccion.capaId, estado.seleccion.id);
+  }
+
+  async function iniciar({ municipio = null, tramo = null } = {}) {
+    actualizarAtribuciones();
     let municipios;
     try {
       municipios = validarIndice(await cargarJson(config.indice));
@@ -330,7 +492,34 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
     }
     estado.municipios = municipios;
     vista.ponerMunicipios(municipios.map((m) => ({ ine: m.ine, nombre: m.nombre })));
-    if (municipios.length > 0) await elegirMunicipio(municipios[0].ine);
+    vista.ponerResumenCobertura?.(conNumero(config.textos.resumenCobertura, municipios.length));
+    await cargarCobertura();
+    if (municipio !== null && municipios.some((m) => m.ine === municipio)) {
+      await elegirMunicipio(municipio, { tramo });
+    } else {
+      verEspana();
+    }
+  }
+
+  async function cargarCobertura() {
+    let json;
+    try {
+      json = await cargarJson(config.cobertura.ruta);
+      if (!esFeatureCollection(json)) throw new Error("no es un FeatureCollection");
+    } catch {
+      vista.mostrarAvisoBase(config.textos.errorCobertura);
+      return;
+    }
+    mapa.ponerCobertura?.(json, {
+      etiqueta: vista.nodoEtiquetaHito?.(
+        conNumero(config.textos.etiquetaHito, estado.municipios.length),
+      ),
+      zoomEtiqueta: config.cobertura.zoomEtiqueta,
+      alPulsarMunicipio: (ine) => elegirMunicipio(ine),
+      alPulsarEtiqueta: verHito,
+    });
+    estado.cobertura = true;
+    actualizarAtribuciones();
   }
 
   function cambiarCapa(id, visible) {
@@ -338,7 +527,12 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
     if (!e) return;
     e.visible = Boolean(visible);
     if (e.cargada) mapa.mostrarCapa(id, e.visible);
+    if (!e.visible && estado.seleccion?.capaId === id) cerrarFicha();
     actualizarAtribuciones();
+  }
+
+  function buscar(texto) {
+    return filtrarMunicipios(estado.municipios, texto).map((m) => ({ ine: m.ine, nombre: m.nombre }));
   }
 
   function falloTesela() {
@@ -347,5 +541,17 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
     vista.mostrarAvisoBase(config.textos.mapaBaseNoDisponible);
   }
 
-  return { iniciar, elegirMunicipio, cambiarCapa, falloTesela, estado };
+  return {
+    iniciar,
+    elegirMunicipio,
+    verEspana,
+    verHito,
+    cambiarCapa,
+    cambiarFondo: (id) => ponerFondo(id, true),
+    cerrarFicha,
+    acercarSeleccion,
+    buscar,
+    falloTesela,
+    estado,
+  };
 }

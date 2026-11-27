@@ -759,3 +759,18 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: el documento falso de los tests del visor solo conoce lo que ya se usaba; un widget con eventos o SVG exige ampliarlo (`createElementNS`, `addEventListener`, `getAttribute`) en el mismo cambio, y la fixture con el campo nuevo se genera a partir de la anterior para no divergir de su forma.
   - **Aplica a**: implementación (tests de `tests/site/`).
+
+## [2026-11-27] Historia #185 — Rediseño del visor
+
+- **Lección**: un nombre de capa que viene de un texto validado (aquí «Tramos a verificar (no son un dictamen)», `CANDIDATE_LAYER_NAME` de #169) no se acorta en la interfaz aunque el diseño lo pida: el test de #171 exige el literal en `index.html`. Se acortan solo los rótulos que no son texto validado (vías pecuarias, camino actual) y la salvedad se mantiene. Antes de cambiar un rótulo, `grep` del literal en `src/parcel_intel/domain/` y en `tests/acceptance/`.
+  - **Aplica a**: diseño e implementación (rótulos del visor).
+
+- **Lección**: al añadir una petición al arranque del visor (aquí `datos/cobertura.geojson`), los tests de carrera que sueltan las cargas «a mano» se cuelgan o se vuelven frágiles: la promesa nueva también queda en espera. Se resuelve al momento lo que no es objeto del test (índice, cobertura) y se espera a la condición (`esperas.length === 2`) en lugar de a un número fijo de vueltas del bucle.
+  - **Aplica a**: tests de `tests/site/visor.test.mjs`.
+
+- **Lección**: el Leaflet falso de los tests solo conoce lo que se usaba (`geoJSON` sobre colecciones, sin `setStyle` en grupos, sin `marker`); un `L.geoJSON` sobre un `Feature` suelto o un `setStyle` de grupo rompen en el doble y no en el navegador. Se amplía el doble en el mismo cambio y se comprueba el resultado en un navegador real (`preview_start` con la configuración `visor` de `.claude/launch.json`, o `scripts/capturar_visor.mjs`).
+  - **Aplica a**: implementación (cambios de `mapa.js`).
+
+- **Lección**: una captura de una fixture sintética sobre el mapa real (un tramo inventado con texto de indicio en un punto de Colmenar) parece un hallazgo real. Esas capturas se enseñan en local y no se suben a `docs/`.
+  - **Aplica a**: diseño (capturas de la PR).
+

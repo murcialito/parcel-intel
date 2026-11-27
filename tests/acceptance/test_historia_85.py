@@ -33,6 +33,8 @@ PNOA_FIXTURES = ROOT / "tests" / "fixtures" / "pnoa"
 VENDOR = SITE / "vendor"
 
 WMTS_PERMITIDO = "https://www.ign.es/wmts/pnoa-ma"
+# Historia #185 (ADR 0051): segundo fondo, el mapa gris de IGN-Base (REGISTRY.md).
+WMTS_IGN_BASE = "https://www.ign.es/wmts/ign-base"
 USER_AGENT = "parcel-intel-verificacion/0.1"
 LEAFLET_SHA1 = "23fae724e282fa25745aff82ca4d394748db7d8d"
 
@@ -94,20 +96,27 @@ def _sitio_construido(tmp_path: Path) -> Path:
 
 
 def _literales_config() -> tuple[list[str], list[str]]:
-    """(atribuciones de capa, atribuciones base) tal como están escritas en config.js."""
+    """(atribuciones de capa, atribuciones base) tal como están escritas en config.js.
+
+    Desde #185 la base son las atribuciones de los fondos (`atribuciones` de cada fondo: la
+    ortofoto primero si se buscan las del PNOA) y las de capa incluyen la de la cobertura."""
     texto = (SITE / "config.js").read_text(encoding="utf-8")
     capas = re.findall(r'\batribucion:\s*"([^"]+)"', texto)
-    bloque = re.search(r"atribucionesBase:\s*Object\.freeze\(\[(.*?)\]\)", texto, re.DOTALL)
-    assert bloque is not None, "config.js sin atribucionesBase"
-    base = re.findall(r'"([^"]+)"', bloque.group(1))
+    bloques = re.findall(r"atribuciones:\s*Object\.freeze\(\[(.*?)\]\)", texto, re.DOTALL)
+    assert bloques, "config.js sin atribuciones de los fondos"
+    base = [t for b in bloques for t in re.findall(r'"([^"]+)"', b)]
+    # La ortofoto (PNOA) va primero: CA10 [integración] compara su año.
+    base.sort(key=lambda t: not t.startswith("PNOA "))
     return capas, base
 
 
 def _url_teselas() -> str:
+    """URL del fondo de ortofoto PNOA (el del mapa base de #85)."""
     texto = (SITE / "config.js").read_text(encoding="utf-8")
-    match = re.search(r'\burl:\s*"([^"]+)"', texto)
-    assert match is not None
-    return match.group(1)
+    urls = re.findall(r'\burl:\s*"([^"]+)"', texto)
+    pnoa: list[str] = [u for u in urls if u.startswith(WMTS_PERMITIDO + "?")]
+    assert len(pnoa) == 1, urls
+    return pnoa[0]
 
 
 def _aviso_vias_pecuarias_notice() -> str:
@@ -209,11 +218,13 @@ def test_ca1_recursos_locales_y_solo_teselas_ign_como_host_externo(tmp_path: Pat
         for url in re.findall(r"""(?:[a-z]+:)?//[^\s"'`)]+""", texto, re.IGNORECASE):
             if url.startswith("//"):
                 continue  # comentario de línea
-            assert url.startswith(WMTS_PERMITIDO), f"{modulo.name}: {url}"
+            assert url.startswith((WMTS_PERMITIDO, WMTS_IGN_BASE)), f"{modulo.name}: {url}"
     # Historia #165: mapa.js y app.js importan además estilos-capas.js (módulo puro).
+    # Historia #185: app.js importa además enlace.js (estado en la URL, módulo puro).
     assert importados == {
         "config.js",
         "controlador.js",
+        "enlace.js",
         "estilos-capas.js",
         "mapa.js",
         "vista.js",
@@ -224,8 +235,11 @@ def test_ca2_selector_con_los_municipios_del_indice_y_encuadre(tmp_path: Path) -
     """CA2. Dado `site/datos/indice.json` con uno o varios municipios cuando se carga la página
     entonces hay un selector de municipio con exactamente los municipios del índice, en el orden
     del índice, y al elegir uno el mapa encuadra su `bbox`."""
-    selects = [a for t, a in _html().tags if t == "select"]
-    assert [a.get("id") for a in selects] == ["municipio"]
+    # Historia #185: el selector es un buscador accesible (combobox) con las sugerencias del
+    # índice, en su orden; un solo control para elegir municipio.
+    combos = [a for t, a in _html().tags if a.get("role") == "combobox"]
+    assert [a.get("id") for a in combos] == ["buscar"]
+    assert combos[0].get("aria-controls") == "sugerencias"
     # El índice real que publica #84 cumple la forma que valida el visor.
     indice = json.loads((SITE / "datos" / "indice.json").read_text(encoding="utf-8"))
     assert indice["municipios"], "el índice publicado no tiene municipios"
@@ -260,8 +274,8 @@ def test_ca4_atribuciones_literales_de_notice_y_visibles_con_su_capa(tmp_path: P
     registry = REGISTRY.read_text(encoding="utf-8")
     capas, base = _literales_config()
     # Cuatro capas desde #171 (vías pecuarias, camino actual, indicios de discrepancia y tramos a
-    # verificar).
-    assert len(capas) == 4 and len(base) == 2, (capas, base)
+    # verificar) y, desde #185, la cobertura; la base son los dos fondos (gris y ortofoto).
+    assert len(capas) == 5 and len(base) == 3, (capas, base)
     for texto in capas + base:
         assert f"`{texto}`" in notice, f"no consta literalmente en NOTICE: {texto}"
     for texto in base:
@@ -298,8 +312,9 @@ def test_ca5_aviso_de_vias_pecuarias_e_indicios_en_html_estatico() -> None:
     assert aviso in texto
     assert "indicios a verificar" in texto
     # No depende de ningún estado: no está en ningún elemento que el JS reescriba.
-    reescritos = {"mensaje", "aviso-base", "municipio", "estado-vias_pecuarias",
-                  "estado-camino_actual", "estado-discrepancias", "mapa"}
+    # #185: el selector pasa a buscador y la ficha a un panel; ninguno lleva el aviso.
+    reescritos = {"mensaje", "aviso-base", "sugerencias", "ambito-nombre", "ficha-cuerpo",
+                  "estado-vias_pecuarias", "estado-camino_actual", "estado-discrepancias", "mapa"}
     html = (SITE / "index.html").read_text(encoding="utf-8")
     for ident in reescritos:
         bloque = re.search(rf'<[^>]*id="{ident}"[^>]*>(.*?)</', html, re.DOTALL)
@@ -376,6 +391,8 @@ def _comprobar_datos(datos: Path) -> None:
         except ValueError:
             continue  # el JSON roto sintético de CA9
         permitidas = _INDICIO_PROPS if geojson.parent.name == "discrepancias" else _FEATURE_PROPS
+        if geojson.name == "cobertura.geojson":
+            permitidas = {"ine", "nombre"}  # historia #185: contorno de cada municipio cubierto
         for feature in coleccion["features"]:
             assert set(feature["properties"]) <= permitidas, geojson
         for clave in re.findall(r'"([^"]+)"\s*:', geojson.read_text(encoding="utf-8")):
@@ -579,18 +596,30 @@ def test_ca15_accesibilidad_de_index_html() -> None:
     raiz = [a for t, a in tags if t == "html"]
     assert raiz and raiz[0].get("lang") == "es"
     etiquetas = {a.get("for") for t, a in tags if t == "label"}
+    # Historia #185: buscador + cuatro capas + dos fondos; los botones (plegar el panel, ver
+    # España, ampliar y cerrar la ficha) son <button> nativos con texto o aria-label.
     controles = [(t, a) for t, a in tags if t in ("select", "input", "button", "textarea")]
-    assert len(controles) == 5, controles  # selector + cuatro capas (indicios #95, tramos #171)
-    for tag, attrs in controles:
-        assert tag in ("select", "input"), tag
-        if tag == "input":
-            assert attrs.get("type") == "checkbox"
+    entradas = [(t, a) for t, a in controles if t != "button"]
+    assert len(entradas) == 7, entradas
+    for tag, attrs in entradas:
+        assert tag == "input", tag
+        assert attrs.get("type") in ("search", "checkbox", "radio"), attrs
         assert attrs.get("id") in etiquetas, f"{tag} sin <label>: {attrs}"
         assert attrs.get("tabindex") in (None, "0"), attrs
-    # Ningún control falso (div con onclick o role=button).
+    botones = [a for t, a in controles if t == "button"]
+    assert len(botones) == 4, botones
+    for attrs in botones:
+        assert attrs.get("type") == "button", attrs
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    for ident in ("ficha-ampliar", "ficha-cerrar"):
+        assert re.search(rf'id="{ident}"[^>]*aria-label="[^"]+"', html), ident
+    # Ningún control falso (div con onclick o role=button). La única lista de opciones es la
+    # del combobox (patrón ARIA), referida por su aria-controls.
     for tag, attrs in tags:
         assert "onclick" not in attrs, (tag, attrs)
-        assert attrs.get("role") not in ("button", "checkbox", "listbox"), (tag, attrs)
+        assert attrs.get("role") not in ("button", "checkbox"), (tag, attrs)
+        if attrs.get("role") == "listbox":
+            assert attrs.get("id") == "sugerencias", attrs
     mensaje = [a for t, a in tags if a.get("id") == "mensaje"]
     assert mensaje and mensaje[0].get("role") == "status"
     assert mensaje[0].get("aria-live") == "polite"

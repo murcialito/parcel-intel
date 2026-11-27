@@ -56,6 +56,7 @@ from parcel_intel.adapters.postgis.connection import get_connection
 from parcel_intel.adapters.postgis.georeference_repository import PostgisGeoreferenceRepository
 from parcel_intel.adapters.postgis.rule_repository import PostgisRuleRepository
 from parcel_intel.adapters.published_layers import (
+    GeoJsonCoverageSink,
     GeoJsonPublishedCandidateSink,
     GeoJsonPublishedDiscrepancySink,
     GeoJsonPublishedLayerSink,
@@ -111,6 +112,7 @@ from parcel_intel.application.list_candidate_reviews import (
 )
 from parcel_intel.application.load_historic_trails import HistoricUnitUseCase
 from parcel_intel.application.publish_candidates import PublishCandidatesUseCase
+from parcel_intel.application.publish_coverage import PublishCoverageUseCase
 from parcel_intel.application.publish_discrepancies import PublishDiscrepanciesUseCase
 from parcel_intel.application.publish_layers import (
     DEFAULT_LAYERS,
@@ -143,6 +145,7 @@ from parcel_intel.domain.municipal_road_layer import MunicipalRoadLayerBatch
 from parcel_intel.domain.municipality import HITO_MUNICIPALITY_CODES
 from parcel_intel.domain.parcel import Parcel
 from parcel_intel.domain.provenance import Provenance, Redistribution
+from parcel_intel.domain.publication import NotRedistributableError
 from parcel_intel.domain.published_discrepancy import OmittedByLicense
 from parcel_intel.domain.published_layers import PUBLISHED_LAYERS, PublishedLayerId
 from parcel_intel.domain.rule import Rule, WithinDistanceCondition
@@ -957,6 +960,56 @@ _REGENERATE_HINT = (
 )
 
 
+def build_publish_coverage_use_case(
+    cache_dir: Path,
+    output_dir: Path,
+    offline: bool,
+    ign_http_get: HttpGet = ign_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> PublishCoverageUseCase:
+    """Composition root de `publicar-cobertura` (historia #185, ADR 0051): límites del IGN
+    desde la caché cruda (la misma que `vias-pecuarias-municipios`) a `output_dir`."""
+    fetcher = CachedRawFetcher(ign_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    return PublishCoverageUseCase(
+        boundaries=IgnAdministrativeUnitsAdapter(
+            AMBITO_HITO_BBOX_ETRS89, fetcher=fetcher, today=today
+        ),
+        sink=GeoJsonCoverageSink(output_dir),
+    )
+
+
+def _publicar_cobertura(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        print("Indica --municipio <INE> (repetible) o --ambito.", file=sys.stderr)
+        return 2
+    use_case = build_publish_coverage_use_case(args.cache, args.salida, args.sin_red)
+    try:
+        published = use_case.execute(codes)
+    except (
+        MunicipalBoundaryNotFoundError,
+        MunicipalBoundaryUnusableError,
+        NotRedistributableError,
+        RawCacheMissError,
+        RawCacheCorruptError,
+        PublishedLayerError,
+        OSError,
+    ) as error:
+        print(f"ERROR al publicar la cobertura: {error}; no se ha publicado nada", file=sys.stderr)
+        return 1
+    except requests.RequestException as error:
+        print(f"Error de red: {error}; no se ha publicado nada", file=sys.stderr)
+        return 1
+    print(
+        f"publicada {args.salida / published.path} {published.size_bytes} bytes "
+        f"({len(published.municipality_codes)} municipios: "
+        f"{', '.join(published.municipality_codes)})"
+    )
+    return 0
+
+
 def _publicar_capas(args: argparse.Namespace) -> int:
     codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
     codes.extend(code for code in args.municipio if code not in codes)
@@ -1660,6 +1713,31 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio publicado del sitio",
     )
     publicar_parser.set_defaults(func=_publicar_capas)
+
+    cobertura_parser = subparsers.add_parser(
+        "publicar-cobertura",
+        help="Publica en site/datos los contornos de los municipios cubiertos (visor)",
+    )
+    cobertura_parser.add_argument(
+        "--municipio",
+        type=_municipality_code,
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible)",
+    )
+    cobertura_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito"
+    )
+    cobertura_parser.add_argument(
+        "--sin-red", action="store_true", help="Solo la caché cruda; falla si falta algo"
+    )
+    cobertura_parser.add_argument(
+        "--cache", type=Path, default=Path("data/raw"), help="Directorio de la caché cruda"
+    )
+    cobertura_parser.add_argument(
+        "--salida", type=Path, default=Path("site/datos"), help="Directorio publicado del sitio"
+    )
+    cobertura_parser.set_defaults(func=_publicar_cobertura)
 
     indicios_parser = subparsers.add_parser(
         "publicar-discrepancias",

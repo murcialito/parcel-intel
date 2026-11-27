@@ -91,6 +91,12 @@ uv run python -m parcel_intel.cli.main discrepancias --ambito                # l
 uv run python -m parcel_intel.cli.main publicar-capas --municipio 28043 [--municipio ...] [--capa vias_pecuarias|camino_actual]
 uv run python -m parcel_intel.cli.main publicar-capas --ambito
 
+# Publicar la cobertura del visor (historia #185, ADR 0051): contornos de los municipios con datos en site/datos/cobertura.geojson
+# (EPSG:4326, solo ine y nombre, simplificados a 15 m) con su .procedencia.json, desde la caché cruda de límites del IGN. Volver a
+# ejecutarlo cuando el índice gane un municipio. Todo o nada: sale con 1 y no escribe si falta un límite o la caché.
+uv run python -m parcel_intel.cli.main publicar-cobertura --ambito --sin-red
+uv run python -m parcel_intel.cli.main publicar-cobertura --municipio 28043 [--municipio ...] [--cache data/raw] [--salida site/datos]
+
 # Publicar los indicios de discrepancia en site/datos/discrepancias/<ine>.geojson con la ficha de #16 (historia #94, ADR 0044): lee
 # data/derived/discrepancias/publicable/<ine>.geojson (regenerarlo con `discrepancias` si es anterior a #94), EPSG:4326, cada fichero con su
 # .procedencia.json, y el índice. Sin red. Todo o nada: sale con 1 y no escribe si un municipio falta o no es publicable; uno sin indicios publicables se informa como vacío.

@@ -157,7 +157,9 @@ def _regla_exacta(selector: str) -> dict[str, str]:
 
 def _titulos_config() -> dict[str, str]:
     texto = (SITE / "config.js").read_text(encoding="utf-8")
-    return dict(re.findall(r'id:\s*"(\w+)",\s*titulo:\s*"([^"]+)"', texto))
+    # Desde #185 los fondos también tienen `id` y `titulo`: solo cuentan las capas.
+    bloque = texto[texto.index("capas: Object.freeze(["):]
+    return dict(re.findall(r'id:\s*"(\w+)",\s*titulo:\s*"([^"]+)"', bloque))
 
 
 def test_ca1_panel_de_capas_con_muestra_nombre_descripcion_e_interruptor() -> None:
@@ -198,7 +200,10 @@ def test_ca1_panel_de_capas_con_muestra_nombre_descripcion_e_interruptor() -> No
         lineas = [h for h in svg.hijos if h.tag == "line"]
         assert [x.attrs.get("class") for x in lineas] == ["h", "l"]
         nombres = _buscar(fila, "span", "pc-capa__nombre")
-        assert len(nombres) == 1 and nombres[0].contenido() == titulos[ident]
+        # #185: el nombre es el comienzo del `titulo` de config.js (sin el paréntesis), y la
+        # salvedad pasa a la descripción; dentro va el recuento, vacío en el HTML estático.
+        assert len(nombres) == 1 and titulos[ident].startswith(nombres[0].contenido().strip())
+        assert len(nombres[0].contenido().strip()) >= 13
         descs = _buscar(fila, "span", "pc-capa__desc")
         assert len(descs) == 1 and descs[0].contenido() != ""
         entradas = [h for h in fila.descendientes() if h.tag == "input"]
@@ -208,11 +213,12 @@ def test_ca1_panel_de_capas_con_muestra_nombre_descripcion_e_interruptor() -> No
         assert a.get("class") == "pc-switch" and a.get("id") == f"capa-{ident}"
         estados = [h for h in li.hijos if h.tag == "div" and "pc-capa__estado" in h.clases()]
         assert len(estados) == 1 and estados[0].attrs.get("id") == f"estado-{ident}"
-        niveles = _buscar(li, "ul", "pc-capa__niveles")
+        # #185: la leyenda de confianza es una línea (`p`) con un `span.pc-nivel` por nivel.
+        niveles = _buscar(li, "p", "pc-capa__niveles")
         if ident == "discrepancias":
             assert "pc-muestra--media" in svg.clases()
             assert len(niveles) == 1
-            items = _buscar(niveles[0], "li")
+            items = _buscar(niveles[0], "span", "pc-nivel")
             assert len(items) == 3
             for item, nivel in zip(items, ("baja", "media", "alta"), strict=True):
                 marca = [s for s in item.descendientes() if s.tag == "svg"]
@@ -223,10 +229,11 @@ def test_ca1_panel_de_capas_con_muestra_nombre_descripcion_e_interruptor() -> No
     assert visto == ["vias_pecuarias", "camino_actual", "discrepancias", "candidatos"]
     html = INDEX.read_text(encoding="utf-8")
     assert "historico" not in html.lower() and "histórico" not in html.lower()
-    # Cuatro controles nativos, cada uno con su <label for> (#85 CA15).
-    nativos = ("select", "input", "button", "textarea")
+    # Controles nativos con su <label for> (#85 CA15). #185: buscador, cuatro interruptores y
+    # dos fondos; los botones son <button type="button"> con texto o aria-label.
+    nativos = ("select", "input", "textarea")
     controles = [n for n in raiz.descendientes() if n.tag in nativos]
-    assert len(controles) == 5  # #171: el interruptor de la cuarta capa
+    assert len(controles) == 7
     etiquetas = {n.attrs.get("for") for n in _buscar(raiz, "label")}
     for c in controles:
         assert c.attrs.get("id") in etiquetas
@@ -325,7 +332,8 @@ def test_ca3_avisos_y_atribucion_visibles_sin_interaccion(tmp_path: Path) -> Non
     assert div.attrs.get("role") == "note"
     mapa = _por_id(raiz, "mapa")
     assert div.padre is mapa.padre and div is not mapa and mapa not in div.ancestros()
-    assert mapa.padre is not None and "pc-mapa" in mapa.padre.clases()
+    # #185: el contenedor del mapa es `#mapa.pc-mapa`, a pantalla completa en `.pc-app`.
+    assert "pc-mapa" in mapa.clases() and mapa.padre is not None
     for nodo in [div, *div.ancestros()]:
         assert nodo.tag != "details" and "hidden" not in nodo.attrs
     texto = div.contenido()
@@ -334,7 +342,8 @@ def test_ca3_avisos_y_atribucion_visibles_sin_interaccion(tmp_path: Path) -> Non
     # El aviso del panel (NOTICE) sigue en el HTML estático.
     notice = re.search(r"Aviso obligatorio: es (.+?)\.\n", NOTICE.read_text(encoding="utf-8"))
     assert notice is not None
-    panel = _buscar(raiz, "aside")[0]
+    # #185: el panel de capas es la sección `.pc-cuerpo` (el <aside> es ahora la ficha).
+    panel = _buscar(raiz, "section", "pc-cuerpo")[0]
     assert notice.group(1) in panel.contenido()
     # Ninguna regla oculta los avisos ni la atribución, en ningún tamaño.
     for selector, decl in _reglas():
@@ -419,7 +428,8 @@ def test_ca6_contraste_wcag_de_texto_y_controles() -> None:
     }
     apagado = _token(_regla_exacta(".pc-switch")["background"])
     encendido = _token(_regla_exacta(".pc-switch:checked")["background"])
-    borde = re.search(r"var\((--[\w-]+)\)", _regla_exacta(".campo select")["border"])
+    # #185: el selector de municipio es el buscador `.pc-buscador input`.
+    borde = re.search(r"var\((--[\w-]+)\)", _regla_exacta(".pc-buscador input")["border"])
     assert borde is not None
     foco = _token(_regla_exacta(".pc-switch:focus-visible")["outline"])
     assert encendido == "--color-accent"
@@ -440,7 +450,8 @@ def test_ca6_contraste_wcag_de_texto_y_controles() -> None:
     for selector, decl in _reglas():
         partes = [s.strip() for s in selector.split(",")]
         if any(
-            p.startswith((".pc-switch", "select", ".campo select", "input")) for p in partes
+            p.startswith((".pc-switch", "select", ".campo select", ".pc-buscador input", "input"))
+            for p in partes
         ):
             assert "--color-line-strong" not in " ".join(decl.values()), selector
     assert TOKENS.read_bytes() == TOKENS_PAQUETE.read_bytes()
@@ -456,7 +467,7 @@ def test_ca7_objetivos_tactiles_foco_y_preferencias_del_sistema() -> None:
     tiene `outline` con `--color-focus`; hay un bloque `@media (prefers-reduced-motion: reduce)`
     que anula animaciones y transiciones, y uno `@media (forced-colors: active)` para el
     interruptor."""
-    for selector in (".pc-capa__fila", ".campo select"):
+    for selector in (".pc-capa__fila", ".pc-buscador input"):  # #185: buscador
         assert _regla_exacta(selector)["min-height"] == "var(--tap)", selector
     for selector, decl in _reglas():
         for propiedad in ("outline", "outline-style", "outline-width"):

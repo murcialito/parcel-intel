@@ -63,6 +63,7 @@
   --shadow-2: 0 2px 6px rgb(31 36 33 / .10), 0 8px 24px rgb(31 36 33 / .12);
   --shadow-map: 0 1px 3px rgb(0 0 0 / .28), 0 6px 20px rgb(0 0 0 / .18);
   --map-tiles-filter: none;
+  --map-mapa-filter: none;   /* mapa gris del IGN (historia #185) */
 
   /* Capas del mapa (sobre ortofoto: siempre con halo) */
   --capa-vias: #e69f00;      --capa-vias-halo: #1b1408;
@@ -71,6 +72,7 @@
   --capa-indicio: #56b4e9;   --capa-indicio-halo: #0b2433;
   --capa-candidato: #d55e00; --capa-candidato-halo: #2b1100;
   --capa-seleccion-halo: #ffffff;
+  --capa-cobertura: #2f6b3f; --capa-cobertura-velo: rgb(46 52 48 / .3);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -84,6 +86,8 @@
     --capa-vias: #f2b33d; --capa-camino: #fff6d6; --capa-historico: #edb9dd; --capa-indicio: #7cc8f0;
     --capa-candidato: #f08a3a;
     --capa-seleccion-halo: #e8ebe8;
+    --map-mapa-filter: invert(1) hue-rotate(180deg) brightness(1.05) contrast(.82);
+    --capa-cobertura: #7cc290; --capa-cobertura-velo: rgb(0 0 0 / .38);
   }
 }
 :root[data-tema="oscuro"] {
@@ -96,6 +100,8 @@
   --capa-vias: #f2b33d; --capa-camino: #fff6d6; --capa-historico: #edb9dd; --capa-indicio: #7cc8f0;
   --capa-candidato: #f08a3a;
   --capa-seleccion-halo: #e8ebe8;
+  --map-mapa-filter: invert(1) hue-rotate(180deg) brightness(1.05) contrast(.82);
+  --capa-cobertura: #7cc290; --capa-cobertura-velo: rgb(0 0 0 / .38);
   color-scheme: dark;
 }
 :root[data-tema="claro"] { color-scheme: light; }

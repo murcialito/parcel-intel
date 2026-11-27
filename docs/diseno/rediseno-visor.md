@@ -148,8 +148,32 @@ Panel lateral (escritorio) u hoja inferior (móvil). Nunca popup.
 - Python: comando `publicar-cobertura` (caso de uso + escritor), reutiliza `MunicipalBoundaryPort` y su caché; ADR con la licencia y el peso.
 - Tests: los de #85, #95, #114, #166, #171 y #178 que fijan el marcado viejo (popups, `<select>`, clases) se reescriben para lo nuevo; las invariantes (aviso, vetadas, catastro, atribución, capas apagadas, rutas) se mantienen.
 
-## 10. Preguntas para el fundador
+## 10. Decisiones tomadas (2026-11-27)
 
-1. **Fondo por defecto** al entrar en un municipio: ¿se queda el mapa gris (los trazados se leen mejor) o pasa solo a ortofoto (se ve el terreno)? Propongo: gris en España, **ortofoto automática al entrar en un municipio**, con el conmutador para cambiarlo.
-2. **Atribución en móvil**: ¿vale la línea corta sobre el mapa + la completa en la hoja de capas, o la quieres entera siempre sobre el mapa?
-3. ¿**Conmutador de tema** claro/oscuro en la interfaz, o basta con seguir al sistema (como hoy)?
+El fundador aprobó la propuesta sin elegir en las tres preguntas; se aplicó la opción más prudente en cada una y queda para revisar con su feedback:
+
+1. **Fondo**: gris en España; al entrar en un municipio pasa solo a ortofoto, salvo que la persona haya elegido fondo.
+2. **Atribución en móvil**: entera sobre el mapa, como hoy (no se toca la invariante).
+3. **Tema**: sigue al sistema; sin conmutador.
+
+Cambios respecto a la propuesta, al construir:
+
+- Las filas de indicios y tramos conservan el nombre validado completo («… (no son un dictamen)», #169); solo se acortan vías pecuarias y camino actual.
+- El lema «Señala indicios a verificar, nunca ilegalidades» va bajo el logo en escritorio; en móvil lo dice el aviso del mapa, que pasa a estar bajo la barra de búsqueda (abajo quedan la atribución y las hojas).
+- El resumen de la medición de los tramos sigue entero en la fila de la capa (validado, #171). Candidato a plegarse si estorba.
+
+Las decisiones técnicas están en el [ADR 0051](../adr/0051-rediseno-del-visor-espana-y-cobertura-ficha-en-panel-y-fondo-ign-base-gris.md).
+
+## 11. Resultado
+
+| Escritorio, España (claro) | Escritorio, Colmenar (oscuro) |
+|---|---|
+| ![](capturas/inicio-escritorio-claro.png) | ![](capturas/colmenar-escritorio-oscuro.png) |
+
+| Escritorio, ficha de un indicio (claro) | Escritorio, buscador (oscuro) |
+|---|---|
+| ![](capturas/ficha-escritorio-claro.png) | ![](capturas/buscador-escritorio-oscuro.png) |
+
+| Móvil, España (oscuro) | Móvil, capas (claro) | Móvil, ficha (claro) | Móvil, ficha (oscuro) |
+|---|---|---|---|
+| ![](capturas/inicio-movil-oscuro.png) | ![](capturas/capas-movil-claro.png) | ![](capturas/ficha-movil-claro.png) | ![](capturas/ficha-movil-oscuro.png) |

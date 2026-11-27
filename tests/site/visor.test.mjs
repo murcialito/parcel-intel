@@ -21,13 +21,19 @@ if (!VISOR_DIR || !FIXTURES) throw new Error("faltan VISOR_DIR o VISOR_FIXTURES"
 const importar = (nombre) => import(pathToFileURL(join(VISOR_DIR, nombre)).href);
 const { CONFIG } = await importar("config.js");
 const controladorMod = await importar("controlador.js");
-const { crearControlador, validarIndice, fichaDe, atribucionesVisibles } = controladorMod;
+const { crearControlador, validarIndice, fichaDe, atribucionesVisibles, filtrarMunicipios, normalizar } = controladorMod;
 const { crearMapa, escaparTexto } = await importar("mapa.js");
 const estilosMod = await importar("estilos-capas.js");
 const { crearVista } = await importar("vista.js");
+const { leerEnlace, escribirEnlace } = await importar("enlace.js");
 const { fichaIndicio } = controladorMod;
 
 const VIAS = CONFIG.capas.find((c) => c.id === "vias_pecuarias");
+// Historia #185: las atribuciones del mapa base son las del fondo activo. Con un municipio
+// abierto el fondo es la ortofoto, y la cobertura está dibujada.
+const MAPA = CONFIG.fondos.find((f) => f.id === "mapa");
+const ORTO = CONFIG.fondos.find((f) => f.id === "ortofoto");
+const BASE_MUNICIPIO = [...ORTO.atribuciones, CONFIG.cobertura.atribucion];
 const CAMINO = CONFIG.capas.find((c) => c.id === "camino_actual");
 const INDICE = JSON.parse(await readFile(join(FIXTURES, "indice.json"), "utf8"));
 const [A, B, C, D] = INDICE.municipios;
@@ -69,6 +75,26 @@ function crearMapaDoble() {
     ponerAtribuciones(textos) {
       r.atribuciones.push([...textos]);
     },
+    // Historia #185: fondo, selección, encuadre de un trazado y cobertura.
+    ponerFondo(id) {
+      r.fondos = [...(r.fondos ?? []), id];
+    },
+    seleccionar(capaId, id) {
+      r.selecciones = [...(r.selecciones ?? []), [capaId, id]];
+      return true;
+    },
+    deseleccionar() {
+      r.deselecciones = (r.deselecciones ?? 0) + 1;
+    },
+    encuadrarRasgo(capaId, id) {
+      r.encuadresRasgo = [...(r.encuadresRasgo ?? []), [capaId, id]];
+    },
+    ponerCobertura(geojson, opciones) {
+      r.cobertura = { geojson, opciones };
+    },
+    resaltarMunicipio(ine) {
+      r.resaltados = [...(r.resaltados ?? []), ine];
+    },
   };
 }
 
@@ -109,16 +135,53 @@ function crearVistaDoble() {
     nodoFichaIndicio(ficha) {
       return { nodo: ficha };
     },
+    // Historia #185: la ficha va a un panel; el doble guarda el modelo abierto.
+    fichas: [],
+    ficha: null,
+    abrirFicha(modelo) {
+      v.ficha = modelo;
+      v.fichas.push(modelo);
+    },
+    cerrarFicha() {
+      v.ficha = null;
+    },
+    recuentos: {},
+    ponerRecuentoCapa(id, n) {
+      v.recuentos[id] = n;
+    },
+    marcadas: {},
+    marcarCapa(id, visible) {
+      v.marcadas[id] = visible;
+    },
+    ponerFondo(id) {
+      v.fondo = id;
+    },
+    ponerResumenCobertura(texto) {
+      v.resumenCobertura = texto;
+    },
+    nodoEtiquetaHito(texto) {
+      return { etiqueta: texto };
+    },
   };
   return v;
 }
 
+// Desde #185 el visor abre en la vista de España; los tests que parten de un municipio
+// abierto eligen el primero del índice, como hacía antes `iniciar()`.
 async function iniciado(cargarJson = cargarJsonFixture) {
   const mapa = crearMapaDoble();
   const vista = crearVistaDoble();
   const ctl = crearControlador({ mapa, cargarJson, vista, config: CONFIG });
   await ctl.iniciar();
+  if (ctl.estado.municipios.length > 0) await ctl.elegirMunicipio(ctl.estado.municipios[0].ine);
   return { mapa, vista, ctl };
+}
+
+// Pulsa el trazado `i` de la capa `id` en el doble del mapa: abre su ficha en la vista doble.
+function pulsar(mapa, id, i = 0) {
+  const anadida = mapa.r.anadidas.filter((a) => a.id === id).at(-1);
+  const feature = anadida.geojson.features[i];
+  anadida.opciones.alPulsar(feature.properties ?? {}, feature.id === undefined ? null : String(feature.id));
 }
 
 const ultima = (xs) => xs[xs.length - 1];
@@ -177,7 +240,15 @@ class ElementoFalso {
 
 function documentoFalso() {
   const elementos = {};
-  for (const id of ["municipio", "mensaje", "aviso-base", "estado-vias_pecuarias", "estado-camino_actual", "estado-discrepancias", "estado-candidatos", "resumen-candidatos"]) {
+  const capas = ["vias_pecuarias", "camino_actual", "discrepancias", "candidatos"];
+  for (const id of [
+    "mensaje", "aviso-base", "resumen-candidatos",
+    // Historia #185: buscador, ámbito, ficha en panel, hoja móvil y aviso flotante.
+    "buscar", "sugerencias", "ambito-nombre", "ambito-resumen", "ver-espana", "plegar",
+    "ficha", "ficha-tipo", "ficha-titulo", "ficha-cuerpo", "ficha-ampliar", "aviso-flotante",
+    "fondo-mapa", "fondo-ortofoto",
+    ...capas.flatMap((c) => [`estado-${c}`, `recuento-${c}`, `capa-${c}`]),
+  ]) {
     elementos[id] = new ElementoFalso("div");
   }
   return {
@@ -207,8 +278,21 @@ function instalarLFalso() {
       mapa.addLayer(this);
       return this;
     }
+    setStyle(estilo) {
+      this.estilos = [...(this.estilos ?? []), estilo];
+      return this;
+    }
   }
   globalThis.L = {
+    DomEvent: { stopPropagation() {} },
+    marker(centro, opciones) {
+      const capa = new Capa("marker", centro, opciones);
+      reg.marcadores = [...(reg.marcadores ?? []), capa];
+      return capa;
+    },
+    divIcon(opciones) {
+      return { divIcon: opciones };
+    },
     map(contenedor, opciones) {
       const presentes = new Set();
       const m = {
@@ -217,6 +301,13 @@ function instalarLFalso() {
         presentes,
         vistas: [],
         encuadres: [],
+        eventos: {},
+        zoom: 6,
+        on(evento, fn) {
+          m.eventos[evento] = fn;
+          return m;
+        },
+        getZoom: () => m.zoom,
         setView(centro, zoom) {
           m.vistas.push([centro, zoom]);
           return m;
@@ -235,8 +326,9 @@ function instalarLFalso() {
           reg.panes[nombre] = { style: {} };
           return reg.panes[nombre];
         },
-        fitBounds(b) {
+        fitBounds(b, opcionesEncuadre) {
           m.encuadres.push(b);
+          m.opcionesEncuadres = [...(m.opcionesEncuadres ?? []), opcionesEncuadre];
           return m;
         },
       };
@@ -244,6 +336,9 @@ function instalarLFalso() {
       return m;
     },
     control: {
+      zoom(opciones) {
+        return { opciones, addTo() { return this; } };
+      },
       attribution(opciones) {
         const c = {
           opciones,
@@ -279,7 +374,9 @@ function instalarLFalso() {
     },
     geoJSON(geojson, opciones) {
       const capa = new Capa("geojson", geojson, opciones);
-      for (const feature of geojson.features) {
+      // Un Feature suelto (el velo de la cobertura, #185) es una colección de uno.
+      const features = geojson.type === "Feature" ? [geojson] : geojson.features;
+      for (const feature of features) {
         const sub = {
           feature,
           popups: [],
@@ -306,6 +403,9 @@ function instalarLFalso() {
             sub.frentes += 1;
             return sub;
           },
+          getBounds() {
+            return { rasgo: feature.id };
+          },
           get ultimoEstilo() {
             return sub.estilos.length ? sub.estilos[sub.estilos.length - 1] : sub.estiloInicial;
           },
@@ -324,9 +424,9 @@ function mapaReal(opciones = {}) {
   const reg = instalarLFalso();
   const fallos = [];
   const mapa = crearMapa("contenedor", {
-    teselas: CONFIG.teselas,
-    vistaInicial: CONFIG.vistaInicial,
-    atribucionesBase: CONFIG.atribucionesBase,
+    fondos: CONFIG.fondos,
+    fondoInicial: CONFIG.fondoInicial,
+    encuadreInicial: CONFIG.espana,
     alFallarTesela: () => fallos.push(true),
     ...opciones,
   });
@@ -366,15 +466,18 @@ test("CA2: mapa.js encuadra [oeste, sur, este, norte] como [[sur, oeste], [norte
   ]);
 });
 
-test("CA2: vista.js llena el selector con una opción por municipio, por textContent", () => {
+test("CA2: vista.js llena las sugerencias del buscador con una opción por municipio, por textContent", () => {
   const doc = documentoFalso();
   const vista = crearVista(doc, CONFIG.textos);
   vista.ponerMunicipios(INDICE.municipios.map((m) => ({ ine: m.ine, nombre: m.nombre })));
-  const opciones = doc.elementos.municipio.children;
+  // Historia #185: el selector es un buscador (combobox) cuyas sugerencias son opciones ARIA.
+  vista.mostrarSugerencias(INDICE.municipios.map((m) => ({ ine: m.ine, nombre: m.nombre })));
+  const opciones = doc.elementos.sugerencias.children;
   assert.deepEqual(
-    opciones.map((o) => [o.tagName, o.value, o.textContent]),
-    INDICE.municipios.map((m) => ["option", m.ine, m.nombre]),
+    opciones.map((o) => [o.tagName, o.getAttribute("role"), o.dataset.ine, o.textContent]),
+    INDICE.municipios.map((m) => ["li", "option", m.ine, m.nombre]),
   );
+  assert.equal(doc.elementos.buscar.getAttribute("aria-expanded"), "true");
 });
 
 // --- CA3 --------------------------------------------------------------------------------
@@ -426,7 +529,7 @@ test("CA3: mapa.js mostrarCapa quita y repone solo esa capa", () => {
 
 test("CA4: la atribución de una capa se ve solo mientras está activa; la base, siempre", async () => {
   const { mapa, ctl } = await iniciado();
-  const base = [...CONFIG.atribucionesBase];
+  const base = [...BASE_MUNICIPIO];
   assert.deepEqual(ultima(mapa.r.atribuciones), [...base, VIAS.atribucion, CAMINO.atribucion]);
   ctl.cambiarCapa("vias_pecuarias", false);
   assert.deepEqual(ultima(mapa.r.atribuciones), [...base, CAMINO.atribucion]);
@@ -434,27 +537,30 @@ test("CA4: la atribución de una capa se ve solo mientras está activa; la base,
   assert.deepEqual(ultima(mapa.r.atribuciones), base);
   ctl.cambiarCapa("vias_pecuarias", true);
   assert.deepEqual(ultima(mapa.r.atribuciones), [...base, VIAS.atribucion]);
+  // El fondo está siempre: el de la vista de España al arrancar, la ortofoto en un municipio.
   for (const lista of mapa.r.atribuciones) {
-    assert.deepEqual(lista.slice(0, base.length), base, "la base está siempre");
+    const fondo = lista[0] === MAPA.atribuciones[0] ? MAPA : ORTO;
+    assert.deepEqual(lista.slice(0, fondo.atribuciones.length), [...fondo.atribuciones], "el fondo está siempre");
   }
 });
 
 test("CA4: una capa que no carga no muestra su atribución", async () => {
   const { mapa, ctl } = await iniciado();
   await ctl.elegirMunicipio(C.ine); // vías pecuarias de C da 404
-  assert.deepEqual(ultima(mapa.r.atribuciones), [...CONFIG.atribucionesBase, CAMINO.atribucion]);
+  assert.deepEqual(ultima(mapa.r.atribuciones), [...BASE_MUNICIPIO, CAMINO.atribucion]);
 });
 
 test("CA4: mapa.js sustituye la lista entera de atribuciones, sin prefijo de Leaflet", () => {
   const { mapa, control, m } = mapaReal();
   assert.equal(m.opciones.attributionControl, false);
-  assert.deepEqual(control.opciones, { prefix: false });
+  assert.deepEqual(control.opciones, { prefix: false, position: "bottomright" });
   assert.equal(control.mapa, m);
-  assert.deepEqual(control.textos, [...CONFIG.atribucionesBase]);
-  mapa.ponerAtribuciones([...CONFIG.atribucionesBase, VIAS.atribucion]);
-  assert.deepEqual(control.textos, [...CONFIG.atribucionesBase, VIAS.atribucion]);
-  mapa.ponerAtribuciones([...CONFIG.atribucionesBase]);
-  assert.deepEqual(control.textos, [...CONFIG.atribucionesBase]);
+  // Antes de pedir teselas ya está la atribución del fondo inicial (#185: el mapa gris).
+  assert.deepEqual(control.textos, [...MAPA.atribuciones]);
+  mapa.ponerAtribuciones([...BASE_MUNICIPIO, VIAS.atribucion]);
+  assert.deepEqual(control.textos, [...BASE_MUNICIPIO, VIAS.atribucion]);
+  mapa.ponerAtribuciones([...BASE_MUNICIPIO]);
+  assert.deepEqual(control.textos, [...BASE_MUNICIPIO]);
 });
 
 test("CA4: mapa.js pasa las atribuciones como texto plano (escapado)", () => {
@@ -489,11 +595,13 @@ test("CA6: la ficha solo lleva título, fuente y, en vías pecuarias, el nombre"
   assert.deepEqual(fichaDe(VIAS, { nombre: 7 }), { titulo: VIAS.titulo, fuente: VIAS.fuente });
 });
 
-test("CA6: el popup del controlador nunca lleva propietarios, refcat ni textos de corte", async () => {
-  const { mapa } = await iniciado();
+test("CA6: la ficha del controlador nunca lleva propietarios, refcat ni textos de corte", async () => {
+  // Historia #185: sin popups; al pulsar, el controlador abre la ficha en el panel de la vista.
+  const { mapa, vista } = await iniciado();
   for (const { id, opciones } of mapa.r.anadidas) {
-    const { nodo } = opciones.alPulsar(TRAMPA);
-    const texto = JSON.stringify(nodo);
+    opciones.alPulsar(TRAMPA, null);
+    const nodo = vista.ficha.ficha;
+    const texto = JSON.stringify(vista.ficha);
     for (const prohibido of ["Persona Inventada", "99999A00100001", "cortado", "ilegal", "onerror"]) {
       assert.ok(!texto.includes(prohibido), `${id}: ${prohibido}`);
     }
@@ -511,7 +619,9 @@ test("CA6: el popup del controlador nunca lleva propietarios, refcat ni textos d
 test("CA6: vista.js inserta la ficha como texto, nunca como HTML", () => {
   const doc = documentoFalso();
   const vista = crearVista(doc, CONFIG.textos);
-  const nodo = vista.nodoFicha(fichaDe(VIAS, TRAMPA)); // innerHTML lanzaría
+  // Historia #185: la ficha de una vía pecuaria va al panel (nombre en el título).
+  vista.abrirFicha({ tipo: "trazado", capaId: "vias_pecuarias", id: null, nombreCapa: VIAS.nombre, ficha: fichaDe(VIAS, TRAMPA), atribucion: VIAS.atribucion }); // innerHTML lanzaría
+  const nodo = panelDe(doc);
   assert.ok(nodo.textContent.includes("<b>Cordel</b> de prueba"), "el marcado queda como texto");
   assert.ok(nodo.textContent.includes(VIAS.titulo));
   assert.ok(nodo.textContent.includes(VIAS.fuente));
@@ -520,24 +630,21 @@ test("CA6: vista.js inserta la ficha como texto, nunca como HTML", () => {
   }
 });
 
-test("CA6: mapa.js enlaza el popup con una función que devuelve el nodo de alPulsar", () => {
+test("CA6: mapa.js no abre popups: al pulsar llama a alPulsar con las propiedades y el id", () => {
+  // Historia #185: la ficha va en un panel; mapa.js no inserta ningún contenido propio.
   const { mapa, reg } = mapaReal();
   const recibidas = [];
-  const nodo = { soyUnNodo: true };
   mapa.anadirCapa("vias_pecuarias", {
     type: "FeatureCollection",
-    features: [{ type: "Feature", properties: TRAMPA, geometry: null }],
+    features: [{ type: "Feature", id: "abc", properties: TRAMPA, geometry: null }],
   }, {
     clave: "viasPecuarias",
-    alPulsar: (props) => {
-      recibidas.push(props);
-      return nodo;
-    },
+    alPulsar: (props, id) => recibidas.push([props, id]),
   });
-  const [popup] = reg.geojsons[1].subcapas[0].popups; // [0] es el halo
-  assert.equal(typeof popup, "function", "nunca una cadena HTML");
-  assert.equal(popup(), nodo);
-  assert.deepEqual(recibidas, [TRAMPA]);
+  const sub = reg.geojsons[1].subcapas[0]; // [0] es el halo
+  assert.equal(sub.popups.length, 0, "sin bindPopup");
+  sub.disparar("click");
+  assert.deepEqual(recibidas, [[TRAMPA, "abc"]]);
 });
 
 // --- CA9 --------------------------------------------------------------------------------
@@ -601,10 +708,13 @@ test("CA9: vista.js escribe el mensaje en su región y lo limpia", () => {
 
 test("CA10: el mapa base usa la URL de config.js y un fallo de tesela no quita capas", () => {
   const { mapa, reg, m, fallos } = mapaReal();
-  const [base] = reg.tiles;
-  assert.equal(base.datos, CONFIG.teselas.url);
+  // Historia #185: un fondo por entrada de config.js; arranca el de la vista de España.
+  assert.deepEqual(reg.tiles.map((t) => t.datos), CONFIG.fondos.map((f) => f.url));
+  const base = reg.tiles.find((t) => t.datos === MAPA.url);
+  assert.ok(m.hasLayer(base));
+  assert.ok(!m.hasLayer(reg.tiles.find((t) => t.datos === ORTO.url)));
   assert.equal(base.opciones.maxZoom, 19);
-  assert.equal(base.opciones.minZoom, 6);
+  assert.equal(base.opciones.minZoom, 5);
   assert.equal(base.opciones.crossOrigin, false);
   mapa.anadirCapa("vias_pecuarias", { type: "FeatureCollection", features: [] }, {
     clave: "viasPecuarias",
@@ -678,23 +788,26 @@ test("CA14: un MultiPolygon y un MultiLineString de 2 partes llegan enteros al m
   assert.deepEqual(camino, await leer(A.capas.camino_actual));
 });
 
-test("CA14: mapa.js da un único popup por trazado multiparte, igual en todas sus partes", async () => {
+test("CA14: mapa.js da una única ficha por trazado multiparte, igual en todas sus partes", async () => {
   const { mapa, reg } = mapaReal();
   const vias = await leer(A.capas.vias_pecuarias);
+  const fichas = [];
   mapa.anadirCapa("vias_pecuarias", vias, {
     clave: "viasPecuarias",
-    alPulsar: (props) => fichaDe(VIAS, props),
+    alPulsar: (props) => fichas.push(fichaDe(VIAS, props)),
   });
   const capa = reg.geojsons[1]; // [0] es el halo, [1] la línea
   assert.equal(capa.datos, vias, "el GeoJSON llega sin trocear");
   assert.equal(capa.subcapas.length, vias.features.length, "una capa por trazado");
   const multi = capa.subcapas.find((s) => s.feature.geometry.type === "MultiPolygon");
-  assert.equal(multi.popups.length, 1);
-  assert.deepEqual(multi.popups[0](), {
+  // Historia #185: sin popups; un solo layer y un solo clic para todas las partes.
+  assert.equal(multi.popups.length, 0);
+  multi.disparar("click");
+  assert.deepEqual(fichas, [{
     titulo: VIAS.titulo,
     fuente: VIAS.fuente,
     nombre: "Vereda sintética multiparte",
-  });
+  }]);
 });
 
 // --- unidades ---------------------------------------------------------------------------
@@ -724,13 +837,15 @@ test("unidad: un índice que no carga muestra un error y no deja el selector a m
   const { vista, mapa } = await iniciado(cargar);
   assert.equal(vista.mensaje, CONFIG.textos.errorIndice);
   assert.equal(vista.municipios, null);
-  assert.deepEqual(mapa.r.atribuciones, [[...CONFIG.atribucionesBase]]);
+  // Solo el fondo de la vista de España: sin cobertura ni capas.
+  assert.deepEqual(mapa.r.atribuciones, [[...MAPA.atribuciones]]);
 });
 
 test("unidad: una elección antigua que termina tarde no pisa la más reciente", async () => {
   const esperas = [];
   const cargar = (ruta) => {
     if (ruta.endsWith("indice.json")) return Promise.resolve(INDICE);
+    if (ruta.endsWith("cobertura.geojson")) return cargarJsonFixture(ruta); // #185
     return new Promise((resolve, reject) => {
       esperas.push(() => cargarJsonFixture(ruta).then(resolve, reject));
     });
@@ -738,8 +853,11 @@ test("unidad: una elección antigua que termina tarde no pisa la más reciente",
   const mapa = crearMapaDoble();
   const vista = crearVistaDoble();
   const ctl = crearControlador({ mapa, cargarJson: cargar, vista, config: CONFIG });
-  const inicio = ctl.iniciar(); // elige A; sus cargas quedan pendientes
-  await new Promise((r) => setImmediate(r));
+  // Desde #185 `iniciar()` abre España; el enlace `?municipio=` hace que elija A.
+  const inicio = ctl.iniciar({ municipio: A.ine }); // sus cargas quedan pendientes
+  // Se espera a que A haya pedido sus dos capas (antes van el índice y la cobertura).
+  for (let i = 0; i < 100 && esperas.length < 2; i += 1) await new Promise((r) => setImmediate(r));
+  assert.equal(esperas.length, 2);
   const deA = esperas.splice(0);
   const eleccionC = ctl.elegirMunicipio(C.ine);
   await new Promise((r) => setImmediate(r));
@@ -753,17 +871,24 @@ test("unidad: una elección antigua que termina tarde no pisa la más reciente",
 
 test("unidad: atribucionesVisibles exige capa cargada y visible", () => {
   const estado = {
+    fondo: "ortofoto",
+    cobertura: false,
     capas: {
       vias_pecuarias: { cargada: true, visible: false },
       camino_actual: { cargada: false, visible: true },
     },
   };
-  assert.deepEqual(atribucionesVisibles(CONFIG, estado), [...CONFIG.atribucionesBase]);
+  assert.deepEqual(atribucionesVisibles(CONFIG, estado), [...ORTO.atribuciones]);
+  // Historia #185: con la cobertura dibujada se añade su atribución; el fondo manda la base.
+  assert.deepEqual(
+    atribucionesVisibles(CONFIG, { ...estado, fondo: "mapa", cobertura: true }),
+    [...MAPA.atribuciones, CONFIG.cobertura.atribucion],
+  );
 });
 
 test("unidad: crearMapa falla con un mensaje claro si la librería no está cargada", () => {
   delete globalThis.L;
-  assert.throws(() => crearMapa("x", { teselas: CONFIG.teselas }), /no está cargada/);
+  assert.throws(() => crearMapa("x", { fondos: CONFIG.fondos }), /no está cargada/);
 });
 
 // --- historia #95: indicios de discrepancia ---------------------------------------------
@@ -844,14 +969,31 @@ function cargadorIndicios(respuestaIndicios, sinIndicios = false) {
 const hijos = (nodo) => nodo.children.flatMap((h) => [h, ...hijos(h)]);
 const enlaces = (nodo) => hijos(nodo).filter((h) => h.tagName === "a");
 
-function nodoDe(propiedades) {
-  const vista = crearVista(documentoFalso(), CONFIG.textos);
-  return vista.nodoFichaIndicio(fichaIndicio(propiedades, CONFIG));
+// Historia #185: la ficha se pinta en un panel; su texto es el de la cabecera (tipo y título,
+// con la etiqueta) y el del cuerpo. `panelDe` los junta en un nodo para leerlos en orden.
+function panelDe(doc) {
+  const panel = new ElementoFalso("aside");
+  panel.children = ["ficha-tipo", "ficha-titulo", "ficha-cuerpo"].map((id) => doc.elementos[id]);
+  return panel;
+}
+
+function nodoDe(propiedades, comparacion = null) {
+  const doc = documentoFalso();
+  const vista = crearVista(doc, CONFIG.textos);
+  vista.abrirFicha({
+    tipo: "indicio",
+    capaId: "discrepancias",
+    id: null,
+    nombreCapa: "Indicio a verificar",
+    ficha: fichaIndicio(propiedades, CONFIG),
+    comparacion,
+  });
+  return panelDe(doc);
 }
 
 test("H95 CA1: la capa de indicios se carga del índice y se dibuja con estilo distinto", async () => {
   const { cargar, llamadas } = cargadorIndicios(coleccion(propsIndicio()));
-  const { mapa } = await iniciado(cargar);
+  const { mapa, vista } = await iniciado(cargar);
   assert.ok(llamadas.includes(CONFIG.datos + RUTA_IND));
   const dibujada = mapa.r.anadidas.find((a) => a.id === "discrepancias");
   assert.ok(dibujada, "se dibuja");
@@ -867,15 +1009,16 @@ test("H95 CA1: la capa de indicios se carga del índice y se dibuja con estilo d
     assert.ok(estilosMod.estilo(clave).linea.dashArray, "trazo punteado");
   }
   assert.equal(typeof dibujada.opciones.claveDe, "function");
-  // La ficha de un indicio pulsado es la de indicios, no la genérica.
-  assert.ok("nodo" in dibujada.opciones.alPulsar(propsIndicio()));
-  assert.equal(dibujada.opciones.alPulsar(propsIndicio()).nodo.disponible, true);
+  // La ficha de un indicio pulsado es la de indicios, no la genérica (#185: va al panel).
+  dibujada.opciones.alPulsar(propsIndicio(), "0123456789abcdef");
+  assert.equal(vista.ficha.tipo, "indicio");
+  assert.equal(vista.ficha.ficha.disponible, true);
 });
 
 test("H95 CA2: nace apagada, sin atribución; al marcar y desmarcar aparece y desaparece", async () => {
   const { cargar } = cargadorIndicios(coleccion(propsIndicio()));
   const { mapa, ctl } = await iniciado(cargar);
-  const base = [...CONFIG.atribucionesBase];
+  const base = [...BASE_MUNICIPIO];
   assert.equal(mapa.presentes.get("discrepancias"), false);
   assert.equal(mapa.presentes.get("vias_pecuarias"), true);
   assert.equal(mapa.presentes.get("camino_actual"), true);
@@ -1162,7 +1305,7 @@ test("H165 CA3: hover engorda y conserva el halo; seleccionar pinta el halo de s
   assert.equal(BASE.seleccionHalo.oscuro, "#e8ebe8");
 });
 
-test("H165 CA3: una sola selección en todo el mapa; mouseout no la suelta y cerrar el popup sí", () => {
+test("H165 CA3: una sola selección en todo el mapa; mouseout no la suelta y cerrar la ficha sí", () => {
   const { mapa, reg } = mapaReal();
   const [a] = dibujar(mapa, reg, "vias_pecuarias", coleccionDe(feat(lineaDe(SEGMENTO))), { clave: "viasPecuarias", orden: 10 });
   const [b] = dibujar(mapa, reg, "camino_actual", coleccionDe(feat(lineaDe(SEGMENTO))), { clave: "caminoActual", orden: 30 });
@@ -1189,9 +1332,8 @@ test("H165 CA3: una sola selección en todo el mapa; mouseout no la suelta y cer
   b.linea.disparar("mouseover");
   b.linea.disparar("mouseout");
   assert.deepEqual(b.linea.ultimoEstilo, sel("caminoActual").linea, "mouseout no la suelta");
-  a.linea.disparar("popupclose");
-  assert.deepEqual(b.linea.ultimoEstilo, sel("caminoActual").linea, "cerrar el popup de otro no la suelta");
-  b.linea.disparar("popupclose");
+  // Historia #185: sin popups; cerrar la ficha llama a `deseleccionar`, que suelta la selección.
+  mapa.deseleccionar();
   assert.deepEqual(b.linea.ultimoEstilo, nor("caminoActual").linea);
   assert.deepEqual(b.halo.ultimoEstilo, nor("caminoActual").halo);
 });
@@ -1210,13 +1352,16 @@ function indiciosConConfianzas() {
 
 test("H165 CA4: cada capa usa su clave, con halo debajo y línea encima en el mismo pane", async () => {
   const reg = instalarLFalso();
-  const mapa = crearMapa("contenedor", { teselas: CONFIG.teselas, tema: "claro" });
+  const mapa = crearMapa("contenedor", { fondos: CONFIG.fondos, tema: "claro" });
   const { cargar } = cargadorIndicios(indiciosConConfianzas());
-  const vista = crearVista(documentoFalso(), CONFIG.textos);
+  const doc = documentoFalso();
+  const vista = crearVista(doc, CONFIG.textos);
   const ctl = crearControlador({ mapa, cargarJson: cargar, vista, config: CONFIG });
-  await ctl.iniciar();
-  assert.equal(reg.geojsons.length, 6, "tres capas, dos dibujos cada una");
-  const [viasH, viasL, camH, camL, indH, indL] = reg.geojsons;
+  await ctl.iniciar({ municipio: INDICE.municipios[0].ine });
+  // Historia #185: antes de las capas, la cobertura dibuja tres GeoJSON (velo, halo y bordes).
+  const trazados = reg.geojsons.filter((g) => !String(g.opciones.pane).startsWith("pc-cobertura"));
+  assert.equal(trazados.length, 6, "tres capas, dos dibujos cada una");
+  const [viasH, viasL, camH, camL, indH, indL] = trazados;
 
   for (const [halo, linea] of [[viasH, viasL], [camH, camL], [indH, indL]]) {
     assert.equal(halo.opciones.interactive, false);
@@ -1237,12 +1382,15 @@ test("H165 CA4: cada capa usa su clave, con halo debajo y línea encima en el mi
     assert.deepEqual(s.estiloInicial, estiloTrazado(esperadas[i], "normal", "claro", poli(s.feature)).linea, `indicio ${i}`);
   });
   // Pulsar sigue mostrando la ficha: un nodo construido con textContent, no una cadena HTML.
-  const popup = indL.subcapas[0].popups[0];
-  assert.equal(typeof popup, "function");
-  const nodo = popup();
-  assert.equal(typeof nodo, "object");
-  assert.ok(nodo.children.length > 0);
-  assert.equal(typeof viasL.subcapas[0].popups[0](), "object");
+  // Historia #185: en el panel de la ficha, no en un popup.
+  assert.equal(indL.subcapas[0].popups.length, 0);
+  indL.subcapas[0].disparar("click");
+  const cuerpo = doc.elementos["ficha-cuerpo"];
+  assert.equal(cuerpo.children.length, 1);
+  assert.ok(cuerpo.children[0].children.length > 0);
+  assert.equal(doc.elementos.ficha.getAttribute("hidden"), null, "el panel se abre");
+  viasL.subcapas[0].disparar("click");
+  assert.equal(typeof doc.elementos["ficha-cuerpo"].children[0], "object");
 });
 
 test("H165 CA4: anadirCapa exige exactamente una clave válida o claveDe", () => {
@@ -1309,8 +1457,9 @@ test("H165 CA7: un polígono lleva halo sin relleno y línea con relleno tenue; 
     assert.equal(t.linea.ultimoEstilo.fill, false);
     assert.equal(t.halo.ultimoEstilo.fill, false);
   }
-  // Un MultiPolygon de dos partes es un solo trazado: un popup y una selección.
-  assert.equal(mpol.linea.popups.length, 1);
+  // Un MultiPolygon de dos partes es un solo trazado: un clic y una selección (#185: sin popup).
+  assert.equal(typeof mpol.linea.eventos.click, "function");
+  assert.equal(mpol.linea.popups.length, 0);
   assert.equal(trazados.length, 4);
   mpol.linea.disparar("click");
   pol.linea.disparar("click");
@@ -1476,7 +1625,7 @@ test("H171 CA1: la capa está en el panel con su título, apagada, y su atribuci
   const { mapa, ctl } = await iniciado(cargar);
   assert.ok(llamadas.includes(CONFIG.datos + RUTA_CAND));
   assert.equal(mapa.presentes.get("candidatos"), false, "dibujada pero apagada");
-  const base = [...CONFIG.atribucionesBase, VIAS.atribucion, CAMINO.atribucion];
+  const base = [...BASE_MUNICIPIO, VIAS.atribucion, CAMINO.atribucion];
   assert.deepEqual(ultima(mapa.r.atribuciones), base);
   ctl.cambiarCapa("candidatos", true);
   assert.deepEqual(ultima(mapa.r.atribuciones), [...base, CANDIDATOS.atribucion]);
@@ -1491,7 +1640,7 @@ test("H171 CA1: la capa está en el panel con su título, apagada, y su atribuci
 
 test("H171 CA2: la ficha muestra etiqueta, texto, aviso, confianza y fuentes; nada fuera de la lista blanca", async () => {
   const { cargar } = cargadorCandidatos(copia(PUBLICADO));
-  const { mapa } = await iniciado(cargar);
+  const { mapa, vista } = await iniciado(cargar);
   const dibujada = mapa.r.anadidas.find((a) => a.id === "candidatos");
   assert.deepEqual(
     dibujada.geojson.features.map((f) => f.geometry.type),
@@ -1501,7 +1650,8 @@ test("H171 CA2: la ficha muestra etiqueta, texto, aviso, confianza y fuentes; na
   assert.equal(dibujada.opciones.orden, 50);
   for (const f of PUBLICADO.features) {
     const trampa = { ...f.properties, id: f.id, titular: "Persona Inventada", refcat: "99999A00100001" };
-    const ficha = dibujada.opciones.alPulsar(trampa).nodo;
+    dibujada.opciones.alPulsar(trampa, f.id);
+    const ficha = vista.ficha.ficha; // #185: el modelo que el controlador manda al panel
     assert.equal(ficha.disponible, true);
     const t = nodoCand(trampa).textContent;
     const p = f.properties;
@@ -1637,11 +1787,12 @@ test("H171 CA7: la clave candidato se distingue de las demás, con tema oscuro, 
   assert.ok(Number(reg.panes["pc-capa-candidatos"].style.zIndex) > Number(reg.panes["pc-capa-discrepancias"].style.zIndex));
 });
 
-test("H171 CA7: MultiLineString es un solo trazado con un único popup", () => {
+test("H171 CA7: MultiLineString es un solo trazado con un único clic", () => {
   const { mapa, reg } = mapaReal();
   const trazados = dibujar(mapa, reg, "candidatos", copia(PUBLICADO), { clave: "candidato", orden: 50 });
   assert.equal(trazados.length, 3);
-  assert.equal(trazados[1].linea.popups.length, 1);
+  assert.equal(typeof trazados[1].linea.eventos.click, "function");
+  assert.equal(trazados[1].linea.popups.length, 0);
   assert.equal(trazados[1].linea.ultimoEstilo.fill, false);
 });
 
@@ -1671,11 +1822,14 @@ const NOTAS = PUBLICADO_IMG.properties.comparacion;
 async function fichaPulsada(publicado, propiedades) {
   const { cargar } = cargadorCandidatos(copia(publicado));
   const mapa = crearMapaDoble();
-  const vista = crearVista(documentoFalso(), CONFIG.textos);
+  const doc = documentoFalso();
+  const vista = crearVista(doc, CONFIG.textos);
   const ctl = crearControlador({ mapa, cargarJson: cargar, vista, config: CONFIG });
-  await ctl.iniciar();
+  await ctl.iniciar({ municipio: INDICE.municipios[0].ine });
   const dibujada = mapa.r.anadidas.find((a) => a.id === "candidatos");
-  return dibujada.opciones.alPulsar(propiedades);
+  // Historia #185: la ficha se pinta en el panel; se devuelve su cuerpo.
+  dibujada.opciones.alPulsar(propiedades, null);
+  return doc.elementos["ficha-cuerpo"];
 }
 const porTag = (nodo, tag) => hijos(nodo).filter((h) => h.tagName === tag);
 const porClase = (nodo, clase) => hijos(nodo).filter((h) => h.className === clase);
@@ -1704,7 +1858,8 @@ test("H178 CA1: imágenes en orden cronológico con periodo, atribución, lazy y
 
 test("H178 CA2: el trazo es un svg con viewBox y una polyline por parte, con createElementNS; se oculta con un control", async () => {
   const ficha = await fichaPulsada(PUBLICADO_IMG, copia(CON_IMG));
-  const svgs = porTag(ficha, "svg");
+  // #185: la ficha también lleva la muestra de la confianza (otro svg); se cuentan los trazos.
+  const svgs = porTag(ficha, "svg").filter((n) => n.atributos?.class === "pc-comparacion__trazo");
   assert.equal(svgs.length, 2);
   const [v] = CON_IMG.imagenes_comparacion;
   for (const svg of svgs) {
@@ -1716,7 +1871,7 @@ test("H178 CA2: el trazo es un svg con viewBox y una polyline por parte, con cre
     assert.equal(lineas[0].atributos.points, "120,320 520,320");
     assert.equal(lineas[1].atributos.points, "520,330 560,400");
   }
-  const [control] = porTag(ficha, "button");
+  const [control] = porTag(ficha, "button").filter((b) => b.atributos?.["aria-pressed"] !== undefined);
   assert.equal(control.atributos.type, "button");
   assert.equal(control.atributos["aria-pressed"], "true");
   assert.ok(control.textContent.length > 0, "tiene nombre accesible");
@@ -1773,14 +1928,16 @@ test("H178 CA4: huecos, franjas omitidas y nota de quién sirve las imágenes, c
 });
 
 test("H178 CA5: un tramo sin imagenes_comparacion, o con un campo roto, se ve como antes y sin error", async () => {
-  const antes = nodoDe(SIN_IMG).textContent;
+  // #185: se compara el cuerpo de la ficha (la cabecera lleva la etiqueta en los dos casos).
+  const cuerpoDe = (props) => nodoDe(props).children[2];
+  const antes = cuerpoDe(SIN_IMG).textContent;
   const ficha = await fichaPulsada(PUBLICADO_IMG, copia(SIN_IMG));
   assert.equal(ficha.textContent, antes);
   assert.equal(porTag(ficha, "img").length, 0);
-  assert.equal(porTag(ficha, "button").length, 0);
+  assert.equal(porTag(ficha, "button").filter((b) => b.atributos?.["aria-pressed"] !== undefined).length, 0);
   // Un fichero anterior a #172 (sin bloque `comparacion`) tampoco da error.
   const viejo = copia(PUBLICADO);
-  assert.equal((await fichaPulsada(viejo, copia(viejo.features[0].properties))).textContent, nodoDe(viejo.features[0].properties).textContent);
+  assert.equal((await fichaPulsada(viejo, copia(viejo.features[0].properties))).textContent, cuerpoDe(viejo.features[0].properties).textContent);
   for (const roto of [null, {}, "x", [], [null], [{}], [{ ancho_px: 0, alto_px: 5, imagenes: [] }]]) {
     const p = { ...copia(SIN_IMG), imagenes_comparacion: roto };
     assert.equal((await fichaPulsada(PUBLICADO_IMG, p)).textContent, antes);
@@ -1799,5 +1956,267 @@ test("H178 CA6: ningún texto nuevo del visor ni del fichero lleva palabras veta
   for (const t of textos) {
     assert.ok(!REFCAT.test(t), t);
     for (const palabra of vetadas) assert.ok(!t.toLowerCase().includes(palabra), `${palabra}: ${t}`);
+  }
+});
+
+// --- Historia #185: rediseño del visor ------------------------------------------------------
+
+const ID_A = "0123456789abcdef";
+const ID_B = "fedcba9876543210";
+const conIds = (col, ...ids) => ({ ...col, features: col.features.map((f, i) => ({ ...f, id: ids[i] })) });
+
+test("H185 CA1: al arrancar sin enlace se ve España con el fondo gris, la cobertura y su resumen", async () => {
+  const mapa = crearMapaDoble();
+  const vista = crearVistaDoble();
+  const ctl = crearControlador({ mapa, cargarJson: cargarJsonFixture, vista, config: CONFIG });
+  await ctl.iniciar();
+  assert.equal(ctl.estado.actual, null);
+  assert.deepEqual(ultima(mapa.r.encuadres), CONFIG.espana);
+  assert.equal(ultima(mapa.r.fondos), "mapa");
+  assert.equal(mapa.r.anadidas.length, 0, "ninguna capa de trazados sin municipio");
+  assert.equal(mapa.r.cobertura.geojson.features.length, INDICE.municipios.length);
+  assert.deepEqual(mapa.r.cobertura.opciones.etiqueta, { etiqueta: `Primer hito · ${INDICE.municipios.length} municipios` });
+  assert.equal(vista.resumenCobertura, CONFIG.textos.resumenCobertura.replace("{n}", String(INDICE.municipios.length)));
+  for (const capa of CONFIG.capas) assert.equal(vista.estados[capa.id], "sin_municipio");
+  assert.deepEqual(ultima(mapa.r.atribuciones), [...MAPA.atribuciones, CONFIG.cobertura.atribucion]);
+});
+
+test("H185 CA1: si la cobertura no carga, el visor sigue y lo dice sin error de capa", async () => {
+  const cargar = (ruta) => (ruta.endsWith("cobertura.geojson") ? Promise.reject(new Error("404")) : cargarJsonFixture(ruta));
+  const mapa = crearMapaDoble();
+  const vista = crearVistaDoble();
+  const ctl = crearControlador({ mapa, cargarJson: cargar, vista, config: CONFIG });
+  await ctl.iniciar();
+  assert.equal(vista.avisoBase, CONFIG.textos.errorCobertura);
+  assert.equal(mapa.r.cobertura, undefined);
+  assert.deepEqual(ultima(mapa.r.atribuciones), [...MAPA.atribuciones]);
+  await ctl.elegirMunicipio(A.ine);
+  assert.ok(mapa.r.anadidas.some((a) => a.id === "vias_pecuarias"));
+});
+
+test("H185 CA2: pulsar un municipio cubierto o la etiqueta del hito lo abre o lo encuadra", async () => {
+  const mapa = crearMapaDoble();
+  const vista = crearVistaDoble();
+  const ctl = crearControlador({ mapa, cargarJson: cargarJsonFixture, vista, config: CONFIG });
+  await ctl.iniciar();
+  mapa.r.cobertura.opciones.alPulsarEtiqueta();
+  const cajas = INDICE.municipios.map((m) => m.bbox);
+  assert.deepEqual(ultima(mapa.r.encuadres), [
+    Math.min(...cajas.map((b) => b[0])), Math.min(...cajas.map((b) => b[1])),
+    Math.max(...cajas.map((b) => b[2])), Math.max(...cajas.map((b) => b[3])),
+  ]);
+  assert.equal(ctl.estado.actual, null, "la etiqueta no abre ningún municipio");
+  await mapa.r.cobertura.opciones.alPulsarMunicipio(B.ine);
+  assert.equal(ctl.estado.actual, B.ine);
+  assert.deepEqual(ultima(mapa.r.encuadres), B.bbox);
+  assert.equal(ultima(mapa.r.resaltados), B.ine);
+  assert.equal(vista.seleccionado, B.ine);
+});
+
+test("H185 CA2: al entrar en un municipio pasa a ortofoto salvo que la persona haya elegido fondo", async () => {
+  const { mapa, ctl } = await iniciado();
+  assert.equal(ultima(mapa.r.fondos), "ortofoto");
+  ctl.verEspana();
+  assert.equal(ultima(mapa.r.fondos), "mapa");
+  assert.deepEqual(ultima(mapa.r.encuadres), CONFIG.espana);
+  assert.equal(mapa.r.anadidas.filter((a) => a.id === "vias_pecuarias").length, 1);
+  assert.equal(ultima(mapa.r.resaltados), null);
+  ctl.cambiarFondo("mapa");
+  await ctl.elegirMunicipio(B.ine);
+  assert.equal(ultima(mapa.r.fondos), "mapa", "la elección de la persona manda");
+  assert.equal(ctl.estado.fondo, "mapa");
+});
+
+test("H185 CA2: el buscador encuentra sin tildes ni mayúsculas y solo municipios con datos", () => {
+  const lista = [{ ine: "28052", nombre: "Chinchón" }, { ine: "28043", nombre: "Colmenar de Oreja" }, { ine: "28013", nombre: "Aranjuez" }];
+  assert.equal(normalizar("  ChInChÓn "), "chinchon");
+  assert.deepEqual(filtrarMunicipios(lista, "chin").map((m) => m.ine), ["28052"]);
+  assert.deepEqual(filtrarMunicipios(lista, "OREJA").map((m) => m.ine), ["28043"]);
+  assert.deepEqual(filtrarMunicipios(lista, "c").map((m) => m.ine), ["28052", "28043"], "primero los que empiezan");
+  assert.deepEqual(filtrarMunicipios(lista, "").map((m) => m.ine), ["28052", "28043", "28013"]);
+  assert.deepEqual(filtrarMunicipios(lista, "Madrid"), []);
+});
+
+test("H185 CA2: el buscador es un combobox accesible: flechas, Intro, Escape y aviso sin cobertura", () => {
+  const doc = documentoFalso();
+  const vista = crearVista(doc, CONFIG.textos);
+  const elegidos = [];
+  vista.conectar({ alElegirMunicipio: (ine) => elegidos.push(ine) });
+  const lista = INDICE.municipios.map((m) => ({ ine: m.ine, nombre: m.nombre }));
+  vista.mostrarSugerencias(lista);
+  const tecla = (key) => vista.teclaBuscador({ key, preventDefault() {} });
+  tecla("ArrowDown");
+  tecla("ArrowDown");
+  assert.equal(doc.elementos.buscar.getAttribute("aria-activedescendant"), `sugerencia-${B.ine}`);
+  assert.equal(doc.elementos.sugerencias.children[1].getAttribute("aria-selected"), "true");
+  tecla("Enter");
+  assert.deepEqual(elegidos, [B.ine]);
+  assert.equal(doc.elementos.buscar.value, B.nombre);
+  assert.equal(doc.elementos.buscar.getAttribute("aria-expanded"), "false");
+  assert.equal(doc.elementos.sugerencias.getAttribute("hidden"), "");
+  vista.mostrarSugerencias([], "Aún sin cobertura.");
+  assert.equal(doc.elementos.sugerencias.children[0].textContent, "Aún sin cobertura.");
+  assert.equal(doc.elementos.sugerencias.children[0].getAttribute("role"), "presentation");
+  tecla("Escape");
+  assert.equal(doc.elementos.sugerencias.children.length, 0);
+});
+
+test("H185 CA3: pulsar un indicio abre su ficha en el panel; cerrarla suelta la selección y el enlace", async () => {
+  const enlaces = [];
+  const { cargar } = cargadorIndicios(conIds(coleccion(propsIndicio(), propsIndicio({ confianza: "alta" })), ID_A, ID_B));
+  const mapa = crearMapaDoble();
+  const vista = crearVistaDoble();
+  const ctl = crearControlador({ mapa, cargarJson: cargar, vista, config: CONFIG, alCambiarEnlace: (e) => enlaces.push(e) });
+  await ctl.iniciar({ municipio: A.ine });
+  pulsar(mapa, "discrepancias", 1);
+  assert.equal(vista.ficha.tipo, "indicio");
+  assert.equal(vista.ficha.nombreCapa, INDICIOS.nombre);
+  assert.equal(vista.ficha.ficha.confianza, "confianza alta");
+  assert.deepEqual(ultima(enlaces), { municipio: A.ine, tramo: ID_B });
+  ctl.cerrarFicha();
+  assert.equal(vista.ficha, null);
+  assert.equal(mapa.r.deselecciones, 1);
+  assert.deepEqual(ultima(enlaces), { municipio: A.ine, tramo: null });
+  // Una vía pecuaria abre su ficha corta y no pone tramo en el enlace.
+  pulsar(mapa, "vias_pecuarias", 0);
+  assert.equal(vista.ficha.tipo, "trazado");
+  assert.equal(vista.ficha.atribucion, VIAS.atribucion);
+  assert.deepEqual(ultima(enlaces), { municipio: A.ine, tramo: null });
+  // Apagar la capa del trazado abierto cierra su ficha.
+  ctl.cambiarCapa("vias_pecuarias", false);
+  assert.equal(vista.ficha, null);
+});
+
+test("H185 CA3: la ficha pone primero el resumen y el aviso sin plegar; fuentes, imágenes y criterio se pliegan", () => {
+  const panel = nodoDe(propsIndicio());
+  const [tipo, titulo, cuerpo] = panel.children;
+  assert.equal(tipo.textContent, "Indicio a verificar");
+  assert.equal(titulo.textContent, "Trazado en una fuente y no en otra");
+  const ficha = cuerpo.children[0];
+  const etiquetas = ficha.children.map((n) => n.tagName);
+  const plegables = ficha.children.filter((n) => n.tagName === "details");
+  assert.deepEqual(plegables.map((d) => d.children[0].textContent), [`${CONFIG.textos.fuentes} (2)`, CONFIG.textos.comoSeCalcula]);
+  const aviso = ficha.children.find((n) => n.className === "ficha-aviso");
+  assert.equal(aviso.textContent, AVISO, "el aviso va fuera de todo plegable");
+  assert.ok(etiquetas.indexOf("details") > ficha.children.indexOf(aviso));
+  // Las URL https son enlaces con texto corto; la URL entera queda en href y title.
+  const [enlace] = hijos(ficha).filter((h) => h.tagName === "a");
+  assert.equal(enlace.textContent, CONFIG.textos.abrirConsulta);
+  assert.equal(enlace.atributos.href, "https://ejemplo.invalid/a");
+  assert.equal(enlace.atributos.title, "https://ejemplo.invalid/a");
+  assert.equal(enlace.atributos.rel, "noopener noreferrer");
+  // Ficha no disponible: el aviso sigue, sin plegables.
+  const rota = nodoDe({}).children[2].children[0];
+  assert.ok(rota.textContent.includes(AVISO));
+  assert.equal(rota.children.filter((n) => n.tagName === "details").length, 0);
+});
+
+test("H185 CA3: los botones de la ficha acercan y copian el enlace; ampliar cambia aria-expanded", () => {
+  const doc = documentoFalso();
+  const vista = crearVista(doc, CONFIG.textos);
+  const llamadas = [];
+  vista.conectar({ alAcercar: () => llamadas.push("acercar"), alCopiarEnlace: () => llamadas.push("copiar") });
+  vista.abrirFicha({ tipo: "indicio", capaId: "discrepancias", id: ID_A, nombreCapa: "Indicio a verificar", ficha: fichaIndicio(propsIndicio(), CONFIG), comparacion: null });
+  const botones = hijos(doc.elementos["ficha-cuerpo"]).filter((h) => h.tagName === "button");
+  assert.deepEqual(botones.map((b) => b.textContent), [CONFIG.textos.acercar, CONFIG.textos.copiarEnlace]);
+  for (const b of botones) b.disparar("click");
+  assert.deepEqual(llamadas, ["acercar", "copiar"]);
+  vista.ampliarFicha(true);
+  assert.equal(doc.elementos["ficha-ampliar"].getAttribute("aria-expanded"), "true");
+  vista.cerrarFicha();
+  assert.equal(doc.elementos.ficha.getAttribute("hidden"), "");
+  assert.equal(doc.elementos["ficha-cuerpo"].children.length, 0);
+});
+
+test("H185 CA4: el enlace se lee y se escribe con municipio y tramo validados", () => {
+  assert.deepEqual(leerEnlace("?municipio=28043&tramo=4bb7d47423d242f7"), { municipio: "28043", tramo: "4bb7d47423d242f7" });
+  assert.deepEqual(leerEnlace(""), { municipio: null, tramo: null });
+  assert.deepEqual(leerEnlace("?municipio=2804"), { municipio: null, tramo: null });
+  assert.deepEqual(leerEnlace("?tramo=4bb7d47423d242f7"), { municipio: null, tramo: null }, "tramo sin municipio no vale");
+  assert.deepEqual(leerEnlace("?municipio=28043&tramo=<script>"), { municipio: "28043", tramo: null });
+  assert.equal(escribirEnlace({ municipio: "28043", tramo: "4bb7d47423d242f7" }), "?municipio=28043&tramo=4bb7d47423d242f7");
+  assert.equal(escribirEnlace({ municipio: "28043", tramo: null }), "?municipio=28043");
+  assert.equal(escribirEnlace({ municipio: null, tramo: "4bb7d47423d242f7" }), "");
+  assert.equal(escribirEnlace(), "");
+});
+
+test("H185 CA4: un enlace con tramo abre el municipio, enciende su capa, lo selecciona y abre la ficha", async () => {
+  const { cargar } = cargadorIndicios(conIds(coleccion(propsIndicio(), propsIndicio({ confianza: "alta" })), ID_A, ID_B));
+  const mapa = crearMapaDoble();
+  const vista = crearVistaDoble();
+  const ctl = crearControlador({ mapa, cargarJson: cargar, vista, config: CONFIG });
+  await ctl.iniciar({ municipio: A.ine, tramo: ID_B });
+  assert.equal(ctl.estado.actual, A.ine);
+  assert.equal(ctl.estado.capas.discrepancias.visible, true, "la capa nace apagada pero el enlace la enciende");
+  assert.equal(vista.marcadas.discrepancias, true);
+  assert.deepEqual(ultima(mapa.r.selecciones), ["discrepancias", ID_B]);
+  assert.deepEqual(ultima(mapa.r.encuadresRasgo), ["discrepancias", ID_B]);
+  assert.equal(vista.ficha.ficha.confianza, "confianza alta");
+});
+
+test("H185 CA4: un tramo que ya no está abre el municipio y lo dice; un municipio desconocido abre España", async () => {
+  const { cargar } = cargadorIndicios(conIds(coleccion(propsIndicio()), ID_A));
+  const mapa = crearMapaDoble();
+  const vista = crearVistaDoble();
+  const ctl = crearControlador({ mapa, cargarJson: cargar, vista, config: CONFIG });
+  await ctl.iniciar({ municipio: A.ine, tramo: ID_B });
+  assert.equal(ctl.estado.actual, A.ine);
+  assert.equal(vista.ficha, null);
+  assert.equal(vista.mensaje, CONFIG.textos.tramoNoPublicado);
+  assert.equal(ctl.estado.capas.discrepancias.visible, false, "no se enciende nada");
+  const otro = crearControlador({ mapa: crearMapaDoble(), cargarJson: cargarJsonFixture, vista: crearVistaDoble(), config: CONFIG });
+  await otro.iniciar({ municipio: "99999" });
+  assert.equal(otro.estado.actual, null);
+});
+
+test("H185: mapa.js dibuja el velo con un hueco por municipio, sus bordes y la etiqueta solo a escala pequeña", async () => {
+  const { mapa, reg, m } = mapaReal();
+  const cobertura = await leer("cobertura.geojson");
+  const pulsados = [];
+  mapa.ponerCobertura(cobertura, { etiqueta: { textContent: "Primer hito" }, zoomEtiqueta: 9, alPulsarMunicipio: (ine) => pulsados.push(ine), alPulsarEtiqueta: () => pulsados.push("hito") });
+  const [velo, halo, bordes] = reg.geojsons;
+  assert.equal(velo.opciones.pane, "pc-cobertura-velo");
+  assert.equal(velo.opciones.interactive, false);
+  assert.equal(velo.datos.geometry.coordinates.length, 1 + cobertura.features.length, "mundo + un hueco por municipio");
+  assert.equal(reg.panes["pc-cobertura-velo"].style.zIndex, "350");
+  assert.ok(Number(reg.panes["pc-cobertura"].style.zIndex) < 400, "por debajo de las capas de trazados");
+  assert.equal(halo.opciones.interactive, false);
+  bordes.subcapas[1].disparar("click");
+  assert.deepEqual(pulsados, [B.ine]);
+  const [etiqueta] = reg.marcadores;
+  assert.ok(m.hasLayer(etiqueta), "zoom 6 < 9: se ve la etiqueta");
+  m.zoom = 12;
+  m.eventos.zoomend();
+  assert.ok(!m.hasLayer(etiqueta), "acercado: los contornos bastan");
+  etiqueta.eventos.click({});
+  assert.deepEqual(pulsados, [B.ine, "hito"]);
+});
+
+test("H185: mapa.js cambia de fondo sin duplicar teselas y selecciona un trazado por id", () => {
+  const { mapa, reg, m } = mapaReal();
+  const [gris, orto] = reg.tiles;
+  mapa.ponerFondo("ortofoto");
+  assert.ok(m.hasLayer(orto) && !m.hasLayer(gris));
+  mapa.ponerFondo("ortofoto");
+  mapa.ponerFondo("mapa");
+  assert.ok(m.hasLayer(gris) && !m.hasLayer(orto));
+  assert.throws(() => mapa.ponerFondo("satelite"), /Fondo desconocido/);
+  const [t] = dibujar(mapa, reg, "discrepancias", coleccionDe({ ...feat(lineaDe(SEGMENTO)), id: ID_A }), { claveDe: () => "indicioAlta", orden: 40 });
+  assert.equal(mapa.seleccionar("discrepancias", ID_B), false);
+  assert.equal(mapa.seleccionar("discrepancias", ID_A), true);
+  assert.equal(t.halo.ultimoEstilo.color, BASE.seleccionHalo.claro);
+  mapa.encuadrarRasgo("discrepancias", ID_A);
+  assert.deepEqual(ultima(m.encuadres), { rasgo: ID_A });
+  mapa.deseleccionar();
+  assert.deepEqual(t.linea.ultimoEstilo, estiloTrazado("indicioAlta", "normal", "claro", false).linea);
+});
+
+test("H185 CA5: ningún texto nuevo del visor lleva palabras vetadas ni referencias catastrales", () => {
+  const vetadas = JSON.parse(process.env.VISOR_BANNED_WORDS ?? "[]");
+  const textos = Object.values(CONFIG.textos).filter((t) => typeof t === "string");
+  textos.push(...CONFIG.capas.map((c) => c.nombre), ...CONFIG.fondos.map((f) => f.titulo));
+  for (const t of textos) {
+    for (const v of vetadas) assert.ok(!normalizar(t).includes(normalizar(v)), `${v} en «${t}»`);
+    assert.doesNotMatch(t, REFCAT);
   }
 });
