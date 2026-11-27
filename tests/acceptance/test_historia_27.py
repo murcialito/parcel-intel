@@ -296,6 +296,7 @@ def test_ca7_un_municipio_que_falla_se_informa_y_los_demas_se_generan(
 
 
 @pytest.mark.integration
+@pytest.mark.fuera_de_ci  # api-features.idee.es agota el tiempo (30 s) desde GitHub Actions
 def test_ca8_integracion_los_7_municipios_reales(tmp_path: Path) -> None:
     """[integración] Dados los 7 municipios reales, cuando se ejecuta el lote, entonces cada uno
     produce su fichero y Colmenar contiene tramos sin asfaltar."""
