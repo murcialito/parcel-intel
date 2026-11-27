@@ -826,3 +826,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el WMS de la IDEM responde 200 con un PNG blanco fuera de cobertura (y la URL de `GetMap` que anuncia su `GetCapabilities` da 404); un `ServiceException` XML también llega con 200. El filtro fiable es validar la firma PNG antes de cachear y medir la varianza de gris (media de R, G, B) después. No hay Pillow en el proyecto: se reutiliza `adapters/evidence/png.py::decode_png`. Los identificadores `CM_*` son distintos de `AMS_1956-1957` del IGN: cada adapter rechaza con `InvalidHistoricalVintageError` los vuelos que no son suyos, y elegir adapter por vuelo es cosa de la composición (#208).
   - **Aplica a**: implementación (#208 y cualquier otra fuente de ortofoto por WMS).
 
+## [2026-11-27] Historia #247 — Licencia del IGN y servidumbre de cauces
+
+- **Lección**: la licencia del IGN (CC BY 4.0, Orden FOM/2807/2015) sí cubre las obras derivadas, pero exige la fórmula «Obra derivada de <identificador> <fecha> CC-BY 4.0 <atribución>» visible a pie de mapa y repetida en abstract, lineage y AccessConstraints de los metadatos. El PDF remite a `scne.es/productos.html` para los valores concretos de cada producto, y esa tabla hay que leerla al publicar. `WebFetch` no decodifica el PDF; se descarga con `curl` y se extrae con `uv run --with pypdf python -I`. Ni el TRLA (art. 6) ni el RDPH (arts. 6–7) dicen desde qué línea se mide la servidumbre de 5 m, solo que afecta a los «terrenos que lindan con los cauces»; una franja desde el eje es siempre aproximada.
+  - **Aplica a**: implementación de las historias de derivar y publicar la franja | revisión.
+
