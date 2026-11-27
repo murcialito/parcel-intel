@@ -1,5 +1,5 @@
 """Lectura estricta de las revisiones humanas de candidatos a corte — historia #168,
-ADR 0046.
+ADR 0047.
 
 `<root>/<ine>/revision.json` (por defecto `curated/candidatos/`) es entrada humana
 versionada en un repo **público**. Formato cerrado:

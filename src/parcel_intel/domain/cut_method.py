@@ -217,7 +217,7 @@ def _fuse(samples: Sequence[TrailSample], runs: list[list[int]]) -> list[list[in
 
 def stretch_key(stretch: MultiLineGeometry) -> list[list[list[float]]]:
     """Clave del tramo a 0,01 m (`+ 0.0` para que `-0.0` y `0.0` coincidan). La usan el
-    `candidate_id` y la huella del candidato (#168, ADR 0046)."""
+    `candidate_id` y la huella del candidato (#168, ADR 0047)."""
     return [
         [
             [round(x, COORDINATE_DECIMALS) + 0.0, round(y, COORDINATE_DECIMALS) + 0.0]

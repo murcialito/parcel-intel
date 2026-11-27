@@ -1,4 +1,4 @@
-"""Piezas comunes de la revisión humana — historia #168, ADR 0046.
+"""Piezas comunes de la revisión humana — historia #168, ADR 0047.
 
 La revisión humana (trazados digitalizados, unidades georreferenciadas y
 candidatos a corte) firma con un usuario de GitHub. El patrón vive solo aquí,

@@ -606,7 +606,7 @@ def test_ca9_el_fichero_de_candidatos_entra_tal_cual_en_imagenes_comparacion(
 
 
 def _reference_fingerprint(feature: dict[str, Any]) -> str:
-    """Implementación de referencia mínima del ADR 0046 §3, sobre el JSON del fichero."""
+    """Implementación de referencia mínima del ADR 0047 §3, sobre el JSON del fichero."""
     props = feature["properties"]
     identifier, version = props["metodo"].split("@")
 

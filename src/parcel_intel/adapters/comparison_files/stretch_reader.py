@@ -6,7 +6,7 @@
 
 Si falta `properties.id`, vale el `id` de la feature: así el fichero interno de
 candidatos (#128) entra tal cual y el id del manifiesto es el `candidate_id`
-(historia #168, ADR 0046 §5). Con los dos presentes y distintos, error."""
+(historia #168, ADR 0047 §5). Con los dos presentes y distintos, error."""
 
 import json
 import re

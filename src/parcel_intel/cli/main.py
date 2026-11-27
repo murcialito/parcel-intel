@@ -704,7 +704,7 @@ def _candidatos_corte(args: argparse.Namespace) -> int:
 def build_candidate_review_use_case(
     curated_dir: Path, candidates_dir: Path, comparison_dir: Path
 ) -> ListCandidateReviewsUseCase:
-    """Composition root de `revision-candidatos` (historia #168, ADR 0046). Solo
+    """Composition root de `revision-candidatos` (historia #168, ADR 0047). Solo
     lectores de ficheros: nada con red, base de datos ni LLM, y nada que escriba."""
     return ListCandidateReviewsUseCase(
         candidates=GeoJsonCutCandidateReader(candidates_dir),

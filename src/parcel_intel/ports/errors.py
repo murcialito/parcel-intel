@@ -251,7 +251,7 @@ class CutCandidateFileError(Exception):
 
 class CandidateReviewFileError(Exception):
     """El fichero de revisión de candidatos (`curated/candidatos/<ine>/revision.json`)
-    no cumple el formato -- historia #168, ADR 0046. Se rechaza entero. El detalle
+    no cumple el formato -- historia #168, ADR 0047. Se rechaza entero. El detalle
     nombra campos, posiciones y `candidate_id` ya validados; nunca el valor rechazado."""
 
     def __init__(self, path: str, detail: str) -> None:

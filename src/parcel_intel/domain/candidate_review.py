@@ -1,4 +1,4 @@
-"""Revisión humana de cada candidato a corte — historia #168, ADR 0046.
+"""Revisión humana de cada candidato a corte — historia #168, ADR 0047.
 
 Ningún candidato se publica sin que una persona lo haya mirado. Cada revisión
 sigue el mecanismo de los trazados históricos (ADR 0043): `propuesto`,
@@ -120,7 +120,7 @@ def _number(value: float) -> float:
 
 
 def candidate_fingerprint(candidate: CutCandidate) -> str:
-    """Huella del candidato (64 hex), algoritmo del ADR 0046 §3.
+    """Huella del candidato (64 hex), algoritmo del ADR 0047 §3.
 
     Cubre lo que el `candidate_id` no cubre y que juzga quien revisa: sujeto y fecha
     de su dato, condiciones, señales, confianza y evidencia. Excluye la procedencia

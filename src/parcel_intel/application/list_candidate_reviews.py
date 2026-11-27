@@ -1,4 +1,4 @@
-"""Listado del estado de revisión de los candidatos a corte — historia #168, ADR 0046.
+"""Listado del estado de revisión de los candidatos a corte — historia #168, ADR 0047.
 
 Por municipio: candidatos (#128), revisiones humanas (`curated/candidatos/`) y
 disponibilidad de imágenes de comparación (#122). No escribe nada, no usa red ni

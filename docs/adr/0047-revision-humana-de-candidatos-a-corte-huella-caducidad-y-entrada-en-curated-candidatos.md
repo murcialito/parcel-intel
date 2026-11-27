@@ -1,4 +1,4 @@
-# ADR 0046 — Revisión humana de candidatos a corte: huella del candidato, caducidad y entrada en curated/candidatos
+# ADR 0047 — Revisión humana de candidatos a corte: huella del candidato, caducidad y entrada en curated/candidatos
 
 Estado: aceptado
 Fecha: 2026-11-27
