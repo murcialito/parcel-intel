@@ -1,0 +1,20 @@
+{
+  "unit_id": "280246-w1",
+  "document_id": "280246",
+  "document_kind": "planimetria",
+  "municipality_code": "28157",
+  "document_date": "1874-05-29",
+  "document_date_precision": "day",
+  "scale_denominator": 25000,
+  "image": {
+    "kind": "wms_render",
+    "url": "https://www.ign.es/wms/minutas-cartograficas?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=Minutas&STYLES=&CRS=EPSG:25830&BBOX=459000.00,4448000.00,460000.00,4449000.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+    "sha256": "cb848fe655731d74d9f02b078bd0146c451006719a71367d3ac5adc504e39007",
+    "width_px": 500,
+    "height_px": 500,
+    "retrieved_at": "2026-11-26"
+  },
+  "provenance_source": "Planimetría de Valdelaguna, IGN, documento 280246",
+  "georeferenced_by": "fixture-sintetica",
+  "georeferenced_at": "2026-11-26T10:00:00+00:00"
+}

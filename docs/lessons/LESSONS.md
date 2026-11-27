@@ -536,6 +536,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: para que un comando pruebe «no se llama a la base» sin PostGIS, el composition root expone un único punto de apertura (`_georeference_repository`, un `contextmanager`) que los tests sustituyen por un doble que registra llamadas; `ajuste` no lo usa, y un test lo sustituye por una función que falla. La métrica que un comando imprime y que el dominio ya calcula en privado (cuadrantes) se hace pública en el dominio en vez de recalcularla en `cli/`.
   - **Aplica a**: implementación (comandos con base opcional).
+## [2026-11-27] Historia #59 — Segunda unidad histórica (Valdelaguna, 280246-w1)
+
+- **Lección**: una segunda unidad sintética se deriva de la primera desplazando solo las coordenadas métricas de los puntos (aquí −7200 m en X, +8550 m en Y) y dejando intactos píxeles y trazados: residuos y LOO son idénticos, el sha256 del CSV cambia y hay que reescribir el `control_points_sha256` de los trazados aprobados. El texto de licencia del IGN es «CC-BY 4.0» (con guion), no «CC BY 4.0»: los tests usan el literal del código.
+  - **Aplica a**: implementación (fixtures de nuevas unidades) | refinador (copiar literales de licencia).
+
+- **Lección**: un criterio «descarga real [integración]» no es comprobable con una imagen sintética: su sha256 no coincide con ningún render del WMS. Con una unidad sintética solo se prueba la caché y la procedencia; la descarga real corresponde a la tarea humana con datos reales.
+  - **Aplica a**: refinador.
+
 ## [2026-11-26] Historia #140 — Evidencia PNG de dos paneles
 
 - **Lección**: el WMS `pnoa-ma` del IGN sirve PNG de 8 bits RGB (tipo de color 2, sin entrelazar, todas las filas con filtro 0, 47 bloques `IDAT` en 400 × 352 px) y el recorte de minutas es igual. Con esos dos reales no se ejercita ningún filtro PNG distinto de 0: el decodificador propio sin Pillow se prueba con PNG **sintéticos escritos con un codificador independiente** (filtrado directo en el test) para los cinco tipos de color y los cinco filtros, además de los reales. Si solo hubiera fixtures reales, Sub, Up, Average y Paeth llegarían sin una sola prueba.
@@ -554,6 +562,19 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: las muestras de `trail_samples` salen de interpolaciones en coma flotante (`102.49999999999999`), así que un test que compare coordenadas con `==` falla aunque el método sea correcto; y el tramo de un candidato lleva un vértice por pieza de 5 m, no solo los dos extremos. Compara con `pytest.approx` y por extremos.
   - **Aplica a**: implementación (tests sobre muestras o tramos).
 
+## [2026-11-27] Historia #60 — Fixtures de Villarejo y runbook histórico
+
+- **Lección**: para una segunda unidad sintética que reutilice la imagen de otra, basta **trasladar** los puntos de control: la afín es invariante a la traslación, así que RMSE, residuo máximo y LOO coinciden con el oráculo de #139 (aquí con `abs=0.005`) sin recalcular nada. Cambian el `puntos_sha256` (hay que copiarlo a `control_points_sha256` de los trazados aprobados, con `sha256sum` del fichero ya escrito) y el `BBOX` de la URL. Para distinguir las unidades por su `.provenance.json` en un test, se da a cada sidecar una fecha de descarga distinta.
+  - **Aplica a**: implementación (fixtures hermanas).
+
+- **Lección**: al comprobar el orden de pasos de un runbook con `text.index`, la primera aparición de una palabra («CODEOWNERS») puede estar en la introducción; se indexan los encabezados de los pasos numerados, no las palabras sueltas.
+  - **Aplica a**: implementación (tests de documentos).
+
+## [2026-11-27] Historia #56 — Fixture sintética de Chinchón (281287-w1)
+
+- **Lección**: el id de trazado del código es `<unit_id>-<trail_id>` (`281287-w1-T001`), no `281287:<trazado>` como decía el criterio: se verifica el formato real antes de copiar el literal del criterio y se anota en el docstring del test. Para una unidad con fecha genérica basta una fixture hermana con `document_date_precision: "year"`; un test «guardia» que cambia `"year"` por `"day"` demuestra que el test de CA5 falla si el marcado se pierde. El hash `control_points_sha256` de los aprobados debe recalcularse con `sha256sum` tras trasladar los puntos.
+  - **Aplica a**: implementación (fixtures hermanas de unidades históricas).
+
 - **Lección**: `ruff format .` sin límite reformatea decenas de ficheros ajenos a la historia (aquí 51, incluidos ADR y código de otras historias) y ensucia la PR. Formatea solo los ficheros que has tocado (`ruff format <rutas>`), o comprueba `git status` antes de hacer commit.
   - **Aplica a**: implementación.
 
@@ -570,4 +591,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: `ruff format src tests` sin acotar volvió a reformatear 34 ficheros ajenos (ya avisaba la lección de #127). Pasa `ruff format` solo con las rutas tocadas.
   - **Aplica a**: implementación.
+## [2026-11-27] Historia #61 — Unidad sintética de Aranjuez (280027-w1)
+
+- **Lección**: un criterio que cita `historico cargar --documento 280022` describe una opción que no existe: el comando recibe la unidad (`280022-w1`) y el documento y la fecha viajan juntos en su `unidad.json`. Pedir el documento de 1943 sin unidad curada falla con «no existe» (salida 1, nada escrito), y un `document_id` distinto del prefijo del `unit_id` se rechaza al leer la unidad. Los tests prueban esos dos caminos en vez de inventar la opción.
+  - **Aplica a**: refinador (copiar las opciones reales del CLI de CLAUDE.md) | implementación.
+
+- **Lección**: la ruta que un criterio nombra (`tests/fixtures/caminos/planimetrias/280027/`) puede diferir de la que fija la línea `Toca:` y el método de #20 (`historico/280027-w1/`). Manda la convención vigente del repo; la diferencia se anota en el docstring del módulo de tests y en la PR.
+  - **Aplica a**: refinador | implementación.
 
