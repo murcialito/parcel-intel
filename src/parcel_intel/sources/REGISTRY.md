@@ -1362,6 +1362,8 @@ Tres textos de la fuente, citados literalmente:
 
 Fuera de alcance de la historia 0001 (ver sección "Fuera de alcance" de `docs/stories/0001-registro-fuentes.md`): vías pecuarias, Red Natura 2000, concesiones de agua, inventario municipal de caminos. SNCZI/dominio público hidráulico, que figuraba aquí mismo hasta la historia 0012, quedó verificado en esa historia (ver sección "SNCZI / Dominio Público Hidráulico — MITECO" más arriba: cursos de agua y peligrosidad por inundación `confirmado`, deslinde legal de DPH y zonas de servidumbre/policía `bloqueado`). Vías pecuarias, que figuraba aquí mismo hasta la historia 0014, quedó verificada en esa historia (ver sección "Vías pecuarias — IDEM, Comunidad de Madrid" más arriba: `confirmado`, un único servicio real encontrado bajo el workspace `Zonas` del mismo GeoServer de IDEM). Red Natura 2000, que figuraba aquí mismo hasta la historia 0015, quedó verificada en esa historia (ver sección "Red Natura 2000 y espacios protegidos — IDEM, Comunidad de Madrid" más arriba: `confirmado` como fuente real de planes de gestión, con el alcance explícito de que modela zonificación de planes, no el límite oficial de cada sitio individual con código EU). Concesiones de agua e inventario municipal de caminos quedan para una iteración posterior del registro, cuando las historias de reglas/afecciones las necesiten.
 
+- **Mosaico de ortofotos históricas catastrales (Sede Electrónica, años 80-90)**: fuente **no verificada**; acceso y licencia sin comprobar. Podría cubrir el hueco de 1957 a 1997 de la sección PNOA histórico, sin afirmar nada más (historia #287, fuente: comentario del fundador en #268).
+
 ### Publicar los tramos a verificar (historia #170)
 
 - **CA15 (flujo real), pendiente de la primera publicación real.** Por decisión del fundador en #170 (2026-11-27), no bloquea el merge: necesita candidatos aprobados a mano en `curated/candidatos/28043/revision.json`, y ningún agente puede aprobarlos (ADR 0047). Sin aprobados, `publicar-candidatos` no publica nada. La primera vez que se publique de verdad, ejecuta `uv run pytest -m "acceptance and integration" tests/acceptance/test_historia_170.py -k ca15` y anota aquí la fecha, cuántos tramos aprobados se publicaron y la línea `medición:` (solo números, sin referencias catastrales).
@@ -1391,6 +1393,62 @@ Verificado el **2026-11-27** para la [historia #219](https://github.com/murciali
 - **Canales no leídos**: la versión mínima de Android/iOS y de QGIS de QField (la ficha de Google Play y las docs no la dan en el texto recuperado); las páginas `get-started/tutorial`, `how-to/outside-layers` e `installation` de las docs (404); la lista de ficheros de la release; el texto del estándar GeoPackage más allá de los primeros 100.000 caracteres (las tablas obligatorias se tomaron del Anexo C y de la especificación conocida); la licencia de los ficheros de proyecto de QGIS como obra. Que no se leyeran no equivale a que no existan.
 - **Alternativa (punto 5)**: no hace falta de momento; si la reserva falla, GPX con puntos de interés y hoja de campo imprimible (el kit GPX/KML de #213 ya existe, coste cero).
 - **Generador real (historia #222)**: `publicar-kit-campo-qfield` escribe el proyecto por municipio con `sqlite3` y `xml.etree`. **Apertura en QField: PENDIENTE (`asumido`, no verificada).** Hasta que alguien con móvil abra el `.qgs` real de un municipio y anote aquí versión de QField, dispositivo y resultado (¿carga las capas? ¿aparece la advertencia y los desplegables de `tipo` y `estado`? ¿se guarda una incidencia con foto?), el ZIP no se enlaza ni se despliega en `site/` y `kit/indice.json` no se toca. El formulario usa elementos que la fixture de #219 no tenía (`DateTime`, `ExternalResource`, `attributeEditorHtmlElement` como cabecera): tampoco están comprobados en QField. Cuando se anote, ejecutar con `--incluir-en-indice`.
+
+## Catastro histórico de rústica (Sede Electrónica, historia #287)
+
+Historia #287, hija de #268 (épica #4). Solo documentación: no hay código ni datos en git. Los PDF y sus recortes están en `data/raw/catastro_historico/28043/` (fuera de git) y **no se publican nunca**. El agente no puede abrirlos, así que los datos de los productos se atribuyen al comentario del fundador en #268 (2026-11-27) y a su complemento en #287 (2.ª y 3.ª renovación). Uso **solo interno** (ADR 0040). Ver también «Catastro a una fecha (historia #209)» y «Catastrones (historia #211)».
+
+### Productos de rústica en la Sede, para Colmenar de Oreja
+
+- La Sede ofrece **5 productos de rústica** para Colmenar de Oreja (28043; código de Catastro 282043): Avance catastral, Topográfico Parcelario, 1.ª renovación, 2.ª renovación y 3.ª renovación (fundador, #268 y #287).
+- **No hay foto aérea retintada** para Colmenar. La página general de la ayuda menciona imágenes aéreas retintadas entre los productos del servicio, pero el fundador no encontró ninguna para este municipio (WebFetch de la ayuda del 2026-11-27 y comentario del fundador).
+- El inventario Excel de la provincia de Madrid **aún no está disponible**.
+
+### Lo descargado en Colmenar (2026-11-27)
+
+Cinco productos bajados por el fundador con su Cl@ve. Datos transcritos de su comentario; ninguno se ha abierto desde el agente.
+
+| Producto | Nº PDF | Polígonos | Escaneado | Época y escala | Nota |
+|---|---|---|---|---|---|
+| Avance catastral (AC) | 79 | 49 (numeración propia, «Sección A») | ~254 ppp, A4 | 1902-1913 (manual); croquis sin escala | Caminos con nombre y doble trazo. A mano, en rojo, el número de polígono posterior |
+| Topográfico Parcelario (TP) | 105 | 79 | 10029×7677 px, ~250 ppp (~0,2 m/px a 1:2000) | Febrero de 1947 (muestra del pol. 3), 1:2000 | Cuadrícula sin coordenadas. Caminos y cañadas con nombre, numerados en romanos (I, II, III) |
+| 1.ª renovación (1R) | 83 | 79 | ~200 ppp | 1985-1988 (manual); hojas 1:5000 (pol. 5, 1:4000) | Trae el único distribuidor (1:25 000). Los límites de polígono siguen los caminos. Mismos 79 polígonos que el TP: sirve de índice del TP. Los caminos aparecen como parcelas de la serie 9000 |
+| 2.ª renovación (2R) | 85 (incluye distribuidor) | no indicado | ~200 ppp | 1994-2005 (manual); hojas 1:5000 | **Coordenadas UTM en el margen** (p. ej. 4.436.500 N / 467.000 E en el pol. 9). Por error de origen, el `.7z` trae una hoja de la 1.ª renovación |
+| 3.ª renovación (3R) | 34 (solo parte de los polígonos) | no indicado | ~200 ppp | 2005-2006 (manual), actualización sobre ortofotografía; hojas 1:5000 | **Coordenadas UTM en el margen** y cruces de cuadrícula. La hoja del pol. 5 está escaneada al revés y lleva «ACT-2000» a mano. Vienen `POL073` y `POL73` como hojas separadas |
+
+- El TP no trae el distribuidor georreferenciado (`jpg` + `jgw`) que anuncia el manual de la Sede.
+- Las coordenadas de 2R y 3R permiten georreferenciar a partir de la cuadrícula impresa. **Suposición sin verificar**: quizá estén en ED50 / UTM 30N, que habría que transformar a ETRS89 (EPSG:25830).
+
+### Acceso y formato
+
+- **Acceso**: exige certificado electrónico o Cl@ve personal (la ayuda de la Sede admite ambos; las condiciones técnicas de la resolución de 2011 hablan de certificado digital). La descarga la hace una persona; un agente no puede iniciar sesión.
+- **Formato**: cada producto es un `.7z` con solo cartografía: un PDF por polígono y hoja. Escaneado JPEG sin texto y **sin georreferenciar** (ninguno trae `jgw`); solo 2R y 3R tienen coordenadas impresas en el margen.
+- No vienen Hojas de Características, Relación de Propietarios ni Fichas parcelarias (ver Exclusiones).
+- **Renovaciones**: la historia proponía no bajar la 2.ª y la 3.ª por haber PNOA desde 1994. Ese criterio queda sin efecto: la 2.ª y la 3.ª **sí se bajaron**, y el fundador pidió incluirlas aquí (complemento de #287, 2026-11-27).
+
+### Licencia
+
+Documento primario: [Resolución de 23 de marzo de 2011 de la Dirección General del Catastro](https://www.catastro.hacienda.gob.es/ayuda/legislacion/ovc/resoluciondgc20110323_tfs.pdf), leída el **2026-11-27** (texto extraído del PDF con `pypdf`). Se citan las cláusulas generales del Anexo I por su número:
+
+- **Cláusula 5**: «No se autoriza el uso público ni la comercialización de la información catastral original.» Tampoco su difusión por procedimientos distintos a la interoperabilidad (cláusulas 9 y 10).
+- **Cláusula 6**: se autoriza el uso público, incluido el comercial, de la información **transformada**; la transformación no puede alterar el contenido ni desnaturalizar su sentido.
+- **Cláusula 7**: los productos derivados no suplantan a los de la DGC: no se identifican como «cartografía catastral», «información catastral» ni términos equivalentes que puedan inducir a confusión.
+- **Cláusula 8**: «En ningún caso se autoriza a que la información catastral original descargada y no trasformada pueda ser difundida a través de Internet.»
+- **Cláusula 12**: hay que citar la fuente (la Dirección General del Catastro, del Ministerio de Economía y Hacienda) y la fecha de acceso al producto.
+- Plazo (cláusula 13): 10 años desde la descarga. Séptimo: la información distribuida sin transformar «carecerá de fehaciencia».
+
+**Conclusión**: `publicable: no` para los originales (PDF y escaneados) y para sus recortes (cláusulas 5 y 8). Un trazado redibujado a partir de ellos, transformado, sería una decisión aparte. Cita del dossier, tal como la decidió el fundador: «Dirección General del Catastro, cartografía histórica, Sede Electrónica, municipio, producto y polígono, fecha de acceso». Aviso: la cláusula 12 pide además «Ministerio de Economía y Hacienda», que la cita decidida no incluye; queda para decidir con el fundador.
+
+### Exclusiones
+
+- **Nunca se bajan** las Hojas de Características, la Relación de Propietarios y las Fichas parcelarias: llevan nombres de propietarios.
+- Este registro no copia ninguna referencia catastral de finca ni ningún nombre de persona o sociedad. Los nombres de caminos y los números de polígono son topónimos y numeración de la cartografía pública.
+
+### Siguiente paso
+
+- La **ficha interna por trazado** en `curated/` (cita de la fuente, sin imagen publicada) queda como **decisión posterior**, a tomar con esta verificación (#268).
+- Para el TP se valorará si sirve la tubería de `curated/historico` (historia #139, ADR 0043: unidad, puntos de control y ajuste). La dificultad es que el TP **no está georreferenciado** y hoy esa tubería espera imágenes de `ign_planimetrias`. 2R y 3R sí traen coordenadas en el margen (ED50 probable, sin verificar).
+- Numeración: el Avance catastral y el TP tienen numeraciones distintas; la anotación roja del AC parece dar la equivalencia. **Sin verificar.**
 
 ## Catálogo de caminos públicos de Cáceres y Extremadura como conjunto de validación (historia #279)
 
