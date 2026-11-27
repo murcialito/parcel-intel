@@ -65,9 +65,10 @@ de memoria.
 
 ### Dirección General del Catastro — indicios derivados (ADR 0041)
 
-- Se publican indicios y resultados sobre un trazado que usan Catastro como contraparte
-  (por ejemplo, «no aparece en los caminos derivados de Catastro»), nunca la geometría ni
-  los atributos de las parcelas ni sus referencias.
+- Se publican indicios y tramos a verificar sobre un trazado que usan Catastro como contraparte
+  o como señal (por ejemplo, «no aparece en los caminos derivados de Catastro» o «el 80 % del
+  tramo cae dentro de parcelas que no figuran como vía de comunicación»), nunca la geometría
+  ni los atributos de las parcelas ni sus referencias.
 - Licencia de la fuente: licencia INSPIRE v1.0 de la Dirección General del Catastro
   (https://www.catastro.hacienda.gob.es/webinspire/documentos/Licencia.pdf), que autoriza
   el uso público de la información transformada citando la fuente y la fecha de consulta.
@@ -82,6 +83,15 @@ de memoria.
   La ficha de cada indicio muestra además la atribución literal de cada una de sus fuentes.
 - Aviso que acompaña a cada indicio (ficha de #16):
   `Esto no es un dictamen ni afirma que haya ninguna irregularidad. Es un indicio automático, con la confianza indicada, que debe contrastarse con la administración competente.`
+
+### Paso Común — tramos a verificar (ADR 0048, historia #170)
+
+- Licencia: CC BY 4.0 (datos derivados propios, ver «Licencias»). Solo se publican los
+  tramos que una persona ha aprobado tras revisarlos.
+- Aviso que acompaña a cada tramo (ficha de #16 y #169):
+  `Esto no es un dictamen ni afirma que haya ninguna irregularidad. Es un indicio automático, con la confianza indicada, que debe contrastarse con la administración competente.`
+- Cada tramo con la señal de Catastro cita en su ficha a la Dirección General del Catastro
+  con la fecha de consulta y la atribución de la sección anterior.
 
 ## Recursos de diseño
 

@@ -34,6 +34,6 @@ def test_la_atribucion_es_literal_de_notice() -> None:
 
 def test_capas_del_indice_son_las_de_trazados_mas_los_indicios() -> None:
     """#94 (ADR 0044): la capa de indicios entra en el índice sin entrar en PUBLISHED_LAYERS."""
-    assert set(INDEXED_LAYER_IDS) == set(PUBLISHED_LAYERS) | {"discrepancias"}
+    assert set(INDEXED_LAYER_IDS) == set(PUBLISHED_LAYERS) | {"discrepancias", "candidatos"}
     assert set(INDEXED_LAYER_IDS) == set(get_args(IndexedLayerId))
     assert list(INDEXED_LAYER_IDS) == sorted(INDEXED_LAYER_IDS)

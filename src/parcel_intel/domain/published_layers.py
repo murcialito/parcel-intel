@@ -20,13 +20,20 @@ from parcel_intel.domain.trail import SourceKind, Trail
 PublishedLayerId = Literal["vias_pecuarias", "camino_actual"]
 """Nombre del directorio en `site/datos/` y en `data/derived/`."""
 
-IndexedLayerId = Literal["vias_pecuarias", "camino_actual", "discrepancias"]
-"""Directorios de `site/datos/` que entran en el índice (historia #94, ADR 0044)."""
+IndexedLayerId = Literal["vias_pecuarias", "camino_actual", "discrepancias", "candidatos"]
+"""Directorios de `site/datos/` que entran en el índice (historias #94 y #170, ADR 0044
+y 0048)."""
 
-INDEXED_LAYER_IDS: tuple[IndexedLayerId, ...] = ("camino_actual", "discrepancias", "vias_pecuarias")
+INDEXED_LAYER_IDS: tuple[IndexedLayerId, ...] = (
+    "camino_actual",
+    "candidatos",
+    "discrepancias",
+    "vias_pecuarias",
+)
 """Única lista de capas del índice: las de trazados de `PUBLISHED_LAYERS` más la de
-indicios (`discrepancias`, que no es una capa de trazados de una sola fuente). Los
-dos sinks reconstruyen el índice con ella, así ningún comando borra la capa del otro."""
+indicios (`discrepancias`) y la de tramos a verificar (`candidatos`), que no son capas
+de trazados de una sola fuente. Los tres sinks reconstruyen el índice con ella, así
+ningún comando borra la capa de otro."""
 
 
 @dataclass(frozen=True)

@@ -51,7 +51,8 @@ def _criterion_label(criterion_id: str) -> str:
     return f"{identifier} v{version}"
 
 
-def _evidence(source: PublicSource) -> dict[str, object]:
+def evidence_document(source: PublicSource) -> dict[str, object]:
+    """Evidencia de una ficha en el fichero publicado; la comparten #94 y #170."""
     return {
         "papel": source.role,
         "fuente": source.label,
@@ -76,7 +77,7 @@ def _feature(item: PublishedDiscrepancy) -> dict[str, object]:
             "texto": card.text,
             "aviso": card.warning,
             "confianza": card.confidence_level,
-            "evidencia": [_evidence(source) for source in card.sources],
+            "evidencia": [evidence_document(source) for source in card.sources],
             "criterio": card.criterion,
             "descripcion_criterio": card.criterion_description,
             "aviso_omision": card.omission_notice,
@@ -160,7 +161,9 @@ def sidecar_document(
     }
 
 
-def _check_no_parcel_identifiers(label: str, text: str) -> None:
+def check_no_parcel_identifiers(label: str, text: str) -> None:
+    """Última barrera de los sinks de #94 y #170: `PublishedLayerError` si `text` tiene
+    algo con forma de referencia catastral o de localizador de parcela."""
     for pattern in (CADASTRAL_REFERENCE_RE, PARCEL_LOCATOR_RE):
         match = pattern.search(text)
         if match is not None:
@@ -220,8 +223,8 @@ class GeoJsonPublishedDiscrepancySink:
         document = layer_document(publication, provenance)
         text = dump_compact(document)
         sidecar = dump_provenance(sidecar_document(publication, provenance))
-        _check_no_parcel_identifiers(label, text)
-        _check_no_parcel_identifiers(label + PROVENANCE_SUFFIX, sidecar)
+        check_no_parcel_identifiers(label, text)
+        check_no_parcel_identifiers(label + PROVENANCE_SUFFIX, sidecar)
         size = len(text.encode("utf-8"))
         try:
             entry = entry_from_document(DISCREPANCY_LAYER_ID, code, document)
