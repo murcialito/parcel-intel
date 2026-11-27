@@ -850,3 +850,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: al citar una norma, comprobar que la cita es de la redacción consolidada **vigente**, no de una versión antigua. En #247 el art. 7.1 del RDPH se citó con la redacción anterior a 2016 (sin «paso público peatonal») y el test fijaba esas cadenas obsoletas, así que pasaba en verde con una cita falsa. Anotar la fecha de consulta y comprobar numeración de apartados (art. 6.2 a), no 6 a)); un test de cita debe afirmar el texto vigente y, si procede, la ausencia del obsoleto.
   - **Aplica a**: implementación | revisión de cualquier historia que cite normas.
 
+## [2026-11-27] Historia #219 — QField y el proyecto de campo
+
+- **Lección**: un proyecto QGIS/QField se puede generar sin QGIS (GeoPackage con `sqlite3` + `.qgs` XML a mano), pero eso solo prueba que el fichero es válido como SQLite y XML, no que QField lo abra. Dejar la apertura real como reserva `asumido` en `REGISTRY.md` y pedirla a quien tenga el móvil. `WebFetch` devuelve 404 en varias rutas de `docs.qfield.org` que salen en buscadores; hay que partir de las que enlaza la propia documentación.
+  - **Aplica a**: la historia hija que genere el proyecto real por municipio | revisión.
+
