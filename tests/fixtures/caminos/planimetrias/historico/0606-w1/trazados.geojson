@@ -1,0 +1,51 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[100.0, 100.0], [180.0, 160.0], [260.0, 200.0], [340.0, 300.0]]},
+      "properties": {
+        "trail_id": "T001",
+        "kind": "camino",
+        "label": "Camino de la fixture",
+        "review": "aprobado",
+        "reviewed_by": "fixture-sintetica",
+        "reviewed_at": "2026-11-27T11:00:00+00:00",
+        "control_points_sha256": "935c3075b95405724d8f374f7f136b39471d45142ea0f6ebfc212b8f110753d8"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[120.0, 380.0], [200.0, 340.0], [300.0, 330.0]]},
+      "properties": {
+        "trail_id": "T002",
+        "kind": "via_pecuaria",
+        "review": "aprobado",
+        "reviewed_by": "fixture-sintetica",
+        "reviewed_at": "2026-11-27T11:05:00+00:00",
+        "control_points_sha256": "935c3075b95405724d8f374f7f136b39471d45142ea0f6ebfc212b8f110753d8"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[300.0, 100.0], [380.0, 150.0]]},
+      "properties": {
+        "trail_id": "T003",
+        "kind": "senda",
+        "review": "propuesto"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[50.0, 450.0], [150.0, 470.0]]},
+      "properties": {
+        "trail_id": "T004",
+        "kind": "otro",
+        "review": "rechazado",
+        "reviewed_by": "fixture-sintetica",
+        "reviewed_at": "2026-11-27T11:10:00+00:00",
+        "review_note": "Trazo de la leyenda, no un camino"
+      }
+    }
+  ]
+}
