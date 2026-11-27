@@ -74,6 +74,37 @@ def test_ca2_cobertura_del_subconjunto_latino() -> None:
     assert not faltan_mono, sorted(hex(c) for c in faltan_mono)
 
 
+def _rangos_font_face() -> dict[str, set[int]]:
+    """`unicode-range` de cada `@font-face` de tokens.css, expandido a codepoints, por volcado."""
+    resultado: dict[str, set[int]] = {}
+    for bloque in re.findall(r"@font-face\s*\{[^}]*\}", TOKENS.read_text(encoding="utf-8")):
+        fichero = re.search(r"fonts/atkinson-hyperlegible-([a-z]+-\d+)\.woff2", bloque)
+        rango = re.search(r"unicode-range:\s*([^;]+);", bloque)
+        assert fichero and rango, bloque
+        cps: set[int] = set()
+        for parte in rango.group(1).split(","):
+            m = re.fullmatch(r"U\+([0-9A-Fa-f]+)(?:-([0-9A-Fa-f]+))?", parte.strip())
+            assert m, parte
+            desde = int(m.group(1), 16)
+            cps |= _rango(desde, int(m.group(2), 16) if m.group(2) else desde)
+        resultado[fichero.group(1)] = cps
+    return resultado
+
+
+def test_ca2_unicode_range_sin_flechas_ni_ad_ni_b5() -> None:
+    """CA2 (segunda mitad). Las flechas U+2190–2193, U+00AD y U+00B5 no aparecen en ningún
+    `unicode-range` de `site/css/tokens.css`, y el rango de cada fuente es subconjunto de su
+    volcado `cmap-*` (salvo la excepción documentada U+201B)."""
+    rangos = _rangos_font_face()
+    assert set(rangos) == set(WOFF2)
+    excluidos = _rango(0x2190, 0x2193) | {0xAD, 0xB5}
+    for nombre, cps in rangos.items():
+        assert not (cps & excluidos), (nombre, sorted(hex(c) for c in cps & excluidos))
+        controles = _rango(0, 0x1F) | _rango(0x7F, 0x9F)  # sin glifo, no están en el cmap
+        fuera = cps - _volcado(nombre) - {0x201B} - controles
+        assert not fuera, (nombre, sorted(hex(c) for c in fuera))
+
+
 def test_ca3_licencia_y_procedencia() -> None:
     """CA3. Dado `site/fonts/`, cuando se leen `OFL.txt` y `PROCEDENCIA.md`, entonces `OFL.txt`
     contiene el texto de la SIL Open Font License 1.1 y la procedencia indica fuente (Braille
