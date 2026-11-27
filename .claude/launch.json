@@ -4,8 +4,27 @@
     {
       "name": "api",
       "runtimeExecutable": "uv",
-      "runtimeArgs": ["run", "uvicorn", "parcel_intel.api.main:app", "--reload", "--port", "8000"],
+      "runtimeArgs": [
+        "run",
+        "uvicorn",
+        "parcel_intel.api.main:app",
+        "--reload",
+        "--port",
+        "8000"
+      ],
       "port": 8000
+    },
+    {
+      "name": "visor",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8765",
+        "--directory",
+        "site"
+      ],
+      "port": 8765
     }
   ]
 }
