@@ -19,7 +19,13 @@ from parcel_intel.domain.cut_signal_parcel import (
 )
 from parcel_intel.domain.discrepancy import TrailRef, TrailSample
 from parcel_intel.domain.discrepancy_criterion import SourceKind, pair_tolerance_m
-from parcel_intel.domain.geometry import BBox, TrailShape, shape_bbox, shape_segments, tile_bbox
+from parcel_intel.domain.geometry import (
+    BBox,
+    TrailShape,
+    municipality_tiles,
+    shape_bbox,
+    shape_segments,
+)
 from parcel_intel.domain.parcel import Parcel
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.domain.spatial_index import GridIndex
@@ -121,7 +127,7 @@ class CadastralParcelSignalProvider:
         if not zones:
             return
         [boundary] = self._boundaries.get_municipal_boundaries([municipality_code])
-        tiles = tile_bbox(shape_bbox(boundary.geometry), self._tile_side_m)
+        tiles = municipality_tiles(shape_bbox(boundary.geometry), self._tile_side_m)
         needed = _zone_tiles(tiles, zones, self._tile_side_m)
         port = self._parcels_for(municipality_code)
         by_reference: dict[str, Parcel] = {}

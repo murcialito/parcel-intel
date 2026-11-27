@@ -62,7 +62,8 @@ def test_imprime_el_resumen_los_caminos_y_la_marca_de_uso_interno(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], tmp_path: Path
 ) -> None:
     _con_fixtures(monkeypatch)
-    assert _run([*_ARGS, "--cache-dir", str(tmp_path)]) == 0
+    out = tmp_path / "out"
+    assert _run([*_ARGS, "--cache-dir", str(tmp_path), "--salida", str(out)]) == 0
     salida = capsys.readouterr().out
     assert "28043 COLMENAR DE OREJA" in salida
     for fragmento in (
@@ -76,9 +77,9 @@ def test_imprime_el_resumen_los_caminos_y_la_marca_de_uso_interno(
         "28043A99209202 area_m2=1950.0 clases=VT",
     ):
         assert fragmento in salida
-    assert salida.rstrip().endswith(
-        "Capa de uso interno: no publicable (licencia INSPIRE de Catastro)."
-    )
+    assert "Capa de uso interno: no publicable (licencia INSPIRE de Catastro)." in salida
+    assert "rejilla: bbox 469000,4439000,469600,4439600" in salida
+    assert (out / "28043.geojson").is_file()
 
 
 def test_el_cache_dir_por_defecto_es_data_raw_catastro() -> None:
