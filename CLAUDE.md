@@ -96,6 +96,12 @@ uv run python -m parcel_intel.cli.main publicar-discrepancias --ambito
 # GeoJSON de tramos en EPSG:25830 con properties.id de 16 hexadecimales. Nada va a site/. Todo o nada: sale con 1 y no escribe si una franja
 # falla, si hay más de 400 ventanas (antes de pedir nada) o si el manifiesto pasa de 3.000.000 bytes. --sin-red: solo desde la caché.
 uv run python -m parcel_intel.cli.main imagenes-comparacion --municipio 28043 --tramos ruta/tramos.geojson [--sin-red] [--cache data/raw]
+
+# Evidencia de los trazados históricos propuestos de una unidad (historia #140, ADR 0043): un PNG de dos paneles por trazado `propuesto`
+# (la planimetría con el trazado; PNOA en PNG con el trazado transformado y su banda de ± 2 × LOO) y su .procedencia.json, en
+# <curated>/<unit_id>/evidencia/. Los aprobados y rechazados no se tocan. Sin base de datos. Sale con 1, sin escribir, si la unidad no es
+# aceptable o tiene aprobaciones caducadas. La imagen de trabajo sale de --cache y PNOA de --cache-pnoa; --sin-red: solo desde las cachés.
+uv run python -m parcel_intel.cli.main historico evidencia <unit_id> [--curated curated/historico] [--cache data/raw/ign_planimetrias] [--cache-pnoa data/raw/pnoa_ma] [--sin-red]
 ```
 
 ## Contexto de negocio (resumen)

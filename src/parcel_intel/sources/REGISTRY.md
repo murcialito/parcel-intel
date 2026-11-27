@@ -176,6 +176,11 @@ Verificación para el ADR 0042 (ventanas de un tramo y franjas de vuelo). Petici
   | `window_capa_inexistente_serviceexception.xml` | `NOEXISTE` | 200 `text/xml`, `ServiceException code="LayerNotDefined"` | 554 | — |
 
   Un `ServiceException` llega con **200**, no con un error HTTP: solo la cabecera JPEG lo distingue. `OLISTAT` no tiene fixture propia (la ventana no se pidió); el test de #124 lo sirve con la de `SIGPAC` y solo comprueba que el vuelo se acepta. CA8 de #124 (`PNOA2023` real, `PNOA2010` sin cobertura) pasó contra la red real el 2026-11-26.
+- **PNOA en PNG para la evidencia de trazados históricos (historia #140, ADR 0043)**, `confirmado` el 2026-11-26 con `User-Agent: parcel-intel-verificacion/0.1`. Sin Pillow no se lee JPEG, así que el panel de PNOA se pide a `pnoa-ma` en PNG (el `pnoa-historico` da 502 en PNG).
+  - **URL canónica** (la que construye `CachedRawFetcher`, parámetros ordenados y codificados; es la ventana de `T003` de la unidad sintética `280075-w1`): `https://www.ign.es/wms-inspire/pnoa-ma?bbox=466400%2C4439749%2C467201%2C4440453&crs=EPSG%3A25830&format=image%2Fpng&height=352&layers=OI.OrthoimageCoverage&request=GetMap&service=WMS&styles=&version=1.3.0&width=400`.
+  - **Respuesta**: `200 image/png`, **369.049 bytes**, sha256 `5134e3f3a768c2f471566ad5a4bcab9f963b24ee8aa66ff63128ca5fc995c063`, 400 × 352 px. **Tipo de color 2 (RGB), 8 bits por canal, no entrelazado**, todas las filas con filtro 0 y 47 bloques `IDAT`; el decodificador propio (`adapters/evidence/png.py`) la lee. Es la fixture `tests/fixtures/caminos/planimetrias/historico/pnoa_ma_280075-w1_T003.png`. La primera prueba (200 × 200 px, `466200,4439450,466400,4439650`) dio 104.085 B.
+  - CA10 de #140 (`pytest -m integration tests/acceptance/test_historia_140.py`) vuelve a pedirla a la red real y la decodifica.
+  - Atribución de la evidencia: `Obra derivada de PNOA 2023 CC-BY 4.0 scne.es` (ADR 0043), con licencia `CC BY 4.0`.
 - **Sin fuentes nuevas ni licencias nuevas**: todo es PNOA (actual e histórico), CC BY 4.0, ya en la tabla resumen de licencias, que no cambia (`NOTICE`, historia #43). `NOTICE` recogerá estas atribuciones cuando se publique la primera imagen (#103).
 
 ---

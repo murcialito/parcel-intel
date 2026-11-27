@@ -284,3 +284,13 @@ class CuratedUnitNotFoundError(Exception):
         super().__init__(f"Sin entrada curada para la unidad {unit_id}: {detail}")
         self.unit_id = unit_id
         self.detail = detail
+
+
+class EvidenceImageFormatError(Exception):
+    """Una imagen de la evidencia no es un PNG de 8 bits no entrelazado que el
+    decodificador propio sepa leer (p. ej. entrelazado, de 16 bits, un JPEG o un
+    PNG corrupto) -- historia #140, ADR 0043 («Herramientas»: sin Pillow)."""
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(f"Imagen de evidencia no legible: {detail}")
+        self.detail = detail
