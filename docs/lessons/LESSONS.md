@@ -678,3 +678,7 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: PR #131 (#115). El push de 0887fd9 fue a las 08:35:15 y `gh pr ready` a las 08:35:19. La revisión de 0887fd9 se saltó y la del `ready_for_review` revisó 7b0e316.
   - **También**: con `cancel-in-progress: true`, la `concurrency` va en el job y no en el workflow, porque así un run que se salta por el `if` no cancela al que sí revisa. Y si cambia `revisar.yml` en `main`, las PRs abiertas fallan la revisión con `SIN_VEREDICTO` hasta traerse `main`: la acción se salta si su workflow no coincide.
   - **Aplica a**: workflows (`.github/`).
+
+- **Lección**: nunca `uv run ruff format .` sobre todo el repo: reformatea decenas de ficheros ajenos (aquí 48, con ADR y tests de otras historias) y rompe tests que leen el texto de esos ficheros (`test_historia_109` busca una línea alineada de `cut_candidate.py`). Formatea solo los ficheros de la historia (`ruff format <rutas>`) y mira `git status` antes de seguir.
+  - **Causa**: historia #169. Tras `ruff format .` falló un test de aceptación de #109 sin relación con el cambio; se restauró con `git checkout -- docs scripts src tests`.
+  - **Aplica a**: desarrollo.
