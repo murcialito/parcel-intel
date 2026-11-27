@@ -372,6 +372,13 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: antes de atribuir un camino a un municipio, comprobar que el homónimo no es otro: el «Colmenar» de una búsqueda era Colmenar Viejo (Vado de la Tabla), no Colmenar de Oreja (lección 0021 otra vez).
   - **Aplica a**: implementación | BA.
 
+## [2026-11-26] Historia #37 — Capa interna de caminos de Catastro
+
+- **Lección**: las referencias "de ejemplo" sintéticas pueden coincidir con una referencia real: la de la parcela 1 del polígono 1 de un municipio real (un ejemplo «inocente» con ceros a la izquierda en un test) casó con una huella de `tests/fixtures/catastro_huellas_reales.json` y rompió `test_historia_46::test_ca7`. Para tests de formato usar números ≥9000 (`28043A00109101`), que son los de la tabla sintética, y correr `uv run pytest` entero antes de la PR.
+  - **Aplica a**: implementación.
+
+- **Lección**: el WFS y `Consulta_DNPPP` del Catastro (`ovc.catastro.meh.es`) cortan la conexión (`Connection reset by peer`) desde los runners de GitHub Actions, aunque la raíz responda (400 a un GetCapabilities sin parámetros). Un criterio `[integración]` contra el Catastro real no puede verificarse en el agente; hay que ejecutarlo desde una máquina con acceso.
+  - **Aplica a**: BA | implementación.
 ## [2026-11-26] Historia #84 — Publicar capas en site/datos
 
 - **Lección**: una puerta "denegar por defecto" (aquí `PublishableLayer` con `layer_provenance`) también rechaza los casos degenerados que nadie miró, y el rechazo sale con el mensaje del caso común. La capa de vías pecuarias **vacía** toma la procedencia del límite del IGN (uso interno) porque no hay consulta de IDEM de la que tomarla. Se rechaza como «no redistribuible» y el mensaje sugiere regenerarla, lo que no arregla nada. Le pasa a Belmonte de Tajo (28019) en los datos reales, así que `publicar-capas --ambito` sale con 1.
@@ -413,6 +420,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: la lógica de decisión de un workflow (aquí «¿toca `curated/`?» y «¿aprobó el fundador el último commit?») se extrae a scripts que leen stdin; así se prueba con JSON fijo sin red y el YAML solo la invoca.
   - **Aplica a**: arquitecto | implementación.
 
+## [2026-11-26] Historia #37 — Capa interna de caminos de Catastro
+
+- **Lección**: una respuesta de error determinista de una fuente (aquí `lerr` de `Consulta_DNPPP`: «no existe ningún inmueble») se cachea igual que una buena; si no, `--sin-red` no puede repetir la pasada con red. La validación previa a la caché solo rechaza lo transitorio (excepciones de servicio, truncados) y el error de dominio se relanza al leer.
+  - **Causa**: el WFS de Catastro devuelve parcelas ≥ 9000 que DNPPP no reconoce; sin cachear el `lerr`, la repetición sin red falló con `RawCacheMissError`.
+  - **Aplica a**: implementación (adapters con `CachedRawFetcher`) | arquitecto.
 ## [2026-11-26] Historia #110 — Arnés de evaluación de candidatos
 
 - **Lección**: en una medida por muestreo de puntos medios con `<=` (aquí `line_overlap_fraction`, paso 1 m), un oráculo escrito a mano falla si el alcance coincide con la distancia de un punto medio (0,5 m del vértice): ese punto cuenta como cubierto. Al calcular el oráculo, listar los puntos medios cercanos a la frontera y elegir un alcance que no caiga justo en uno, o fijar ese caso límite a propósito en un test propio.
