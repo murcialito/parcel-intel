@@ -2,7 +2,11 @@
 
 `FeatureCollection` en EPSG:25830 con el miembro `crs` de los ficheros derivados
 (ADR 0030; sin él, error), `properties.id` de 16 hexadecimales y geometría
-`LineString` o `MultiLineString`. Cualquier otra cosa es `StretchFileFormatError`."""
+`LineString` o `MultiLineString`. Cualquier otra cosa es `StretchFileFormatError`.
+
+Si falta `properties.id`, vale el `id` de la feature: así el fichero interno de
+candidatos (#128) entra tal cual y el id del manifiesto es el `candidate_id`
+(historia #168, ADR 0047 §5). Con los dos presentes y distintos, error."""
 
 import json
 import re
@@ -36,6 +40,7 @@ class RawGeometry(TypedDict, total=False):
 
 
 class RawFeature(TypedDict, total=False):
+    id: str
     properties: RawProperties
     geometry: RawGeometry
 
@@ -91,6 +96,14 @@ def read_stretches(path: Path, municipality_code: str) -> tuple[StretchRequest, 
         label = f"feature {index}"
         properties = feature.get("properties") if isinstance(feature, dict) else None
         stretch_id = properties.get("id") if isinstance(properties, dict) else None
+        feature_id = feature.get("id") if isinstance(feature, dict) else None
+        if stretch_id is None:
+            # El fichero interno de candidatos (#128) lleva el id en la feature (#168, CA9).
+            stretch_id = feature_id
+        elif feature_id is not None and feature_id != stretch_id:
+            raise StretchFileFormatError(
+                path, f"{label}: properties.id y el id de la feature no coinciden"
+            )
         if not isinstance(stretch_id, str) or not _ID.fullmatch(stretch_id):
             raise StretchFileFormatError(
                 path, f"{label}: properties.id debe ser un id de 16 hexadecimales en minúscula"

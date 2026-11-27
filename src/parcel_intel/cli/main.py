@@ -17,11 +17,13 @@ from parcel_intel.adapters.catastro.area_adapter import (
     CatastroAreaAdapter,
 )
 from parcel_intel.adapters.comparison_files import (
+    JsonComparisonAvailabilityReader,
     JsonComparisonManifestWriter,
     ManifestTooLargeError,
     StretchFileFormatError,
     read_stretches,
 )
+from parcel_intel.adapters.curated_candidates import CuratedCandidateReviewFiles
 from parcel_intel.adapters.curated_historic import CuratedHistoricFiles
 from parcel_intel.adapters.cut_candidate_files import (
     GeoJsonCutCandidateReader,
@@ -100,6 +102,10 @@ from parcel_intel.application.cut_signals import CadastralParcelSignalProvider
 from parcel_intel.application.detect_cut_candidates import DetectCutCandidatesUseCase
 from parcel_intel.application.detect_discrepancies import DetectDiscrepanciesUseCase
 from parcel_intel.application.evaluate_candidates import EvaluateCandidatesUseCase
+from parcel_intel.application.list_candidate_reviews import (
+    ListCandidateReviewsUseCase,
+    MunicipalReviewListing,
+)
 from parcel_intel.application.load_historic_trails import HistoricUnitUseCase
 from parcel_intel.application.publish_discrepancies import PublishDiscrepanciesUseCase
 from parcel_intel.application.publish_layers import (
@@ -693,6 +699,83 @@ def _candidatos_corte(args: argparse.Namespace) -> int:
             f"señales sin_datos: {', '.join(no_data) or 'ninguna'} -> {args.salida}"
         )
     return 1 if failed else 0
+
+
+def build_candidate_review_use_case(
+    curated_dir: Path, candidates_dir: Path, comparison_dir: Path
+) -> ListCandidateReviewsUseCase:
+    """Composition root de `revision-candidatos` (historia #168, ADR 0047). Solo
+    lectores de ficheros: nada con red, base de datos ni LLM, y nada que escriba."""
+    return ListCandidateReviewsUseCase(
+        candidates=GeoJsonCutCandidateReader(candidates_dir),
+        reviews=CuratedCandidateReviewFiles(curated_dir),
+        images=JsonComparisonAvailabilityReader(comparison_dir),
+    )
+
+
+_REVIEW_LABEL = {
+    "proposed": "propuesto",
+    "approved": "aprobado",
+    "rejected": "rechazado",
+    "stale": "caducado",
+}
+
+
+def _print_review_listing(listing: MunicipalReviewListing) -> None:
+    """Salida literal del Diseño de #168. No imprime notas, `trail_id` del sujeto,
+    procedencias ni URLs: el sujeto puede ser un camino de Catastro (CA7)."""
+    code = listing.municipality_code
+    if listing.outcome == "fallo":
+        shown = code if code.isascii() and code.isdigit() and len(code) == 5 else "(no válido)"
+        print(f"municipio {shown}: fallo: {listing.error}", file=sys.stderr)
+        return
+    if listing.outcome == "sin_candidatos":
+        unchecked = listing.unchecked_reviews
+        print(f"municipio {code}: sin candidatos ({unchecked} revisiones sin comprobar)")
+        return
+    state = listing.state
+    assert state is not None  # garantizado con "listado"
+    reviewed = sum(1 for item in state.candidates if item.review is not None)
+    print(
+        f"municipio {code}: {len(state.candidates)} candidatos, "
+        f"{reviewed + len(state.orphans)} revisiones"
+    )
+    counts = Counter(item.status for item in state.candidates)
+    without_images = 0
+    for item in state.candidates:
+        candidate_id = item.candidate.candidate_id
+        images = listing.images[candidate_id]
+        if images != "con_imagenes":
+            without_images += 1
+        approved = ""
+        if item.status == "stale" and item.review is not None:
+            approved = f" aprobada={item.review.candidate_sha256}"
+        print(
+            f"{candidate_id} {_REVIEW_LABEL[item.status]} huella={item.fingerprint}"
+            f"{approved} imagenes={images}"
+        )
+    for orphan in state.orphans:
+        print(f"huérfana {orphan.candidate_id} {_REVIEW_LABEL[orphan.status]}")
+    print(
+        f"resumen {code}: propuestos={counts['proposed']} aprobados={counts['approved']} "
+        f"rechazados={counts['rejected']} caducados={counts['stale']} "
+        f"huérfanas={len(state.orphans)} sin_imagenes={without_images}"
+    )
+    if without_images:
+        print(f"aviso {code}: {without_images} candidatos sin imágenes de comparación")
+
+
+def _revision_candidatos(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        print("Indica --municipio <INE> (repetible) o --ambito.", file=sys.stderr)
+        return 1
+    use_case = build_candidate_review_use_case(args.curated, args.entrada, args.comparacion)
+    listings = use_case.execute(codes)
+    for listing in listings:
+        _print_review_listing(listing)
+    return 1 if any(listing.failed for listing in listings) else 0
 
 
 def _ratio_entry(value: float | None, **counts: int | str | list[str]) -> dict[str, object]:
@@ -1416,6 +1499,39 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio de salida de los ficheros internos <codigo_ine>.geojson",
     )
     candidatos_parser.set_defaults(func=_candidatos_corte)
+
+    revision_parser = subparsers.add_parser(
+        "revision-candidatos",
+        help="Estado de la revisión humana de los candidatos a corte (sin red; no escribe nada)",
+    )
+    revision_parser.add_argument(
+        "--municipio",
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible); uno no válido falla solo ese municipio",
+    )
+    revision_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito"
+    )
+    revision_parser.add_argument(
+        "--curated",
+        type=Path,
+        default=Path("curated/candidatos"),
+        help="Entrada humana versionada: <ine>/revision.json",
+    )
+    revision_parser.add_argument(
+        "--entrada",
+        type=Path,
+        default=Path("data/derived/candidatos/interno"),
+        help="Directorio con los ficheros internos <codigo_ine>.geojson de candidatos",
+    )
+    revision_parser.add_argument(
+        "--comparacion",
+        type=Path,
+        default=Path("data/derived/comparacion"),
+        help="Directorio de los manifiestos <codigo_ine>.json de imágenes de comparación",
+    )
+    revision_parser.set_defaults(func=_revision_candidatos)
 
     medir_parser = subparsers.add_parser(
         "medir-candidatos",

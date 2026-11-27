@@ -109,6 +109,18 @@ uv run python -m parcel_intel.cli.main candidatos-corte --ambito
 # GeoJSON de tramos en EPSG:25830 con properties.id de 16 hexadecimales. Nada va a site/. Todo o nada: sale con 1 y no escribe si una franja
 # falla, si hay más de 400 ventanas (antes de pedir nada) o si el manifiesto pasa de 3.000.000 bytes. --sin-red: solo desde la caché.
 uv run python -m parcel_intel.cli.main imagenes-comparacion --municipio 28043 --tramos ruta/tramos.geojson [--sin-red] [--cache data/raw]
+# El fichero interno de candidatos (#128) entra tal cual como --tramos (el id de la feature vale si falta properties.id; historia #168):
+# así los tramos[].id del manifiesto son los candidate_id.
+uv run python -m parcel_intel.cli.main imagenes-comparacion --municipio 28043 --tramos data/derived/candidatos/interno/28043.geojson
+
+# Revisión humana de los candidatos a corte (historia #168, ADR 0047): lista, por candidate_id, el estado (propuesto, aprobado, rechazado,
+# caducado), la huella actual (la que se copia en candidate_sha256 al aprobar) y la disponibilidad de imágenes; luego las huérfanas y un resumen.
+# Lee el fichero interno de candidatos, curated/candidatos/<ine>/revision.json (entrada humana en git, bajo la guardia de curated/**: se revisa
+# editándolo en una PR; ningún agente marca aprobado ni rechazado) y el manifiesto de imagenes-comparacion. Sin red, sin base, no escribe nada.
+# Sale con 1 si hay aprobaciones caducadas, revisiones huérfanas o un municipio falla (fichero de revisión o manifiesto no válidos, código no
+# válido); un municipio sin fichero de candidatos sale «sin candidatos» y no es fallo. Sin --municipio ni --ambito sale con 1.
+uv run python -m parcel_intel.cli.main revision-candidatos --municipio 28043 [--municipio ...] [--curated curated/candidatos] [--entrada data/derived/candidatos/interno] [--comparacion data/derived/comparacion]
+uv run python -m parcel_intel.cli.main revision-candidatos --ambito
 
 # Medir los candidatos a corte (historia #111): ejecuta el arnés de #110 con MATCH_CRITERION_V1 sobre el conjunto de validación (casos.json,
 # con sus CONGELADO*.md en el mismo directorio) y los ficheros internos de candidatos (#128). Escribe el informe agregado en JSON (cobertura y

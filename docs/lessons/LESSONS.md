@@ -695,6 +695,22 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: el 2026-11-27 sobre las 09:45 UTC, `api-features.idee.es` empezó a agotar el tiempo de lectura (30 s) con las consultas reales, también desde local. La PR #174 (#169) gastó cuatro vueltas marcando `fuera_de_ci` tests de #84, #27 y #25, acabó en `veto`, y `main` se quedó en rojo.
   - **Aplica a**: implementación, revisión y workflows.
 
+## [2026-11-27] Historia #168 — Revisión humana de candidatos a corte
+
+- **Lección**: si un criterio dice «un código no válido hace fallar ese municipio» (y el lote sigue), el código no se valida en `argparse` con `type=_municipality_code`: `argparse` sale con 2 antes de ejecutar nada y aborta el lote entero. La validación va en el caso de uso, que devuelve `fallo` para ese municipio. Y la línea de fallo no repite el código rechazado, igual que el resto de mensajes de una entrada pública.
+  - **Aplica a**: implementación (comandos por lote con `--municipio` repetible) | arquitecto.
+
+- **Lección**: una entrada humana que vive en un repo público (`curated/candidatos/<ine>/revision.json`) se valida con stdlib y mensajes propios, no con pydantic: sus errores incluyen `input_value`. Los mensajes nombran solo campos, posiciones y ids ya validados, y cuentan las claves desconocidas sin nombrarlas. El test de cada mutación busca un valor centinela (`valor-secreto-rechazado`) en stdout y stderr, además de `CADASTRAL_REFERENCE_RE`.
+  - **Aplica a**: implementación (lectores de ficheros versionados que pueden traer datos sensibles).
+
+- **Lección**: en las Actions de los agentes, un heredoc (`cat >> f <<'EOF'`) con `{"` dentro se deniega («brace with quote character»). Para añadir código a un fichero, `Read` + `Edit`.
+  - **Aplica a**: implementación.
+
+- **Lección**: el número de ADR «siguiente libre» se comprueba otra vez al fusionar `main` en la rama, no solo al crearlo: otra historia en desarrollo a la vez puede haber tomado el mismo número (aquí #165 fusionó su 0046 y este ADR pasó a 0047). El test de CA12 de #168 exige números de ADR únicos, y así el choque sale en CI.
+  - **Aplica a**: implementación | arquitecto (cuando el diseño fija el número del ADR).
+
+- **Lección**: un helper de test que «deja solo estas revisiones» debe partir de la fixture original (`generar.revision_document()`), no del fichero que el propio test acaba de reescribir: la segunda llamada encuentra un fichero ya recortado y falla con `KeyError`.
+  - **Aplica a**: implementación (tests que mutan una copia de la fixture varias veces).
 ## [2026-11-27] Historia #166 — Panel de capas, avisos y estados en el visor
 
 - **Lección**: al sustituir marcado que otros tests fijan (`<label for>` con el rótulo, reglas `.muestra-*`), el test viejo se actualiza a lo que de verdad prueba (el rótulo ahora es el nombre de la fila; las muestras ahora son reglas `.pc-muestra--* .h/.l`), no se relaja. Un regex sin `re.DOTALL` sobre HTML falla en silencio en cuanto el elemento pasa a varias líneas: `grep` de `index.html` en `tests/acceptance/` antes de editarlo.

@@ -1,0 +1,167 @@
+{
+ "municipio": "28043",
+ "politica": {
+  "id": "imagenes_comparacion",
+  "version": 1
+ },
+ "huecos": [],
+ "tramos": [
+  {
+   "id": "12b804770c6c38bd",
+   "estado": "generada",
+   "ventanas": [
+    {
+     "bbox": [
+      460000.0,
+      4436000.0,
+      460448.0,
+      4436448.0
+     ],
+     "srid": 25830,
+     "ancho_px": 448,
+     "alto_px": 448,
+     "trazo_px": [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        10,
+        10
+       ]
+      ]
+     ],
+     "imagenes": [],
+     "omitidas": []
+    },
+    {
+     "bbox": [
+      460000.0,
+      4436000.0,
+      460448.0,
+      4436448.0
+     ],
+     "srid": 25830,
+     "ancho_px": 448,
+     "alto_px": 448,
+     "trazo_px": [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        10,
+        10
+       ]
+      ]
+     ],
+     "imagenes": [
+      {
+       "franja": "historica",
+       "vuelo": "PNOA2023",
+       "periodo": "2023",
+       "resolucion_m": 0.25,
+       "atribucion": "PNOA (sintético)",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "bytes": 1000,
+       "procedencia": {
+        "fuente": "pnoa (sintético)",
+        "url": "https://example.invalid/pnoa",
+        "fecha_descarga": "2026-11-26",
+        "licencia": "licencia sintética",
+        "redistribucion": "publica"
+       }
+      }
+     ],
+     "omitidas": []
+    }
+   ]
+  },
+  {
+   "id": "7107a7aa44addbb3",
+   "estado": "generada",
+   "ventanas": [
+    {
+     "bbox": [
+      460000.0,
+      4436000.0,
+      460448.0,
+      4436448.0
+     ],
+     "srid": 25830,
+     "ancho_px": 448,
+     "alto_px": 448,
+     "trazo_px": [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        10,
+        10
+       ]
+      ]
+     ],
+     "imagenes": [],
+     "omitidas": []
+    }
+   ]
+  },
+  {
+   "id": "910f248ab773fae8",
+   "estado": "tramo_demasiado_largo",
+   "ventanas": []
+  },
+  {
+   "id": "cb30d538bb5ea601",
+   "estado": "generada",
+   "ventanas": [
+    {
+     "bbox": [
+      460000.0,
+      4436000.0,
+      460448.0,
+      4436448.0
+     ],
+     "srid": 25830,
+     "ancho_px": 448,
+     "alto_px": 448,
+     "trazo_px": [
+      [
+       [
+        0,
+        0
+       ],
+       [
+        10,
+        10
+       ]
+      ]
+     ],
+     "imagenes": [
+      {
+       "franja": "reciente",
+       "vuelo": "PNOA2023",
+       "periodo": "2023",
+       "resolucion_m": 0.25,
+       "atribucion": "PNOA (sintético)",
+       "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+       "bytes": 1000,
+       "procedencia": {
+        "fuente": "pnoa (sintético)",
+        "url": "https://example.invalid/pnoa",
+        "fecha_descarga": "2026-11-26",
+        "licencia": "licencia sintética",
+        "redistribucion": "publica"
+       }
+      }
+     ],
+     "omitidas": []
+    }
+   ]
+  }
+ ]
+}

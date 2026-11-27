@@ -215,7 +215,9 @@ def _fuse(samples: Sequence[TrailSample], runs: list[list[int]]) -> list[list[in
     return [sorted(members) for _, members in sorted(merged.items())]
 
 
-def _stretch_key(stretch: MultiLineGeometry) -> list[list[list[float]]]:
+def stretch_key(stretch: MultiLineGeometry) -> list[list[list[float]]]:
+    """Clave del tramo a 0,01 m (`+ 0.0` para que `-0.0` y `0.0` coincidan). La usan el
+    `candidate_id` y la huella del candidato (#168, ADR 0047)."""
     return [
         [
             [round(x, COORDINATE_DECIMALS) + 0.0, round(y, COORDINATE_DECIMALS) + 0.0]
@@ -233,7 +235,7 @@ def _candidate_id(
         "municipio": municipality_code,
         "fuente": kind,
         "trazado": trail_id,
-        "tramo": _stretch_key(stretch),
+        "tramo": stretch_key(stretch),
     }
     text = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]

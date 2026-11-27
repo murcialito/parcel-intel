@@ -22,6 +22,7 @@ from typing import Literal, get_args
 
 from parcel_intel.domain.geometry import Point
 from parcel_intel.domain.historic_trail import DatePrecision, HistoricDocumentKind
+from parcel_intel.domain.human_review import is_github_user
 from parcel_intel.domain.provenance import Provenance
 
 # ADR 0043, "Licencia y publicación".
@@ -43,7 +44,6 @@ _UNIT_ID_RE = re.compile(r"[0-9]{4,6}-[wh][0-9]+")
 _MUNICIPALITY_CODE_RE = re.compile(r"[0-9]{5}")
 _POINT_ID_RE = re.compile(r"P[0-9]{2,3}")
 _SHA256_RE = re.compile(r"[0-9a-f]{64}")
-_GITHUB_USER_RE = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})")
 
 _X_RANGE = (0.0, 1_000_000.0)
 _Y_RANGE = (3_000_000.0, 5_000_000.0)
@@ -175,9 +175,7 @@ class UnitSpec:
         _require_finite_nonnegative_int(self.image_width_px, "image_width_px")
         _require_finite_nonnegative_int(self.image_height_px, "image_height_px")
         self._check_provenance_source()
-        if not isinstance(self.georeferenced_by, str) or not _GITHUB_USER_RE.fullmatch(
-            self.georeferenced_by
-        ):
+        if not is_github_user(self.georeferenced_by):
             raise ValueError(
                 f"georeferenced_by debe ser un usuario de GitHub: {self.georeferenced_by!r}"
             )
