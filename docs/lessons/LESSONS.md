@@ -536,6 +536,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: para que un comando pruebe «no se llama a la base» sin PostGIS, el composition root expone un único punto de apertura (`_georeference_repository`, un `contextmanager`) que los tests sustituyen por un doble que registra llamadas; `ajuste` no lo usa, y un test lo sustituye por una función que falla. La métrica que un comando imprime y que el dominio ya calcula en privado (cuadrantes) se hace pública en el dominio en vez de recalcularla en `cli/`.
   - **Aplica a**: implementación (comandos con base opcional).
+## [2026-11-27] Historia #59 — Segunda unidad histórica (Valdelaguna, 280246-w1)
+
+- **Lección**: una segunda unidad sintética se deriva de la primera desplazando solo las coordenadas métricas de los puntos (aquí −7200 m en X, +8550 m en Y) y dejando intactos píxeles y trazados: residuos y LOO son idénticos, el sha256 del CSV cambia y hay que reescribir el `control_points_sha256` de los trazados aprobados. El texto de licencia del IGN es «CC-BY 4.0» (con guion), no «CC BY 4.0»: los tests usan el literal del código.
+  - **Aplica a**: implementación (fixtures de nuevas unidades) | refinador (copiar literales de licencia).
+
+- **Lección**: un criterio «descarga real [integración]» no es comprobable con una imagen sintética: su sha256 no coincide con ningún render del WMS. Con una unidad sintética solo se prueba la caché y la procedencia; la descarga real corresponde a la tarea humana con datos reales.
+  - **Aplica a**: refinador.
+
 ## [2026-11-26] Historia #140 — Evidencia PNG de dos paneles
 
 - **Lección**: el WMS `pnoa-ma` del IGN sirve PNG de 8 bits RGB (tipo de color 2, sin entrelazar, todas las filas con filtro 0, 47 bloques `IDAT` en 400 × 352 px) y el recorte de minutas es igual. Con esos dos reales no se ejercita ningún filtro PNG distinto de 0: el decodificador propio sin Pillow se prueba con PNG **sintéticos escritos con un codificador independiente** (filtrado directo en el test) para los cinco tipos de color y los cinco filtros, además de los reales. Si solo hubiera fixtures reales, Sub, Up, Average y Paeth llegarían sin una sola prueba.
