@@ -21,7 +21,7 @@ if (!VISOR_DIR || !FIXTURES) throw new Error("faltan VISOR_DIR o VISOR_FIXTURES"
 const importar = (nombre) => import(pathToFileURL(join(VISOR_DIR, nombre)).href);
 const { CONFIG } = await importar("config.js");
 const controladorMod = await importar("controlador.js");
-const { crearControlador, validarIndice, fichaDe, atribucionesVisibles, filtrarMunicipios, normalizar } = controladorMod;
+const { crearControlador, validarIndice, validarIndiceKit, tamanoLegible, fichaDe, atribucionesVisibles, filtrarMunicipios, normalizar } = controladorMod;
 const { crearMapa, escaparTexto } = await importar("mapa.js");
 const estilosMod = await importar("estilos-capas.js");
 const { crearVista } = await importar("vista.js");
@@ -149,6 +149,10 @@ function crearVistaDoble() {
     ponerRecuentoCapa(id, n) {
       v.recuentos[id] = n;
     },
+    kit: null,
+    ponerKit(modelo) {
+      v.kit = modelo;
+    },
     marcadas: {},
     marcarCapa(id, visible) {
       v.marcadas[id] = visible;
@@ -246,7 +250,7 @@ function documentoFalso() {
   const elementos = {};
   const capas = ["vias_pecuarias", "camino_actual", "discrepancias", "candidatos"];
   for (const id of [
-    "mensaje", "aviso-base", "resumen-candidatos",
+    "mensaje", "aviso-base", "resumen-candidatos", "kit-campo", "kit-cuerpo",
     // Historia #185: buscador, ámbito, ficha en panel, hoja móvil y aviso flotante.
     "buscar", "sugerencias", "ambito-nombre", "ambito-resumen", "ver-espana", "plegar",
     "ficha", "ficha-tipo", "ficha-titulo", "ficha-cuerpo", "ficha-ampliar", "aviso-flotante",
@@ -2274,4 +2278,175 @@ test("H185: ponerCobertura es idempotente: llamarla dos veces no duplica el velo
   assert.equal(velos.length, 2);
   assert.ok(!m.hasLayer(velos[0]) && m.hasLayer(velos[1]));
   assert.equal(reg.marcadores.filter((e) => m.hasLayer(e)).length, 1);
+});
+
+// --- Historia #223: kit de campo, enlaces de descarga ---------------------------------------
+
+const KIT_A = A.ine;
+const kitIndice = (municipios) => ({ aviso: "x", municipios });
+const kitEntrada = (ine, extra = {}) => ({
+  ine,
+  capas: ["vias_pecuarias", "discrepancias"],
+  capas_no_publicadas: ["camino_actual"],
+  ficheros: {
+    gpx: { ruta: `${ine}/tramos.gpx`, bytes: 12600 },
+    kml: { ruta: `${ine}/tramos.kml`, bytes: 800 },
+  },
+  ...extra,
+});
+const conKit = (kit) => async (ruta) => {
+  if (ruta === CONFIG.kit.indice) {
+    if (kit instanceof Error) throw kit;
+    return kit;
+  }
+  return cargarJsonFixture(ruta);
+};
+const texto223 = (nodo) => nodo.textContent;
+const enlaces223 = (nodo) => {
+  const salida = [];
+  const recoger = (n) => {
+    if (n.tagName === "a") salida.push(n);
+    for (const h of n.children ?? []) recoger(h);
+  };
+  recoger(nodo);
+  return salida;
+};
+
+test("H223 CA1: el municipio con kit muestra un enlace por fichero con download, ruta y tamaño legible", async () => {
+  const { vista } = await iniciado(conKit(kitIndice([kitEntrada(KIT_A)])));
+  const kit = vista.kit;
+  assert.ok(kit, "hay sección");
+  assert.equal(kit.municipio, A.nombre);
+  assert.deepEqual(kit.enlaces.map((e) => e.rotulo), ["Descargar GPX (12,3 KB)", "Descargar KML (800 bytes)"]);
+  assert.deepEqual(kit.enlaces.map((e) => e.href), [`datos/kit/${KIT_A}/tramos.gpx`, `datos/kit/${KIT_A}/tramos.kml`]);
+  // La vista real los pinta como <a href download>.
+  const doc = documentoFalso();
+  crearVista(doc, CONFIG.textos).ponerKit(kit);
+  const links = enlaces223(doc.elementos["kit-cuerpo"]);
+  assert.equal(links.length, 2);
+  for (const [i, a] of links.entries()) {
+    assert.equal(a.getAttribute("href"), kit.enlaces[i].href);
+    assert.ok(a.getAttribute("download"), "atributo download");
+    assert.equal(a.textContent, kit.enlaces[i].rotulo);
+  }
+  assert.equal(doc.elementos["kit-campo"].getAttribute("hidden"), null);
+});
+
+test("H223 CA2: un municipio sin entrada en el índice del kit no muestra sección ni error", async () => {
+  const { vista, ctl } = await iniciado(conKit(kitIndice([kitEntrada(B.ine)])));
+  assert.equal(vista.kit, null);
+  assert.equal(vista.mensaje, "");
+  assert.equal(vista.mensajes.length, 0);
+  const doc = documentoFalso();
+  crearVista(doc, CONFIG.textos).ponerKit(null);
+  assert.equal(doc.elementos["kit-campo"].getAttribute("hidden"), "");
+  assert.equal(enlaces223(doc.elementos["kit-cuerpo"]).length, 0);
+  await ctl.elegirMunicipio(B.ine);
+  assert.ok(vista.kit);
+});
+
+test("H223 CA3: sin índice del kit (404), con JSON roto o inválido el visor funciona igual, sin enlaces ni error visible", async () => {
+  for (const kit of [new Error("HTTP 404 en datos/kit/indice.json"), new SyntaxError("JSON"), { municipios: "no" }, null, []]) {
+    const { vista, mapa, ctl } = await iniciado(conKit(kit));
+    assert.equal(vista.kit, null);
+    assert.equal(vista.mensajes.length, 0, "ningún error al usuario");
+    assert.equal(vista.avisoBase, "");
+    assert.ok(ctl.estado.municipios.length > 0);
+    assert.ok(mapa.r.anadidas.length > 0, "las capas se dibujan igual");
+  }
+});
+
+test("H223 CA4: rutas no seguras, claves fuera de la lista blanca e ine repetido se descartan", () => {
+  const malas = ["/abs/tramos.gpx", "../tramos.gpx", "a/../b.gpx", "https://x.es/t.gpx", "a\\b.gpx", "", 3, null];
+  const ficheros = {
+    gpx: { ruta: `${KIT_A}/tramos.gpx`, bytes: 10 },
+    kml: { ruta: "/abs", bytes: 10 },
+    zip: { ruta: `${KIT_A}/tramos.zip`, bytes: 10 },
+    __proto__x: { ruta: `${KIT_A}/x`, bytes: 10 },
+    qfield: { ruta: `${KIT_A}/q.zip`, bytes: -1 },
+  };
+  const kit = validarIndiceKit(kitIndice([
+    kitEntrada(KIT_A, { ficheros }),
+    kitEntrada(KIT_A, { ficheros: { gpx: { ruta: "otra/tramos.gpx", bytes: 1 } } }), // ine repetido
+    kitEntrada("1234"), // ine no válido
+    kitEntrada(B.ine, { ficheros: Object.fromEntries(malas.map((r, i) => [i === 0 ? "gpx" : `x${i}`, { ruta: r, bytes: 1 }])) }),
+  ]), CONFIG);
+  assert.deepEqual([...kit.keys()], [KIT_A]);
+  assert.deepEqual(kit.get(KIT_A).ficheros, [{ clave: "gpx", ruta: `${KIT_A}/tramos.gpx`, bytes: 10 }]);
+  for (const ruta of malas) {
+    const k = validarIndiceKit(kitIndice([kitEntrada(KIT_A, { ficheros: { gpx: { ruta, bytes: 1 } } })]), CONFIG);
+    assert.equal(k.size, 0, String(ruta));
+  }
+  assert.throws(() => validarIndiceKit({}, CONFIG));
+});
+
+test("H223 CA5: la clave qfield da un tercer enlace; sin ella no aparece", async () => {
+  const con = kitEntrada(KIT_A);
+  con.ficheros.qfield = { ruta: `${KIT_A}/proyecto.zip`, bytes: 5000 };
+  const { vista } = await iniciado(conKit(kitIndice([con])));
+  assert.deepEqual(vista.kit.enlaces.map((e) => e.clave), ["gpx", "kml", "qfield"]);
+  assert.equal(vista.kit.enlaces[2].rotulo, "Descargar proyecto de campo (QField)");
+  const { vista: sin } = await iniciado(conKit(kitIndice([kitEntrada(KIT_A)])));
+  assert.ok(!sin.kit.enlaces.some((e) => e.clave === "qfield"));
+});
+
+test("H223 CA6: el aviso de uso aprobado, el de indicio, las capas incluidas y las «sin publicar»", async () => {
+  const aprobado =
+    "**Kit de campo de {municipio}.** Descarga los tramos publicados para llevarlos al campo. Lo que recojas se queda en tu dispositivo: este kit no envía nada a ningún sitio. Si haces fotos o notas, no fotografíes ni nombres a nadie, y evita matrículas y rostros: pueden identificar a personas. Los tramos son indicios a verificar, no un dictamen.";
+  assert.equal(`**${CONFIG.textos.kitAvisoTitulo}** ${CONFIG.textos.kitAvisoCuerpo}`, aprobado);
+  const { vista } = await iniciado(conKit(kitIndice([kitEntrada(KIT_A)])));
+  const doc = documentoFalso();
+  crearVista(doc, CONFIG.textos).ponerKit(vista.kit);
+  const t = texto223(doc.elementos["kit-cuerpo"]);
+  assert.ok(t.includes(aprobado.replace("**Kit de campo de {municipio}.**", `Kit de campo de ${A.nombre}.`)));
+  assert.ok(t.includes(CONFIG.textos.avisoIndicio));
+  assert.ok(t.includes("Incluye: Vías pecuarias, Indicios a verificar (no son un dictamen)."));
+  assert.ok(t.includes("Sin publicar: Camino actual."));
+  assert.ok(!/falta|error|no se pudo|todavía/i.test(t.replace(aprobado.replace("**Kit de campo de {municipio}.**", `Kit de campo de ${A.nombre}.`), "")));
+});
+
+test("H223 CA7: cambiar de municipio refleja solo el actual y al volver a España desaparece", async () => {
+  const { vista, ctl } = await iniciado(conKit(kitIndice([kitEntrada(KIT_A), kitEntrada(B.ine)])));
+  assert.equal(vista.kit.municipio, A.nombre);
+  assert.ok(vista.kit.enlaces[0].href.includes(KIT_A));
+  await ctl.elegirMunicipio(B.ine);
+  assert.equal(vista.kit.municipio, B.nombre);
+  assert.ok(vista.kit.enlaces.every((e) => e.href.includes(B.ine) && !e.href.includes(KIT_A)));
+  await ctl.elegirMunicipio(C.ine); // sin kit
+  assert.equal(vista.kit, null);
+  await ctl.elegirMunicipio(A.ine);
+  assert.ok(vista.kit);
+  ctl.verEspana();
+  assert.equal(vista.kit, null);
+});
+
+test("H223: el índice del kit se pide una sola vez, en el arranque, a la ruta de config", async () => {
+  const pedidas = [];
+  const base = conKit(kitIndice([kitEntrada(KIT_A)]));
+  await iniciado(async (ruta) => {
+    pedidas.push(ruta);
+    return base(ruta);
+  });
+  assert.equal(pedidas.filter((r) => r === "datos/kit/indice.json").length, 1);
+});
+
+test("unidad: tamanoLegible", () => {
+  assert.equal(tamanoLegible(0), "0 bytes");
+  assert.equal(tamanoLegible(1023), "1023 bytes");
+  assert.equal(tamanoLegible(1024), "1,0 KB");
+  assert.equal(tamanoLegible(1024 * 1024 * 1.5), "1,5 MB");
+});
+
+test("H223 CA8: la sección no usa innerHTML y los textos nuevos no llevan palabras vetadas ni referencias catastrales", async () => {
+  const vetadas = JSON.parse(process.env.VISOR_BANNED_WORDS ?? "[]");
+  const { vista } = await iniciado(conKit(kitIndice([kitEntrada(KIT_A)])));
+  const doc = documentoFalso();
+  crearVista(doc, CONFIG.textos).ponerKit(vista.kit); // innerHTML lanzaría
+  const t = texto223(doc.elementos["kit-cuerpo"]) + JSON.stringify(CONFIG.kit);
+  assert.ok(!REFCAT.test(t));
+  for (const palabra of vetadas) {
+    // El aviso de uso aprobado por el fundador queda fuera: es el texto literal.
+    const sin = t.replace(CONFIG.textos.kitAvisoCuerpo, "").replace(CONFIG.textos.avisoIndicio, "");
+    assert.ok(!sin.toLowerCase().includes(palabra), palabra);
+  }
 });

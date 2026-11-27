@@ -56,11 +56,25 @@ export const CONFIG = Object.freeze({
     zoomEtiqueta: 9,
   }),
 
+  // Kit de campo (historia #223): índice publicado por `publicar-kit-campo` (#213). Solo se enlaza
+  // una clave de `ficheros` que esté aquí; `{tamano}` es el tamaño legible. Rótulos aprobados por
+  // el fundador el 2026-11-27. El de QField no lleva tamaño y solo sale si el índice trae la clave.
+  kit: Object.freeze({
+    indice: "datos/kit/indice.json",
+    base: "datos/kit/",
+    formatos: Object.freeze({
+      gpx: "Descargar GPX ({tamano})",
+      kml: "Descargar KML ({tamano})",
+      qfield: "Descargar proyecto de campo (QField)",
+    }),
+  }),
+
   capas: Object.freeze([
     Object.freeze({
       id: "vias_pecuarias",
       titulo: "Vías pecuarias (Comunidad de Madrid)",
       nombre: "Vía pecuaria",
+      kitNombre: "Vías pecuarias",
       fuente: "Red de Vías Pecuarias, IDEM, Comunidad de Madrid",
       atribucion: "CC BY 4.0 Comunidad de Madrid",
       propiedadNombre: "nombre",
@@ -73,6 +87,7 @@ export const CONFIG = Object.freeze({
       id: "camino_actual",
       titulo: "Camino actual (red de transporte del IGN, sin asfaltar)",
       nombre: "Camino actual",
+      kitNombre: "Camino actual",
       fuente: "Red de transporte, IGN",
       atribucion: "Obra derivada de IGR-RT 2026 CC-BY 4.0 Instituto Geográfico Nacional",
       propiedadNombre: null,
@@ -87,6 +102,7 @@ export const CONFIG = Object.freeze({
       id: "discrepancias",
       titulo: "Indicios a verificar (no son un dictamen)",
       nombre: "Indicio a verificar",
+      kitNombre: "Indicios a verificar (no son un dictamen)",
       fuente: "Parcel Intel, indicios de discrepancia entre trazados",
       atribucion: "Indicios elaborados por Paso Común a partir de las fuentes que cita cada ficha",
       propiedadNombre: null,
@@ -110,6 +126,7 @@ export const CONFIG = Object.freeze({
       id: "candidatos",
       titulo: "Tramos a verificar (no son un dictamen)",
       nombre: "Tramo a verificar",
+      kitNombre: "Tramos a verificar (no son un dictamen)",
       fuente: "Paso Común, tramos a verificar revisados a mano",
       atribucion: "Tramos a verificar elaborados por Paso Común a partir de las fuentes que cita cada ficha",
       propiedadNombre: null,
@@ -151,6 +168,15 @@ export const CONFIG = Object.freeze({
     tramoNoPublicado: "Ese tramo ya no está publicado en este municipio.",
     enlaceCopiado: "Enlace copiado",
     errorCobertura: "No se pudo cargar el mapa de cobertura.",
+    // Historia #223: kit de campo. El aviso lo aprobó el fundador el 2026-11-27 y va literal (no se
+    // reescribe ni se acorta): `kitAvisoTitulo` (en negrita) + un espacio + `kitAvisoCuerpo`, con
+    // `{municipio}` por el nombre del municipio actual; después va `avisoIndicio`.
+    kitTitulo: "Kit de campo",
+    kitAvisoTitulo: "Kit de campo de {municipio}.",
+    kitAvisoCuerpo:
+      "Descarga los tramos publicados para llevarlos al campo. Lo que recojas se queda en tu dispositivo: este kit no envía nada a ningún sitio. Si haces fotos o notas, no fotografíes ni nombres a nadie, y evita matrículas y rostros: pueden identificar a personas. Los tramos son indicios a verificar, no un dictamen.",
+    kitIncluye: "Incluye",
+    kitSinPublicar: "Sin publicar",
     // Rótulos de la ficha.
     fuentes: "Fuentes",
     comoSeCalcula: "Cómo se ha calculado",
