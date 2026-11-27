@@ -828,6 +828,117 @@ Las dos integraciones pendientes están en la #160.
 
 ---
 
+## Vuelos históricos de la Comunidad de Madrid — 1956, 1975, 1991 (IDEM, historia #206)
+
+Verificado el 2026-11-27 (15:49–15:53 UTC) con peticiones reales desde GitHub Actions, con `User-Agent: paso-comun-verificacion/0.1 (proyecto abierto sin animo de lucro)`. Cierra, para la Comunidad de Madrid, el hueco 1957–1997 que la sección del WMS histórico del IGN daba por perdido (el IGN solo sirve AMS 1956-57 y PNOA desde 1997). Fixtures en `tests/fixtures/idem_vuelos/`; ninguna imagen va a `site/`.
+
+**Estado por vuelo** (lo que #207 y #208 deben tomar como cierto):
+
+| Vuelo | Estado | Motivo |
+|---|---|---|
+| 1956 | `confirmado` | Imagen real en los 7 municipios, WMS y WMTS. Licencia CC BY 4.0 en la ficha; origen en fondos del CECAF/CEGET (ver «Licencia»). |
+| 1975 | `confirmado` | Imagen real en los 7 municipios, WMS y WMTS. Licencia CC BY 4.0 Comunidad de Madrid. |
+| 1991 | `confirmado` | Imagen real en los 7 municipios, WMS y WMTS. Licencia CC BY 4.0 Comunidad de Madrid. |
+
+«Confirmado» vale para un punto representativo por municipio (CA3), no para todo el término: la cobertura se describe abajo tal cual.
+
+### Capas y teselas (CA1) — `confirmado`
+
+`GetCapabilities` WMTS: https://idem.comunidad.madrid/visor/release/vgcm/statics/capabilities/produccion/srvimagenes2_visorcartografia2.xml (200, `application/xml`, 13.991.110 bytes, 2026-11-27). El documento completo pesa 14 MB; la fixture `capabilities_wmts_extracto.xml` guarda solo las tres capas (sin sus `TileMatrixLimits`) y los dos `TileMatrixSet` relevantes.
+
+| Vuelo | Identificador de capa | Título |
+|---|---|---|
+| 1956 | `fotosAereasHistoricas_1950-1959_1956-CT-50cm-mosaico` | `1956 - Ortofoto 50cm` |
+| 1975 | `fotosAereasHistoricas_1970-1979_orto-1975-ed50` | `1975 - Ortofoto 50cm` |
+| 1991 | `fotosAereasHistoricas_1990-1999_orto-1991-ed50` | `1991 - Ortofoto 50cm` |
+
+Iguales en las tres capas:
+
+- **Formatos**: `image/png`, `image/jpeg`, `image/png8`, `image/jpegxr`, `image/webp`. Estilo `default`. `InfoFormat`: `text/plain`, `text/xml`.
+- **`TileMatrixSet` enlazados**: `EPSG3857`, `MD:GoogleMapsCompatible`, `OGC:1.0:GlobalCRS84Pixel`, `OGC:1.0:GoogleMapsCompatible`, `VGCM:epsg:25830` y `VGCM:epsg:4326` (más `VGCM:epsg:4230` en 1956 y `VGCM:epsg:4258` en 1975 y 1991).
+- **Tamaño de tesela**: 256 × 256 px en todos los niveles.
+- **Niveles**: 0 a 20 en los `TileMatrixSetLimits` de cada capa (las matrices están definidas hasta el 25 en `EPSG3857`, hasta el 20 en `VGCM:epsg:25830`).
+- **`EPSG3857`** (3857): esquina superior izquierda (−20037508,34, 20037508,34), escala 559082264,03 en el nivel 0, la habitual de Google Maps.
+- **`VGCM:epsg:25830`** (EPSG:25830, el CRS del proyecto): esquina superior izquierda (E −510000, N 4560000), escala 279541132,014 en el nivel 0, con tamaño de píxel `escala × 0,00028 / 2^nivel`.
+- **Plantilla REST**: **no**. Solo KVP: la operación `GetTile` anuncia `GetEncoding = KVP` en `https://idem.comunidad.madrid/srvimagenes2/ogc/wmts/visorcartografia2?`, y las capas no traen `ResourceURL`.
+- **Cobertura declarada de cada capa** (caja WGS84): 1956, lon −4,6846 a −3,0134, lat 39,8244 a 41,2121; 1975, lon −4,7163 a −2,9365, lat 39,8210 a 41,2096; 1991, lon −4,6719 a −2,9943, lat 39,8737 a 41,1680.
+
+### Teselas reales sobre Colmenar de Oreja (CA2) — `confirmado`
+
+Petición (plantilla KVP; fila y columna calculadas para el punto representativo del término, 40,08498° N, −3,42488° E):
+
+```
+https://idem.comunidad.madrid/srvimagenes2/ogc/wmts/visorcartografia2?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=<capa>&STYLE=default&FORMAT=image/png&TILEMATRIXSET=EPSG3857&TILEMATRIX=18&TILEROW=99161&TILECOL=128578
+```
+
+- **Nivel «0,5 m»**: en `EPSG3857` el nivel 18 mide 0,5971 m por píxel en el ecuador y **0,457 m por píxel de terreno a 40,085° N** (×cos(latitud)); es el más cercano a los 0,5 m nativos. En el `TileMatrixSet` propio `VGCM:epsg:25830`, el nivel 17 da 0,597 m por píxel y el 18, 0,299 m (no hay un nivel de 0,5 m exactos). Las tres fixtures son del nivel 18 de `EPSG3857`. Con `VGCM:epsg:25830` se probaron también los niveles 17 y 18 (fila 802, columna 6369, y fila 1605, columna 12739): 200 con imagen real en los tres vuelos, no se guardan.
+- **Resultado** (2026-11-27, todas con 200 y `Content-Type: image/png`; 256 × 256 px):
+
+| Vuelo | Hora UTC | Bytes | Varianza (gris) | Niveles de gris distintos | Fixture |
+|---|---|---|---|---|---|
+| 1956 | 15:50:57 | 46.251 | 310,1 | 157 | `tesela_1956_colmenar_z18.png` |
+| 1975 | 15:51:02 | 92.250 | 3.181,9 | 247 | `tesela_1975_colmenar_z18.png` |
+| 1991 | 15:51:05 | 68.472 | 1.540,7 | 224 | `tesela_1991_colmenar_z18.png` |
+
+- **Método de «no está en blanco»**: se decodifica el PNG, se pasa a gris (media de R, G, B) y se calcula la varianza y el número de niveles de gris distintos. Una imagen es **en blanco** si la varianza es menor que 1 o solo tiene 1 nivel. Las teselas reales tienen varianza ≥ 114 y ≥ 81 niveles (sobre todas las pruebas); la de 1956 es la menos contrastada (película gris, pero se ve el parcelario).
+- **Sorpresa del 200 en blanco**: una tesela **fuera de la cobertura** (UTM 440000, 4380000, nivel 18) devuelve también 200 con `image/png`, pero es blanca (255 en todo, varianza 0, 1 nivel, 854 bytes en los tres vuelos): sin la comprobación de varianza no se distingue de una buena. Fixture de referencia: `tesela_1956_fuera_cobertura_z18.png`.
+- Los bytes de una misma tesela no son estables entre peticiones (la de 1991 pesó 68.472 y 66.229 bytes en dos peticiones sobre la misma fila y columna): la caché no debe comparar hashes con otra petición.
+
+### Tabla municipio × vuelo (CA3) — nivel 18 de `EPSG3857`
+
+Un punto por municipio: el punto representativo (`representative_point`) del contorno que publica `publicar-cobertura --ambito`. **No se generaliza** al resto del término.
+
+| Municipio (INE) | 1956 | 1975 | 1991 |
+|---|---|---|---|
+| Aranjuez (28013) | con imagen | con imagen | con imagen |
+| Belmonte de Tajo (28019) | con imagen | con imagen | con imagen |
+| Colmenar de Oreja (28043) | con imagen | con imagen | con imagen |
+| Chinchón (28052) | con imagen | con imagen | con imagen |
+| Valdelaguna (28157) | con imagen | con imagen | con imagen |
+| Villaconejos (28170) | con imagen | con imagen | con imagen |
+| Villarejo de Salvanés (28180) | con imagen | con imagen | con imagen |
+
+Las 21 peticiones: 200, `image/png`, entre 47.356 y 102.254 bytes, varianza entre 237 y 3.182, entre 156 y 256 niveles. Ninguna `en blanco` ni `error`. Ningún otro punto del término se ha probado: el borde de la caja de cada capa (sobre todo la de 1991, más estrecha al norte y al sur) no se ha explorado.
+
+### Licencia y atribución (CA4) — `confirmado` en la ficha, con una reserva en 1956
+
+Documentos primarios leídos el 2026-11-27: las fichas ISO 19139 del catálogo IDEM, en `https://idem.comunidad.madrid/catalogocartografia/srv/api/records/<id>/formatters/xml` con `<id>` = `spacm_vuelo1956_50cm`, `spacm_vuelo1975_50cm`, `spacm_vuelo1991_50cm` (200, `application/xml`), y el aviso legal que enlazan: https://idem.comunidad.madrid/recursos_cat_geo/Catalogo/aviso_legal.htm (200, `text/html`).
+
+- **Restricciones de la ficha** (`gmd:otherConstraints`): `Sin limitaciones al acceso público.` (INSPIRE `LimitationsOnPublicAccess/noLimitations`) y, como condición de uso, **`CC BY 4.0`** en 1956 y **`CC BY 4.0 Comunidad de Madrid`** en 1975 y 1991, con enlace a https://creativecommons.org/licenses/by/4.0/deed.es.
+- **Aviso legal, cita textual** de la condición de uso: «El acceso a los datos geográficos digitales y a los servicios de información geográfica disponibles en el Geoportal de la Infraestructura de Datos Espaciales de la Comunidad de Madrid (IDEM) […] tiene carácter libre y gratuito siempre que se mencione la fuente original y la propiedad de los mismos de la siguiente manera: "Información geográfica de la Comunidad de Madrid. Acceso público y gratuito en CC BY 4.0 Comunidad de Madrid ."». Y la cautela: «Los datos geográficos y servicios de información geográfica que se facilitan tienen carácter meramente orientativo y en ningún caso podrán ser vinculantes para la resolución de los procedimientos administrativos […]».
+- **Conclusión**: la ficha permite reutilizar y redistribuir con atribución (CC BY 4.0), así que la **imagen derivada en el visor y en el dossier** (un recorte con el trazo dibujado encima) está permitida con la atribución literal del aviso legal. No se supone CC BY 4.0 por lo que dijera la issue padre: la ficha de cada vuelo lo dice.
+- **Reserva en 1956**: la ficha dice que el vuelo es del Army Map Service de EEUU, escaneado por el CEGET, con «Fondos del CECAF […] y CEGET […] cedidos al Centro Nacional de Información Geográfica para su distribución. Ortorrectificación y mosaicado realizado por la Comunidad de Madrid», y que es «Vuelo no disponible para descarga, ni para su certificación» (competencia del CECAF). La licencia CC BY 4.0 de la ficha es la de la ortofoto de la Comunidad de Madrid; la del IGN para el mismo vuelo (AMS 1956-57) también es CC BY 4.0, con atribución `ejercito.defensa.gob.es` (ver `NOTICE`). No se ha leído un documento del CECAF que condicione la reutilización de la ortofoto de la Comunidad de Madrid; queda como riesgo a confirmar antes de publicar recortes de 1956.
+- **Canales no leídos**: el visor `https://idem.comunidad.madrid/visor/` (aplicación de JavaScript) y el catálogo en `catalog.search#/…` (no se renderizan sin navegador); la fuente es la API XML de la ficha, que es el mismo registro.
+
+### Petición por ventana (CA5) — `confirmado`, hay WMS
+
+El WMS de la IDEM publica las mismas tres capas, con el **mismo identificador** y `EPSG:25830` entre sus CRS:
+
+- `GetCapabilities`: `https://idem.comunidad.madrid/srvimagenes2/ogc/wms/visorcartografia2?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0` (200, `text/xml`, 941.429 bytes, ERDAS APOLLO Core 2016). Cajas nativas en `EPSG:25830` con `resx = 0,5`: 1956, E 358750–498850, N 4409575–4562300; 1975 y 1991 con resolución 0,49999… m.
+- **Sorpresa**: el `GetMap` que anuncia el documento (`http://idem.comunidad.madrid/erdas-iws/ogc/wms/visorcartografia2?`) responde **404**; el que funciona es el de `srvimagenes2/ogc/wms/visorcartografia2` (el mismo de `GetCapabilities`).
+- **`GetMap` real** (2026-11-27, 15:52:56–15:52:58 UTC), 1.3.0, `CRS=EPSG:25830` (ejes E, N), `BBOX=463700,4437200,463828,4437328` (128 m sobre Colmenar de Oreja), 256 × 256 px = 0,5 m por píxel, `FORMAT=image/png`:
+
+| Vuelo | Código | `Content-Type` | Bytes | Varianza (gris) | Niveles |
+|---|---|---|---|---|---|
+| 1956 | 200 | `image/png` | 47.620 | 202,1 | 154 |
+| 1975 | 200 | `image/png` | 91.685 | 2.414,1 | 247 |
+| 1991 | 200 | `image/png` | 69.328 | 1.047,6 | 217 |
+
+- **Consecuencia para #207**: hay ventana directa por `GetMap` en EPSG:25830 con 0,5 m por píxel, igual que el WMS del IGN de #122/#124; **no hace falta mosaico y recorte de teselas**. Las teselas WMTS (solo KVP, `EPSG3857` o `VGCM:epsg:25830`) quedan como alternativa. Hay que aplicar a cada respuesta la comprobación de varianza, porque fuera de cobertura el servicio responde 200 con una imagen blanca. No se ha probado el límite de tamaño de ventana de este WMS.
+- **COG**: la ficha de 1956 lista «ortofotos en formato tiff, ecw, cog» pero «Vuelo no disponible para descarga»; no se ha probado ni se usa. Las de 1975 y 1991 solo listan «mosaico en formato ecw».
+
+### Fecha y cobertura de cada vuelo (CA6)
+
+| Vuelo | Fecha del vuelo | Fuente | Cobertura |
+|---|---|---|---|
+| 1956 | solo el año (1956); la ficha pone `1956-01-01` como fecha de la cita, no es un mes | ficha `spacm_vuelo1956_50cm`; título del WMTS «Vuelo Americano AMS SERIE B de 1956» | región entera según el título; caja WGS84 de la capa, arriba |
+| 1975 | solo el año (1975); `1975-01-01` en la ficha es la fecha de la cita | ficha `spacm_vuelo1975_50cm`, «Vuelo a escala 1:15.000 […] Comisión de Planeamiento y Coordinación del Area Metropolitana de Madrid» | «Ortoimagen histórica del total de la Comunidad de Madrid» |
+| 1991 | solo el año (1991); `1991-01-01` en la ficha es la fecha de la cita | ficha `spacm_vuelo1991_50cm`, «Vuelo 1:18.000 Consejería de Política Territorial. Comunidad de Madrid» | «total de la Comunidad de Madrid» |
+
+Ninguna ficha publica mes. Las tres fichas declaran la misma caja (lon −4,61284 a −2,97615, lat 39,83781 a 41,20036), pero las cajas de las capas del WMTS son distintas (arriba) y la de 1991 es la más estrecha: «total de la Comunidad» es lo que dice el proveedor, no lo que se ha medido. Los 7 municipios del ámbito caen dentro de las tres cajas y dan imagen en el punto probado.
+
+---
+
 ## Resumen de fuentes no verificadas en esta pasada
 
 Fuera de alcance de la historia 0001 (ver sección "Fuera de alcance" de `docs/stories/0001-registro-fuentes.md`): vías pecuarias, Red Natura 2000, concesiones de agua, inventario municipal de caminos. SNCZI/dominio público hidráulico, que figuraba aquí mismo hasta la historia 0012, quedó verificado en esa historia (ver sección "SNCZI / Dominio Público Hidráulico — MITECO" más arriba: cursos de agua y peligrosidad por inundación `confirmado`, deslinde legal de DPH y zonas de servidumbre/policía `bloqueado`). Vías pecuarias, que figuraba aquí mismo hasta la historia 0014, quedó verificada en esa historia (ver sección "Vías pecuarias — IDEM, Comunidad de Madrid" más arriba: `confirmado`, un único servicio real encontrado bajo el workspace `Zonas` del mismo GeoServer de IDEM). Red Natura 2000, que figuraba aquí mismo hasta la historia 0015, quedó verificada en esa historia (ver sección "Red Natura 2000 y espacios protegidos — IDEM, Comunidad de Madrid" más arriba: `confirmado` como fuente real de planes de gestión, con el alcance explícito de que modela zonificación de planes, no el límite oficial de cada sitio individual con código EU). Concesiones de agua e inventario municipal de caminos quedan para una iteración posterior del registro, cuando las historias de reglas/afecciones las necesiten.

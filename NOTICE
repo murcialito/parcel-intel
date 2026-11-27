@@ -53,6 +53,24 @@ de memoria.
   - `Obra derivada de PNOA 2020 CC-BY 4.0 scne.es`
   - `Obra derivada de PNOA 2023 CC-BY 4.0 scne.es`
 
+### Comunidad de Madrid — vuelos históricos de 1956, 1975 y 1991 (IDEM, historia #206)
+
+- Capas WMTS/WMS de la IDEM (`fotosAereasHistoricas_1950-1959_1956-CT-50cm-mosaico`,
+  `fotosAereasHistoricas_1970-1979_orto-1975-ed50`, `fotosAereasHistoricas_1990-1999_orto-1991-ed50`).
+  Todavía no se publica ninguna imagen: este apartado fija la atribución para cuando #207 y #208
+  las usen en comparaciones.
+- Licencia: CC BY 4.0, según la ficha del catálogo de cada vuelo (`spacm_vuelo1956_50cm`,
+  `spacm_vuelo1975_50cm`, `spacm_vuelo1991_50cm`) y el aviso legal de la IDEM, leídos el
+  2026-11-27. URL de la licencia: https://creativecommons.org/licenses/by/4.0/deed.es
+- URL del aviso legal: https://idem.comunidad.madrid/recursos_cat_geo/Catalogo/aviso_legal.htm
+- Atribución literal del aviso legal:
+  `Información geográfica de la Comunidad de Madrid. Acceso público y gratuito en CC BY 4.0 Comunidad de Madrid .`
+- Reserva en 1956: el vuelo es del Army Map Service con fondos del CECAF y el CEGET; no se ha
+  leído un documento del CECAF que condicione la reutilización (ver REGISTRY). Confirmarlo antes
+  de publicar recortes de 1956.
+- Aviso obligatorio: cartografía de carácter informativo, sin valor vinculante en procedimientos
+  administrativos.
+
 ### IGN/CNIG — planimetrías del IGN (1870-1950)
 
 - Licencia: CC BY 4.0 (Orden FOM/2807/2015).

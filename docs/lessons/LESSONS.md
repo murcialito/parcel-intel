@@ -774,3 +774,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: una captura de una fixture sintética sobre el mapa real (un tramo inventado con texto de indicio en un punto de Colmenar) parece un hallazgo real. Esas capturas se enseñan en local y no se suben a `docs/`.
   - **Aplica a**: diseño (capturas de la PR).
 
+## [2026-11-27] Historia #206 — Vuelos históricos de la Comunidad de Madrid
+
+- **Lección**: un servicio de imágenes responde **200 con una tesela blanca** fuera de su cobertura (la IDEM: 854 bytes, un solo nivel de gris), igual que el IGN. «200 + `image/png`» no prueba que haya imagen: se decodifica y se mide varianza y niveles distintos (en blanco si varianza < 1). Cualquier adapter de #207 debe aplicarlo a cada respuesta.
+  - **Aplica a**: implementación (adapters de imágenes) | revisión.
+
+- **Lección**: el `GetCapabilities` del WMS de la IDEM anuncia un `GetMap` (`http://…/erdas-iws/ogc/wms/visorcartografia2`) que responde 404; el que funciona es `https://idem.comunidad.madrid/srvimagenes2/ogc/wms/visorcartografia2`. Una URL que da el propio documento de capacidades tampoco vale hasta probarla (lección 0001). El `GetCapabilities` WMTS pesa 14 MB: se guarda solo un extracto.
+  - **Aplica a**: implementación (#207).
+
+- **Lección**: los píxeles de un `TileMatrixSet` `EPSG3857` miden `escala × 0,00028 × cos(latitud)` en el terreno: el nivel 18 («0,597 m») son 0,457 m en Colmenar. Se calcula la resolución real a la latitud del ámbito antes de elegir nivel. Los bytes de una misma tesela cambian entre peticiones, así que no sirven como huella.
+  - **Aplica a**: implementación (#207) | BA (criterios de «resolución»).
+
