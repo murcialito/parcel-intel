@@ -14,6 +14,17 @@ class RoadNetworkError(Exception):
         self.detail = detail
 
 
+class WatercourseDownloadError(Exception):
+    """La descarga paginada de cauces de un bbox no se pudo completar (página
+    ausente de la caché con --sin-red, respuesta ilegible, enlace `next` ajeno
+    al servicio o más páginas del máximo) -- historia #257. Nunca se devuelve
+    una lista parcial."""
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(f"Descarga de cauces incompleta: {detail}")
+        self.detail = detail
+
+
 class MunicipalBoundaryNotFoundError(Exception):
     """Alguno de los códigos INE pedidos no está en la respuesta del servicio
     de unidades administrativas -- historia #35. Nunca se devuelve una lista
