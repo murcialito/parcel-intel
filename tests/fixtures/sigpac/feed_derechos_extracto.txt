@@ -1,0 +1,19 @@
+# Extracto de feed_ds.cm_sigpac.xml (descargado 2026-11-27, updated 2025-12-15). Sin editar.
+
+## <rights> a nivel de feed (único <rights> fuera de las entradas; las otras dos ocurrencias del feed están dentro de las entradas «01» y «Recintos SIGPAC de ACEBEDA (LA) (28001)», con el texto PAC):
+- Según el Acuerdo de Distribución del FEGA, O.A. por el que se aprueban los criterios de acceso, formatos de entrega y condiciones.
+
+## Entrada de Colmenar de Oreja (28043), sin <summary> ni <rights> propios:
+<entry>
+			<title>Recintos SIGPAC de COLMENAR DE OREJA (28043)</title>
+			<summary/>
+			<link href="https://idem.madrid.org/catalogocartografia/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spacm_sigpac" rel="describedby" type="application/xml"/>
+			<link rel="alternate" href="https://idem.comunidad.madrid/recursos_cat_geo/Catalogo/atom/dataset_feeds/sigpac.tm.28043.xml" type="application/atom+xml" hreflang="es" title="Fuente con la información de descarga del conjunto de datos"/>
+			<id>https://idem.comunidad.madrid/recursos_cat_geo/Catalogo/atom/dataset_feeds/sigpac.tm.28043.xml</id>
+			<updated>2025-12-15T15:00:00Z</updated>
+			<inspire_dls:spatial_dataset_identifier_code>sigpac.28043</inspire_dls:spatial_dataset_identifier_code>
+			<inspire_dls:spatial_dataset_identifier_namespace>Comunidad de Madrid</inspire_dls:spatial_dataset_identifier_namespace>
+			<category term="EPSG:4258" scheme="http://www.opengis.net/def/crs/EPSG/0/4258" label="ETRS89"/>
+			<georss:polygon>-3.5940496530562434 40.03417645784774 -3.5940496530562434 40.1361111353255 -3.3437852878144554 40.1361111353255 -3.3437852878144554 40.03417645784774 -3.5940496530562434 40.03417645784774</georss:polygon>
+			<summary/>
+	</entry>

@@ -1092,6 +1092,101 @@ Límites: el año de la minuta no es el año del camino; la resolución efectiva
 >
 ---
 
+## SIGPAC de la Comunidad de Madrid: recintos, atributos, licencia y uso (historia #216)
+
+Verificado el **2026-11-27** para la [historia #216](https://github.com/murcialito/paso-comun/issues/216) (hija de #200, señal de ocupación de la franja de la vía pecuaria con SIGPAC). Solo documentación: sin adapter ni código de producción. Los ficheros crudos están en `data/raw/sigpac_madrid_28043/` (fuera de git); las fixtures de esta historia son solo la cabecera del DBF, el `.prj` y extractos de texto (`tests/fixtures/sigpac/`).
+
+### Procedencia de lo descargado
+
+| Recurso | URL | sha256 | Bytes | Estado |
+|---|---|---|---|---|
+| ZIP de recintos de Colmenar de Oreja (28043) | `https://idem.comunidad.madrid/recursos_cat_geo/Catalogo/recursos/UsoDelSuelo/spacm_sigpac.tm.28043.zip` | `74dfc29a7ebf7639aeb1a14a9b1715a616d0aec029c1e2749a1a90e4ea04c46f` | 21.319.837 | `confirmado` (descargado y leído) |
+| Feed ATOM de Madrid (`updated` 2025-12-15) | `https://idem.comunidad.madrid/recursos_cat_geo/Catalogo/atom/ds.cm_sigpac.xml` | `c289d729a264440e474284571ccf3cc89ccc34c49a129caf6276a7397dbd255f` | 358.671 | `confirmado` |
+| Ficha en datos.gob.es | `https://datos.gob.es/es/catalogo/a13002908-recintos-sigpac-de-la-comunidad-de-madrid` | `5c7de03c3bc20b2ac9ab517cfc3dd9e3f7bfe4b8d186d65e096542e9f5e3d692` | 109.444 | `confirmado` |
+| «Términos de uso de la información de alto valor del SIGC» (FEGA), dentro del ZIP | `Terminos_de_uso_de_informacion_de_alto_valor_del_SIGC.pdf` | `bbf4908b9ffcc1805d050a1a9c4c4d124a90f4f405c50de72e4e711142015cdf` | 475.254 | `confirmado` (extraído del ZIP; texto leído sin OCR) |
+| «Resumen de los datos contenidos en el SIGPAC para la campaña 2026», FEGA | copia en `https://www.agrodigital.com/wp-content/uploads/2026/02/SIGPAC2026.pdf` (el documento es del FEGA; leído solo la tabla de usos) | — | — | `confirmado` el contenido; copia de tercero |
+
+El Shapefile trae `RECINTO.shp` (polígonos, tipo 5), `RECINTO.dbf` (21.633 registros, 20 campos), `RECINTO.prj` y el PDF de términos. El `.prj` es `GCS_ETRS_1989` (geográficas, sin código EPSG declarado).
+
+### CA1 — Campos, tipos y usos reales; cómo aparecen los caminos y las vías pecuarias (`confirmado`)
+
+Lectura del DBF con la librería estándar (sin dependencias): cabecera en `tests/fixtures/sigpac/recinto_dbf_cabecera.bin`. Todos los valores de la tabla son de los 21.633 recintos.
+
+| Campo | Tipo (longitud, decimales) | Valores observados |
+|---|---|---|
+| `DN_PK` | N 23 | Identificador interno, único por registro (21.633 distintos) |
+| `DN_OID` | N 23 | Identificador de objeto, único |
+| `DN_VERSION` | N 11 | Versión del recinto (2.243 distintos) |
+| `DN_INITIAL` | D 8 | Inicio de vigencia de la versión: de 2012-11-15 a 2025-11-28; 16.933 con año 2023 |
+| `DN_ENDDATE` | D 8 | Vacío en todos |
+| `SUPERFICIE` | N 20,5 | Superficie del recinto. El DBF no declara la unidad: la suma (126,4 km² en el término) indica **m²** (`asumido`) |
+| `PROVINCIA` / `MUNICIPIO` | N 6 | 28 / 43 en todos |
+| `AGREGADO` / `ZONA` | N 6 | 0 en casi todos (AGREGADO = 999 en 1 registro) |
+| `POLIGONO` / `PARCELA` / `RECINTO` | N 6 / 11 / 11 | Identificadores SIGPAC (79 polígonos, 943 parcelas, 172 recintos distintos). **No son referencias catastrales** |
+| `CSP 2023` | N 6 | Valores 0–100 (17 distintos). Significado no verificado en esta pasada |
+| `PENDIENTE` / `ALTITUD` | N 6 | Valores numéricos (532 y 282 distintos). Unidades no declaradas: `asumido` (%, m) |
+| `COEF_REGAD` | N 6 | 0 (10.916), 100 (2.686), vacío (8.031) |
+| `USO_SIGPAC` | C 2 | Uso del recinto; tabla de abajo |
+| `INCIDENCIA` | C 50 | Código de incidencia; vacío en 8.201. Codificación no leída |
+| `REGION` | N 6 | 1, 7, 12, 16; vacío en 3.492. No documentado en esta pasada |
+
+**Usos (`USO_SIGPAC`)**, con las descripciones del FEGA para la campaña 2026 (tabla de usos del Anexo IV del Real Decreto 1047/2022, según la propia ficha del FEGA):
+
+| Código | Descripción (FEGA 2026) | Recintos | | Código | Descripción (FEGA 2026) | Recintos |
+|---|---|---|---|---|---|---|
+| TA | Tierras arables | 6.645 | | VI | Viñedo | 855 |
+| OV | Olivar | 4.877 | | FY | Frutales | 619 |
+| PR | Pasto arbustivo | 4.361 | | FO | Forestal | 468 |
+| IM | Improductivos | 1.321 | | PS | Pastizal | 349 |
+| **CA** | **Viales** | **1.228** | | AG | Corrientes y superficies de agua | 283 |
+| ED | Edificaciones | 164 | | ZU | Zona urbana | 125 |
+| VO | Viñedo-Olivar | 112 | | FS | Frutos secos | 97 |
+| PA | Pasto con arbolado | 81 | | TH | Huerta | 29 |
+| IV | Invernaderos y cultivos bajo plástico | 13 | | VF / OF / FV / FL | Viñedo-Frutal / Olivar-Frutal / Frutos secos y viñedo / Frutos secos y olivar | 2 / 2 / 1 / 1 |
+
+Fuente de la tabla: `https://www.agrodigital.com/wp-content/uploads/2026/02/SIGPAC2026.pdf`, tabla «DESCRIPCIÓN USO SIGPAC» (`confirmado`). Usar `CA` = Viales para caminos (no hay código de «camino» ni de «vía pecuaria»).
+
+**Cómo aparecen las vías pecuarias (cruce de control, `confirmado` como medida, sin validar contra un SIG de referencia).** SIGPAC no tiene código para vías pecuarias. Se cruzaron los 15 tramos de Colmenar de Oreja de la capa #36 (`tests/fixtures/livestock_trails/wfs_cql_colmenar_municipio_completo_15_tramos.xml`, EPSG:25830) con los recintos: cada vértice de cada polígono de tramo se pasó a lon/lat (inverso de UTM 30N, ETRS89) y se buscó el recinto que lo contiene.
+
+- 3.188 vértices; 3.157 caen dentro de un recinto (99 %). Usos de esos vértices: **TA 857 (26,9 %), OV 713 (22,4 %), CA 442 (13,9 %), PR 420 (13,2 %), ZU 180 (5,6 %)**, FO 148, IM 131, VI 102, PS 51, otros < 40 cada uno.
+- El peso de `CA` varía mucho entre tramos: en la Cañada de la Alameda 29 de 53 vértices caen en `CA`; en la Cañada de los Lanchares, 11 de 492. Ningún tramo se puede tomar como «de viales» por su uso SIGPAC.
+- **Conclusión:** la franja de una vía pecuaria no aparece como tal en SIGPAC: su superficie lleva el uso del recinto que atraviesa (o del que se le superpone). Que un recinto sea `CA` indica viales, no vía pecuaria, y la ausencia de `CA` no prueba que la vía esté cubierta. No sirve como señal directa de ocupación; sí como contexto.
+- Límites del cruce: se muestrean vértices del borde del polígono, no su interior; es un indicio de orden de magnitud, no una tabla de superficies.
+
+### CA2 — Campos de titular, declarante o similares (`confirmado`)
+
+**No existe ningún campo de titular, declarante, NIF ni similar** en el DBF (los 20 campos están en la tabla del CA1). Por tanto no entra nada de titularidad en el sistema por esta fuente. Nada que copiar ni descartar al leer.
+
+### CA3 — Licencia: textos citados y conclusión (`asumido`, no `confirmado`)
+
+Tres textos de la fuente, citados literalmente:
+
+1. **`<rights>` del feed de Madrid, a nivel de feed** (`feed_ds.cm_sigpac.xml`): «Según el Acuerdo de Distribución del FEGA, O.A. por el que se aprueban los criterios de acceso, formatos de entrega y condiciones.» La entrada de Colmenar de Oreja (28043) **no tiene `<rights>` propio**. Los otros dos `<rights>` del feed están en las entradas de «01» (toda la Comunidad) y de Acebeda (28001), no en la de 28043. Extracto en `tests/fixtures/sigpac/feed_derechos_extracto.txt`.
+   - Texto de uso (PAC, en las entradas de «01» y Acebeda): «El uso, delimitación gráfica u otros atributos de los recintos que aparecen en el SIGPAC tienen por objeto facilitar al agricultor la cumplimentación de su solicitud de ayudas a la PAC. Cuando el uso que aparece en el SIGPAC sea distinto del uso real, el agricultor debe realizar su solicitud de ayuda en base a este último, el real, debiendo comunicar la incidencia al servicio competente de su Comunidad Autónoma.» **Consecuencia:** el campo `USO_SIGPAC` es orientativo, no una prueba del uso real. Hay que tratarlo como indicio a verificar, nunca como hecho.
+2. **Ficha de datos.gob.es** (`ficha_datos_gob_extracto.txt`): «Licencia https://creativecommons.org/licenses/by/4.0/legalcode.es»; publicador «Comunidad de Madrid»; descripción «…actualizados anualmente».
+3. **Términos de uso de la información de alto valor del SIGC (FEGA)**, dentro del ZIP (`terminos_fega_hvd_extracto.txt`): «los Recintos (capa RECINTOS) y los Elementos del paisaje (capa ELEMENTOS DEL PAISAJE) del SIGPAC, y las Líneas de declaración (capa LINEA DECLARACION) del Sistema Integrado de Gestión y Control (SIGC), tienen la consideración de datos específicos de alto valor»; el FEGA los pone a disposición «para su reutilización en las condiciones de la licencia Creative Commons Atribución/Reconocimiento (CC BY 4.0)». Extiende la consideración a «los que en cada momento se visualizan en el Visor Sigpac (datos de la Campaña en curso y datos de la Campaña previa)». Exige citar «Fuente de los datos: FONDO ESPAÑOL DE GARANTÍA AGRARIA O.A.», indicar cambios, no sugerir respaldo del FEGA y no alterar el contenido.
+
+**Conclusión.** Las tres fuentes apuntan a CC BY 4.0 con atribución, y los términos del FEGA son la evidencia primaria más fuerte. Pero **no es concluyente** para este fichero: el `<rights>` de Madrid remite a un «Acuerdo de Distribución del FEGA» cuyo texto **no se ha podido leer** (no está en el ZIP ni en el feed; una búsqueda solo dio una copia de tercero, `data.source.coop`, sin fecha ni validez confirmada), y el enlace entre el fichero regional y los términos HVD es una inferencia. Por eso la licencia queda `asumido`.
+
+- **Atribución mínima si se publica:** «Fuente de los datos: FONDO ESPAÑOL DE GARANTÍA AGRARIA O.A. (SIGPAC, CC BY 4.0)», con indicación de que los datos están transformados si lo están, y sin sugerir respaldo del FEGA.
+- **Antes de publicar en el mapa** (regla de `CLAUDE.md`: solo si la licencia permite redistribución): el fundador debe confirmar en #200 que el Acuerdo de Distribución del FEGA dice CC BY 4.0 para este fichero, o que los términos HVD cubren la distribución de la Comunidad de Madrid.
+
+### CA4 — Vías pecuarias (capa #36): polígono y anchura (`confirmado` salvo lo marcado)
+
+- La capa #36 (`Zonas:IDEM_MA_VIAS_PECUARIAS`) trae **polígono** de la franja, no línea de eje (hallazgo 3 de la sección de vías pecuarias de este registro). Confirmado de nuevo con la fixture de los 15 tramos de Colmenar (`gml:Polygon`/`gml:MultiSurface`).
+- **No hay campo de anchura legal** (hallazgo 2 de la misma sección: el esquema tiene 8 campos + geometría).
+- Anchura **legal**: la Ley 3/1995 (estatal), art. 4 (BOE-A-1995-7241, texto consolidado, leído en `boe.es`): cañadas, «anchura no exceda de los 75 metros»; cordeles, «no sobrepase los 37,5 metros»; veredas, «no superior a los 20 metros». Las coladas y los abrevaderos, descansaderos y majadas **no tienen tope**: su anchura la fija el acto de clasificación. La Ley 8/1998 de la Comunidad de Madrid (BOE-A-1998-20648, art. 6) remite a ese art. 4: no fija anchuras propias.
+- Anchura **medida** desde la propia capa: `NM_AREA / NM_LONG` (superficie entre longitud; `confirmado` sobre la fixture). Valores de los 15 tramos de Colmenar: veredas 11,1–11,6 m; cañadas 35,2–37,3 m; coladas 13,9–16,7 m; abrevaderos y descansaderos 6,4–37,8 m (sin tope legal).
+- **Viable para #200:** usar `NM_AREA / NM_LONG` como anchura de la franja tal como la dibuja la capa, y el tope legal de la tabla por tipo como **cota de contraste** (una franja que excede su tope legal es un indicio a verificar, nunca una conclusión). No usar la tabla como anchura oficial: el acto de clasificación que fija la anchura real no está en ninguna fuente leída.
+
+### CA5 — Proyección: EPSG:4258 → EPSG:25830 (`confirmado`)
+
+- El `.prj` es `GCS_ETRS_1989` (geográficas sobre ETRS89, el datum de EPSG:4258). El `bbox` del `.shp` (lon −3,594 a −3,344; lat 40,034 a 40,136) confirma grados.
+- Para medir solape con vías pecuarias (que están en EPSG:25830): **hay que reproyectar** a UTM 30N (ETRS89, `lon0` −3°, factor de escala 0,9996). Entre ETRS89 y ETRS89 no hay desplazamiento de datum, solo proyección. Si se usase ED50 o WGS84 sin transformar la diferencia sería del orden de 100 m en la península.
+- Probado: el cruce de CA1 (inverso de UTM sobre los 3.188 vértices) deja el 99 % de vértices dentro de un recinto. Si la conversión fuera mala, la fracción caería mucho.
+
+---
+
 ## Resumen de fuentes no verificadas en esta pasada
 
 Fuera de alcance de la historia 0001 (ver sección "Fuera de alcance" de `docs/stories/0001-registro-fuentes.md`): vías pecuarias, Red Natura 2000, concesiones de agua, inventario municipal de caminos. SNCZI/dominio público hidráulico, que figuraba aquí mismo hasta la historia 0012, quedó verificado en esa historia (ver sección "SNCZI / Dominio Público Hidráulico — MITECO" más arriba: cursos de agua y peligrosidad por inundación `confirmado`, deslinde legal de DPH y zonas de servidumbre/policía `bloqueado`). Vías pecuarias, que figuraba aquí mismo hasta la historia 0014, quedó verificada en esa historia (ver sección "Vías pecuarias — IDEM, Comunidad de Madrid" más arriba: `confirmado`, un único servicio real encontrado bajo el workspace `Zonas` del mismo GeoServer de IDEM). Red Natura 2000, que figuraba aquí mismo hasta la historia 0015, quedó verificada en esa historia (ver sección "Red Natura 2000 y espacios protegidos — IDEM, Comunidad de Madrid" más arriba: `confirmado` como fuente real de planes de gestión, con el alcance explícito de que modela zonificación de planes, no el límite oficial de cada sitio individual con código EU). Concesiones de agua e inventario municipal de caminos quedan para una iteración posterior del registro, cuando las historias de reglas/afecciones las necesiten.
