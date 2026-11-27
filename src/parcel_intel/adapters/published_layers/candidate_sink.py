@@ -1,19 +1,22 @@
-"""Sink de tramos a verificar: `site/datos/candidatos/<ine>.geojson` (historia #170,
-ADR 0048).
+"""Sink de tramos a verificar: `site/datos/candidatos/<ine>.geojson` (historias #170 y
+#172, ADR 0048 y 0049).
 
 Copia estructural del sink de indicios (#94, ADR 0044): GeoJSON RFC 7946 en EPSG:4326,
 compacto y determinista, con su `.procedencia.json`, e índice regenerado entero. Lista
-blanca cerrada: de cada tramo solo salen su geometría (la del trazado A) y la ficha de
-#169. La colección lleva el resumen de la medición ya redactado y «revisado a mano». Sin
-simplificación. Todo o nada, y nunca borra lo publicado. Última barrera: si algún texto
-casa con la forma de una referencia catastral o de un localizador de parcela, o lleva
-una palabra vetada, no se escribe nada.
+blanca cerrada: de cada tramo solo salen su geometría (la del trazado A), la ficha de
+#169 y sus imágenes de comparación (enlaces al WMS del IGN con el trazo en píxeles, #172).
+La colección lleva el resumen de la medición ya redactado, «revisado a mano» y el bloque
+`comparacion`. Sin simplificación. Todo o nada, y nunca borra lo publicado. Un fichero
+por encima del umbral de peso no se escribe (ADR 0049 §7). Última barrera: si algún
+texto (URL incluidas) casa con la forma de una referencia catastral o de un localizador
+de parcela, o lleva una palabra vetada, no se escribe nada.
 """
 
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from parcel_intel.adapters.pnoa.client import WMS_HISTORICO_URL
 from parcel_intel.adapters.published_layers.discrepancy_sink import (
     check_no_parcel_identifiers,
     evidence_document,
@@ -48,7 +51,50 @@ from parcel_intel.domain.published_candidate import (
     MeasurementSummary,
     PublishedCandidate,
 )
+from parcel_intel.domain.published_comparison import (
+    COMPARISON_LICENSE,
+    COMPARISON_SOURCE,
+    ComparisonNotes,
+    PublishedComparison,
+    PublishedImage,
+)
 from parcel_intel.domain.published_layers import PublishedFile
+
+
+def _images(comparison: PublishedComparison) -> list[dict[str, object]]:
+    return [
+        {
+            "ancho_px": window.width_px,
+            "alto_px": window.height_px,
+            "trazo_px": [[[x, y] for x, y in part] for part in window.stretch_px],
+            "imagenes": [
+                {
+                    "url": image.url,
+                    "franja": image.slot,
+                    "periodo": image.period,
+                    "resolucion_m": image.resolution_m,
+                    "atribucion": image.attribution,
+                    "texto_alternativo": image.alt_text,
+                }
+                for image in window.images
+            ],
+            "omitidas": [
+                {"franja": omitted.slot, "texto": omitted.text} for omitted in window.omitted
+            ],
+        }
+        for window in comparison.windows
+    ]
+
+
+def _comparison_notes(notes: ComparisonNotes) -> dict[str, object]:
+    return {
+        "politica": notes.policy,
+        "huecos": [
+            {"desde": gap.from_year, "hasta": gap.to_year, "texto": gap.text} for gap in notes.gaps
+        ],
+        "servidas_por": notes.served_by,
+        "no_disponible": notes.not_available,
+    }
 
 
 def _feature(item: PublishedCandidate) -> dict[str, object]:
@@ -64,6 +110,7 @@ def _feature(item: PublishedCandidate) -> dict[str, object]:
             "confianza": card.confidence_level,
             "evidencia": [evidence_document(source) for source in card.sources],
             "aviso_omision": card.omission_notice,
+            "imagenes_comparacion": _images(item.comparison),
         },
     }
 
@@ -88,25 +135,68 @@ def _sources(publication: CandidateLayerPublication) -> list[PublicSource]:
     return [source for item in publication.content.items for source in item.card.sources]
 
 
+def _published_images(publication: CandidateLayerPublication) -> list[PublishedImage]:
+    return [image for item in publication.content.items for image in item.comparison.images()]
+
+
+def _server(url: str) -> str:
+    """El servidor de una URL de imagen: lo que va antes de `?`."""
+    return url.split("?", 1)[0]
+
+
 def layer_provenance(publication: CandidateLayerPublication, repository_url: str) -> Provenance:
     """Procedencia de la capa publicada: Paso Común, CC BY 4.0 (ADR 0035 §2), con la
-    fecha de descarga más reciente de la evidencia citada."""
+    fecha de descarga más reciente de la evidencia citada y de las imágenes."""
     sources = _sources(publication)
     if not sources:
         raise PublishedLayerError(
             f"{CANDIDATE_LAYER_ID}/{publication.municipality_code}: tramos sin evidencia"
         )
+    dates = [source.retrieved_at for source in sources]
+    dates += [image.retrieved_at for image in _published_images(publication)]
     return Provenance(
         source=CANDIDATE_LAYER_SOURCE,
         url=repository_url,
-        retrieved_at=max(source.retrieved_at for source in sources),
+        retrieved_at=max(dates),
         license=CANDIDATE_LAYER_LICENSE,
         redistribution=Redistribution.PUBLIC,
     )
 
 
 def _attributions(publication: CandidateLayerPublication) -> list[str]:
-    return sorted({source.attribution for source in _sources(publication) if source.attribution})
+    found = {source.attribution for source in _sources(publication) if source.attribution}
+    found |= {image.attribution for image in _published_images(publication)}
+    return sorted(found)
+
+
+def _image_sources(publication: CandidateLayerPublication) -> list[dict[str, object]]:
+    """Una fuente por vuelo publicado (su atribución lo identifica), con su fecha de
+    descarga más reciente."""
+    latest: dict[tuple[str, str], PublishedImage] = {}
+    for image in _published_images(publication):
+        key = (_server(image.url), image.attribution)
+        if key not in latest or image.retrieved_at > latest[key].retrieved_at:
+            latest[key] = image
+    return [
+        {
+            "origen": COMPARISON_SOURCE,
+            "url": server,
+            "fecha_descarga": image.retrieved_at.isoformat(),
+            "licencia": COMPARISON_LICENSE,
+            "atribucion": attribution,
+        }
+        for (server, attribution), image in sorted(latest.items())
+    ]
+
+
+def _image_block(publication: CandidateLayerPublication) -> dict[str, object]:
+    images = _published_images(publication)
+    return {
+        "servidor": WMS_HISTORICO_URL,
+        "alojadas_en_el_sitio": False,
+        "politica": publication.comparison_notes.policy,
+        "atribucion": sorted({image.attribution for image in images}),
+    }
 
 
 def layer_document(
@@ -123,6 +213,7 @@ def layer_document(
             "aviso": WARNING,
             "revisado_a_mano": REVIEWED_BY_HAND,
             "medicion": _measurement(publication.measurement),
+            "comparacion": _comparison_notes(publication.comparison_notes),
             "atribucion": _attributions(publication),
             "procedencia": provenance_document(provenance),
         },
@@ -160,7 +251,9 @@ def sidecar_document(
                 "atribucion": attribution,
             }
             for origin, url, retrieved_at, license, attribution in sorted(sources)
-        ],
+        ]
+        + _image_sources(publication),
+        "imagenes_comparacion": _image_block(publication),
         "transformacion": {
             "crs_origen": SOURCE_CRS,
             "crs_destino": TARGET_CRS,
@@ -238,6 +331,11 @@ class GeoJsonPublishedCandidateSink:
             check_no_parcel_identifiers(name, content)
             _check_no_banned_words(name, content)
         size = len(text.encode("utf-8"))
+        if size > self._threshold:
+            raise PublishedLayerError(
+                f"{label}: pesa {size} bytes, por encima del umbral de {self._threshold}; "
+                "no se publica nada"
+            )
         try:
             entry = entry_from_document(CANDIDATE_LAYER_ID, code, document)
         except PublishedLayerError as error:
@@ -249,7 +347,7 @@ class GeoJsonPublishedCandidateSink:
                 path=f"{CANDIDATE_LAYER_ID}/{code}.geojson",
                 size_bytes=size,
                 simplification=None,
-                over_threshold=size > self._threshold,
+                over_threshold=False,  # por encima del umbral falla (ADR 0049 §7)
             ),
             text=text,
             sidecar=sidecar,

@@ -151,6 +151,27 @@ class StretchComparison:
     gaps: tuple[DeclaredGap, ...]
 
 
+@dataclass(frozen=True)
+class ComparisonManifest:
+    """El manifiesto interno de un municipio ya leído (#122; lo consume #172)."""
+
+    municipality_code: str
+    policy: CriterionRef
+    gaps: tuple[DeclaredGap, ...]
+    stretches: tuple[StretchComparison, ...]  # en orden de stretch_id, ids únicos
+
+    def __post_init__(self) -> None:
+        ids = [stretch.stretch_id for stretch in self.stretches]
+        if len(set(ids)) != len(ids):
+            raise ValueError("el manifiesto tiene ids de tramo repetidos")
+
+    def stretch(self, stretch_id: str) -> StretchComparison | None:
+        for comparison in self.stretches:
+            if comparison.stretch_id == stretch_id:
+                return comparison
+        return None
+
+
 class DegenerateStretchError(ValueError):
     """El tramo no tiene ningún segmento medible (vacío, un punto o puntos repetidos)."""
 

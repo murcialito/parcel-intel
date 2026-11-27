@@ -135,8 +135,12 @@ uv run python -m parcel_intel.cli.main medir-candidatos [--casos docs/validacion
 # Lee el informe de medir-candidatos (debe ser de un conjunto congelado y medir exactamente el método de los candidatos), el fichero interno
 # de candidatos (#128) y curated/candidatos/<ine>/revision.json (#168). Solo publica los aprobados vigentes. Sin red. Todo o nada: sale con 1 y
 # no escribe si falta o no vale el informe, si no hay aprobados, si hay aprobaciones caducadas o huérfanas, o si un aprobado no es publicable.
+# Imágenes de comparación (historia #172, ADR 0049): cada tramo lleva enlaces al WMS del IGN con año, atribución y trazo en píxeles, sacados del
+# manifiesto de imagenes-comparacion (--comparacion; generado con el mismo fichero interno de candidatos como --tramos). Falla si falta el
+# manifiesto o no casa con los aprobados (ausente, demasiado largo, sin imágenes, otro trazado, URL o atribución fuera de la lista blanca), o si
+# el fichero pasa de 3.000.000 bytes. Ninguna imagen se aloja en site/.
 # Solo municipios con código de Catastro verificado (hoy, 28043); sin --municipio sale con 1; no hay --ambito. Se ejecuta en local.
-uv run python -m parcel_intel.cli.main publicar-candidatos --municipio 28043 [--medicion data/derived/validacion/medicion.json] [--entrada data/derived/candidatos/interno] [--curated curated/candidatos] [--salida site/datos]
+uv run python -m parcel_intel.cli.main publicar-candidatos --municipio 28043 [--medicion data/derived/validacion/medicion.json] [--entrada data/derived/candidatos/interno] [--curated curated/candidatos] [--comparacion data/derived/comparacion] [--salida site/datos]
 
 # Georreferenciación histórica por unidad (historia #139, ADR 0043/0044): entrada humana en curated/historico/<unit_id>/ (unidad.json,
 # puntos_control.csv, trazados.geojson) e imagen de trabajo en data/raw/ign_planimetrias/<unit_id>.png (+ .provenance.json). Opciones, con

@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from parcel_intel.adapters.raw_cache import CachedRawFetcher, RawCacheCorruptError
+from parcel_intel.adapters.raw_cache.cache import canonical_url
 
 URL = "https://example.invalid/x"
 
@@ -52,3 +53,10 @@ def test_sidecar_sin_cuerpo_es_corrupta(tmp_path: Path) -> None:
     next(tmp_path.rglob("*.body")).unlink()
     with pytest.raises(RawCacheCorruptError):
         fetcher.fetch(URL, {})
+
+
+def test_canonical_url_es_la_de_la_respuesta(tmp_path: Path) -> None:
+    """#172: la URL canónica sale de una única función, la misma que usa la caché."""
+    params = {"b": "2", "a": "x,y", "c": ""}
+    assert canonical_url(URL, params) == f"{URL}?a=x%2Cy&b=2&c="
+    assert _fetcher(tmp_path, []).fetch(URL, params).url == canonical_url(URL, params)

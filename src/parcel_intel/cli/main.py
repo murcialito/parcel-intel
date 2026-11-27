@@ -18,6 +18,7 @@ from parcel_intel.adapters.catastro.area_adapter import (
 )
 from parcel_intel.adapters.comparison_files import (
     JsonComparisonAvailabilityReader,
+    JsonComparisonManifestReader,
     JsonComparisonManifestWriter,
     ManifestTooLargeError,
     StretchFileFormatError,
@@ -1083,15 +1084,17 @@ def build_publish_candidates_use_case(
     measurement_path: Path,
     candidates_dir: Path,
     curated_dir: Path,
+    comparison_dir: Path,
     output_dir: Path,
     size_threshold_bytes: int = PUBLISH_SIZE_THRESHOLD_BYTES,
 ) -> PublishCandidatesUseCase:
-    """Composition root de `publicar-candidatos` (historia #170, ADR 0048). Solo
-    ficheros: nada con red, base de datos ni LLM."""
+    """Composition root de `publicar-candidatos` (historias #170 y #172, ADR 0048 y 0049).
+    Solo ficheros: nada con red, base de datos ni LLM."""
     return PublishCandidatesUseCase(
         measurement=JsonMeasurementReportReader(measurement_path),
         candidates=GeoJsonCutCandidateReader(candidates_dir),
         reviews=CuratedCandidateReviewFiles(curated_dir),
+        comparisons=JsonComparisonManifestReader(comparison_dir),
         sink=GeoJsonPublishedCandidateSink(
             output_dir, REPOSITORY_URL, size_threshold_bytes=size_threshold_bytes
         ),
@@ -1106,7 +1109,7 @@ def _publicar_candidatos(args: argparse.Namespace) -> int:
         return 1
     nothing_written = f"No se ha escrito nada en {args.salida}."
     use_case = build_publish_candidates_use_case(
-        args.medicion, args.entrada, args.curated, args.salida
+        args.medicion, args.entrada, args.curated, args.comparacion, args.salida
     )
     try:
         result = use_case.execute(codes)
@@ -1133,8 +1136,6 @@ def _publicar_candidatos(args: argparse.Namespace) -> int:
             f"{approved} tramos aprobados (sin publicar: {proposed} propuestos, "
             f"{rejected} rechazados)"
         )
-        if published.over_threshold:
-            print("  AVISO: por encima del umbral de peso")
     if result.measurement_texts:
         print("medición: " + " ".join(result.measurement_texts[:3]))
     return 0
@@ -1715,6 +1716,12 @@ def _build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("curated/candidatos"),
         help="Entrada humana versionada: <ine>/revision.json",
+    )
+    tramos_parser.add_argument(
+        "--comparacion",
+        type=Path,
+        default=Path("data/derived/comparacion"),
+        help="Directorio con los manifiestos <ine>.json de `imagenes-comparacion`",
     )
     tramos_parser.add_argument(
         "--salida",

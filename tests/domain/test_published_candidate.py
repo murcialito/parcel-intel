@@ -13,6 +13,7 @@ from parcel_intel.domain.candidate_review import (
     candidate_fingerprint,
     reconcile,
 )
+from parcel_intel.domain.comparison_image import ComparisonManifest
 from parcel_intel.domain.cut_candidate import CutCandidate
 from parcel_intel.domain.cut_method import CUT_METHOD
 from parcel_intel.domain.discrepancy_criterion import CriterionRef
@@ -37,6 +38,8 @@ from parcel_intel.domain.published_candidate import (
     public_candidate_id,
     summarize_measurement,
 )
+from parcel_intel.domain.published_comparison import ComparisonManifestNotUsableError
+from tests.fixtures.candidatos_publicar import generar as publicar
 from tests.fixtures.candidatos_revision import generar
 
 REVIEWED_AT = generar.REVIEWED_AT
@@ -81,7 +84,12 @@ def _layer(
     )
     state = reconcile(report, [_approved(c) for c in (approve or candidates)])
     summary = summarize_measurement(_report(), CUT_METHOD)
-    return build_candidate_layer(state, summary, "Colmenar de Oreja")
+    manifest = publicar.manifest_for(candidates)
+    return build_candidate_layer(state, summary, "Colmenar de Oreja", manifest)
+
+
+def _manifest() -> ComparisonManifest:
+    return publicar.manifest_for(list(generar.candidates().values()))
 
 
 # --- summarize_measurement -------------------------------------------------------------
@@ -214,7 +222,7 @@ def test_sin_aprobados_falla() -> None:
     report = generar.report()
     state = reconcile(report, [])
     with pytest.raises(CandidatesNotPublishableError) as error:
-        build_candidate_layer(state, summarize_measurement(_report(), CUT_METHOD), "x")
+        build_candidate_layer(state, summarize_measurement(_report(), CUT_METHOD), "x", _manifest())
     assert error.value.reason == "ningún candidato aprobado"
     assert found  # la fixture tiene candidatos: el fallo es por la revisión
 
@@ -224,7 +232,7 @@ def test_aprobacion_caducada_se_propaga() -> None:
     stale = dataclasses.replace(_approved(found["aprobado"]), candidate_sha256="0" * 64)
     state = reconcile(generar.report(), [stale])
     with pytest.raises(StaleCandidateApprovalError) as error:
-        build_candidate_layer(state, summarize_measurement(_report(), CUT_METHOD), "x")
+        build_candidate_layer(state, summarize_measurement(_report(), CUT_METHOD), "x", _manifest())
     assert error.value.stale_ids == (found["aprobado"].candidate_id,)
 
 
@@ -283,3 +291,48 @@ def test_los_textos_de_la_medicion_son_los_del_adr() -> None:
         REVIEWED_BY_HAND,
     ):
         assert f"«{text}»" in adr, text
+
+
+# --- imágenes de comparación (#172) ----------------------------------------------------
+
+
+def test_cada_aprobado_lleva_sus_imagenes_y_la_capa_sus_notas() -> None:
+    found = generar.candidates()
+    build = _layer(list(found.values()), approve=[found["aprobado"], found["propuesto"]])
+    for item in build.publication.content.items:
+        assert len(item.comparison.windows) == 1
+        assert len(item.comparison.images()) == 4
+    assert build.publication.comparison_notes.policy == "imagenes_comparacion v1"
+
+
+def test_aprobado_sin_imagenes_falla_nombrando_su_id() -> None:
+    found = generar.candidates()
+    aprobado = found["aprobado"]
+    report = dataclasses.replace(generar.report(), candidates=(aprobado,))
+    state = reconcile(report, [_approved(aprobado)])
+    manifest = publicar.manifest_for([found["propuesto"]])
+    with pytest.raises(CandidatesNotPublishableError) as error:
+        build_candidate_layer(state, summarize_measurement(_report(), CUT_METHOD), "x", manifest)
+    assert error.value.reason == (
+        f"el candidato {aprobado.candidate_id}: no está en el manifiesto de imágenes de "
+        "comparación; ejecuta imagenes-comparacion"
+    )
+
+
+def test_manifiesto_de_otra_politica_se_propaga() -> None:
+    found = generar.candidates()
+    state = reconcile(generar.report(), [_approved(found["aprobado"])])
+    manifest = dataclasses.replace(_manifest(), policy=CriterionRef("imagenes_comparacion", 2))
+    with pytest.raises(ComparisonManifestNotUsableError):
+        build_candidate_layer(state, summarize_measurement(_report(), CUT_METHOD), "x", manifest)
+
+
+def test_licencia_del_trazado_se_comprueba_antes_que_las_imagenes() -> None:
+    """Un sujeto no redistribuible falla por eso aunque falten sus imágenes."""
+    rejected = generar.candidates()["rechazado"]
+    report = dataclasses.replace(generar.report(), candidates=(rejected,))
+    state = reconcile(report, [_approved(rejected)])
+    empty = dataclasses.replace(_manifest(), stretches=())
+    with pytest.raises(CandidatesNotPublishableError) as error:
+        build_candidate_layer(state, summarize_measurement(_report(), CUT_METHOD), "x", empty)
+    assert "no redistribuible" in error.value.reason

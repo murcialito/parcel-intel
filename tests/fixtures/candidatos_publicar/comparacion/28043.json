@@ -1,0 +1,551 @@
+{
+ "huecos": [
+  {
+   "desde": 1957,
+   "hasta": 1997,
+   "motivo": "sin ortofoto en el servicio sobre el ámbito (los vuelos Interministerial y Nacional no tienen imagen en él)"
+  }
+ ],
+ "municipio": "28043",
+ "politica": {
+  "id": "imagenes_comparacion",
+  "version": 1
+ },
+ "tramos": [
+  {
+   "estado": "generada",
+   "id": "12b804770c6c38bd",
+   "ventanas": [
+    {
+     "alto_px": 448,
+     "ancho_px": 448,
+     "bbox": [
+      459933,
+      4437888,
+      460157,
+      4438112
+     ],
+     "imagenes": [
+      {
+       "atribucion": "Obra derivada de Orto-OLISTAT 1997-1999 CC-BY 4.0 scne.es",
+       "bytes": 6024,
+       "franja": "1997-2003",
+       "periodo": "1997-1999",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459933%2C4437888%2C460157%2C4438112&crs=EPSG%3A25830&format=image%2Fjpeg&height=448&layers=OLISTAT&request=GetMap&service=WMS&styles=&version=1.3.0&width=448"
+       },
+       "resolucion_m": 1.0,
+       "sha256": "4a6aa17ce853235a57df66c6c2939219bfef7627483720deb81b5b8a2bed4f7c",
+       "vuelo": "OLISTAT"
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2006 CC-BY 4.0 scne.es",
+       "bytes": 6024,
+       "franja": "2006-2011",
+       "periodo": "2006",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459933%2C4437888%2C460157%2C4438112&crs=EPSG%3A25830&format=image%2Fjpeg&height=448&layers=PNOA2006&request=GetMap&service=WMS&styles=&version=1.3.0&width=448"
+       },
+       "resolucion_m": 0.5,
+       "sha256": "4a6aa17ce853235a57df66c6c2939219bfef7627483720deb81b5b8a2bed4f7c",
+       "vuelo": 2006
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2017 CC-BY 4.0 scne.es",
+       "bytes": 6024,
+       "franja": "2014-2020",
+       "periodo": "2017",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459933%2C4437888%2C460157%2C4438112&crs=EPSG%3A25830&format=image%2Fjpeg&height=448&layers=PNOA2017&request=GetMap&service=WMS&styles=&version=1.3.0&width=448"
+       },
+       "resolucion_m": 0.25,
+       "sha256": "4a6aa17ce853235a57df66c6c2939219bfef7627483720deb81b5b8a2bed4f7c",
+       "vuelo": 2017
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2023 CC-BY 4.0 scne.es",
+       "bytes": 6024,
+       "franja": "reciente",
+       "periodo": "2023",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459933%2C4437888%2C460157%2C4438112&crs=EPSG%3A25830&format=image%2Fjpeg&height=448&layers=PNOA2023&request=GetMap&service=WMS&styles=&version=1.3.0&width=448"
+       },
+       "resolucion_m": 0.25,
+       "sha256": "4a6aa17ce853235a57df66c6c2939219bfef7627483720deb81b5b8a2bed4f7c",
+       "vuelo": 2023
+      }
+     ],
+     "omitidas": [
+      {
+       "franja": "1956-1957",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "AMS_1956-1957"
+       ],
+       "tipo_error": null
+      }
+     ],
+     "srid": 25830,
+     "trazo_px": [
+      [
+       [
+        134.0,
+        224.0
+       ],
+       [
+        314.0,
+        224.0
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "estado": "generada",
+   "id": "5f1f40660b686e00",
+   "ventanas": [
+    {
+     "alto_px": 512,
+     "ancho_px": 512,
+     "bbox": [
+      459947,
+      4437372,
+      460203,
+      4437628
+     ],
+     "imagenes": [
+      {
+       "atribucion": "Obra derivada de Orto-OLISTAT 1997-1999 CC-BY 4.0 scne.es",
+       "bytes": 7867,
+       "franja": "1997-2003",
+       "periodo": "1997-1999",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459947%2C4437372%2C460203%2C4437628&crs=EPSG%3A25830&format=image%2Fjpeg&height=512&layers=OLISTAT&request=GetMap&service=WMS&styles=&version=1.3.0&width=512"
+       },
+       "resolucion_m": 1.0,
+       "sha256": "96e263efd997b8459fa25c164ef2d49cc075859896676f709c62f082ae1410e7",
+       "vuelo": "OLISTAT"
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2006 CC-BY 4.0 scne.es",
+       "bytes": 7867,
+       "franja": "2006-2011",
+       "periodo": "2006",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459947%2C4437372%2C460203%2C4437628&crs=EPSG%3A25830&format=image%2Fjpeg&height=512&layers=PNOA2006&request=GetMap&service=WMS&styles=&version=1.3.0&width=512"
+       },
+       "resolucion_m": 0.5,
+       "sha256": "96e263efd997b8459fa25c164ef2d49cc075859896676f709c62f082ae1410e7",
+       "vuelo": 2006
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2017 CC-BY 4.0 scne.es",
+       "bytes": 7867,
+       "franja": "2014-2020",
+       "periodo": "2017",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459947%2C4437372%2C460203%2C4437628&crs=EPSG%3A25830&format=image%2Fjpeg&height=512&layers=PNOA2017&request=GetMap&service=WMS&styles=&version=1.3.0&width=512"
+       },
+       "resolucion_m": 0.25,
+       "sha256": "96e263efd997b8459fa25c164ef2d49cc075859896676f709c62f082ae1410e7",
+       "vuelo": 2017
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2023 CC-BY 4.0 scne.es",
+       "bytes": 7867,
+       "franja": "reciente",
+       "periodo": "2023",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459947%2C4437372%2C460203%2C4437628&crs=EPSG%3A25830&format=image%2Fjpeg&height=512&layers=PNOA2023&request=GetMap&service=WMS&styles=&version=1.3.0&width=512"
+       },
+       "resolucion_m": 0.25,
+       "sha256": "96e263efd997b8459fa25c164ef2d49cc075859896676f709c62f082ae1410e7",
+       "vuelo": 2023
+      }
+     ],
+     "omitidas": [
+      {
+       "franja": "1956-1957",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "AMS_1956-1957"
+       ],
+       "tipo_error": null
+      }
+     ],
+     "srid": 25830,
+     "trazo_px": [
+      [
+       [
+        106.0,
+        256.0
+       ],
+       [
+        406.0,
+        256.0
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "estado": "generada",
+   "id": "7107a7aa44addbb3",
+   "ventanas": [
+    {
+     "alto_px": 448,
+     "ancho_px": 448,
+     "bbox": [
+      459948,
+      4436388,
+      460172,
+      4436612
+     ],
+     "imagenes": [
+      {
+       "atribucion": "Obra derivada de Orto-OLISTAT 1997-1999 CC-BY 4.0 scne.es",
+       "bytes": 6024,
+       "franja": "1997-2003",
+       "periodo": "1997-1999",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459948%2C4436388%2C460172%2C4436612&crs=EPSG%3A25830&format=image%2Fjpeg&height=448&layers=OLISTAT&request=GetMap&service=WMS&styles=&version=1.3.0&width=448"
+       },
+       "resolucion_m": 1.0,
+       "sha256": "4a6aa17ce853235a57df66c6c2939219bfef7627483720deb81b5b8a2bed4f7c",
+       "vuelo": "OLISTAT"
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2006 CC-BY 4.0 scne.es",
+       "bytes": 6024,
+       "franja": "2006-2011",
+       "periodo": "2006",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459948%2C4436388%2C460172%2C4436612&crs=EPSG%3A25830&format=image%2Fjpeg&height=448&layers=PNOA2006&request=GetMap&service=WMS&styles=&version=1.3.0&width=448"
+       },
+       "resolucion_m": 0.5,
+       "sha256": "4a6aa17ce853235a57df66c6c2939219bfef7627483720deb81b5b8a2bed4f7c",
+       "vuelo": 2006
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2017 CC-BY 4.0 scne.es",
+       "bytes": 6024,
+       "franja": "2014-2020",
+       "periodo": "2017",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459948%2C4436388%2C460172%2C4436612&crs=EPSG%3A25830&format=image%2Fjpeg&height=448&layers=PNOA2017&request=GetMap&service=WMS&styles=&version=1.3.0&width=448"
+       },
+       "resolucion_m": 0.25,
+       "sha256": "4a6aa17ce853235a57df66c6c2939219bfef7627483720deb81b5b8a2bed4f7c",
+       "vuelo": 2017
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2023 CC-BY 4.0 scne.es",
+       "bytes": 6024,
+       "franja": "reciente",
+       "periodo": "2023",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459948%2C4436388%2C460172%2C4436612&crs=EPSG%3A25830&format=image%2Fjpeg&height=448&layers=PNOA2023&request=GetMap&service=WMS&styles=&version=1.3.0&width=448"
+       },
+       "resolucion_m": 0.25,
+       "sha256": "4a6aa17ce853235a57df66c6c2939219bfef7627483720deb81b5b8a2bed4f7c",
+       "vuelo": 2023
+      }
+     ],
+     "omitidas": [
+      {
+       "franja": "1956-1957",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "AMS_1956-1957"
+       ],
+       "tipo_error": null
+      }
+     ],
+     "srid": 25830,
+     "trazo_px": [
+      [
+       [
+        104.0,
+        224.0
+       ],
+       [
+        344.0,
+        224.0
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "estado": "generada",
+   "id": "910f248ab773fae8",
+   "ventanas": [
+    {
+     "alto_px": 640,
+     "ancho_px": 640,
+     "bbox": [
+      459935,
+      4436840,
+      460255,
+      4437160
+     ],
+     "imagenes": [
+      {
+       "atribucion": "Obra derivada de Orto-OLISTAT 1997-1999 CC-BY 4.0 scne.es",
+       "bytes": 12290,
+       "franja": "1997-2003",
+       "periodo": "1997-1999",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459935%2C4436840%2C460255%2C4437160&crs=EPSG%3A25830&format=image%2Fjpeg&height=640&layers=OLISTAT&request=GetMap&service=WMS&styles=&version=1.3.0&width=640"
+       },
+       "resolucion_m": 1.0,
+       "sha256": "7ead2c5892ebb5dca519684eaf53bf6ad3f9356a9273db9a56f7486398106c73",
+       "vuelo": "OLISTAT"
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2006 CC-BY 4.0 scne.es",
+       "bytes": 12290,
+       "franja": "2006-2011",
+       "periodo": "2006",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459935%2C4436840%2C460255%2C4437160&crs=EPSG%3A25830&format=image%2Fjpeg&height=640&layers=PNOA2006&request=GetMap&service=WMS&styles=&version=1.3.0&width=640"
+       },
+       "resolucion_m": 0.5,
+       "sha256": "7ead2c5892ebb5dca519684eaf53bf6ad3f9356a9273db9a56f7486398106c73",
+       "vuelo": 2006
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2017 CC-BY 4.0 scne.es",
+       "bytes": 12290,
+       "franja": "2014-2020",
+       "periodo": "2017",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459935%2C4436840%2C460255%2C4437160&crs=EPSG%3A25830&format=image%2Fjpeg&height=640&layers=PNOA2017&request=GetMap&service=WMS&styles=&version=1.3.0&width=640"
+       },
+       "resolucion_m": 0.25,
+       "sha256": "7ead2c5892ebb5dca519684eaf53bf6ad3f9356a9273db9a56f7486398106c73",
+       "vuelo": 2017
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2023 CC-BY 4.0 scne.es",
+       "bytes": 12290,
+       "franja": "reciente",
+       "periodo": "2023",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459935%2C4436840%2C460255%2C4437160&crs=EPSG%3A25830&format=image%2Fjpeg&height=640&layers=PNOA2023&request=GetMap&service=WMS&styles=&version=1.3.0&width=640"
+       },
+       "resolucion_m": 0.25,
+       "sha256": "7ead2c5892ebb5dca519684eaf53bf6ad3f9356a9273db9a56f7486398106c73",
+       "vuelo": 2023
+      }
+     ],
+     "omitidas": [
+      {
+       "franja": "1956-1957",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "AMS_1956-1957"
+       ],
+       "tipo_error": null
+      }
+     ],
+     "srid": 25830,
+     "trazo_px": [
+      [
+       [
+        130.0,
+        320.0
+       ],
+       [
+        330.0,
+        320.0
+       ]
+      ],
+      [
+       [
+        390.0,
+        320.0
+       ],
+       [
+        510.0,
+        320.0
+       ]
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "estado": "generada",
+   "id": "cb30d538bb5ea601",
+   "ventanas": [
+    {
+     "alto_px": 640,
+     "ancho_px": 640,
+     "bbox": [
+      459940,
+      4435840,
+      460260,
+      4436160
+     ],
+     "imagenes": [
+      {
+       "atribucion": "Obra derivada de Orto-OLISTAT 1997-1999 CC-BY 4.0 scne.es",
+       "bytes": 12290,
+       "franja": "1997-2003",
+       "periodo": "1997-1999",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459940%2C4435840%2C460260%2C4436160&crs=EPSG%3A25830&format=image%2Fjpeg&height=640&layers=OLISTAT&request=GetMap&service=WMS&styles=&version=1.3.0&width=640"
+       },
+       "resolucion_m": 1.0,
+       "sha256": "7ead2c5892ebb5dca519684eaf53bf6ad3f9356a9273db9a56f7486398106c73",
+       "vuelo": "OLISTAT"
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2006 CC-BY 4.0 scne.es",
+       "bytes": 12290,
+       "franja": "2006-2011",
+       "periodo": "2006",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459940%2C4435840%2C460260%2C4436160&crs=EPSG%3A25830&format=image%2Fjpeg&height=640&layers=PNOA2006&request=GetMap&service=WMS&styles=&version=1.3.0&width=640"
+       },
+       "resolucion_m": 0.5,
+       "sha256": "7ead2c5892ebb5dca519684eaf53bf6ad3f9356a9273db9a56f7486398106c73",
+       "vuelo": 2006
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2017 CC-BY 4.0 scne.es",
+       "bytes": 12290,
+       "franja": "2014-2020",
+       "periodo": "2017",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459940%2C4435840%2C460260%2C4436160&crs=EPSG%3A25830&format=image%2Fjpeg&height=640&layers=PNOA2017&request=GetMap&service=WMS&styles=&version=1.3.0&width=640"
+       },
+       "resolucion_m": 0.25,
+       "sha256": "7ead2c5892ebb5dca519684eaf53bf6ad3f9356a9273db9a56f7486398106c73",
+       "vuelo": 2017
+      },
+      {
+       "atribucion": "Obra derivada de PNOA 2023 CC-BY 4.0 scne.es",
+       "bytes": 12290,
+       "franja": "reciente",
+       "periodo": "2023",
+       "procedencia": {
+        "fecha_descarga": "2026-11-27",
+        "fuente": "pnoa-historico",
+        "licencia": "CC BY 4.0",
+        "redistribucion": "publicable",
+        "url": "https://www.ign.es/wms/pnoa-historico?bbox=459940%2C4435840%2C460260%2C4436160&crs=EPSG%3A25830&format=image%2Fjpeg&height=640&layers=PNOA2023&request=GetMap&service=WMS&styles=&version=1.3.0&width=640"
+       },
+       "resolucion_m": 0.25,
+       "sha256": "7ead2c5892ebb5dca519684eaf53bf6ad3f9356a9273db9a56f7486398106c73",
+       "vuelo": 2023
+      }
+     ],
+     "omitidas": [
+      {
+       "franja": "1956-1957",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "AMS_1956-1957"
+       ],
+       "tipo_error": null
+      }
+     ],
+     "srid": 25830,
+     "trazo_px": [
+      [
+       [
+        120.0,
+        320.0
+       ],
+       [
+        520.0,
+        320.0
+       ]
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

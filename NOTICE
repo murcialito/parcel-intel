@@ -27,6 +27,24 @@ de memoria.
 - Formato de obra derivada del PNOA histórico con producto y fecha: pendiente de verificar
   (REGISTRY no cita el texto exacto para esas capas).
 
+### IGN/CNIG — imágenes de comparación de los tramos a verificar (ADR 0042 y 0049, historia #172)
+
+- Las imágenes de comparación de cada tramo a verificar se sirven desde el WMS histórico del
+  IGN (https://www.ign.es/wms/pnoa-historico) al abrir la ficha: el sitio solo publica los
+  enlaces, nunca aloja las imágenes. El trazo del tramo se dibuja encima, así que cada una es
+  obra derivada.
+- Licencia: CC BY 4.0 (Orden FOM/2807/2015), con la atribución del SCNE de cada vuelo:
+  - `Obra derivada de Orto-AMS 1956-1957 CC-BY 4.0 ejercito.defensa.gob.es`
+  - `Obra derivada de Orto-SIGPAC 1997-2003 CC-BY 4.0 scne.es`
+  - `Obra derivada de Orto-OLISTAT 1997-1999 CC-BY 4.0 scne.es`
+  - `Obra derivada de PNOA 2006 CC-BY 4.0 scne.es`
+  - `Obra derivada de PNOA 2009 CC-BY 4.0 scne.es`
+  - `Obra derivada de PNOA 2011 CC-BY 4.0 scne.es`
+  - `Obra derivada de PNOA 2014 CC-BY 4.0 scne.es`
+  - `Obra derivada de PNOA 2017 CC-BY 4.0 scne.es`
+  - `Obra derivada de PNOA 2020 CC-BY 4.0 scne.es`
+  - `Obra derivada de PNOA 2023 CC-BY 4.0 scne.es`
+
 ### IGN/CNIG — planimetrías del IGN (1870-1950)
 
 - Licencia: CC BY 4.0 (Orden FOM/2807/2015).

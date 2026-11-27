@@ -1,4 +1,5 @@
-"""Caso de uso `PublishCandidatesUseCase` (historia #170) con dobles. Datos sintéticos."""
+"""Caso de uso `PublishCandidatesUseCase` (historias #170 y #172) con dobles. Datos
+sintéticos."""
 
 import dataclasses
 from collections.abc import Sequence
@@ -6,14 +7,18 @@ from datetime import date, datetime
 
 from parcel_intel.application.publish_candidates import PublishCandidatesUseCase
 from parcel_intel.domain.candidate_review import CandidateReview, candidate_fingerprint
+from parcel_intel.domain.comparison_image import ComparisonManifest
 from parcel_intel.domain.cut_candidate import MunicipalCutCandidateReport
+from parcel_intel.domain.discrepancy_criterion import CriterionRef
 from parcel_intel.domain.published_candidate import CandidateLayerPublication, MeasurementReport
 from parcel_intel.domain.published_layers import PublishedFile
 from parcel_intel.ports.errors import (
     CandidateReviewFileError,
+    ComparisonManifestFileError,
     CutCandidateFileError,
     MeasurementReportUnavailableError,
 )
+from tests.fixtures.candidatos_publicar import generar as publicar
 from tests.fixtures.candidatos_revision import generar
 
 INE = "28043"
@@ -67,6 +72,21 @@ class _Reviews:
         return self._reviews
 
 
+class _Comparisons:
+    def __init__(self, manifest: ComparisonManifest | None | Exception) -> None:
+        self._manifest = manifest
+        self.calls: list[str] = []
+
+    def get_manifest(self, municipality_code: str) -> ComparisonManifest | None:
+        self.calls.append(municipality_code)
+        if isinstance(self._manifest, Exception):
+            raise self._manifest
+        return self._manifest
+
+
+MANIFEST = publicar.manifest_for(list(generar.candidates().values()))
+
+
 class _Sink:
     def __init__(self) -> None:
         self.received: list[list[CandidateLayerPublication]] = []
@@ -103,11 +123,12 @@ def _use_case(
     measurement: MeasurementReport | Exception = MEASUREMENT,
     reports: dict[str, MunicipalCutCandidateReport | Exception] | None = None,
     reviews: tuple[CandidateReview, ...] | Exception = (),
+    manifest: ComparisonManifest | None | Exception = MANIFEST,
 ) -> tuple[PublishCandidatesUseCase, _Candidates, _Sink]:
     candidates = _Candidates({INE: generar.report()} if reports is None else reports)
     sink = _Sink()
     use_case = PublishCandidatesUseCase(
-        _Measurement(measurement), candidates, _Reviews(reviews), sink
+        _Measurement(measurement), candidates, _Reviews(reviews), _Comparisons(manifest), sink
     )
     return use_case, candidates, sink
 
@@ -205,3 +226,51 @@ def test_no_redistribuible_y_sin_fecha_de_catastro() -> None:
     )
     use_case, _, _ = _use_case(reports={INE: report}, reviews=(review,))
     assert "ninguna procedencia de Catastro" in use_case.execute([INE]).failures[0].reason
+
+
+# --- imágenes de comparación (#172) ----------------------------------------------------
+
+
+def test_sin_manifiesto_falla_el_municipio_sin_publicar() -> None:
+    use_case, _, sink = _use_case(reviews=(_approval("aprobado"),), manifest=None)
+    (failure,) = use_case.execute([INE]).failures
+    assert failure.reason == (
+        "sin manifiesto de imágenes de comparación; ejecuta imagenes-comparacion"
+    )
+    assert sink.received == []
+
+
+def test_manifiesto_ilegible_es_fallo_del_municipio() -> None:
+    error = ComparisonManifestFileError("c/28043.json", "JSON ilegible")
+    use_case, _, sink = _use_case(reviews=(_approval("aprobado"),), manifest=error)
+    (failure,) = use_case.execute([INE]).failures
+    assert "c/28043.json" in failure.reason and "JSON ilegible" in failure.reason
+    assert sink.received == []
+
+
+def test_manifiesto_de_otra_politica_es_fallo_del_municipio() -> None:
+    other = dataclasses.replace(MANIFEST, policy=CriterionRef("imagenes_comparacion", 2))
+    use_case, _, sink = _use_case(reviews=(_approval("aprobado"),), manifest=other)
+    (failure,) = use_case.execute([INE]).failures
+    assert failure.reason.startswith("manifiesto de imágenes no utilizable: el manifiesto es de")
+    assert sink.received == []
+
+
+def test_aprobado_fuera_del_manifiesto_nombra_su_id() -> None:
+    empty = dataclasses.replace(MANIFEST, stretches=())
+    use_case, _, _ = _use_case(reviews=(_approval("aprobado"),), manifest=empty)
+    (failure,) = use_case.execute([INE]).failures
+    aprobado = generar.candidates()["aprobado"].candidate_id
+    assert failure.reason == (
+        f"no publicable: el candidato {aprobado}: no está en el manifiesto de imágenes de "
+        "comparación; ejecuta imagenes-comparacion"
+    )
+
+
+def test_sin_fichero_de_candidatos_no_mira_el_manifiesto() -> None:
+    comparisons = _Comparisons(MANIFEST)
+    use_case = PublishCandidatesUseCase(
+        _Measurement(MEASUREMENT), _Candidates({}), _Reviews(()), comparisons, _Sink()
+    )
+    assert "sin fichero de candidatos" in use_case.execute([INE]).failures[0].reason
+    assert comparisons.calls == []
