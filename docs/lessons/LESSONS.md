@@ -583,6 +583,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: `ruff format .` sin límite reformatea decenas de ficheros ajenos a la historia (aquí 51, incluidos ADR y código de otras historias) y ensucia la PR. Formatea solo los ficheros que has tocado (`ruff format <rutas>`), o comprueba `git status` antes de hacer commit.
   - **Aplica a**: implementación.
 
+## [2026-11-27] Historia #57 — Unidad sintética de Villaconejos (280264-w1)
+
+- **Lección**: un criterio que cita una interfaz de #20 («`historico cargar --documento 280264`», «cargados 0», «sin error de ejecución», `curated/planimetrias/280264/`) debe comprobarse contra el CLI real antes de pasar a `lista`: el subcomando recibe `<unit_id>` posicional, la ruta es `curated/historico/<unit_id>/` y una unidad sin entrada curada sale con 1 (`CuratedUnitNotFoundError`), sin línea «cargados». Una historia «sin código nuevo» no puede cumplir un criterio que exige otro comportamiento de salida.
+  - **Aplica a**: refinador (copiar de la historia madre la interfaz real, no la planeada).
 ## [2026-11-27] Historia #62 — Hoja MTN50 0606 (0606-w1)
 
 - **Lección**: un criterio que dice «sin cambios en el mecanismo» puede ser incompatible con otro criterio de la misma historia. #62 (CA6) pide trazados de varios municipios en una hoja, pero `unidad.json` lleva un único `municipality_code` y `trazados.geojson` no admite municipio por trazado (`_ALLOWED_PROPERTIES`). Antes de escribir los tests se contrasta cada criterio con `adapters/curated_historic/files.py` y `domain/digitization.py`; el que no cabe se escala al fundador en vez de tocar `src/` fuera de la línea `Toca:`.
