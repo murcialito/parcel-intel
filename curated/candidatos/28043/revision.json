@@ -1,0 +1,325 @@
+{
+  "municipio": "28043",
+  "revisiones": [
+    {
+      "candidate_id": "0418c6b5fdf9bdf5",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "51b8c5b4ebcde977b4d9901fbdf717657048a42d9eaf050bd7ec71a33d57f1b5",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "063ea714624e351c",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "c0c0b59407d8264ca32190edcb90895d1b18cd881a9099db202b2a82c7ba925f",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "08663fa9cc5a4a15",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "c707ec2676cc74199c89bfeb2b053313a50b597b468e3b3113227e909eeeb56e",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "08c0ebb71a88e9ac",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "e08f579542e365764d36f891fda8aee3a51daa3fcfc6c3071701fa619dc52a59",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "143433a4ef6a711a",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "bd285dc8559f959750c5dd310076068dac101494b1aa695d7624ecdffd05e4e1",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "1c608b950c955ab9",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "91d973c0ff9c8bed6840797d02cb16d24925c7b3a8f040b64688a2239a4d747b",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "1d10e36a2450915c",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "c9ff3a5dc527c069839bc55a64ccf1433b567229bbea0541f853e3b5b9c06625",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "212f69d6a5e44855",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "f05b4b7391b1bcdf89883d9d101f113ace77e6e1e8d28d07bb03faa694c18510",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "2421c3b246329354",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "bce60068d8f616f497aadb464349e492c89e09f6896d53ee4ee71c6c82fbe6cb",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "2540c91815d14eab",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "af4dfe13731e814dbf97dc0669f9e1da9f3729676cbb0b7b487f810489080cec",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "36cbdceb69d342b5",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "fecd52b7003d41819007415f0f7bf23107620e8f08a29d0578286455751ba24d",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "414d234c850ff5c0",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "7e53f433b33a39f069a910accec89d437d4e75e2b7b88f6d940cc0f5d4344f1b",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "43b0fe20d0c5be9c",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "983790d6566594245e36f3d9af229b43b12da70e91f40b47dd504b6173540e20",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "461da79993f0b5d3",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "047aecebff26003ee29e31228596a8da622a020b6ea4dfdfd62590f66cdd606a",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "5820ebdb752f6708",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "948e8a4d53c9049525ed4dce53baa3d11ee8a2ed9af3685423defb82e0df9ae1",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "60a39c3e7db88a87",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "254acec913c79b3a0494ff477bacb23be9564c901741114059ebd81c6cb8de61",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "64f9fa103434e392",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "f09ef6ec3eb1cdba00cae6fcac2447bd10d16eead519fbee07e3f6b7ed25c7d7",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "65e856b166f49f8b",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "9037ffca698e2c609ff7a9bf81a2ee3eb7d5dfa55364b5fc7138cfe0372e799c",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "6b2b40ba8abd246e",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "e2c79a473868e246221797f764c438410f2af972b3acdbdc0c893b634ac7ccb8",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "6b436840fdc46861",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "d6a083f77cb81c8179121e624bdce89d7c262e67604fca5a890ddbac6f9d83d4",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "6b73d95b54e51ce9",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "3866f1bfbe6d6254871147ce2178c6d2f04774f9d2f6900c585548dccd1ff85e",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "6ff82229b0f8bc04",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "b0712d99835c53fcd282e5ac6263ac1335f1fc122d956dcfc371a7728862b0e3",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "791b67493ed64da7",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "7810e55e36b1a079715ff159d1afc847d047fc97b7ff3a28be5a77ee10be8233",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "7ee244fed4882d1e",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "5f90a1b255ebf89d06f6572d169a73e7eaf458bf03b45977dc5224529a56cfdd",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "8225288e4d25d873",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "ace345f3ea3312e151fe7289d189e3ca2a8eb346928fc87149239ef43417ba38",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "83cd8b1e8cfcdff7",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "f7f449228bdae31120a83537b6f6e87e12e668dcc82e377b9d0b7ed33bf9014a",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "9a2321716ecaec68",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "8c494f4ac70afc7094de63a55cda40183e9cf9119c9c0433910af8a2280bcbb9",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "9cf9266db0ec3060",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "253c1265c17de9de57cc03490f2e112c9576e39a0d4f845141c89acd5faed239",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "9e9b5dbd7d6a8c41",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "b8ce19fc42ba6a21d33f217661a3371aca2bd4a8147a55466ec7be5c87c72d86",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "a2171a0b429cc9b7",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "824cd7e93f6e223c57b83b626eb86af686b4d19aeb57ef2d7ba923fe128f80e2",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "aa4c84e551606943",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "c09695b315376e8bf8e8b2f9a0949526df72061f57c2076771db6fd417be1d2d",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "bd0afc1d626c1f8c",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "eca34eb25e20016e6d09f1cddae5791e87f2f12bf96fb317855b1968052c3518",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "bf78a0104ce5eba0",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "d38c8fd2e46e10e78e9be8055cf698062f94cd188cbfe83342d4ef2dde223174",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "c6ca4787aba3ec64",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "d6d2085b6c6eff1d5d1d93c9ba7a02842e16013be01bbb85c570d4428fd0d88f",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "d65a754de766942d",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "53a5939729ce9955eeacc249c1f6915800809d43be442be0ab8193b3cb00678b",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "ed2940df734a7751",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "fc307674b333df354849cb80d1530a8fc6044c352b215a719c565c304dc977cf",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "ed87e94c2d4aa22d",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "b1e6c7dcd9f818e36735ce84af58db25baec66e63a6ce4b05cd6a04c0e31bd7d",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "f61b03af379e6267",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "9e00c3e14a19c72124e604148085ab9750366ede2052f0b1bcf0c594516fd0e8",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "fade48b9274381c2",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "8fa45a3b82a99fc061c2c8b96a552ad5231fdf0e71c20f6142b2556bacc6b85a",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    },
+    {
+      "candidate_id": "fc868eefac9ee636",
+      "review": "aprobado",
+      "reviewed_by": "murcialito",
+      "reviewed_at": "2026-11-27T14:33:50+01:00",
+      "candidate_sha256": "ed1f58b83cff27848c16a54bef07c81b9503baa4c4bd532edf8854384108e7d7",
+      "review_note": "Aprobación provisional de prueba (2026-11-27), sin revisar las imágenes. Hay que revisarla antes de cualquier publicación real."
+    }
+  ]
+}
