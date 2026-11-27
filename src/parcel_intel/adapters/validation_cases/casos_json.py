@@ -1,7 +1,7 @@
 """Frontera de `docs/validacion/casos.json` → `ValidationCase` (historia #110, ADR 0038).
 
-Recibe el JSON ya parseado **y ya validado** con `validar_casos` (que sigue en
-`tests/validacion/` hasta #111; el código de producción no importa de `tests/`). Solo copia
+Recibe el JSON ya parseado **y ya validado** con `validar_casos` (en `casos_schema`, junto a
+este módulo; el código de producción no importa de `tests/`). Solo copia
 `id`, `ambito`, `municipio` (como código INE) y `tramo_linea`; nunca `tramo_descripcion`,
 `fuente_url` ni `nota_fecha` (CA11).
 """

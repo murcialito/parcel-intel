@@ -645,3 +645,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: `ruff format src` sin acotar reformateó 14 ficheros ajenos (tercera vez, ver #127 y #128). Formatea solo las rutas tocadas.
   - **Aplica a**: implementación.
 
+## [2026-11-27] Historia #125 — Mover validador y congelación a producción
+
+- **Lección**: al reubicar un módulo de `tests/` a `src/`, busca todas sus referencias con `grep` (imports, docstrings y docs que citan la ruta vieja) antes de darlo por hecho; los comentarios del tipo «sigue en `tests/` hasta #N» quedan falsos si no se actualizan.
+  - **Aplica a**: implementación.
+
