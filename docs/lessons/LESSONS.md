@@ -789,3 +789,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el `GetFeatureInfo` de `primera-edicion-mtn` devuelve la hoja de un solo punto; para saber qué hojas cubren un término hay que muestrear una rejilla dentro del límite (2,5 km bastó) y contar puntos por hoja. Una sola consulta en el centro oculta las hojas de borde (Colmenar tiene dos; Chinchón, cuatro). Los enlaces de descarga del CNIG devuelven la ficha HTML con reCAPTCHA v3, no el zip: se anota `bloqueado` y se trabaja con el render del WMS.
   - **Aplica a**: refinador, implementación (historias que inventarían la cobertura de un WMS histórico).
 
+## [2026-11-27] Historia #207 — Adapter de los vuelos históricos de Madrid
+
+- **Lección**: el WMS de la IDEM responde 200 con un PNG blanco fuera de cobertura (y la URL de `GetMap` que anuncia su `GetCapabilities` da 404); un `ServiceException` XML también llega con 200. El filtro fiable es validar la firma PNG antes de cachear y medir la varianza de gris (media de R, G, B) después. No hay Pillow en el proyecto: se reutiliza `adapters/evidence/png.py::decode_png`. Los identificadores `CM_*` son distintos de `AMS_1956-1957` del IGN: cada adapter rechaza con `InvalidHistoricalVintageError` los vuelos que no son suyos, y elegir adapter por vuelo es cosa de la composición (#208).
+  - **Aplica a**: implementación (#208 y cualquier otra fuente de ortofoto por WMS).
+
