@@ -875,6 +875,15 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: la capa derivada de vías pecuarias (#83) solo trae el área de la pieza recortada, no el `area_m2`/`length_m` del tramo completo de IDEM, y sin ellos no hay anchura oficial. Un cálculo que parta de la anchura oficial debe leer `MunicipalLivestockTrailLayer` (caché cruda de IDEM), no el GeoJSON derivado. Además, con la anchura catastral recortada a la franja, `A / W` es la fracción de la franja cubierta por parcelas VT: nunca supera 1, así que «A mayor que W» no existe como caso. Y `ruff format` sobre todo `src/` reformatea ficheros ajenos a la historia: formatear solo los ficheros propios.
   - **Aplica a**: implementación (señales de anchura, ventanas a lo largo del eje) | revisión.
+## [2026-11-27] Historia #282 — Clasificación de vías pecuarias en BOE y BOCM
+
+- **Lección**: la búsqueda de texto libre del BOCM no exige todas las palabras: pone en la página 1 documentos de otros municipios con «Colmenar» o «vías pecuarias» (Colmenar del Arroyo, Chapinería), y el control con Villaconejos no lo deja arriba aunque el BOE tenga su orden. Un «no hay» en el BOCM solo vale con la frase exacta del título de la orden y con un control positivo que salga en primer lugar (Chapinería, orden 3/2011).
+  - **Causa**: sin control, la primera página de texto libre parecía un negativo válido para cuatro municipios y no lo era. Con la frase exacta, el control de Chapinería sí aparece el primero.
+  - **Aplica a**: BA (exigir control positivo antes de escribir «no localizada») | implementación (cualquier consulta a un buscador de boletines).
+- **Lección**: el buscador por título del BOE sirve como negativo cuando salen los controles positivos (Chinchón, Villaconejos, Villarejo), pero solo cubre el título. Un «no hay» en el texto completo o en los sumarios 1960–1990 no se afirma: esos canales se anotan «no se pudo leer» con su motivo.
+  - **Aplica a**: BA e implementación (cada canal de un registro de fuentes con su resultado, también cuando es ilegible).
+- **Lección**: cambiar el estado de filas de una tabla compartida rompe la guarda de otra historia que cuenta las mismas cadenas (`"| no encontrada |"` en #26). Se actualiza esa guarda al nuevo estado y se explica en la PR, en vez de mantener el dato viejo.
+  - **Aplica a**: implementación (antes de editar una tabla de `REGISTRY.md`, buscar las guardas que la leen por rango o por cadena).
 ## [2026-11-27] Historia #279 — Catálogo de caminos de Cáceres
 
 - **Lección**: la URL de descarga que cita una ficha de datos.gob.es puede estar muerta o devolver la portada HTML con `200`; el recurso real está en el registro del propio portal (`package_show` de CKAN). Antes de dar un fichero por descargado, comprobar que es JSON (`head -c`), y si no lo es, no guardarlo con la extensión del dato.
