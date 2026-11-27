@@ -49,6 +49,69 @@ export function validarIndice(json) {
   });
 }
 
+// Tamaño legible en español («812 bytes», «12,3 KB», «1,4 MB»).
+export function tamanoLegible(bytes) {
+  if (bytes < 1024) return `${bytes} bytes`;
+  const unidad = bytes < 1024 * 1024 ? [1024, "KB"] : [1024 * 1024, "MB"];
+  return `${(bytes / unidad[0]).toFixed(1).replace(".", ",")} ${unidad[1]}`;
+}
+
+// Valida `datos/kit/indice.json` (historia #223, contrato de #213). A diferencia de
+// `validarIndice`, DESCARTA en vez de lanzar: una entrada con `ine` no válido o repetido, una
+// clave fuera de `config.kit.formatos`, una ruta no segura o unos bytes que no sean un entero
+// no negativo se ignoran, y nunca llegan a un enlace. Una entrada sin ningún fichero válido
+// también se descarta. Lanza Error solo si el documento no tiene la forma básica.
+export function validarIndiceKit(json, config) {
+  if (json === null || typeof json !== "object" || !Array.isArray(json.municipios)) {
+    throw new Error("índice del kit sin lista «municipios»");
+  }
+  const formatos = config.kit.formatos;
+  const idsCapa = new Set(config.capas.map((c) => c.id));
+  const nombres = (lista) =>
+    Array.isArray(lista) ? lista.filter((id) => typeof id === "string" && idsCapa.has(id)) : [];
+  const kit = new Map();
+  for (const m of json.municipios) {
+    if (m === null || typeof m !== "object") continue;
+    if (typeof m.ine !== "string" || !INE.test(m.ine) || kit.has(m.ine)) continue;
+    if (m.ficheros === null || typeof m.ficheros !== "object" || Array.isArray(m.ficheros)) continue;
+    const ficheros = [];
+    for (const [clave, fichero] of Object.entries(m.ficheros)) {
+      if (!Object.hasOwn(formatos, clave)) continue;
+      if (fichero === null || typeof fichero !== "object") continue;
+      if (!rutaRelativaSegura(fichero.ruta)) continue;
+      if (!Number.isInteger(fichero.bytes) || fichero.bytes < 0) continue;
+      ficheros.push({ clave, ruta: fichero.ruta, bytes: fichero.bytes });
+    }
+    if (ficheros.length === 0) continue;
+    // El orden es el de la lista blanca, no el del fichero.
+    ficheros.sort((a, b) => Object.keys(formatos).indexOf(a.clave) - Object.keys(formatos).indexOf(b.clave));
+    kit.set(m.ine, {
+      ine: m.ine,
+      capas: nombres(m.capas),
+      capasNoPublicadas: nombres(m.capas_no_publicadas),
+      ficheros,
+    });
+  }
+  return kit;
+}
+
+// Modelo de la sección «Kit de campo» para la vista, o null si el municipio no tiene kit.
+export function modeloKit(entrada, municipio, config) {
+  if (!entrada) return null;
+  const nombreCapa = (id) => config.capas.find((c) => c.id === id)?.kitNombre ?? id;
+  return {
+    municipio: municipio.nombre,
+    capas: entrada.capas.map(nombreCapa),
+    capasNoPublicadas: entrada.capasNoPublicadas.map(nombreCapa),
+    enlaces: entrada.ficheros.map((f) => ({
+      clave: f.clave,
+      href: config.kit.base + f.ruta,
+      archivo: `${entrada.ine}-${f.ruta.split("/").at(-1)}`,
+      rotulo: config.kit.formatos[f.clave].replaceAll("{tamano}", tamanoLegible(f.bytes)),
+    })),
+  };
+}
+
 // Lista completa de atribuciones a mostrar: las del fondo activo siempre, la de la cobertura
 // si está dibujada, y la de cada capa solo si está cargada en el mapa y activa.
 export function atribucionesVisibles(config, estado) {
@@ -275,6 +338,7 @@ export function crearControlador({ mapa, cargarJson, vista, config, alCambiarEnl
     fondo: config.fondoInicial,
     fondoElegido: false, // la persona eligió fondo: ya no se cambia solo
     cobertura: false,
+    kit: new Map(), // ine -> entrada validada del índice del kit (#223)
   };
   for (const capa of config.capas) {
     estado.capas[capa.id] = { cargada: false, visible: capa.visibleInicial ?? true };
@@ -290,6 +354,21 @@ export function crearControlador({ mapa, cargarJson, vista, config, alCambiarEnl
     const lista = atribucionesVisibles(config, estado);
     mapa.ponerAtribuciones(lista);
     vista.ponerAtribuciones?.(lista); // pie de las hojas en móvil (#185)
+  }
+
+  // Sección «Kit de campo» del municipio actual; sin kit (o en España) se vacía (#223).
+  function mostrarKit() {
+    const municipio = estado.municipios.find((m) => m.ine === estado.actual);
+    vista.ponerKit?.(municipio ? modeloKit(estado.kit.get(municipio.ine), municipio, config) : null);
+  }
+
+  // El kit es un extra: si falta, no es válido o tarda, el visor sigue y solo se avisa en consola.
+  async function cargarKit() {
+    try {
+      estado.kit = validarIndiceKit(await cargarJson(config.kit.indice), config);
+    } catch (error) {
+      console.warn("Kit de campo no disponible:", error?.message ?? error);
+    }
   }
 
   function avisarEnlace() {
@@ -375,6 +454,7 @@ export function crearControlador({ mapa, cargarJson, vista, config, alCambiarEnl
     quitarCapasDelMunicipio();
     for (const capa of config.capas) vista.ponerEstadoCapa(capa.id, "sin_municipio");
     vista.seleccionarMunicipio(null);
+    mostrarKit();
     mapa.resaltarMunicipio?.(null);
     if (!estado.fondoElegido) ponerFondo(config.fondoInicial);
     actualizarAtribuciones();
@@ -410,6 +490,7 @@ export function crearControlador({ mapa, cargarJson, vista, config, alCambiarEnl
     estado.actual = municipio.ine;
     vista.limpiarMensaje();
     vista.seleccionarMunicipio(municipio.ine, municipio.nombre);
+    mostrarKit();
     mapa.resaltarMunicipio?.(municipio.ine);
     quitarCapasDelMunicipio();
     if (!estado.fondoElegido) ponerFondo(config.fondoMunicipio);
@@ -485,6 +566,7 @@ export function crearControlador({ mapa, cargarJson, vista, config, alCambiarEnl
 
   async function iniciar({ municipio = null, tramo = null } = {}) {
     actualizarAtribuciones();
+    const kitCargado = cargarKit(); // en paralelo al índice; nunca rechaza
     let municipios;
     try {
       municipios = validarIndice(await cargarJson(config.indice));
@@ -496,6 +578,7 @@ export function crearControlador({ mapa, cargarJson, vista, config, alCambiarEnl
     vista.ponerMunicipios(municipios.map((m) => ({ ine: m.ine, nombre: m.nombre })));
     vista.ponerResumenCobertura?.(conNumero(config.textos.resumenCobertura, municipios.length));
     await cargarCobertura();
+    await kitCargado;
     if (municipio !== null && municipios.some((m) => m.ine === municipio)) {
       await elegirMunicipio(municipio, { tramo });
     } else {

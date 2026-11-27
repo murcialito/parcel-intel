@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding="ISO-8859-1" standalone="no"?>
+<!-- FIXTURE SINTÉTICA generada por tests/fixtures/generate_catastro.py (historia #45). No es una respuesta de Catastro ni cartografía catastral. -->
+<ExceptionReport xmlns="http://www.opengis.net/ows/1.1" version="2.0.0">
+<Exception exceptionCode="OperationProcessingFailed">
+<ExceptionText><![CDATA[Area de la extensión fuera de los límites]]></ExceptionText>
+</Exception>
+</ExceptionReport>

@@ -679,6 +679,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **También**: con `cancel-in-progress: true`, la `concurrency` va en el job y no en el workflow, porque así un run que se salta por el `if` no cancela al que sí revisa. Y si cambia `revisar.yml` en `main`, las PRs abiertas fallan la revisión con `SIN_VEREDICTO` hasta traerse `main`: la acción se salta si su workflow no coincide.
   - **Aplica a**: workflows (`.github/`).
 
+- **Lección**: el desarrollador puede terminar con la historia en `estado:en-revision` y la PR aún en borrador si se le olvida `gh pr ready`. Ningún paso de la tubería lo recogía: la revisión se salta los borradores, el barrido de revisiones solo miraba PRs listas y «devolver a la cola» solo actúa si la historia sigue en desarrollo. Ahora `revisiones_pendientes.sh` también marca lista (con `PROJECT_TOKEN`) una PR `claude/historia-<n>-*` en borrador cuando la historia `n` lleva más de 10 minutos en revisión y no hay un Corregir en marcha; el revisor decide si está completa. Y el barrido de revisiones se salta las PRs en conflicto: sin runs de `pull_request`, pedir la revisión no sirve; las saca Actualizar rama.
+  - **Causa**: PRs #232 (#216), #234 (#217) y #184 (#183), 2026-11-27. Una sola ejecución del agente cada una, sin ningún evento `ready_for_review`; la #184 llevó así casi tres horas y quedó en conflicto con `main`.
+  - **Aplica a**: workflows (`.github/`), desarrollador (paso 8: `gh pr ready` antes de pasar la historia a revisión).
+
 ## [2026-11-27] Historia #165 — Estilos de capa del sistema de diseño en el mapa
 
 - **Lección**: para no divergir de un paquete de diseño entregado como script global, el test ejecuta el original en `node:vm` con `window` y `document` falsos y compara con `deepStrictEqual`. Los objetos de otro contexto de `vm` tienen otro prototipo y `deepStrictEqual` los distingue: normaliza los dos lados con `JSON.parse(JSON.stringify(x))`. Un comentario del módulo que nombre `data-tema` o `window` rompe los tests estáticos que buscan esas palabras: reescríbelo.
@@ -818,6 +822,18 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el `GetFeatureInfo` de `primera-edicion-mtn` devuelve la hoja de un solo punto; para saber qué hojas cubren un término hay que muestrear una rejilla dentro del límite (2,5 km bastó) y contar puntos por hoja. Una sola consulta en el centro oculta las hojas de borde (Colmenar tiene dos; Chinchón, cuatro). Los enlaces de descarga del CNIG devuelven la ficha HTML con reCAPTCHA v3, no el zip: se anota `bloqueado` y se trabaja con el render del WMS.
   - **Aplica a**: refinador, implementación (historias que inventarían la cobertura de un WMS histórico).
 
+## [2026-11-27] Historia #217 — Polígonos catastrales (`CadastralZoning`)
+
+- **Lección**: el texto de una `ExceptionReport` de Catastro depende de la capa y del idioma (parcelas: `out of limits`; `CadastralZoning`: `Area de la extensión fuera de los límites`). Al reutilizar la detección de «bbox demasiado grande» de otra capa, pedir una vez la excepción real a esa capa y reconocer su texto, no asumir el de la anterior.
+  - **Aplica a**: implementación (adaptadores nuevos sobre el WFS de Catastro).
+## [2026-11-27] Historia #216 — Fuente SIGPAC de la Comunidad de Madrid
+
+- **Lección**: antes de dar por inexistente un documento de licencia («el Acuerdo del FEGA no se puede leer»), mirar dentro del paquete descargado: los términos de uso del FEGA (HVD, CC BY 4.0) venían como PDF dentro del ZIP de recintos, no en el feed ni en la ficha. Un texto de licencia que el feed cita y no se encuentra se deja `asumido`, pero antes hay que revisar cada fichero del paquete y la ficha del catálogo.
+  - **Aplica a**: implementación y refinador (al verificar la licencia de una capa de descarga, listar el contenido completo del ZIP antes de buscar el documento en la web).
+- **Lección**: las guardas de tests que leen una sección de `REGISTRY.md` por rango (`index(...)` hasta `## Resumen…`) cubren también todo lo que se inserte antes del resumen. Así, una palabra inocua de una sección nueva («propietario») rompió el test de #26. Escribir las secciones nuevas sin esos términos o, mejor, acotar la guarda al encabezado de su propia sección.
+  - **Aplica a**: implementación (al añadir una sección a `REGISTRY.md`, ejecutar la suite completa, no solo los tests de la historia).
+- **Lección**: el cruce de control entre una capa de trazados (GML en EPSG:25830) y otra de polígonos (SHP en EPSG:4258) se hizo con stdlib (inverso de UTM sobre los vértices y punto-en-polígono). Que el 99 % de los vértices caiga dentro de un recinto valida la reproyección a la escala del problema; si el porcentaje cayera, habría que revisar la conversión antes de sacar conclusiones.
+  - **Aplica a**: implementación (cruces entre capas en distintos CRS sin dependencias de geoprocesamiento en `domain/`).
 ## [2026-11-27] Historia #220 — Montes de utilidad pública (IDEM)
 
 - **Lección**: cuando una fuente pública publica campos de titularidad (aquí `DS_PROPIETARIO` y `DS_NOM_PROPIETARIO`, incluso de entes públicos), el parser lee solo una lista blanca de campos y falla si se le pide otro; no se parsea todo y se «filtra después». En la fixture se sustituyen los valores reales por unos ficticios, y un test comprueba que ni nombres ni valores llegan a ningún fichero derivado.
@@ -829,4 +845,52 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: el WMS de la IDEM responde 200 con un PNG blanco fuera de cobertura (y la URL de `GetMap` que anuncia su `GetCapabilities` da 404); un `ServiceException` XML también llega con 200. El filtro fiable es validar la firma PNG antes de cachear y medir la varianza de gris (media de R, G, B) después. No hay Pillow en el proyecto: se reutiliza `adapters/evidence/png.py::decode_png`. Los identificadores `CM_*` son distintos de `AMS_1956-1957` del IGN: cada adapter rechaza con `InvalidHistoricalVintageError` los vuelos que no son suyos, y elegir adapter por vuelo es cosa de la composición (#208).
   - **Aplica a**: implementación (#208 y cualquier otra fuente de ortofoto por WMS).
+
+## [2026-11-27] Historia #209 — Catastro a una fecha
+
+- **Lección**: la verificación de Catastro se parte por dónde se puede leer. Desde GitHub Actions se leen las páginas de ayuda y los PDF de licencias de `www.catastro.hacienda.gob.es` (responden 200); no se puede pedir nada a `ovc.catastro.meh.es` (WMS, WFS, REST), que rechaza a los runners. Lo primero va en la historia de lectura; lo segundo, en una hija `fuera_de_ci` que se pasa en local.
+  - **Causa**: la ayuda de antecedentes describe la consulta a una fecha pero no nombra el parámetro WMS, así que «`TIME` funciona» queda `pendiente` hasta la petición real. Además `Licencia.pdf` usa fuentes con codificación propia: ni `WebFetch` ni descomprimir los flujos dan texto, y las citas literales se reutilizaron de #21 diciéndolo. Para releerla, usar un visor de PDF fuera de la sandbox del agente.
+  - **Aplica a**: BA (al partir historias de Catastro, separar lo legible en la web de lo que exige `ovc.catastro.meh.es`) | implementación (no inventar un parámetro que la documentación no nombra; marcarlo `pendiente`).
+## [2026-11-27] Historia #247 — Licencia del IGN y servidumbre de cauces
+
+- **Lección**: la licencia del IGN (CC BY 4.0, Orden FOM/2807/2015) sí cubre las obras derivadas, pero exige la fórmula «Obra derivada de <identificador> <fecha> CC-BY 4.0 <atribución>» visible a pie de mapa y repetida en abstract, lineage y AccessConstraints de los metadatos. El PDF remite a `scne.es/productos.html` para los valores concretos de cada producto, y esa tabla hay que leerla al publicar. `WebFetch` no decodifica el PDF; se descarga con `curl` y se extrae con `uv run --with pypdf python -I`. Ni el TRLA (art. 6) ni el RDPH (arts. 6–7) dicen desde qué línea se mide la servidumbre de 5 m, solo que afecta a los «terrenos que lindan con los cauces»; una franja desde el eje es siempre aproximada.
+  - **Aplica a**: implementación de las historias de derivar y publicar la franja | revisión.
+- **Lección**: al citar una norma, comprobar que la cita es de la redacción consolidada **vigente**, no de una versión antigua. En #247 el art. 7.1 del RDPH se citó con la redacción anterior a 2016 (sin «paso público peatonal») y el test fijaba esas cadenas obsoletas, así que pasaba en verde con una cita falsa. Anotar la fecha de consulta y comprobar numeración de apartados (art. 6.2 a), no 6 a)); un test de cita debe afirmar el texto vigente y, si procede, la ausencia del obsoleto.
+  - **Aplica a**: implementación | revisión de cualquier historia que cite normas.
+
+## [2026-11-27] Historia #219 — QField y el proyecto de campo
+
+- **Lección**: un proyecto QGIS/QField se puede generar sin QGIS (GeoPackage con `sqlite3` + `.qgs` XML a mano), pero eso solo prueba que el fichero es válido como SQLite y XML, no que QField lo abra. Dejar la apertura real como reserva `asumido` en `REGISTRY.md` y pedirla a quien tenga el móvil. `WebFetch` devuelve 404 en varias rutas de `docs.qfield.org` que salen en buscadores; hay que partir de las que enlaza la propia documentación.
+  - **Aplica a**: la historia hija que genere el proyecto real por municipio | revisión.
+
+## [2026-11-27] Historia #223 — Kit de campo en el visor
+
+- **Lección**: los tests de #166, #171 y #185 fijan el marcado y `config.js` con regex frágiles: `<section class="pc-cuerpo">…</section>` no admite otro `<section>` dentro (cierra en el primero) y `id: "candidatos",\s*titulo:` exige que `titulo` siga a `id`. Una sección nueva del panel va en un `<div role="group">` y las claves nuevas de una capa (`kitNombre`) van después de `nombre`, no entre `id` y `titulo`. `grep` de esos patrones en `tests/acceptance/` antes de tocar `index.html` o `config.js`.
+  - **Aplica a**: implementación (cambios de `index.html` y de `config.js` del visor).
+
+- **Lección**: un recurso opcional del visor (el índice del kit) se carga en paralelo al índice principal con un `try/catch` propio que solo escribe en `console`, y el arranque lo espera, para que la sección salga ya al elegir municipio sin carreras. La validación de ese índice descarta entradas y claves (no lanza) y deriva el texto de las capas de `config.js`, nunca del dato.
+  - **Aplica a**: implementación (otros ficheros opcionales publicados en `site/datos/`, como el proyecto de campo de #222).
+## [2026-11-27] Historia #222 — Proyecto de QField con formulario de incidencia
+
+- **Lección**: para generar un GeoPackage reproducible byte a byte basta construirlo en `sqlite3.connect(":memory:")` y volcar `connection.serialize()` (sin ficheros temporales ni marcas de tiempo del sistema); el ZIP necesita `ZipInfo` con fecha fija (1980-01-01), orden de nombres y `external_attr` fijos. Una función que añade un campo opcional a un índice público compartido (`kit/indice.json`) debe conservar lo que otro comando escribió en él, y por defecto no tocarlo si la publicación está condicionada a una comprobación manual pendiente.
+  - **Aplica a**: cualquier exportación binaria determinista | comandos que comparten un índice publicado.
+## [2026-11-27] Historia #257 — Cauces de IDEE paginados y cacheados
+
+- **Lección**: en OGC API Features el enlace `rel=next` trae la URL completa con su query; para cachearla con `CachedRawFetcher` (clave = URL canónica) hay que partirla en base + parámetros (`urlsplit`/`parse_qsl`) y comprobar que la base es la de la colección antes de seguirla. Y no comprobar «sin duplicados» por nombre o longitud: en datos reales dos tramos distintos comparten nombre y hasta longitud; el `id` de la feature es la única clave.
+  - **Aplica a**: adapters que paginen colecciones OGC API Features (red de transporte, nuevas capas) | revisión.
+
+## [2026-11-27] Historia #282 — Clasificación de vías pecuarias en BOE y BOCM
+
+- **Lección**: la búsqueda de texto libre del BOCM no exige todas las palabras: pone en la página 1 documentos de otros municipios con «Colmenar» o «vías pecuarias» (Colmenar del Arroyo, Chapinería), y el control con Villaconejos no lo deja arriba aunque el BOE tenga su orden. Un «no hay» en el BOCM solo vale con la frase exacta del título de la orden y con un control positivo que salga en primer lugar (Chapinería, orden 3/2011).
+  - **Causa**: sin control, la primera página de texto libre parecía un negativo válido para cuatro municipios y no lo era. Con la frase exacta, el control de Chapinería sí aparece el primero.
+  - **Aplica a**: BA (exigir control positivo antes de escribir «no localizada») | implementación (cualquier consulta a un buscador de boletines).
+- **Lección**: el buscador por título del BOE sirve como negativo cuando salen los controles positivos (Chinchón, Villaconejos, Villarejo), pero solo cubre el título. Un «no hay» en el texto completo o en los sumarios 1960–1990 no se afirma: esos canales se anotan «no se pudo leer» con su motivo.
+  - **Aplica a**: BA e implementación (cada canal de un registro de fuentes con su resultado, también cuando es ilegible).
+- **Lección**: cambiar el estado de filas de una tabla compartida rompe la guarda de otra historia que cuenta las mismas cadenas (`"| no encontrada |"` en #26). Se actualiza esa guarda al nuevo estado y se explica en la PR, en vez de mantener el dato viejo.
+  - **Aplica a**: implementación (antes de editar una tabla de `REGISTRY.md`, buscar las guardas que la leen por rango o por cadena).
+## [2026-11-27] Historia #279 — Catálogo de caminos de Cáceres
+
+- **Lección**: la URL de descarga que cita una ficha de datos.gob.es puede estar muerta o devolver la portada HTML con `200`; el recurso real está en el registro del propio portal (`package_show` de CKAN). Antes de dar un fichero por descargado, comprobar que es JSON (`head -c`), y si no lo es, no guardarlo con la extensión del dato.
+  - **Causa**: el endpoint `GetData?...format=geojson` de la ficha devolvió la portada de `opendata.caceres.es` (6.619 bytes, `text/html`) con código 200 tras una redirección a HTTPS con cadena de certificados incompleta. Los datos reales están en `ide.caceres.es` (WFS), que no respondió desde GitHub Actions: el contenido quedó `pendiente-local`.
+  - **Aplica a**: refinador (no citar una licencia o un formato de una ficha sin abrir el recurso) | implementación (un `200` no prueba que haya dato).
 

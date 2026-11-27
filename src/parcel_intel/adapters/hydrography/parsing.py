@@ -29,6 +29,22 @@ def _points_from_linestring(geometry: dict[str, Any]) -> Line:
     return tuple((x, y) for x, y, *_rest in geometry["coordinates"])
 
 
+def parse_feature_ids(body: bytes) -> list[str | None]:
+    """`id` de cada feature de la página, en el orden del documento (None si falta)."""
+    document = json.loads(body)
+    return [feature.get("id") for feature in document["features"]]
+
+
+def parse_next_href(body: bytes) -> str | None:
+    """`href` del enlace `rel=next` de la página, o None si es la última."""
+    document = json.loads(body)
+    for link in document.get("links", []):
+        if link.get("rel") == "next":
+            href = link.get("href")
+            return str(href) if href else None
+    return None
+
+
 def parse_watercourse_features(body: bytes) -> list[RawWatercourse]:
     """Parsea una respuesta GeoJSON de `.../collections/watercourse/items`
     a una lista de dicts planos. Una `FeatureCollection` vacía (sin cauce

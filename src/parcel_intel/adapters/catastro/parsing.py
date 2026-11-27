@@ -100,6 +100,59 @@ def parse_wfs_parcel_collection(xml_bytes: bytes) -> RawParcelCollection:
     }
 
 
+class RawZone(TypedDict):
+    label: str
+    level: str  # último tramo de `.../CadastralZoningLevelValue/<nivel>`
+    rings: tuple[Ring, ...]
+
+
+class RawZoningCollection(TypedDict):
+    number_matched: int | None
+    number_returned: int | None
+    exception_text: str | None
+    zones: list[RawZone]
+
+
+_XLINK_HREF = "{http://www.w3.org/1999/xlink}href"
+
+
+def parse_wfs_zoning_collection(xml_bytes: bytes) -> RawZoningCollection:
+    """`GetFeature` de `cp:CadastralZoning`: etiqueta, nivel y anillos exteriores de cada
+    feature (`MultiSurface/Surface/PolygonPatch`), con los contadores y, si el servicio
+    respondió con un `ExceptionReport`, su texto. No lee la referencia de zona."""
+    root = ET.fromstring(xml_bytes)
+    if _local_name(root.tag) == "ExceptionReport":
+        text = " ".join(t.strip() for t in root.itertext() if t.strip())
+        return {
+            "number_matched": None,
+            "number_returned": None,
+            "exception_text": text or "ExceptionReport",
+            "zones": [],
+        }
+    zones: list[RawZone] = []
+    for feature in root.iter():
+        if _local_name(feature.tag) != "CadastralZoning":
+            continue
+        label = next((c.text for c in feature if _local_name(c.tag) == "label"), None)
+        level_el = next((c for c in feature if _local_name(c.tag) == "level"), None)
+        href = level_el.get(_XLINK_HREF) if level_el is not None else None
+        if label is None or not label.strip() or not href:
+            continue
+        zones.append(
+            {
+                "label": label.strip(),
+                "level": href.rstrip("/").rsplit("/", 1)[-1],
+                "rings": _exterior_rings_from_feature(feature),
+            }
+        )
+    return {
+        "number_matched": _optional_int(root.get("numberMatched")),
+        "number_returned": _optional_int(root.get("numberReturned")),
+        "exception_text": None,
+        "zones": zones,
+    }
+
+
 def parse_wfs_parcels(xml_bytes: bytes) -> list[RawParcel]:
     """Parsea un `GetFeature` de `cp:CadastralParcel` a una lista de dicts planos
     (solo anillos exteriores)."""

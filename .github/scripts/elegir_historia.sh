@@ -5,7 +5,8 @@
 #   están en revisión no ocupan hueco, pero sus zonas cuentan para el solape. Con alguna en curso, solo se elige otra si las dos declaran su línea "Toca:" (zonas del
 #   código que modifican) y no se solapan; una historia sin "Toca:" va sola.
 # - Candidatas: historias abiertas con estado:lista.
-# - Orden: Priority del tablero (P0, P1, P2, sin prioridad) y, dentro de cada una, la más antigua.
+# - Orden: Priority del tablero (P0, P1, P2, sin prioridad) y, dentro de cada una, la más antigua. Una
+#   historia sin Priority hereda la de su ancestro más cercano que la tenga (madre, feature, épica).
 # - Salta las que tienen dependencias abiertas: solo cuentan las líneas que EMPIEZAN por "Depende de #N"
 #   (o "Depende de: #a, #b"); "no depende de #N" o "#N depende de esta" no cuentan. Las épicas, features y
 #   los ancestros de la propia historia no cuentan; una historia madre cuenta mientras tenga hijas abiertas.
@@ -89,12 +90,37 @@ else
   log "Sin PROJECT_TOKEN: orden por antigüedad."
 fi
 
-candidatas=$(gh issue list -R "$REPO" --state open --label tipo:historia --label estado:lista --limit 200 \
-  --json number,createdAt \
-  | jq -r --argjson p "$prioridades" '
+lista=$(gh issue list -R "$REPO" --state open --label tipo:historia --label estado:lista --limit 200 \
+  --json number,createdAt)
+
+# Herencia: una historia sin Priority propia toma la de su ancestro más cercano que la tenga (historia
+# madre, feature, épica). Así el fundador prioriza features y las historias que crea el refinador nacen
+# ordenadas. La propia siempre gana.
+if [ "$prioridades" != '{}' ]; then
+  for n in $(jq -r '.[].number' <<<"$lista"); do
+    [ -n "$(jq -r --arg n "$n" '.[$n] // empty' <<<"$prioridades")" ] && continue
+    for a in $(gh api graphql -f query='
+        query($o: String!, $r: String!, $n: Int!) {
+          repository(owner: $o, name: $r) {
+            issue(number: $n) { parent { number parent { number parent { number } } } }
+          }
+        }' -f o="${REPO%/*}" -f r="${REPO#*/}" -F n="$n" \
+        --jq '.data.repository.issue | [.parent.number, .parent.parent.number, .parent.parent.parent.number] | .[] | select(. != null)' \
+        2>/dev/null || true); do
+      heredada=$(jq -r --arg a "$a" '.[$a] // empty' <<<"$prioridades")
+      if [ -n "$heredada" ]; then
+        log "#$n hereda $heredada de #$a."
+        prioridades=$(jq --arg n "$n" --arg p "$heredada" '. + {($n): $p}' <<<"$prioridades")
+        break
+      fi
+    done
+  done
+fi
+
+candidatas=$(jq -r --argjson p "$prioridades" '
       map(. + {prio: ($p[(.number | tostring)] // "")})
       | sort_by([({"P0": 0, "P1": 1, "P2": 2}[.prio] // 3), .createdAt])
-      | .[] | "\(.number) \(.prio)"')
+      | .[] | "\(.number) \(.prio)"' <<<"$lista")
 
 # Cola pausada (variable de repo COLA_PAUSADA=1): solo se retoman historias que ya tienen PR abierta.
 con_pr=""

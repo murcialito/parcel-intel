@@ -311,8 +311,41 @@ Verificado por primera vez el 2026-10-16, para la historia 0012 — a diferencia
 - **Protocolo:** OGC API — Features (REST/JSON, estándar OGC moderno, no WFS clásico). Sin autenticación.
 - **Formato de respuesta:** GeoJSON (`application/geo+json` vía `f=json`).
 - **CRS:** no tiene un único CRS de almacenamiento expuesto (`storageCrs` ausente en la respuesta de la colección), pero declara soporte explícito de `EPSG:25830` entre sus CRS alternativos (lista completa: `4258, 4326, 3857, 3035, 25828, 25829, 25830, 25831, 32628-32631, CRS84`...) — confirmado real que pedir `crs=http://www.opengis.net/def/crs/EPSG/0/25830` (y el mismo valor en `bbox-crs`) devuelve coordenadas ya en esa proyección, sin reproyección del lado del cliente, mismo patrón que Catastro/PNOA/IDEM.
-- **Licencia:** citada explícitamente (a diferencia del resto de fuentes de este registro, donde queda `asumido` sin ningún enlace) — `https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf`, enlazada desde los metadatos de la propia colección (`rel: license`). No se ha descargado ni leído el PDF en esta pasada, así que el contenido exacto de las condiciones queda `asumido`, pero la existencia y URL del documento de licencia sí está `confirmado`.
+- **Licencia:** citada explícitamente (a diferencia del resto de fuentes de este registro, donde queda `asumido` sin ningún enlace) — `https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf`, enlazada desde los metadatos de la propia colección (`rel: license`). El PDF se descargó y leyó entero el 2026-11-27 (historia #247): contenido `confirmado`, ver el apartado «Licencia de la capa de cauces y zona de servidumbre» más abajo (CC BY 4.0, con «Obra derivada de …» para derivados).
+- **Paginación y caché (historia #257, verificado el 2026-11-27 contra la red):** la colección se pagina con `limit` y un enlace `rel=next` (`href` con `offset=<n>`); una consulta municipal puede traer más de una página y solo la primera es la respuesta completa de un bbox pequeño. `HydrographyAdapter.get_watercourses_in_bbox` pide `limit=1000`, sigue `rel=next` (solo si apunta a esta colección) hasta el final, deduplica por `id` y falla si pasa de 50 páginas. Con `CachedRawFetcher` cada página queda en la caché cruda inmutable (sha256 y fecha); con `--sin-red` una página ausente es un error, nunca un resultado parcial. La licencia `CC BY 4.0` («Obra derivada de» al derivar) va en la procedencia de cada cauce. Fixture: `features_watercourse_aranjuez_con_datos_reales.json` (página 1 real, con `next`) y `features_watercourse_aranjuez_pagina2_sintetica.json` (página 2 **sintética**, con un `id` repetido para el test de duplicados). El bbox de Aranjuez (`430000,4428000,445000,4440000`, `numberMatched` 179 con `limit=10`) cabe en una página con `limit=1000`.
 - **Estado:** `confirmado`.
+
+#### Licencia de la capa de cauces y zona de servidumbre (historia #247, consultado el 2026-11-27) — `confirmado`
+
+Los **tres** documentos se descargaron con `curl` (HTTP 200) y se leyeron enteros; el PDF, de 3 páginas, con extracción de texto (`pypdf`), porque `WebFetch` no lo decodifica (PDF comprimido). Ningún canal quedó sin leer: nada se da por «no hay».
+
+**1. Licencia del IGN — `https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf` (consultada el 2026-11-27). Licencia de la capa `watercourse`: de `asumido` a `confirmado`.**
+
+- Base: «conlleva la aceptación por el usuario de una licencia CC-BY 4.0» (Orden FOM/2807/2015, de 18 de diciembre, BOE 26-12-2015). Art. 4 de la Orden, citado en el PDF: «El uso de los productos de datos geográficos digitales mencionados en el Artículo 2 tendrá carácter libre y gratuito, siempre que se mencione el origen y propiedad de los datos, con el alcance y forma que autorice la licencia de uso correspondiente».
+- **Obras derivadas (punto 4 del PDF), literal:** «Cuando el usuario licenciado genere una obra derivada de uno o varios de los productos y servicios de datos del IGN, se añadirá «Obra derivada de» delante de la expresión general, con lo que quedará «Obra derivada de <identificador del producto> <fecha> CC- BY 4.0 <atribución de productores>» y seguirán siendo de aplicación los considerandos indicados en los puntos anteriores.» Ejemplo del PDF: «Obra derivada de PNOA 2010-2013 CC-BY scne.es».
+- **Nuevo conjunto de datos por modificación (punto 5):** el licenciado debe incluir la atribución «también en los metadatos si los hubiera, concretamente en los siguientes elementos de metadatos o en sus equivalentes: resumen (abstract), linaje (lineage) y en las restricciones de acceso (AccessConstraints)». Nuevo servicio web (punto 6): también en la autodescripción (`GetCapabilities` o similar) y en `otherConstraints`/resumen.
+- **Visibilidad (punto 1):** «Esta mención de atribución obligatoria se mostrará visible junto con los datos, de forma legible y a pie de mapa, imagen, presentación o ventana de visualización»; si hay imposibilidad justificable, en listados de capas, leyendas o créditos. Forma abreviada permitida (considerando cuarto): «CC-BY 4.0 <atribución productores> <fecha>».
+- **Veredicto (CA1): SÍ permite publicar una capa derivada** (por ejemplo, una franja calculada a partir del eje del cauce): el PDF regula expresamente las obras derivadas y solo exige la atribución, sin prohibir la redistribución ni exigir autorización. Condiciones para las historias de derivar y publicar: (a) atribución visible a pie de mapa con la fórmula «Obra derivada de <identificador del producto> <fecha> CC-BY 4.0 <atribución de productores>»; (b) esa misma frase en el abstract, el lineage y las restricciones de acceso del `.procedencia.json` y de los metadatos; (c) los valores de `<identificador del producto>`, `<fecha>` y `<atribución de productores>` salen de la tabla `http://www.scne.es/productos.html`, **que esta historia no ha leído** y que hay que consultar al fijar la atribución (hoy queda `pendiente`, no `asumido`).
+- No dice nada sobre excluir de la licencia a las capas de otros productores (MITECO/Confederaciones): el dato lo atribuye el propio servicio como `fuented="Instituto Geográfico Nacional"` (ver hallazgo 3), que es lo que cubre esta licencia.
+
+**2. Texto Refundido de la Ley de Aguas (RDLeg 1/2001) — `https://www.boe.es/buscar/act.php?id=BOE-A-2001-14276` (texto consolidado; `fecha_actualizacion` 2026-09-03 del XML del BOE; consultado el 2026-11-27). Art. 6, «Definición de riberas», literal:**
+
+- «1. Se entiende por riberas las fajas laterales de los cauces públicos situadas por encima del nivel de aguas bajas, y por márgenes los terrenos que lindan con los cauces. Las márgenes están sujetas, en toda su extensión longitudinal: a) A una zona de servidumbre de cinco metros de anchura, para uso público que se regulará reglamentariamente. b) A una zona de policía de 100 metros de anchura en la que se condicionará el uso del suelo y las actividades que se desarrollen.»
+- «2. En las zonas próximas a la desembocadura en el mar, en el entorno inmediato de los embalses o cuando las condiciones topográficas o hidrográficas de los cauces y márgenes lo hagan necesario para la seguridad de personas y bienes, podrá modificarse la anchura de ambas zonas en la forma que reglamentariamente se determine.»
+
+**3. Reglamento del Dominio Público Hidráulico (Real Decreto 849/1986, de 11 de abril) — `https://www.boe.es/buscar/act.php?id=BOE-A-1986-10638` (texto consolidado; `fecha_actualizacion` 2026-07-20 del XML del BOE; consultado el 2026-11-27):**
+
+- **Anchura y desde dónde (art. 6):** repite el art. 6 del TRLA: «Las márgenes están sujetas, en toda su extensión longitudinal: a) A una zona de servidumbre de cinco metros de anchura para uso público que se regula en este Reglamento.» Las márgenes son «los terrenos que lindan con los cauces». El art. 6 no dice «medidos horizontalmente»; esa expresión aparece solo para la zona de policía (art. 9.1: «100 metros de anchura medidos horizontalmente a partir del cauce»). Ninguno de los dos textos dice en este punto desde qué línea exacta (eje, orilla, nivel de aguas bajas) se mide la servidumbre: la franja es contigua al cauce, no al eje. Esto es lo que **no** puede darse por leído: medirla desde el eje del IGN es una aproximación.
+- **Art. 6.2 a) (numeración vigente):** las márgenes «están sujetas en toda su extensión longitudinal: a) A una zona de servidumbre de cinco metros de anchura para uso público, que se regula en este reglamento.»
+- **Usos (art. 7.1), redacción consolidada vigente, literal:** «La zona de servidumbre para uso público definida en el artículo anterior tendrá los fines siguientes: a) Protección del ecosistema fluvial y del dominio público hidráulico. b) Paso público peatonal y para el desarrollo de los servicios de vigilancia, conservación y salvamento, salvo que por razones ambientales o de seguridad el organismo de cuenca considere conveniente su limitación. c) Varado y amarre de embarcaciones de forma ocasional y en caso de necesidad.» (La redacción anterior a la reforma de 2016 enumeraba otros fines —vigilancia, pesca fluvial, salvamento, varado—; ya no está vigente y no debe citarse.)
+- **Art. 7.2, literal:** «Los propietarios de estas zonas de servidumbre podrán libremente sembrar y plantar especies no arbóreas, siempre que no deterioren el ecosistema fluvial o impidan el paso señalado en el apartado anterior. Las talas o plantaciones de especies arbóreas requerirán autorización del organismo de cuenca.»
+- **Art. 7.3 (construcción), literal en lo esencial:** «Con carácter general no se podrá realizar ningún tipo de construcción en esta zona salvo que resulte conveniente o necesaria para el uso del dominio público hidráulico o para su conservación y restauración. Solo podrán autorizarse edificaciones en zona de servidumbre en casos muy justificados.» Añade que debe garantizarse «la efectividad de la servidumbre, procurando su continuidad o su ubicación alternativa».
+- **Art. 8, literal:** «Por razones topográficas, hidrográficas, o si lo exigieran las características de la concesión de un aprovechamiento hidráulico, podrá modificarse la zona de servidumbre. La modificación se hará por causas justificadas de exigencia del uso público, previa la tramitación de un expediente en el que se oirá al propietario del terreno y, en su caso, al titular de la concesión, determinándose la correspondiente indemnización de acuerdo con la legislación de expropiación forzosa, si procediera.» Es decir, 5 m es la regla general, no un valor fijo.
+- El art. 7.1 b) incluye «paso público peatonal», limitable por el organismo de cuenca por razones ambientales o de seguridad. No se interpreta más (lección 0021). Texto leído el 2026-11-27 en el consolidado del BOE (carácter informativo).
+
+**4. Coherencia del texto de la ficha (CA5).** Texto aprobado por el fundador, sin modificarlo: «Zona de servidumbre aproximada de la margen de un cauce (art. 6 TRLA), calculada a partir del eje del cauce de la capa del IGN. Es una aproximación, no un deslinde.» Es **coherente** con lo leído: el art. 6 TRLA es la fuente de la servidumbre; «margen» y «cauce» son los términos del artículo; «aproximada» y «a partir del eje» cubren que la ley no fija el punto de medida y que la anchura puede modificarse (TRLA art. 6.2, RDPH art. 8); «no un deslinde» es exacto. Observación, no cambio: la ficha no menciona la anchura de 5 m ni los usos del art. 7 RDPH; las historias de publicar decidirán si los citan. Sobre la atribución, la ficha no la contiene: va aparte, según el punto 1.
+
+**5. Estado de desbloqueo (CA4).** La licencia sí permite publicar derivados con atribución, así que no hace falta comentario en #196 ni bloquear las historias de derivar y publicar. Queda como condición previa de ellas leer la tabla `scne.es/productos.html` para fijar la cadena de atribución exacta.
 
 **Endpoint real:**
 
@@ -718,19 +751,59 @@ Verificado el 2026-11-25 para la [historia #26](https://github.com/murcialito/pa
 
 ### Clasificación por municipio — orden, fecha y URL BOCM
 
-Estado de todas las filas: `bloqueado`. Motivo: el archivo del BOCM no se ha escaneado por fecha y no hay buscador accesible. "No encontrada" significa aquí "no localizada por los canales de arriba", no "no existe".
+Estado de las filas de Chinchón, Villaconejos y Villarejo de Salvanés: `bloqueado`. Motivo: el archivo del BOCM no se ha escaneado por fecha y no hay buscador accesible. "No encontrada" significa aquí "no localizada por los canales de arriba", no "no existe". Las de Colmenar de Oreja, Aranjuez, Belmonte de Tajo y Valdelaguna se consultaron en la historia #282: ver «Canales consultados — historia #282» más abajo.
 
 | Municipio | INE | Orden de clasificación | Estado |
 | --- | --- | --- | --- |
-| Colmenar de Oreja | 28043 | no encontrada | `bloqueado` |
-| Aranjuez | 28013 | no encontrada | `bloqueado` |
+| Colmenar de Oreja | 28043 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
+| Aranjuez | 28013 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
 | Chinchón | 28052 | no encontrada | `bloqueado` |
-| Belmonte de Tajo | 28019 | no encontrada | `bloqueado` |
+| Belmonte de Tajo | 28019 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
 | Villaconejos | 28170 | no encontrada | `bloqueado` |
 | Villarejo de Salvanés | 28180 | no encontrada | `bloqueado` |
-| Valdelaguna | 28157 | no encontrada | `bloqueado` |
+| Valdelaguna | 28157 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
 
 `asumido`: la clasificación de vías pecuarias en la Comunidad de Madrid se aprueba por orden de la Consejería competente en medio ambiente (Ley 8/1998, citada en el `Abstract` del WMS `Zonas`, `wms_zonas_getcapabilities.xml`). Por eso el sitio donde buscarla es el BOCM. La cita exacta de la norma de cada municipio no se ha comprobado.
+
+### Canales consultados — historia #282 (2026-11-27) — `confirmado` salvo lo indicado
+
+Consulta del 2026-11-27 para los cuatro municipios sin orden localizada en #26: Colmenar de Oreja (28043), Aranjuez (28013), Belmonte de Tajo (28019) y Valdelaguna (28157). Un canal que no se pudo leer se anota como tal, con su motivo, y no como «no hay». Los extractos versionados, con el sha256 de cada respuesta, son `tests/fixtures/caminos/clasificacion_282_extracto_boe.txt` (sha256 `4c6d18d0c2d0b2c889115865ca40a74b3d3c67b5e494d9742619cc0ba1c96a4d`) y `tests/fixtures/caminos/clasificacion_282_extracto_bocm.txt` (sha256 `937b1b75bfd399d521b69fbbe75acbfcf174055af74aacea8fd028455c55ebd0`). En los extractos se han sustituido por `[sociedad omitida]` o `[proyecto omitido]` los nombres de sociedades y de proyectos de instalaciones que citaba la fuente, y el sha256 es el del extracto ya depurado, no el de la respuesta cruda. Matriz de consulta: solo títulos genéricos y por municipio; no se probó una orden agrupada de varios términos, porque ninguna búsqueda genérica devolvió una orden de clasificación de estos municipios. Las respuestas crudas están en `data/raw/h282/` (caché, fuera de git).
+
+Patrones de consulta (`<municipio>` o `<término>` es lo que se indica en cada fila):
+
+- BOE, por título: `https://www.boe.es/buscar/boe.php?campo[1]=TITULOS&dato[1]=<término>&accion=Buscar&sort_field[0]=FPU&sort_order[0]=desc` (la búsqueda rápida del BOE redirige a esta URL).
+- BOCM, búsqueda avanzada: `https://www.bocm.es/advanced-search?search_api_views_fulltext_1=<término>`; con frase exacta, el término va entre `%22`.
+
+| Canal | Término | Colmenar de Oreja (28043) | Aranjuez (28013) | Belmonte de Tajo (28019) | Valdelaguna (28157) |
+| --- | --- | --- | --- | --- | --- |
+| BOE, título: clasificación | `clasificación vías pecuarias <municipio>` | sin documentos | sin documentos | sin documentos | sin documentos |
+| BOE, título: pecuarias | `pecuarias <municipio>` | sin documentos | sin documentos | sin documentos | sin documentos |
+| BOE, título: proyecto de clasificación | `proyecto de clasificación vías pecuarias <municipio>` | sin documentos | sin documentos | sin documentos | sin documentos |
+| BOE, título: solo el municipio | `<municipio>`, primera página (las 60 más recientes) | 25 documentos; ninguno de vías pecuarias | 8 documentos; ninguno de vías pecuarias | 33 documentos; ninguno de vías pecuarias | 19 documentos; ninguno de vías pecuarias |
+| BOCM, frase exacta | `"clasificación de las vías pecuarias del término municipal de <municipio>"` (paginador: 2.405 páginas) | página 1 sin orden del término; salen Colmenar del Arroyo, Chapinería y Lozoya | página 1 sin orden del término (paginador: 2.289 páginas) | página 1 sin orden del término (paginador: 2.345 páginas) | página 1 sin orden del término (paginador: 2.100 páginas) |
+| BOCM, texto libre | `vías pecuarias <municipio>` | página 1: ocupaciones de 2013 y 2023 en el término y la clasificación de Colmenar del Arroyo | página 1: una ocupación de 2022 en el término y deslindes de Redueña y Titulcia | página 1: un deslinde de Fuentidueña de Tajo | página 1: ningún resultado del término |
+
+Canales generales, sin municipio:
+
+| Canal | Consulta | Resultado |
+| --- | --- | --- |
+| BOE, título genérico | `campo[1]=TITULOS&dato[1]=clasificación de las vías pecuarias` | primera página (50 referencias): ningún título de los cuatro municipios; órdenes de otras provincias |
+| BOE, título genérico | `campo[1]=TITULOS&dato[1]=proyecto de clasificación vías pecuarias` | primera página (50 referencias): ningún título de los cuatro municipios |
+| BOE, texto completo | `campo[1]=TEXTO` y `campo[1]=TODO` | no se pudo leer: el formulario responde «Los valores de búsqueda enviados son incorrectos» |
+| BOE, sumarios 1960–1990 (Medio Ambiente y Agricultura) | lectura sumario a sumario | no se pudo leer: no se leyó ningún sumario de esos años. La búsqueda por título sí devuelve documentos de 1969 a 1986, pero no sustituye la lectura del sumario |
+| BOCM, archivo por boletín | boletines anteriores a 2009 | no se pudo leer: los resultados vistos empiezan en 2009 (Acuerdo de 11 de noviembre de 2009); no se comprobó el inicio de la serie del buscador ni se leyó ningún boletín anterior |
+| BOCM, ELI | `https://www.bocm.es/eli` | no se pudo leer como archivo: la página de entrada no muestra listado por norma ni por fecha |
+| BOCM, índices anuales de la Consejería | `https://www.bocm.es/boletin-archivo` | no se pudo leer: 404; no se localizó ningún índice anual |
+| BOE, control positivo | títulos con «pecuarias» y un municipio conocido | Chinchón (1 documento, orden de 1974), Villaconejos (1972) y Villarejo de Salvanés (1969 y 1974): el buscador por título encuentra órdenes cuando existen |
+| BOCM, control positivo | frase exacta con Chapinería | la Orden 3/2011 sale en el primer resultado |
+| BOCM, control no válido | texto libre con Villaconejos | no pone en la página 1 ninguna orden de Villaconejos, aunque el BOE sí tiene una de 1972: el texto libre no sirve para afirmar ausencias |
+
+Conclusión (`confirmado` para los canales; la conclusión sobre el municipio es de alcance limitado):
+
+- Colmenar de Oreja, Aranjuez, Belmonte de Tajo y Valdelaguna: **no localizada** en los canales de arriba (BOE por título; BOCM por frase exacta en la primera página). Esto no es un «no hay»: quedan sin leer los sumarios del BOE de 1960 a 1990, el archivo por boletín del BOCM anterior a 2009 y el texto completo del BOE.
+- Siguiente paso: solicitud al Fondo Documental, borrador en #284. Desde aquí no se envía nada.
+- Orden localizada (la fila con referencia, URL y fixture) y propuesta de historia hija en #280: no aplican, porque en esta pasada no se localizó ninguna orden legible.
+- Esta sección no clasifica ningún tramo ni cambia el mapa.
 
 ### Deslinde por municipio — `bloqueado`
 
@@ -1128,6 +1201,152 @@ Límites: el año de la minuta no es el año del camino; la resolución efectiva
 >
 ---
 
+## Catastro a una fecha (historia #209)
+
+Hija de #201. Solo recoge lo **legible desde GitHub Actions** (páginas de ayuda y texto de licencia). Las peticiones reales a `ovc.catastro.meh.es` van en #236 y se pasan en local, porque esa máquina rechaza las conexiones de los runners (lección de #37).
+
+### Qué dice la ayuda de antecedentes — según la documentación, sin verificar con petición real
+
+Canal: `https://www.catastro.hacienda.gob.es/ayuda/ayuda_antecedentes.htm` (HTTP 200, HTML, leída el 2026-11-27). Resumen, no copia:
+
+- Existe una capa del visor de la Sede Electrónica llamada «Cartografía a una fecha» («Antecedentes Cartografía»), con un calendario para elegir día, mes y año.
+- Rango: «una consulta estable y fluida desde el 1 de enero de 2005 hasta la actualidad». Hay municipios cuya cartografía digital es posterior a 2005; si no aparece a la fecha elegida, es que no existía.
+- Capas: la cartografía digital catastral histórica (líneas de parcelas y edificios) sobre la ortofoto PNOA actual como fondo.
+- Es un **WMS**: solo visualización. La página dice que «no permite descargar las geometrías históricas». Tampoco permite consultar datos no protegidos históricos de una parcela.
+- Uso responsable: servicio libre y gratuito; el abuso puede acarrear restricciones.
+- Para tener las geometrías, remite a la Difusión de Datos Catastrales (Shapefile) y a filtrar la tabla por los campos `FECHAALTA` y `FECHABAJA` para ver la geometría a una fecha.
+- **La página no nombra el parámetro WMS** (`TIME` u otro) ni la capa. Que el WMS acepte `TIME` es una suposición hasta #236.
+- Canales no consultados: el `GetCapabilities` del WMS (es `ovc.catastro.meh.es`, no legible desde Actions) y la descarga de Shapefile.
+
+### Licencia: ¿puede una fecha derivada apoyar un indicio publicado?
+
+Documento primario: `https://www.catastro.hacienda.gob.es/webinspire/documentos/Licencia.pdf` (HTTP 200, PDF de 3 páginas, 2026-11-27). **Limitación:** el PDF usa fuentes con codificación propia y no se pudo extraer su texto en esta pasada (ni con `WebFetch` ni descomprimiendo los flujos). Las citas literales de abajo son las que ya se anotaron al leerlo en #21 (2026-11-25), arriba, en «Catastro INSPIRE»; **no se han releído en #209**. Quien pueda abrir el PDF en un visor debería confirmar la numeración de las cláusulas.
+
+- «sea transformada» — condición para «la elaboración y distribución de nuevos productos de valor añadido».
+- Prohibido difundir la información original «por Internet ni por ningún otro medio sin su previa transformación».
+- La transformación no puede alterar ni desnaturalizar el contenido; el producto no se identifica como «cartografía catastral» ni «información catastral».
+- La información distribuida a terceros «carecerá de fehaciencia».
+
+**Conclusión con cautela (no es un permiso):** una **fecha** o un intervalo de fechas, sin geometría ni referencia de parcela, no reproduce la información original y parece encajar en lo derivado que ya se publica (indicios, señales y candidatos, ADR 0041). Pero el texto no habla de fechas sueltas, y una fecha de alta/baja procede del dato original. **Pregunta abierta para el fundador:** ¿basta con que la fecha sea un intervalo con fuente y aviso para publicarlo? Hasta que responda, no se publica ninguna fecha derivada de Catastro.
+
+### Cómo expresar la fecha: intervalo con evidencia
+
+`FECHAALTA`/`FECHABAJA` (y la fecha del WMS) son del **registro de la parcela**, no de cuándo se cerró o desapareció el camino físico: una parcela se da de baja o se parte por un trámite que puede ir años por detrás o por delante del hecho. Por eso:
+
+- Se expresa como intervalo «**entre A y B**», nunca como fecha puntual del corte.
+- Cada extremo lleva su **fuente y su evidencia**: A = última fecha en que el trazado aparece (p. ej. «consta en la cartografía a fecha A», o un vuelo o minuta del año A); B = primera fecha en que ya no aparece (p. ej. «ya no consta a fecha B»). Con extremo desconocido, se escribe «sin dato», no se inventa.
+- Ejemplo con datos inventados: «entre 2009 y 2015 — extremo inicial: cartografía catastral a fecha 2009-01-01, consta; extremo final: cartografía catastral a fecha 2015-01-01, no consta».
+- Un único extremo de Catastro no basta: el intervalo se estrecha con las demás fuentes (vuelos históricos, minutas).
+- El texto que se publique no dice «se cortó en…» ni da un año como hecho.
+
+### Pendiente de peticiones reales (#236)
+
+| Qué | Estado | Dónde se resuelve |
+|---|---|---|
+| WMS con `TIME` (nombre de capa, formato de fecha, qué devuelve para 2005 y para hoy) | `pendiente` | [#236](https://github.com/murcialito/paso-comun/issues/236), en local |
+| Campos `FECHAALTA`/`FECHABAJA` del WFS (¿existen, con qué formato?) | `pendiente` | [#236](https://github.com/murcialito/paso-comun/issues/236), en local |
+
+### Fixtures sintéticas
+
+`tests/fixtures/catastro_historico/` contiene solo ejemplos **inventados** (ADR 0040); su README lo declara. No hay ninguna respuesta real de Catastro en git.
+
+---
+
+## SIGPAC de la Comunidad de Madrid: recintos, atributos, licencia y uso (historia #216)
+
+Verificado el **2026-11-27** para la [historia #216](https://github.com/murcialito/paso-comun/issues/216) (hija de #200, señal de ocupación de la franja de la vía pecuaria con SIGPAC). Solo documentación: sin adapter ni código de producción. Los ficheros crudos están en `data/raw/sigpac_madrid_28043/` (fuera de git); las fixtures de esta historia son solo la cabecera del DBF, el `.prj` y extractos de texto (`tests/fixtures/sigpac/`).
+
+### Procedencia de lo descargado
+
+| Recurso | URL | sha256 | Bytes | Estado |
+|---|---|---|---|---|
+| ZIP de recintos de Colmenar de Oreja (28043) | `https://idem.comunidad.madrid/recursos_cat_geo/Catalogo/recursos/UsoDelSuelo/spacm_sigpac.tm.28043.zip` | `74dfc29a7ebf7639aeb1a14a9b1715a616d0aec029c1e2749a1a90e4ea04c46f` | 21.319.837 | `confirmado` (descargado y leído) |
+| Feed ATOM de Madrid (`updated` 2025-12-15) | `https://idem.comunidad.madrid/recursos_cat_geo/Catalogo/atom/ds.cm_sigpac.xml` | `c289d729a264440e474284571ccf3cc89ccc34c49a129caf6276a7397dbd255f` | 358.671 | `confirmado` |
+| Ficha en datos.gob.es | `https://datos.gob.es/es/catalogo/a13002908-recintos-sigpac-de-la-comunidad-de-madrid` | `5c7de03c3bc20b2ac9ab517cfc3dd9e3f7bfe4b8d186d65e096542e9f5e3d692` | 109.444 | `confirmado` |
+| «Términos de uso de la información de alto valor del SIGC» (FEGA), dentro del ZIP | `Terminos_de_uso_de_informacion_de_alto_valor_del_SIGC.pdf` | `bbf4908b9ffcc1805d050a1a9c4c4d124a90f4f405c50de72e4e711142015cdf` | 475.254 | `confirmado` (extraído del ZIP; texto leído sin OCR) |
+| «Resumen de los datos contenidos en el SIGPAC para la campaña 2026», FEGA | copia en `https://www.agrodigital.com/wp-content/uploads/2026/02/SIGPAC2026.pdf` (el documento es del FEGA; leído solo la tabla de usos) | — | — | `confirmado` el contenido; copia de tercero |
+
+El Shapefile trae `RECINTO.shp` (polígonos, tipo 5), `RECINTO.dbf` (21.633 registros, 20 campos), `RECINTO.prj` y el PDF de términos. El `.prj` es `GCS_ETRS_1989` (geográficas, sin código EPSG declarado).
+
+### CA1 — Campos, tipos y usos reales; cómo aparecen los caminos y las vías pecuarias (`confirmado`)
+
+Lectura del DBF con la librería estándar (sin dependencias): cabecera en `tests/fixtures/sigpac/recinto_dbf_cabecera.bin`. Todos los valores de la tabla son de los 21.633 recintos.
+
+| Campo | Tipo (longitud, decimales) | Valores observados |
+|---|---|---|
+| `DN_PK` | N 23 | Identificador interno, único por registro (21.633 distintos) |
+| `DN_OID` | N 23 | Identificador de objeto, único |
+| `DN_VERSION` | N 11 | Versión del recinto (2.243 distintos) |
+| `DN_INITIAL` | D 8 | Inicio de vigencia de la versión: de 2012-11-15 a 2025-11-28; 16.933 con año 2023 |
+| `DN_ENDDATE` | D 8 | Vacío en todos |
+| `SUPERFICIE` | N 20,5 | Superficie del recinto. El DBF no declara la unidad: la suma (126,4 km² en el término) indica **m²** (`asumido`) |
+| `PROVINCIA` / `MUNICIPIO` | N 6 | 28 / 43 en todos |
+| `AGREGADO` / `ZONA` | N 6 | 0 en casi todos (AGREGADO = 999 en 1 registro) |
+| `POLIGONO` / `PARCELA` / `RECINTO` | N 6 / 11 / 11 | Identificadores SIGPAC (79 polígonos, 943 parcelas, 172 recintos distintos). **No son referencias catastrales** |
+| `CSP 2023` | N 6 | Valores 0–100 (17 distintos). Significado no verificado en esta pasada |
+| `PENDIENTE` / `ALTITUD` | N 6 | Valores numéricos (532 y 282 distintos). Unidades no declaradas: `asumido` (%, m) |
+| `COEF_REGAD` | N 6 | 0 (10.916), 100 (2.686), vacío (8.031) |
+| `USO_SIGPAC` | C 2 | Uso del recinto; tabla de abajo |
+| `INCIDENCIA` | C 50 | Código de incidencia; vacío en 8.201. Codificación no leída |
+| `REGION` | N 6 | 1, 7, 12, 16; vacío en 3.492. No documentado en esta pasada |
+
+**Usos (`USO_SIGPAC`)**, con las descripciones del FEGA para la campaña 2026 (tabla de usos del Anexo IV del Real Decreto 1047/2022, según la propia ficha del FEGA):
+
+| Código | Descripción (FEGA 2026) | Recintos | | Código | Descripción (FEGA 2026) | Recintos |
+|---|---|---|---|---|---|---|
+| TA | Tierras arables | 6.645 | | VI | Viñedo | 855 |
+| OV | Olivar | 4.877 | | FY | Frutales | 619 |
+| PR | Pasto arbustivo | 4.361 | | FO | Forestal | 468 |
+| IM | Improductivos | 1.321 | | PS | Pastizal | 349 |
+| **CA** | **Viales** | **1.228** | | AG | Corrientes y superficies de agua | 283 |
+| ED | Edificaciones | 164 | | ZU | Zona urbana | 125 |
+| VO | Viñedo-Olivar | 112 | | FS | Frutos secos | 97 |
+| PA | Pasto con arbolado | 81 | | TH | Huerta | 29 |
+| IV | Invernaderos y cultivos bajo plástico | 13 | | VF / OF / FV / FL | Viñedo-Frutal / Olivar-Frutal / Frutos secos y viñedo / Frutos secos y olivar | 2 / 2 / 1 / 1 |
+
+Fuente de la tabla: `https://www.agrodigital.com/wp-content/uploads/2026/02/SIGPAC2026.pdf`, tabla «DESCRIPCIÓN USO SIGPAC» (`confirmado`). Usar `CA` = Viales para caminos (no hay código de «camino» ni de «vía pecuaria»).
+
+**Cómo aparecen las vías pecuarias (cruce de control, `confirmado` como medida, sin validar contra un SIG de referencia).** SIGPAC no tiene código para vías pecuarias. Se cruzaron los 15 tramos de Colmenar de Oreja de la capa #36 (`tests/fixtures/livestock_trails/wfs_cql_colmenar_municipio_completo_15_tramos.xml`, EPSG:25830) con los recintos: cada vértice de cada polígono de tramo se pasó a lon/lat (inverso de UTM 30N, ETRS89) y se buscó el recinto que lo contiene.
+
+- 3.188 vértices; 3.157 caen dentro de un recinto (99 %). Usos de esos vértices: **TA 857 (26,9 %), OV 713 (22,4 %), CA 442 (13,9 %), PR 420 (13,2 %), ZU 180 (5,6 %)**, FO 148, IM 131, VI 102, PS 51, otros < 40 cada uno.
+- El peso de `CA` varía mucho entre tramos: en la Cañada de la Alameda 29 de 53 vértices caen en `CA`; en la Cañada de los Lanchares, 11 de 492. Ningún tramo se puede tomar como «de viales» por su uso SIGPAC.
+- **Conclusión:** la franja de una vía pecuaria no aparece como tal en SIGPAC: su superficie lleva el uso del recinto que atraviesa (o del que se le superpone). Que un recinto sea `CA` indica viales, no vía pecuaria, y la ausencia de `CA` no prueba que la vía esté cubierta. No sirve como señal directa de ocupación; sí como contexto.
+- Límites del cruce: se muestrean vértices del borde del polígono, no su interior; es un indicio de orden de magnitud, no una tabla de superficies.
+
+### CA2 — Campos de titular, declarante o similares (`confirmado`)
+
+**No existe ningún campo de titular, declarante, NIF ni similar** en el DBF (los 20 campos están en la tabla del CA1). Por tanto no entra nada de titularidad en el sistema por esta fuente. Nada que copiar ni descartar al leer.
+
+### CA3 — Licencia: textos citados y conclusión (`asumido`, no `confirmado`)
+
+Tres textos de la fuente, citados literalmente:
+
+1. **`<rights>` del feed de Madrid, a nivel de feed** (`feed_ds.cm_sigpac.xml`): «Según el Acuerdo de Distribución del FEGA, O.A. por el que se aprueban los criterios de acceso, formatos de entrega y condiciones.» La entrada de Colmenar de Oreja (28043) **no tiene `<rights>` propio**. Los otros dos `<rights>` del feed están en las entradas de «01» (toda la Comunidad) y de Acebeda (28001), no en la de 28043. Extracto en `tests/fixtures/sigpac/feed_derechos_extracto.txt`.
+   - Texto de uso (PAC, en las entradas de «01» y Acebeda): «El uso, delimitación gráfica u otros atributos de los recintos que aparecen en el SIGPAC tienen por objeto facilitar al agricultor la cumplimentación de su solicitud de ayudas a la PAC. Cuando el uso que aparece en el SIGPAC sea distinto del uso real, el agricultor debe realizar su solicitud de ayuda en base a este último, el real, debiendo comunicar la incidencia al servicio competente de su Comunidad Autónoma.» **Consecuencia:** el campo `USO_SIGPAC` es orientativo, no una prueba del uso real. Hay que tratarlo como indicio a verificar, nunca como hecho.
+2. **Ficha de datos.gob.es** (`ficha_datos_gob_extracto.txt`): «Licencia https://creativecommons.org/licenses/by/4.0/legalcode.es»; publicador «Comunidad de Madrid»; descripción «…actualizados anualmente».
+3. **Términos de uso de la información de alto valor del SIGC (FEGA)**, dentro del ZIP (`terminos_fega_hvd_extracto.txt`): «los Recintos (capa RECINTOS) y los Elementos del paisaje (capa ELEMENTOS DEL PAISAJE) del SIGPAC, y las Líneas de declaración (capa LINEA DECLARACION) del Sistema Integrado de Gestión y Control (SIGC), tienen la consideración de datos específicos de alto valor»; el FEGA los pone a disposición «para su reutilización en las condiciones de la licencia Creative Commons Atribución/Reconocimiento (CC BY 4.0)». Extiende la consideración a «los que en cada momento se visualizan en el Visor Sigpac (datos de la Campaña en curso y datos de la Campaña previa)». Exige citar «Fuente de los datos: FONDO ESPAÑOL DE GARANTÍA AGRARIA O.A.», indicar cambios, no sugerir respaldo del FEGA y no alterar el contenido.
+
+**Conclusión.** Las tres fuentes apuntan a CC BY 4.0 con atribución, y los términos del FEGA son la evidencia primaria más fuerte. Pero **no es concluyente** para este fichero: el `<rights>` de Madrid remite a un «Acuerdo de Distribución del FEGA» cuyo texto **no se ha podido leer** (no está en el ZIP ni en el feed; una búsqueda solo dio una copia de tercero, `data.source.coop`, sin fecha ni validez confirmada), y el enlace entre el fichero regional y los términos HVD es una inferencia. Por eso la licencia queda `asumido`.
+
+- **Atribución mínima si se publica:** «Fuente de los datos: FONDO ESPAÑOL DE GARANTÍA AGRARIA O.A. (SIGPAC, CC BY 4.0)», con indicación de que los datos están transformados si lo están, y sin sugerir respaldo del FEGA.
+- **Antes de publicar en el mapa** (regla de `CLAUDE.md`: solo si la licencia permite redistribución): el fundador debe confirmar en #200 que el Acuerdo de Distribución del FEGA dice CC BY 4.0 para este fichero, o que los términos HVD cubren la distribución de la Comunidad de Madrid.
+
+### CA4 — Vías pecuarias (capa #36): polígono y anchura (`confirmado` salvo lo marcado)
+
+- La capa #36 (`Zonas:IDEM_MA_VIAS_PECUARIAS`) trae **polígono** de la franja, no línea de eje (hallazgo 3 de la sección de vías pecuarias de este registro). Confirmado de nuevo con la fixture de los 15 tramos de Colmenar (`gml:Polygon`/`gml:MultiSurface`).
+- **No hay campo de anchura legal** (hallazgo 2 de la misma sección: el esquema tiene 8 campos + geometría).
+- Anchura **legal**: la Ley 3/1995 (estatal), art. 4 (BOE-A-1995-7241, texto consolidado, leído en `boe.es`): cañadas, «anchura no exceda de los 75 metros»; cordeles, «no sobrepase los 37,5 metros»; veredas, «no superior a los 20 metros». Las coladas y los abrevaderos, descansaderos y majadas **no tienen tope**: su anchura la fija el acto de clasificación. La Ley 8/1998 de la Comunidad de Madrid (BOE-A-1998-20648, art. 6) remite a ese art. 4: no fija anchuras propias.
+- Anchura **medida** desde la propia capa: `NM_AREA / NM_LONG` (superficie entre longitud; `confirmado` sobre la fixture). Valores de los 15 tramos de Colmenar: veredas 11,1–11,6 m; cañadas 35,2–37,3 m; coladas 13,9–16,7 m; abrevaderos y descansaderos 6,4–37,8 m (sin tope legal).
+- **Viable para #200:** usar `NM_AREA / NM_LONG` como anchura de la franja tal como la dibuja la capa, y el tope legal de la tabla por tipo como **cota de contraste** (una franja que excede su tope legal es un indicio a verificar, nunca una conclusión). No usar la tabla como anchura oficial: el acto de clasificación que fija la anchura real no está en ninguna fuente leída.
+
+### CA5 — Proyección: EPSG:4258 → EPSG:25830 (`confirmado`)
+
+- El `.prj` es `GCS_ETRS_1989` (geográficas sobre ETRS89, el datum de EPSG:4258). El `bbox` del `.shp` (lon −3,594 a −3,344; lat 40,034 a 40,136) confirma grados.
+- Para medir solape con vías pecuarias (que están en EPSG:25830): **hay que reproyectar** a UTM 30N (ETRS89, `lon0` −3°, factor de escala 0,9996). Entre ETRS89 y ETRS89 no hay desplazamiento de datum, solo proyección. Si se usase ED50 o WGS84 sin transformar la diferencia sería del orden de 100 m en la península.
+- Probado: el cruce de CA1 (inverso de UTM sobre los 3.188 vértices) deja el 99 % de vértices dentro de un recinto. Si la conversión fuera mala, la fracción caería mucho.
+
+---
+
 ## Resumen de fuentes no verificadas en esta pasada
 
 Fuera de alcance de la historia 0001 (ver sección "Fuera de alcance" de `docs/stories/0001-registro-fuentes.md`): vías pecuarias, Red Natura 2000, concesiones de agua, inventario municipal de caminos. SNCZI/dominio público hidráulico, que figuraba aquí mismo hasta la historia 0012, quedó verificado en esa historia (ver sección "SNCZI / Dominio Público Hidráulico — MITECO" más arriba: cursos de agua y peligrosidad por inundación `confirmado`, deslinde legal de DPH y zonas de servidumbre/policía `bloqueado`). Vías pecuarias, que figuraba aquí mismo hasta la historia 0014, quedó verificada en esa historia (ver sección "Vías pecuarias — IDEM, Comunidad de Madrid" más arriba: `confirmado`, un único servicio real encontrado bajo el workspace `Zonas` del mismo GeoServer de IDEM). Red Natura 2000, que figuraba aquí mismo hasta la historia 0015, quedó verificada en esa historia (ver sección "Red Natura 2000 y espacios protegidos — IDEM, Comunidad de Madrid" más arriba: `confirmado` como fuente real de planes de gestión, con el alcance explícito de que modela zonificación de planes, no el límite oficial de cada sitio individual con código EU). Concesiones de agua e inventario municipal de caminos quedan para una iteración posterior del registro, cuando las historias de reglas/afecciones las necesiten.
@@ -1135,3 +1354,78 @@ Fuera de alcance de la historia 0001 (ver sección "Fuera de alcance" de `docs/s
 ### Publicar los tramos a verificar (historia #170)
 
 - **CA15 (flujo real), pendiente de la primera publicación real.** Por decisión del fundador en #170 (2026-11-27), no bloquea el merge: necesita candidatos aprobados a mano en `curated/candidatos/28043/revision.json`, y ningún agente puede aprobarlos (ADR 0047). Sin aprobados, `publicar-candidatos` no publica nada. La primera vez que se publique de verdad, ejecuta `uv run pytest -m "acceptance and integration" tests/acceptance/test_historia_170.py -k ca15` y anota aquí la fecha, cuántos tramos aprobados se publicaron y la línea `medición:` (solo números, sin referencias catastrales).
+
+## Polígonos catastrales rústicos: `cp:CadastralZoning` del WFS INSPIRE de Catastro (historia #217)
+
+Verificado el 2026-11-27 desde un runner de Actions contra `https://ovc.catastro.meh.es/INSPIRE/wfsCP.aspx` (`GetFeature`, `typenames=cp:CadastralZoning`, `srsname=urn:ogc:def:crs:EPSG::25830`). Mismo servicio, caché cruda y licencia INSPIRE de Catastro que las parcelas (ADR 0028): **capa de uso interno, nunca se publica**. Sin proveedor nuevo.
+
+- **Forma**: cada feature trae `cp:geometry` = `gml:MultiSurface/gml:Surface/gml:patches/gml:PolygonPatch/gml:exterior/…/gml:posList` (no `gml:Polygon`), `cp:label` (número de polígono, p. ej. `040`), `cp:level` con el nivel en `xlink:href` (`…/CadastralZoningLevelValue/2ndOrder`), `cp:levelName` (`POLIGONO`) y `cp:nationalCadastalZoningReference` (sic, referencia de zona). La referencia es de zona, no de finca, y el adaptador no la lee: solo sale la etiqueta.
+- **Niveles (CA2)**: el parser lee el nivel de cada feature y el adaptador se queda solo con `2ndOrder` (polígonos). Se descarta `1stOrder` (el término municipal, si la capa lo devuelve; no se observó en las teselas reales de Colmenar, solo se contempla). Los anillos interiores (`gml:interior`) se descartan como en las parcelas (lecciones 0011 y 0015); la tesela real de 1 km² de Colmenar no tenía ninguno.
+- **Límite de área**: el mismo de las parcelas, 1000×1000 m sí y el término entero no. La excepción de esta capa llega **en español**: `Area de la extensión fuera de los límites` (`OperationProcessingFailed`); la de parcelas, en inglés (`out of limits`). El adaptador reconoce ambos textos.
+- **Teselado**: rejilla única de `municipality_tiles` (teselas de 900 m), como `catastro-caminos`; un polígono grande (p. ej. `28043A040`, ~2 × 3 km) aparece en varias teselas y se une por etiqueta, nivel y geometría.
+- **No verificado**: cobertura de los 7 municipios del ámbito (solo Colmenar de Oreja, 4 polígonos en la tesela `460000,4436000,461000,4437000`).
+- Comando: `uv run python -m parcel_intel.cli.main catastro-poligonos --codigo 28043 [--bbox …] [--sin-red]`; sin fichero derivado, las respuestas quedan en `data/raw/catastro`.
+
+## QField / proyecto de campo (historia #219)
+
+Verificado el **2026-11-27** para la [historia #219](https://github.com/murcialito/paso-comun/issues/219) (hija de #204, kit de campo sin servidor). Solo documentación y una fixture mínima; no introduce proveedor.
+
+- **URLs primarias consultadas** (2026-11-27): `https://docs.qfield.org/get-started/`, `https://docs.qfield.org/how-to/project-setup/storage/`, `https://github.com/opengisch/QField`, `https://qgis.org/license/`, `https://www.geopackage.org/spec/`.
+- **Licencias**: QField, GPL-2.0 o posterior (README del repositorio `opengisch/QField`). QGIS, GPL v2 con excepción para enlazar con Qt (`qgis.org/license/`). Estándar GeoPackage: licencia OGC, que permite copiar, modificar y distribuir el documento con los avisos de copyright. La documentación de QField es CC-BY-SA 4.0. Un proyecto generado por nosotros es un fichero de datos (`.qgs` XML + `.gpkg`), no código de QField ni de QGIS; **no se leyó** ninguna cláusula que diga qué licencia tiene un proyecto como obra. `asumido`: no queda sujeto a la GPL por abrirse con ellos. La atribución de las capas (CC BY 4.0 de IDEM e IGN, ver `NOTICE`) es compatible con distribuirlas dentro del proyecto siempre que se conserve en el propio `.qgs` (`projectMetadata/rights`, como en la fixture) y en la descripción de la capa.
+- **Instalación en el móvil**: tienda de aplicaciones (Android, iOS) o la última versión de GitHub (`v4.3.8`, «Danube», vista en la página de releases; no se leyó la lista de ficheros). El proyecto se pasa **sin QFieldCloud**: copiando la carpeta al dispositivo y usando «Open local file» en la pantalla de bienvenida (docs de almacenamiento); en Android, en `Android/data/ch.opengis.qfield/files/Imported Projects` y «importar proyecto desde ZIP» (esto último sale de un resultado de búsqueda sobre las docs, no se leyó en la página). **QFieldCloud** es un servicio externo con cuenta: **descartado** (CLAUDE.md, coste recurrente y servicio externo). QFieldSync (plugin de QGIS) no se necesita para abrir el proyecto, solo para empaquetarlo y seguir cambios.
+- **Formato**: las docs recomiendan el GeoPackage («We recommend using the GeoPackage file format for projects in QField»); el proyecto y los datos van en una misma carpeta.
+- **Veredicto: `viable sin QGIS`, con una reserva.** Un GeoPackage escrito con `sqlite3` (tablas `gpkg_spatial_ref_sys`, `gpkg_contents`, `gpkg_geometry_columns`, `application_id` `GPKG`, `user_version` 10300) y un `.qgs` XML escrito a mano con campos de tipo `ValueMap` se generan y validan en CI sin QGIS, GDAL ni `qgis_process` (`tests/fixtures/kit_campo/qfield/`). **Reserva (`asumido`)**: no se ha abierto la fixture en QField ni en QGIS (no hay en CI). El `.qgs` sigue la estructura que QGIS escribe (`maplayer`, `fieldConfiguration`, `editWidget type="ValueMap"`) y declara `version="3.34.0"`; esa versión mínima y que QField abra el fichero **no están confirmadas**. La hija que genere el proyecto real debe pedir a quien tenga el móvil que lo abra y anotar aquí el resultado.
+- **Tamaño y atribución**: la fixture ocupa unos 40 KB con un solo punto; el tamaño real por municipio depende de las capas y de las teselas que se incluyan y **no se midió**. La atribución se ve dentro del proyecto en las propiedades de metadatos y en la descripción de capa; cómo la muestra QField en pantalla no se verificó.
+- **Formulario de la fixture**: `tipo_obstaculo` (cancela, valla, cadena, zanja, bloques, cartel de prohibido el paso, arado, vegetación) y `estado` (practicable, tapado por la vegetación, con obstáculo, deteriorado por máquinas), más `notas` y `fecha`. Un único registro sintético, sin datos de Catastro, titularidad ni personas.
+- **Canales no leídos**: la versión mínima de Android/iOS y de QGIS de QField (la ficha de Google Play y las docs no la dan en el texto recuperado); las páginas `get-started/tutorial`, `how-to/outside-layers` e `installation` de las docs (404); la lista de ficheros de la release; el texto del estándar GeoPackage más allá de los primeros 100.000 caracteres (las tablas obligatorias se tomaron del Anexo C y de la especificación conocida); la licencia de los ficheros de proyecto de QGIS como obra. Que no se leyeran no equivale a que no existan.
+- **Alternativa (punto 5)**: no hace falta de momento; si la reserva falla, GPX con puntos de interés y hoja de campo imprimible (el kit GPX/KML de #213 ya existe, coste cero).
+- **Generador real (historia #222)**: `publicar-kit-campo-qfield` escribe el proyecto por municipio con `sqlite3` y `xml.etree`. **Apertura en QField: PENDIENTE (`asumido`, no verificada).** Hasta que alguien con móvil abra el `.qgs` real de un municipio y anote aquí versión de QField, dispositivo y resultado (¿carga las capas? ¿aparece la advertencia y los desplegables de `tipo` y `estado`? ¿se guarda una incidencia con foto?), el ZIP no se enlaza ni se despliega en `site/` y `kit/indice.json` no se toca. El formulario usa elementos que la fixture de #219 no tenía (`DateTime`, `ExternalResource`, `attributeEditorHtmlElement` como cabecera): tampoco están comprobados en QField. Cuando se anote, ejecutar con `--incluir-en-indice`.
+
+## Catálogo de caminos públicos de Cáceres y Extremadura como conjunto de validación (historia #279)
+
+Verificado el **2026-11-27** (hija de #271). Solo investigación: sin código, sin port, sin fichero de este catálogo en git ni en `site/`. Estado: **completo**. Lo leído por red desde GitHub Actions está abajo; el **contenido** del catálogo (CA1, CA2) no se pudo descargar desde Actions y quedó `pendiente-local`: se pasó en local el 2026-11-27 (19:54 UTC) y sus resultados están en CA1 y CA2.
+
+### Lo que se leyó (`confirmado`)
+
+- **Ficha en el portal del Ayuntamiento** (`https://opendata.caceres.es/datosabiertos/catalogo/dataset/catalogo-caminos-publicos-de-caceres`, CKAN; API `.../api/3/action/package_show?id=catalogo-caminos-publicos-de-caceres`): título «Catálogo Caminos Públicos de Cáceres», nota «BOP-2023-2983 Aprobación definitiva del Catálogo de Caminos Públicos del Término Municipal de Cáceres», responsable SIG de Cáceres (Ayuntamiento), fecha de creación 2023-01-26, «Fecha de última actualización de datos» 8 de octubre de 2026, frecuencia `notPlanned`, CRS declarado EPSG:25829 (el WMS ofrece también EPSG:4326).
+- **El endpoint de la ficha de datos.gob.es ya no sirve datos**: `http://opendata.caceres.es/GetData/GetData?dataset=om%3ACamino&format=geojson&geojson=LineString` redirige (301) a HTTPS, cuyo certificado no valida con la cadena del sistema (`unable to get local issuer certificate`; se usó `curl -k` solo para esta verificación) y responde `200 text/html` con la **portada del portal**, no un GeoJSON (6.619 bytes). No es dato.
+- **Recursos reales del conjunto** (de `package_show`): WMS (`https://ide.caceres.es/geoserver/sigaytocc/caminos/wms` y `.../sigaytocc/wms`), **CSV** y **GeoJSON** por WFS 1.0.0 de `sigaytocc:caminos` en `https://ide.caceres.es/geoserver/sigaytocc/ows` (`outputFormat=CSV` y `application/json`), página de descarga `https://ide.caceres.es/descargas/movilidad-catalogo/`, dos visores (`sig.caceres.es`) y apps móviles.
+- **Licencia: discrepancia con la historia.** El registro del portal dice `licence: ["No se aplican condiciones"]`, `access_constraints: []` y **no trae `license_id`**. La historia citaba **CC-BY** (ficha de datos.gob.es, que no se leyó en esta pasada). Ninguna es la licencia leída en un documento aparte, y «No se aplican condiciones» es el mismo tipo de campo de metadato que la lección de 0021 dice que **no** es la licencia (`asumido`). Antes de redistribuir nada hay que leer el aviso legal de `opendata.caceres.es` o `ide.caceres.es` y citarlo; aquí no se hizo.
+- **Contenido declarado**: líneas de caminos (resumen JIIDE 2023, citado en la historia: 204–208 caminos, ~1.088–1.100 km, aprobado el 10 de mayo de 2023). El linaje del metadato describe las fuentes históricas usadas para demostrar la existencia del camino (planimetrías 1898–1945, MTN, catastros de rústica de 1956 y 1981, vuelo de 1956, Libro de Yerbas de 1909). **No menciona puntos de pérdida de traza, cancelas ni obras de acceso.**
+
+### CA1 — descarga del GeoJSON real: `confirmado` (en local, 2026-11-27)
+
+Desde GitHub Actions `ide.caceres.es` agotó el tiempo de espera en todas las peticiones (raíz, `geoserver/web/`, `GetCapabilities`, `GetFeature`, `descargas/movilidad-catalogo/`; 30–300 s), y `opendata.caceres.es` respondió solo a ratos: mismo patrón que Catastro (servicio que no atiende a los runners). En local responde sin problema.
+
+- **URL**: `https://ide.caceres.es/geoserver/sigaytocc/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=sigaytocc%3Acaminos&outputFormat=application%2Fjson` (`User-Agent: parcel-intel-verificacion/0.1`), `200 application/json`, 1.352.223 bytes.
+- **Fecha de descarga**: 2026-11-27 (19:54 UTC). Fichero: `data/raw/caceres_caminos/caminos.geojson` (fuera de git).
+- **sha256**: `636efda3644cb7c416a44130269ebd2ab8b7c2cb65e0d3f4260f35ca3abcbecb`.
+- **Elementos**: 278 features (`totalFeatures` = `numberMatched` = `numberReturned` = 278: la respuesta no está truncada), todas `MultiLineString`. Son 274 índices distintos: los índices 12, 47, 50 y 124 aparecen dos veces (un camino en dos piezas). La suma del campo `longitud` da ~1.221 km (el resumen JIIDE hablaba de 204–208 caminos y ~1.100 km).
+- **CRS**: la respuesta declara `urn:ogc:def:crs:EPSG::4326` y redondea las coordenadas a **4 decimales (~10 m)**. El dato nativo es EPSG:25829 (ETRS89 / UTM 29N): con `&srsName=EPSG:25829` el mismo WFS devuelve coordenadas al décimo de milímetro (comprobado con `maxFeatures=2`). Para cualquier uso métrico hay que pedirlo así, no en 4326.
+- **Campos** (todos presentes en las 278): `indice`, `nombre` (nombre del camino), `anchura` (0 en 169 de 278; 5–10 m en el resto), `longitud` (m), `inicio`, `fin` (texto: término municipal, otro camino, carretera o «acceso a parcelas»), `url` (ficha PDF por camino en `https://sig.caceres.es/fotosOriginales/CAMINOS/FICHAS_CAMINOS/<indice>.pdf`), `inicio_x`/`inicio_y`/`fin_x`/`fin_y`/`centro_x`/`centro_y` (ETRS89 / UTM 29N), `inicio_lat`/`inicio_lon`/`fin_lat`/`fin_lon`/`lat`/`long`.
+- **Defectos del origen**: en las 278 features `fin_lat`/`fin_lon` repiten `inicio_lat`/`inicio_lon`, así que sirven solo `fin_x`/`fin_y`; hay al menos un `fin_x` con un dígito de más (`7340403`, índice 12, también en su ficha PDF).
+- **Licencia leída en la página de origen**: el pie de `https://ide.caceres.es/descargas/movilidad-catalogo/` (página de descarga del conjunto, leída el 2026-11-27) dice «Contenidos liberados bajo licencia: Creative Commons Reconocimiento 4.0 — IDE Cáceres © 2026» (la misma página arrastra un pie antiguo con «Reconocimiento 3.0 — © 2016»). Es decir, **CC BY 4.0, atribución «IDE Cáceres»** (`confirmado` en la página de origen). En cambio, el CKAN de `opendata.caceres.es` dice «No se ha provisto de una licencia» y su metadato `licence` dice «No se aplican condiciones»: no es la licencia (lección de 0021). La ficha de datos.gob.es (CC-BY) queda como dato secundario.
+
+### CA2 — ¿hay pérdida de traza, cancela u obra de acceso en los datos?: **no, solo trazados** (en local, 2026-11-27)
+
+- **Ningún campo** del GeoJSON trata de pérdida de traza, cancelas, obras de acceso, cortes u ocupación (lista completa de campos en CA1).
+- **Ningún valor** los menciona. Búsqueda en todos los campos de texto de `pérdid|traza|cancel|obra|cort|cerrad|vall|portill|usurp|ocupa|interrump|desapar`: solo coinciden topónimos («Valle Redondo», «Valle Cristóbal», «Cortijada de Casas Altas»). Los valores «acceso a parcelas» del campo `fin` (46 de 278) describen dónde termina el camino, no una obra de acceso.
+- **Fichas PDF por camino** (muestra de 3: índices 12, 26 y 100, descargadas solo para verificar, no guardadas en el proyecto): índice, anchura estimada, longitud, inicio y fin con coordenadas ETRS89, nombre y dos mapas de situación con el trazado. **Sin apartado de incidencias**, pérdidas de traza ni obras de acceso. Con 3 de 274 fichas no se puede afirmar que ninguna lo tenga, pero el formato es una plantilla fija.
+- Respuesta: **solo hay trazados**. Ningún nombre de persona ni referencia catastral copiados aquí.
+
+### CA3 — canales de Extremadura (~13.000 pérdidas de traza, ~19.000 obras de acceso)
+
+| Canal | Resultado |
+|---|---|
+| Resumen JIIDE 2023 (`dgterritorio.gov.pt/jiide2023/pdfs/resumos/27-ES_Resumen_FaustinoCordero.pdf`) | **descargado (211 KB, 2 págs.), texto no extraído** (sin herramienta de PDF en el entorno). Por sus enlaces es un resumen de autores del Ayuntamiento de Cáceres (`sig.caceres.es`, `visor.caceres.es/visor?map=6`, QGIS), no un documento de descarga de datos. Las cifras de Extremadura vienen de la historia, no se verificaron aquí. |
+| datos.gob.es, API `apidata/catalog/dataset/title/caminos` (13 resultados) | **solo dos fichas de Cáceres**; ninguna de la Junta de Extremadura sobre pérdidas ni obras de acceso. La búsqueda es por título: un conjunto con otro título no saldría. |
+| Búsqueda web (Junta de Extremadura, IDEEX, datos.gob.es) | sin conjunto descargable; solo el marco legal (art. 178 Ley Agraria de Extremadura: el catálogo oficial lo elabora la Consejería e incluye longitud, puntos inicial y final, denominación y anchura estimada) y presentaciones antiguas de IDEEX (2010, 2016), vistas en resultados, no leídas. |
+| `visor.ideex.es` | **ilegible**: responde 200, pero es una aplicación Ionic/Angular que se pinta con JavaScript; sin navegador no se ve ninguna capa. **No equivale a que no existan.** |
+| CICTEX | **no consultado**. |
+| Catálogo de datos de la Junta (datos.gob.es) y PDF «Datos abiertos 2026» de `juntaex.es` | solo vistos en resultados de búsqueda; **no leídos**. |
+
+Licencia de un conjunto de Extremadura: **no se encontró** (no se halló conjunto).
+
+### Conclusión (CA4)
+
+**Solo hay trazados.** El catálogo de Cáceres (CC BY 4.0, IDE Cáceres) da 274 caminos públicos aprobados que **deberían existir**, sin ningún dato de pérdida de traza, cancela ni obra de acceso, ni en el GeoJSON ni en la muestra de fichas. No es verdad conocida de cortes. Sirve, como mucho, de **control de recall de la capa de trazados**, no del método de cortes. En Extremadura no se encontró un conjunto descargable de pérdidas de traza, pero quedaron sin leer el visor IDEEX, CICTEX y la ficha de la Junta. Usarlo fuera de Madrid exigiría: la red del IGN y Catastro VT, que son nacionales; y un sustituto de las vías pecuarias de IDEM, que no tiene equivalente registrado en Extremadura (no se buscó, coste sin estimar). Además, pedir el WFS en EPSG:25829, no en 4326.
