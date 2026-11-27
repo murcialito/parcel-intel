@@ -239,6 +239,16 @@ class DiscrepancyReportUnavailableError(Exception):
         self.reason = reason
 
 
+class CutCandidateFileError(Exception):
+    """El fichero de candidatos a corte existe pero no se puede leer o no cumple
+    el formato -- historia #128. No equivale a «sin capas» (`None`)."""
+
+    def __init__(self, path: str, detail: str) -> None:
+        super().__init__(f"Fichero de candidatos a corte no válido {path}: {detail}")
+        self.path = path
+        self.detail = detail
+
+
 class NoLandClassificationFoundError(Exception):
     """Ningún polígono de clasificación de suelo intersecta el bbox pedido.
     El servicio no distingue "fuera de cobertura de la Comunidad de Madrid"

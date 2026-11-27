@@ -401,3 +401,21 @@ def tile_bbox(bbox: BBox, side_m: float) -> tuple[BBox, ...]:
             x1 = maxx if column == columns - 1 else minx + (column + 1) * side_m
             tiles.append((x0, y0, x1, y1))
     return tuple(tiles)
+
+
+def outward_integer_bbox(bbox: BBox) -> BBox:
+    """`bbox` redondeado hacia fuera a metro entero: mínimos al `floor`, máximos al `ceil`."""
+    minx, miny, maxx, maxy = bbox
+    return (
+        float(math.floor(minx)),
+        float(math.floor(miny)),
+        float(math.ceil(maxx)),
+        float(math.ceil(maxy)),
+    )
+
+
+def municipality_tiles(boundary_bbox: BBox, side_m: float) -> tuple[BBox, ...]:
+    """Rejilla de teselas de un municipio (historias #37, #128, #160): la de `tile_bbox` sobre
+    el bbox del límite del IGN redondeado hacia fuera. Única fuente de la rejilla: las claves de
+    la caché cruda de Catastro dependen del bbox exacto de cada tesela."""
+    return tile_bbox(outward_integer_bbox(boundary_bbox), side_m)

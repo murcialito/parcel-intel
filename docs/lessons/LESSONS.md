@@ -570,6 +570,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: al comprobar el orden de pasos de un runbook con `text.index`, la primera aparición de una palabra («CODEOWNERS») puede estar en la introducción; se indexan los encabezados de los pasos numerados, no las palabras sueltas.
   - **Aplica a**: implementación (tests de documentos).
 
+## [2026-11-27] Historia #56 — Fixture sintética de Chinchón (281287-w1)
+
+- **Lección**: el id de trazado del código es `<unit_id>-<trail_id>` (`281287-w1-T001`), no `281287:<trazado>` como decía el criterio: se verifica el formato real antes de copiar el literal del criterio y se anota en el docstring del test. Para una unidad con fecha genérica basta una fixture hermana con `document_date_precision: "year"`; un test «guardia» que cambia `"year"` por `"day"` demuestra que el test de CA5 falla si el marcado se pierde. El hash `control_points_sha256` de los aprobados debe recalcularse con `sha256sum` tras trasladar los puntos.
+  - **Aplica a**: implementación (fixtures hermanas de unidades históricas).
+
 - **Lección**: `ruff format .` sin límite reformatea decenas de ficheros ajenos a la historia (aquí 51, incluidos ADR y código de otras historias) y ensucia la PR. Formatea solo los ficheros que has tocado (`ruff format <rutas>`), o comprueba `git status` antes de hacer commit.
   - **Aplica a**: implementación.
 
@@ -577,4 +582,39 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: un criterio que cita una interfaz de #20 («`historico cargar --documento 280264`», «cargados 0», «sin error de ejecución», `curated/planimetrias/280264/`) debe comprobarse contra el CLI real antes de pasar a `lista`: el subcomando recibe `<unit_id>` posicional, la ruta es `curated/historico/<unit_id>/` y una unidad sin entrada curada sale con 1 (`CuratedUnitNotFoundError`), sin línea «cargados». Una historia «sin código nuevo» no puede cumplir un criterio que exige otro comportamiento de salida.
   - **Aplica a**: refinador (copiar de la historia madre la interfaz real, no la planeada).
+## [2026-11-27] Historia #128 — Fichero interno de candidatos y comando `candidatos-corte`
+
+- **Lección**: un fichero ausente y uno vacío significan cosas distintas. `CutCandidateSource.get_report` devuelve `None` si no hay fichero («sin capas») y un informe con `candidates == ()` si lo hay sin features («municipio evaluable»); un fichero ilegible o en otro CRS lanza `CutCandidateFileError`, nunca `None`. La escritura es atómica (temporal + `os.replace`) para que un fallo a medias no deje un fichero truncado que se tome por «evaluable».
+  - **Aplica a**: cualquier lector de ficheros derivados con semántica «ausente ≠ vacío» (#110, #111, #103).
+
+- **Lección**: el `RawCacheMissError` de `--sin-red` vive en un adapter y la aplicación no lo captura (lección de #127). Se resuelve en el composition root: `_CachedParcels` (en `cli/main.py`) lo convierte en `CadastralServiceError`, que la señal ya trata como «tesela sin datos». Así `--sin-red` da `sin_datos` con su motivo en vez de abortar.
+  - **Aplica a**: composition roots que inyecten un adapter con caché a un caso de uso que solo conoce errores de port.
+
+- **Lección**: las coordenadas de un tramo salen de interpolaciones en coma flotante (`110.00000000000001`) y el fichero las guarda a 0,01 m, así que `leer(escribir(x)) == x` solo vale si `x` ya está en esa rejilla. Los tests de ida y vuelta redondean el informe de partida; el fichero es idempotente (escribir, leer y volver a escribir da los mismos bytes).
+  - **Aplica a**: tests de ida y vuelta de geometría.
+
+- **Lección**: `ruff format src tests` sin acotar volvió a reformatear 34 ficheros ajenos (ya avisaba la lección de #127). Pasa `ruff format` solo con las rutas tocadas.
+  - **Aplica a**: implementación.
+## [2026-11-27] Historia #58 — Belmonte de Tajo (280040-w1)
+
+- **Lección**: el diseño de una historia hija escrita antes de #139 puede citar una forma que ya no existe (`historico cargar --documento 280040`, ids `280040:<trazado>`, fixture en `planimetrias/280040/`). Con el código fusionado manda lo real: `historico cargar 280040-w1`, id `280040-w1-<trazado>`, fixture en `planimetrias/historico/280040-w1/`. Se anota en el docstring del módulo de tests y en la PR. El CA8 («sha256 que declara el fichero de puntos de control») se cumple con el `sha256` de `unidad.json` (la entrada curada), que es donde vive hoy ese dato.
+  - **Aplica a**: refinador (al partir hijas, citar la CLI y las rutas del código ya fusionado) | implementación.
+## [2026-11-27] Historia #61 — Unidad sintética de Aranjuez (280027-w1)
+
+- **Lección**: un criterio que cita `historico cargar --documento 280022` describe una opción que no existe: el comando recibe la unidad (`280022-w1`) y el documento y la fecha viajan juntos en su `unidad.json`. Pedir el documento de 1943 sin unidad curada falla con «no existe» (salida 1, nada escrito), y un `document_id` distinto del prefijo del `unit_id` se rechaza al leer la unidad. Los tests prueban esos dos caminos en vez de inventar la opción.
+  - **Aplica a**: refinador (copiar las opciones reales del CLI de CLAUDE.md) | implementación.
+
+- **Lección**: la ruta que un criterio nombra (`tests/fixtures/caminos/planimetrias/280027/`) puede diferir de la que fija la línea `Toca:` y el método de #20 (`historico/280027-w1/`). Manda la convención vigente del repo; la diferencia se anota en el docstring del módulo de tests y en la PR.
+  - **Aplica a**: refinador | implementación.
+
+## [2026-11-27] Historia #160 — Integrar `catastro-caminos` con `discrepancias` y `candidatos-corte`
+
+- **Lección**: un criterio «el fichero se genera» pasa con datos inservibles si productor y consumidor no se prueban juntos. #128 dio 0 candidatos porque `catastro-caminos` no escribía el formato común y porque dos órdenes teselaban con rejillas distintas (la clave de la caché cruda lleva el bbox exacto de la tesela). Los tests de #160 encadenan productor → lector y `catastro-caminos` → caché → `candidatos-corte --sin-red` sobre la misma caché.
+  - **Aplica a**: refinador (un criterio de integración nombra al consumidor) | implementación.
+
+- **Lección**: si dos comandos comparten una caché cuya clave depende de una geometría, esa geometría la calcula una única función de dominio (`municipality_tiles`), no dos copias del cálculo. El test de «teselas idénticas» falla si divergen.
+  - **Aplica a**: cualquier caché cruda indexada por bbox.
+
+- **Lección**: `ruff format src` sin acotar reformateó 14 ficheros ajenos (tercera vez, ver #127 y #128). Formatea solo las rutas tocadas.
+  - **Aplica a**: implementación.
 
