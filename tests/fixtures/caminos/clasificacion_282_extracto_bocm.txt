@@ -1,0 +1,134 @@
+Consulta el 2026-11-27. Extracto de texto generado desde la caché cruda (data/raw/h282, no versionada).
+Municipios del hito a comprobar: Colmenar de Oreja (28043), Aranjuez (28013), Belmonte de Tajo (28019), Valdelaguna (28157).
+Controles positivos: Chinchón, Villaconejos y Villarejo de Salvanés (con órdenes de clasificación conocidas en BOE).
+
+# BOCM — búsqueda avanzada (advanced-search?search_api_views_fulltext_1=…)
+
+## texto exacto «clasificación de las vías pecuarias del término municipal de <municipio>» · Colmenar de Oreja
+- fichero: bocm_f_colmenar.html · sha256 c37c7d75ee67666f919043942655bbe9bfef7acc9ce2e2138cb3fa2b869e2007
+- filas en la página 1: 16; última página del paginador: 2405
+  - Vías pecuarias — – Orden 3233/2011, de 20 de octubre, por la que se aprueba la modificación de clasificación de las vías pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Vías pecuarias — – Acuerdo de 28 de enero de 2010 de Inicio del Procedimiento de Modificación de la Clasificación de las Vías Pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Vías pecuarias — – Orden 3/2011, de 19 de enero, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Chapinería (Madrid)
+  - Vías pecuarias — – Orden 4322/2010, de 10 de diciembre, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Lozoya (Madrid)
+  - Vías pecuarias — – Acuerdo de 27 de mayo de 2010, de la Dirección General del Medio Ambiente, por el que se somete a información pública el procedimiento de modificación de la clasificación de las vías pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Clasificación vías pecuarias — – Orden 1647/2012, de 24 de mayo, por la que se modifica la Orden 560/1995, de 24 de marzo, de aprobación de la modificación de la clasificación de las vías pecuarias del término municipal de Valdemorillo (Madrid)
+  - Acuerdo de 11 de noviembre de 2009, de inicio del procedimiento de clasificación de las vías pecuarias del término municipal de Lozoya (Madrid).
+  - Acuerdo de 11 de noviembre de 2009, de inicio del procedimiento de clasificación de las vías pecuarias del término municipal de Chapinería (Madrid).
+  - ORDEN 273/2009, de 18 de febrero, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Rascafría (Madrid).
+  - Clasificación vías pecuarias — – Orden 1267/2015, de 18 de junio, de la Consejería de Medio Ambiente y Ordenación del Territorio, por la que se amplía el plazo para resolver el procedimiento de Modificación de la Clasificación de las vías pecuarias de los términos municipales de Villaviciosa de Odón y Alcorcón
+
+## texto exacto «clasificación de las vías pecuarias del término municipal de <municipio>» · Aranjuez
+- fichero: bocm_f_aranjuez.html · sha256 5ac67c346fa53a303a0e9cac354a33f5c61a2357ba320efe3e04628ca3882770
+- filas en la página 1: 16; última página del paginador: 2289
+  - Vías pecuarias — – Orden 3/2011, de 19 de enero, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Chapinería (Madrid)
+  - Vías pecuarias — – Orden 4322/2010, de 10 de diciembre, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Lozoya (Madrid)
+  - Vías pecuarias — – Orden 3233/2011, de 20 de octubre, por la que se aprueba la modificación de clasificación de las vías pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Vías pecuarias — – Acuerdo de 28 de enero de 2010 de Inicio del Procedimiento de Modificación de la Clasificación de las Vías Pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Clasificación vías pecuarias — – Orden 1647/2012, de 24 de mayo, por la que se modifica la Orden 560/1995, de 24 de marzo, de aprobación de la modificación de la clasificación de las vías pecuarias del término municipal de Valdemorillo (Madrid)
+  - Acuerdo de 11 de noviembre de 2009, de inicio del procedimiento de clasificación de las vías pecuarias del término municipal de Lozoya (Madrid).
+  - Acuerdo de 11 de noviembre de 2009, de inicio del procedimiento de clasificación de las vías pecuarias del término municipal de Chapinería (Madrid).
+  - ORDEN 273/2009, de 18 de febrero, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Rascafría (Madrid).
+  - Clasificación vías pecuarias — – Orden 1267/2015, de 18 de junio, de la Consejería de Medio Ambiente y Ordenación del Territorio, por la que se amplía el plazo para resolver el procedimiento de Modificación de la Clasificación de las vías pecuarias de los términos municipales de Villaviciosa de Odón y Alcorcón
+  - Vías pecuarias — – Acuerdo de 18 de enero de 2010, de la Dirección General del Medio Ambiente, por el que se somete a información pública el procedimiento de clasificación de las vías pecuarias del término municipal de Chapinería (Madrid)
+
+## texto exacto «clasificación de las vías pecuarias del término municipal de <municipio>» · Belmonte de Tajo
+- fichero: bocm_f_belmonte.html · sha256 bcef8f0e6459ca945e52cd349f288714b4b99a8426701cb11849049126db27ab
+- filas en la página 1: 16; última página del paginador: 2345
+  - Vías pecuarias — – Orden 3/2011, de 19 de enero, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Chapinería (Madrid)
+  - Vías pecuarias — – Orden 4322/2010, de 10 de diciembre, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Lozoya (Madrid)
+  - Vías pecuarias — – Orden 3233/2011, de 20 de octubre, por la que se aprueba la modificación de clasificación de las vías pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Vías pecuarias — – Acuerdo de 28 de enero de 2010 de Inicio del Procedimiento de Modificación de la Clasificación de las Vías Pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Clasificación vías pecuarias — – Orden 1647/2012, de 24 de mayo, por la que se modifica la Orden 560/1995, de 24 de marzo, de aprobación de la modificación de la clasificación de las vías pecuarias del término municipal de Valdemorillo (Madrid)
+  - Acuerdo de 11 de noviembre de 2009, de inicio del procedimiento de clasificación de las vías pecuarias del término municipal de Lozoya (Madrid).
+  - Acuerdo de 11 de noviembre de 2009, de inicio del procedimiento de clasificación de las vías pecuarias del término municipal de Chapinería (Madrid).
+  - ORDEN 273/2009, de 18 de febrero, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Rascafría (Madrid).
+  - Clasificación vías pecuarias — – Orden 1267/2015, de 18 de junio, de la Consejería de Medio Ambiente y Ordenación del Territorio, por la que se amplía el plazo para resolver el procedimiento de Modificación de la Clasificación de las vías pecuarias de los términos municipales de Villaviciosa de Odón y Alcorcón
+  - Vías pecuarias — – Acuerdo de 18 de enero de 2010, de la Dirección General del Medio Ambiente, por el que se somete a información pública el procedimiento de clasificación de las vías pecuarias del término municipal de Chapinería (Madrid)
+
+## texto exacto «clasificación de las vías pecuarias del término municipal de <municipio>» · Valdelaguna
+- fichero: bocm_f_valdelaguna.html · sha256 2d0e1cd4764404a360b45ba7d356fdd6112e6a7a0c8152398ee48d1811ea1d03
+- filas en la página 1: 16; última página del paginador: 2100
+  - Vías pecuarias — – Orden 3/2011, de 19 de enero, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Chapinería (Madrid)
+  - Vías pecuarias — – Orden 4322/2010, de 10 de diciembre, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Lozoya (Madrid)
+  - Vías pecuarias — – Orden 3233/2011, de 20 de octubre, por la que se aprueba la modificación de clasificación de las vías pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Vías pecuarias — – Acuerdo de 28 de enero de 2010 de Inicio del Procedimiento de Modificación de la Clasificación de las Vías Pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Clasificación vías pecuarias — – Orden 1647/2012, de 24 de mayo, por la que se modifica la Orden 560/1995, de 24 de marzo, de aprobación de la modificación de la clasificación de las vías pecuarias del término municipal de Valdemorillo (Madrid)
+  - Acuerdo de 11 de noviembre de 2009, de inicio del procedimiento de clasificación de las vías pecuarias del término municipal de Lozoya (Madrid).
+  - Acuerdo de 11 de noviembre de 2009, de inicio del procedimiento de clasificación de las vías pecuarias del término municipal de Chapinería (Madrid).
+  - ORDEN 273/2009, de 18 de febrero, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Rascafría (Madrid).
+  - Clasificación vías pecuarias — – Orden 1267/2015, de 18 de junio, de la Consejería de Medio Ambiente y Ordenación del Territorio, por la que se amplía el plazo para resolver el procedimiento de Modificación de la Clasificación de las vías pecuarias de los términos municipales de Villaviciosa de Odón y Alcorcón
+  - Vías pecuarias — – Acuerdo de 18 de enero de 2010, de la Dirección General del Medio Ambiente, por el que se somete a información pública el procedimiento de clasificación de las vías pecuarias del término municipal de Chapinería (Madrid)
+
+## texto exacto «clasificación de las vías pecuarias del término municipal de <municipio>» · CONTROL Chapinería (orden 3/2011 conocida)
+- fichero: bocm_f_control_chapineria.html · sha256 96f140e741e2854ea57c7761b3243914ceb5b79a0fa7c142e44901c3d69cbbb9
+- filas en la página 1: 16; última página del paginador: 2151
+  - Vías pecuarias — – Orden 3/2011, de 19 de enero, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Chapinería (Madrid)
+  - Acuerdo de 11 de noviembre de 2009, de inicio del procedimiento de clasificación de las vías pecuarias del término municipal de Chapinería (Madrid).
+  - Vías pecuarias — – Acuerdo de 18 de enero de 2010, de la Dirección General del Medio Ambiente, por el que se somete a información pública el procedimiento de clasificación de las vías pecuarias del término municipal de Chapinería (Madrid)
+  - Vías pecuarias — – Corrección de errores en la Orden 3/2011, de 19 de enero, de la Consejería de Medio Ambiente, Vivienda y Ordenación del Territorio, por la que se aprueba la clasificación de vías pecuarias del término municipal de Chapinería
+  - Vías pecuarias — – Orden 4322/2010, de 10 de diciembre, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Lozoya (Madrid)
+  - Vías pecuarias — – Orden 3233/2011, de 20 de octubre, por la que se aprueba la modificación de clasificación de las vías pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Vías pecuarias — – Acuerdo de 28 de enero de 2010 de Inicio del Procedimiento de Modificación de la Clasificación de las Vías Pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Clasificación vías pecuarias — – Orden 1647/2012, de 24 de mayo, por la que se modifica la Orden 560/1995, de 24 de marzo, de aprobación de la modificación de la clasificación de las vías pecuarias del término municipal de Valdemorillo (Madrid)
+  - Notificación — – Resolución de 7 de junio de 2010, de la Dirección General del Medio Ambiente, por la que se procede a publicar notificaciones en relación con el procedimiento de clasificación de las vías pecuarias del término municipal de Chapinería
+  - Notificación — – Resolución de 31 de mayo de 2011, de la Dirección General del Medio Ambiente, por la que se procede a publicar notificaciones en relación con el procedimiento de clasificación de las vías pecuarias del término municipal de Chapinería (Madrid)
+
+## texto «vías pecuarias <municipio>» (búsqueda difusa, sin comillas) · Colmenar de Oreja
+- fichero: bocm_q_colmenar.html · sha256 76d48a73f6b03ae394ce970e03475a41286c098b6e71ef03d0b9f82e3271fbf6
+- filas en la página 1: 16; última página del paginador: 606
+  - – Colmenar de Oreja. Otros anuncios. Vehículos abandonados en vías públicas
+  - – Colmenar Viejo. Urbanismo. Plan Especial de Vías Pecuarias
+  - Vías pecuarias — – Orden 3233/2011, de 20 de octubre, por la que se aprueba la modificación de clasificación de las vías pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Vías pecuarias — – Acuerdo de 28 de enero de 2010 de Inicio del Procedimiento de Modificación de la Clasificación de las Vías Pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - – Colmenar de Oreja. Licencias. [sociedad omitida]
+  - Ocupación vías pecuarias — – Resolución de 9 de octubre de 2013, del Director General del Medio Ambiente, por la que se anuncia la exposición pública relativa a la autorización de ocupación temporal de las vías pecuarias “Vereda de la Camera” y “Colada de la Barca” en el término municipal de Colmenar de Oreja. Proyecto promovido por [sociedad omitida]
+  - Vías pecuarias — – Resolución de 1 de marzo de 2023, del Director General de Agricultura, Ganadería y Alimentación, por la que se anuncia la exposición pública relativa a la autorización de ocupación temporal de las vías pecuarias Cañada de la Alameda y Vereda de la Camera, en el término municipal de Colmenar de Oreja, para la instalación de una red de fibra óptica de nueva generación, actuación promovida por [sociedad omitida]
+  - Vías pecuarias — – Acuerdo de 27 de mayo de 2010, de la Dirección General del Medio Ambiente, por el que se somete a información pública el procedimiento de modificación de la clasificación de las vías pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+
+## texto «vías pecuarias <municipio>» (búsqueda difusa, sin comillas) · Aranjuez
+- fichero: bocm_q_aranjuez.html · sha256 33ef372dd631c1a0c58151e070f8ea73f3af3e60ebcb431060856432728f3100
+- filas en la página 1: 16; última página del paginador: 476
+  - Reglamento vías pecuarias — – Decreto 7/2021, de 27 de enero, del Consejo de Gobierno, por el que se aprueba el Reglamento de Vías Pecuarias de la Comunidad de Madrid
+  - Vías pecuarias — – Orden 3/2011, de 19 de enero, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Chapinería (Madrid)
+  - Vías pecuarias — – Orden 4322/2010, de 10 de diciembre, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Lozoya (Madrid)
+  - Vías pecuarias — – Orden 3233/2011, de 20 de octubre, por la que se aprueba la modificación de clasificación de las vías pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Vías pecuarias — – Acuerdo de 28 de enero de 2010 de Inicio del Procedimiento de Modificación de la Clasificación de las Vías Pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Vías pecuarias — – Resolución de 20 de septiembre de 2011, de la Dirección General del Medio Ambiente, por la que se aprueba el amojonamiento de las vías pecuarias del término municipal de Carabaña (Madrid)
+  - Vías pecuarias — – Resolución de 5 de mayo de 2022, del Director General de Agricultura, Ganadería y Alimentación, por la que se anuncia la exposición pública relativa a la autorización de ocupación temporal de las vías pecuarias Vereda de Ontígola y Colada de Toledo, en el término municipal de Aranjuez, para la instalación de una tubería de agua potable, actuación promovida por [sociedad omitida]
+  - – Aranjuez. Contratación. Corrección licitación vías públicas
+  - Deslinde vías pecuarias — – Resolución de 19 de mayo de 2015, del Director General del Medio Ambiente, por la se aprueba el deslinde de las vías pecuarias del término municipal de Redueña (Madrid)
+  - Deslinde vías pecuarias — – Resolución 9 de enero de 2014, del Director General del Medio Ambiente, por la se aprueba el deslinde de las vías pecuarias del término municipal de Titulcia (Madrid)
+
+## texto «vías pecuarias <municipio>» (búsqueda difusa, sin comillas) · Belmonte de Tajo
+- fichero: bocm_q_belmonte.html · sha256 4755c211f8890de63212c6752542c8963fe630992bf8bb98d96acacf697bace3
+- filas en la página 1: 16; última página del paginador: 522
+  - Deslinde vías pecuarias — – Resolución de 5 de marzo de 2013, del Director General del Medio Ambiente, por la que se aprueba el deslinde de las vías pecuarias del término municipal de Fuentidueña de Tajo (Madrid)
+
+## texto «vías pecuarias <municipio>» (búsqueda difusa, sin comillas) · Valdelaguna
+- fichero: bocm_q_valdelaguna.html · sha256 3354f96a98a53fde0ee6e0a97bd65f5e24999a9568fe5bc3dcd732d40d1e279a
+- filas en la página 1: 16; última página del paginador: 269
+  - Reglamento vías pecuarias — – Decreto 7/2021, de 27 de enero, del Consejo de Gobierno, por el que se aprueba el Reglamento de Vías Pecuarias de la Comunidad de Madrid
+  - Vías pecuarias — – Orden 3/2011, de 19 de enero, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Chapinería (Madrid)
+  - Vías pecuarias — – Orden 4322/2010, de 10 de diciembre, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Lozoya (Madrid)
+  - Vías pecuarias — – Orden 3233/2011, de 20 de octubre, por la que se aprueba la modificación de clasificación de las vías pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Vías pecuarias — – Acuerdo de 28 de enero de 2010 de Inicio del Procedimiento de Modificación de la Clasificación de las Vías Pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Vías pecuarias — – Resolución de 20 de septiembre de 2011, de la Dirección General del Medio Ambiente, por la que se aprueba el amojonamiento de las vías pecuarias del término municipal de Carabaña (Madrid)
+  - Deslinde vías pecuarias — – Resolución de 19 de mayo de 2015, del Director General del Medio Ambiente, por la se aprueba el deslinde de las vías pecuarias del término municipal de Redueña (Madrid)
+  - Deslinde vías pecuarias — – Resolución 9 de enero de 2014, del Director General del Medio Ambiente, por la se aprueba el deslinde de las vías pecuarias del término municipal de Titulcia (Madrid)
+  - – Colmenar Viejo. Urbanismo. Plan Especial de Vías Pecuarias
+  - Vías pecuarias — – Resolución de 15 de septiembre de 2022, de la Dirección General de Agricultura, Ganadería y Alimentación, por la que se aprueba el procedimiento de deslinde de las vías pecuarias del término municipal de Cenicientos (Madrid)
+
+## texto «vías pecuarias <municipio>» (búsqueda difusa, sin comillas) · CONTROL Villaconejos
+- fichero: bocm_q_control_villaconejos.html · sha256 ff09c0c042714f403a39eefff32d61c11a353eade40e2cf861e5a0bcb992f039
+- filas en la página 1: 16; última página del paginador: 280
+  - Reglamento vías pecuarias — – Decreto 7/2021, de 27 de enero, del Consejo de Gobierno, por el que se aprueba el Reglamento de Vías Pecuarias de la Comunidad de Madrid
+  - Vías pecuarias — – Orden 3/2011, de 19 de enero, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Chapinería (Madrid)
+  - Vías pecuarias — – Orden 4322/2010, de 10 de diciembre, por la que se aprueba la clasificación de las vías pecuarias del término municipal de Lozoya (Madrid)
+  - Vías pecuarias — – Orden 3233/2011, de 20 de octubre, por la que se aprueba la modificación de clasificación de las vías pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Vías pecuarias — – Acuerdo de 28 de enero de 2010 de Inicio del Procedimiento de Modificación de la Clasificación de las Vías Pecuarias del término municipal de Colmenar del Arroyo (Madrid)
+  - Vías pecuarias — – Resolución de 20 de septiembre de 2011, de la Dirección General del Medio Ambiente, por la que se aprueba el amojonamiento de las vías pecuarias del término municipal de Carabaña (Madrid)
+  - Deslinde vías pecuarias — – Resolución de 19 de mayo de 2015, del Director General del Medio Ambiente, por la se aprueba el deslinde de las vías pecuarias del término municipal de Redueña (Madrid)
+  - Deslinde vías pecuarias — – Resolución 9 de enero de 2014, del Director General del Medio Ambiente, por la se aprueba el deslinde de las vías pecuarias del término municipal de Titulcia (Madrid)
+  - – Colmenar Viejo. Urbanismo. Plan Especial de Vías Pecuarias
+  - Vías pecuarias — – Resolución de 15 de septiembre de 2022, de la Dirección General de Agricultura, Ganadería y Alimentación, por la que se aprueba el procedimiento de deslinde de las vías pecuarias del término municipal de Cenicientos (Madrid)
