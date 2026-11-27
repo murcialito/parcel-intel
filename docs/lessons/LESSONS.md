@@ -573,3 +573,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: `ruff format .` sin límite reformatea decenas de ficheros ajenos a la historia (aquí 51, incluidos ADR y código de otras historias) y ensucia la PR. Formatea solo los ficheros que has tocado (`ruff format <rutas>`), o comprueba `git status` antes de hacer commit.
   - **Aplica a**: implementación.
 
+## [2026-11-27] Historia #58 — Belmonte de Tajo (280040-w1)
+
+- **Lección**: el diseño de una historia hija escrita antes de #139 puede citar una forma que ya no existe (`historico cargar --documento 280040`, ids `280040:<trazado>`, fixture en `planimetrias/280040/`). Con el código fusionado manda lo real: `historico cargar 280040-w1`, id `280040-w1-<trazado>`, fixture en `planimetrias/historico/280040-w1/`. Se anota en el docstring del módulo de tests y en la PR. El CA8 («sha256 que declara el fichero de puntos de control») se cumple con el `sha256` de `unidad.json` (la entrada curada), que es donde vive hoy ese dato.
+  - **Aplica a**: refinador (al partir hijas, citar la CLI y las rutas del código ya fusionado) | implementación.
+
