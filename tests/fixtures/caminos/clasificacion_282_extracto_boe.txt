@@ -1,0 +1,297 @@
+Consulta el 2026-11-27. Extracto de texto generado desde la caché cruda (data/raw/h282, no versionada).
+Municipios del hito a comprobar: Colmenar de Oreja (28043), Aranjuez (28013), Belmonte de Tajo (28019), Valdelaguna (28157).
+Controles positivos: Chinchón, Villaconejos y Villarejo de Salvanés (con órdenes de clasificación conocidas en BOE).
+
+# BOE — buscador por título (boe.php?campo[1]=TITULOS)
+
+## título: «clasificación vías pecuarias» + municipio · Colmenar de Oreja
+- fichero: boe_q_colmenar.html · sha256 c096579a53faf43669c7c299af5ca7053d5ab1809fe4ac29da5c6038215e660f
+- resultado: sin documentos (BOE muestra «No se han encontrado documentos que satisfagan sus criterios de búsqueda»)
+
+## título: «clasificación vías pecuarias» + municipio · Aranjuez
+- fichero: boe_t_aranjuez.html · sha256 7b58949f6e667f8a7de1fe97549748c89052aacba03c0e2c217b7ca410e74473
+- resultado: sin documentos (BOE muestra «No se han encontrado documentos que satisfagan sus criterios de búsqueda»)
+
+## título: «clasificación vías pecuarias» + municipio · Belmonte de Tajo
+- fichero: boe_t_belmonte.html · sha256 caaf5b5fd07dd91fa23b2c52ecd31971f7cfbc9737a69254333a6d71894e5d39
+- resultado: sin documentos (BOE muestra «No se han encontrado documentos que satisfagan sus criterios de búsqueda»)
+
+## título: «clasificación vías pecuarias» + municipio · Valdelaguna
+- fichero: boe_t_valdelaguna.html · sha256 01d4cc03ed59d882a003f3b8e52e5528159a3927a52cbef533cccb1b506da4f5
+- resultado: sin documentos (BOE muestra «No se han encontrado documentos que satisfagan sus criterios de búsqueda»)
+
+## título: «clasificación vías pecuarias» + municipio · CONTROL Chinchón
+- fichero: boe_t_control_chinchon.html · sha256 08a5e9596d3969dec2a133e2296d488052199d240c74fefec1d0823104fd45a6
+- referencias BOE-A distintas en la página: 1
+  - Orden de 20 de mayo de 1974 por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Chinchón, provincia de Madrid.
+
+## título: «pecuarias» + municipio · Colmenar de Oreja
+- fichero: boe_t_pec_colmenar.html · sha256 2758f51cd29687122ca05befbd09b0ead196e8f47600fe6d93f5f08be45d5946
+- resultado: sin documentos (BOE muestra «No se han encontrado documentos que satisfagan sus criterios de búsqueda»)
+
+## título: «pecuarias» + municipio · Aranjuez
+- fichero: boe_t_pec_aranjuez.html · sha256 4f4cc021082bbbc7cadc88a004ceff1df4cb6c54bbd705499c7dc0d5e848d8a0
+- resultado: sin documentos (BOE muestra «No se han encontrado documentos que satisfagan sus criterios de búsqueda»)
+
+## título: «pecuarias» + municipio · Belmonte de Tajo
+- fichero: boe_t_pec_belmonte.html · sha256 08ae5326b0699e37b9dbde7e7217acea4023bf89b4298267b9e734e84c74e49b
+- resultado: sin documentos (BOE muestra «No se han encontrado documentos que satisfagan sus criterios de búsqueda»)
+
+## título: «pecuarias» + municipio · Valdelaguna
+- fichero: boe_t_pec_valdelaguna.html · sha256 e79de3b97dcc4ec67f81a5cc70a3b1ac8696ca75774a25a49f641d6c505d6f30
+- resultado: sin documentos (BOE muestra «No se han encontrado documentos que satisfagan sus criterios de búsqueda»)
+
+## título: «pecuarias» + municipio · CONTROL Villaconejos
+- fichero: boe_t_pec_villaconejos.html · sha256 04b31066893b85428dc628638587db057767c612b43ee5bcb0be0f1598a02dda
+- referencias BOE-A distintas en la página: 1
+  - Orden por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Villaconejos, provincia de Madrid.
+
+## título: «pecuarias» + municipio · CONTROL Villarejo de Salvanés
+- fichero: boe_t_pec_villarejo.html · sha256 6a93b58a89e26669960a46aa5835d312dc137d667cf0620625e103ecaf296013
+- referencias BOE-A distintas en la página: 2
+  - Orden de 20 de mayo de 1974 por la que se aprueba la primera modificación de la clasificación de las vías pecuarias existentes en el término municipal de Villarejo de Salvanés, provincia de Madrid.
+  - Orden por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Villarejo de Salvanés, provincia de Madrid.
+
+## título: «proyecto de clasificación vías pecuarias» + municipio · Colmenar de Oreja
+- fichero: boe_t_proyecto_colmenar.html · sha256 7c2b62b3127eda73dcbde5557d67f3c1d5b0dae517e4a201f7f76aa4a89fff35
+- resultado: sin documentos (BOE muestra «No se han encontrado documentos que satisfagan sus criterios de búsqueda»)
+
+## título: «proyecto de clasificación vías pecuarias» + municipio · Aranjuez
+- fichero: boe_t_proyecto_aranjuez.html · sha256 092026e4e7d88ef2c22d69fe4ad2f23a2c31fe561af7b405c8b7c856f40707eb
+- resultado: sin documentos (BOE muestra «No se han encontrado documentos que satisfagan sus criterios de búsqueda»)
+
+## título: «proyecto de clasificación vías pecuarias» + municipio · Belmonte de Tajo
+- fichero: boe_t_proyecto_belmonte.html · sha256 a6d19b0bb231a9d9750da6ab4f05af83b175d5877ea0c68ba3c2b54197dbed54
+- resultado: sin documentos (BOE muestra «No se han encontrado documentos que satisfagan sus criterios de búsqueda»)
+
+## título: «proyecto de clasificación vías pecuarias» + municipio · Valdelaguna
+- fichero: boe_t_proyecto_valdelaguna.html · sha256 24951973d116efa15b0e5e403a1225682dae92d0210acca3251cb39f89efb25f
+- resultado: sin documentos (BOE muestra «No se han encontrado documentos que satisfagan sus criterios de búsqueda»)
+
+## título: solo el nombre del municipio (primera página, las 60 más recientes) · Colmenar de Oreja
+- fichero: boe_t_nombre_colmenar.html · sha256 1fc1b2e81d8596eeeeaf9f3a641c5ad4b0606166df24822773e70235a0bc8a0d
+- referencias BOE-A distintas en la página: 25
+  - Resolución de 3 de julio de 2026, del Ayuntamiento de Colmenar de Oreja (Madrid), referente a la convocatoria para proveer una plaza.
+  - Anuncio de la Confederación Hidrográfica del Tajo de información pública en el expediente de extinción del derecho a un aprovechamiento de 0,01 l/s de aguas subterráneas, con destino a usos domésticos (excluyendo bebida), en el término municipal de Colmenar de Oreja (Madrid).
+  - Anuncio del Área Funcional de Industria y Energía de la Delegación del Gobierno en Madrid sobre información pública de la solicitud de declaración, en concreto, de utilidad pública de la instalación fotovoltaica Envatios XXII Fase II", de 279,9 MW de potencia instalada, y su infraestructura de evacuación, en Borox, Cobeja (Toledo) y Colmenar de Oreja (Madrid). Expediente: PFot-549.
+  - Resolución de 5 de mayo de 2025, de la Dirección General de Política Energética y Minas, por la que se otorga a Energía Amanecer, SLU, la declaración, en concreto, de utilidad pública para la instalación fotovoltaica Morata I, de 51,58 MW potencia instalada, y su infraestructura de evacuación, en Villatobas y Villarrubia de Santiago (Toledo) y Colmenar de Oreja y Morata de Tajuña (Madrid).
+  - Anuncio de la Confederación Hidrográfica del Tajo de información pública en el expediente de extinción del derecho a un aprovechamiento de 7,61 l/s de aguas subterráneas, con destino a abastecimiento, en el término municipal de Colmenar de Oreja (Madrid).
+  - Resolución de 29 de mayo de 2024, del Ayuntamiento de Colmenar de Oreja (Madrid), referente a la convocatoria para proveer una plaza.
+  - Resolución de 17 de abril de 2024, del Ayuntamiento de Colmenar de Oreja (Madrid), referente a la convocatoria para proveer varias plazas.
+  - Anuncio de la Confederación Hidrográfica del Tajo O.A. de la resolución de la solicitud de una concesión de aguas en el término municipal de Colmenar de Oreja (Madrid). Referencia. C-0418/2020.
+  - Anuncio de la Confederación Hidrográfica del Tajo O.A. de la información publica de la solicitud de una concesión de aguas en el termino municipal de Colmenar de Oreja (Madrid). Referencia. C-0155/2021.
+  - Resolución de 26 de diciembre de 2023, de la Dirección General de Política Energética y Minas, por la que se otorga a Recova Solar, SLU, autorización administrativa previa para la instalación fotovoltaica Recova Solar Ampliación, de 50,4 MW de potencia instalada, y su infraestructura de evacuación, en Colmenar de Oreja (Madrid).
+  - Resolución de 20 de abril de 2023, de la Dirección General de Política Energética y Minas, por la que se otorga a Regata Solar, SLU, autorización administrativa previa para la instalación fotovoltaica Regata Solar de 50 MW de potencia instalada, la subestación eléctrica Regata 132/30 kV e infraestructura de evacuación, en Colmenar de Oreja (Madrid).
+  - Resolución de 20 de abril de 2023, de la Dirección General de Política Energética y Minas, por la que se otorga a Rabiza Solar, SLU, autorización administrativa previa para la instalación fotovoltaica Rabiza Solar de 75 MW de potencia instalada en Colmenar de Oreja y Belmonte de Tajo (Madrid).
+  - Anuncio de la Confederación Hidrográfica del Tajo de solicitud de una concesión de aprovechamiento de agua subterraneas en el término municipal de Colmenar de Oreja.
+  - Resolución de 27 de mayo de 2009 de la Secretaría General Técnica de Consejería de Transportes e Infraestructuras por la que se hace pública la adjudicación definitiva del contrato de: Redacción de proyecto de construcción variante de Colmenar de Oreja.
+  - Resolución 15 de enero de 2009 de Secretaría Gral. Técnica de Consejería de Transportes e Infraestructuras por la que se hace pública convocatoria por procedimiento abierto para la adjudicación del contrato de Servicios de: Redacción proyecto de construcción variante de Colmenar de Oreja.
+  - Resolución de 19 de junio de 2008, del Ayuntamiento de Colmenar de Oreja (Madrid), referente a la convocatoria para proveer varias plazas.
+  - Resolución de 8 de febrero de 2008, del Ayuntamiento de Colmenar de Oreja (Madrid), referente a la convocatoria para proveer una plaza.
+  - Resolución de 24 de febrero de 2006, del Ayuntamiento de Colmenar de Oreja (Madrid), referente a la convocatoria para proveer una plaza.
+
+## título: solo el nombre del municipio (primera página, las 60 más recientes) · Aranjuez
+- fichero: boe_t_nombre_solo_aranjuez.html · sha256 2d88b310fc6023fcdda426239ba0b4d41d2b1242aa01b0ac76683b48733f152a
+- referencias BOE-A distintas en la página: 8
+  - Anuncio de la Confederación Hidrográfica del Tajo O.A. de la información pública de la solicitud de autorización para navegar en el río Tajo, en el T.M. de Aranjuez (Madrid), con una embarcación destinada al transporte de pasajeros. Año 2027. Referencia N-1814/2027.
+  - Anuncio de la Confederación Hidrográfica del Tajo O.A. de la información pública de la solicitud de autorización para navegar en el río Tajo, en el T.M. de Aranjuez (Madrid), con una embarcación destinada al transporte de pasajeros. Año 2026. Referencia N-14189/2026.
+  - Anuncio de licitación de: Consejo de Administración del Patrimonio Nacional. Objeto: Obras de mejora y eficiencia de infraestructuras del riego en jardines de La Granja y Aranjuez. Expediente: 202620PA0446.
+  - Anuncio de formalización de contratos de: ADIF - Presidencia. Objeto: Servicio de realización levantamientos topográficos para comprobación de gálibos en las estaciones de Aranjuez y Soria. Expediente: 2.26/24108.0157.
+  - Anuncio de licitación de: ADIF - Presidencia. Objeto: Ejecución de las obras de los proyectos de reposición y ejecución de cerramientos en los términos municipales de Valdemoro y Aranjuez (Madrid), y en los términos municipales de Seseña y Ontígola (Toledo). Líneas 300 y 310. Expediente: 3.26/27507.0261.
+  - Anuncio de corrección de errores de: ADIF - Presidencia. Objeto: Ejecución de las obras del proyecto constructivo para la supresión de los pasos a nivel situados en los pp.kk. 19/836 y 21/299 de la línea 310 Aranjuez a Valencia la Font de Sant Lluis en el término municipal de Noblejas (Toledo). Expediente: 3.26/27507.0079.
+  - Anuncio de licitación de: Consejo de Administración del Patrimonio Nacional. Objeto: Servicios de auxiliares de información, recepción, control de accesos y comprobación de instalaciones en el Palacio Real de Aranjuez, Museo de Falúas y Casa del Labrador. Expediente: 202630PA0358.
+  - Anuncio de licitación de: Subdirección General de Planificación y Gestión Económica. Objeto: Servicio de mantenimiento integral de las instalaciones en el centro penitenciario de Madrid VI (Aranjuez), UAR hospital 12 de octubre (6 hab.), dependientes de la secretaría General de Instituciones Penitenciarias. Expediente: 020120260171.
+  - Anuncio de formalización de contratos de: Consejo de Administración del Patrimonio Nacional. Objeto: Seguimiento Del Sistema De Auscultación Y Monitorización Remota En La Casa Del Labrador. Real Sitio De Aranjuez. Expediente: 202620PAS243.
+  - Anuncio de formalización de contratos de: Consejo de Administración del Patrimonio Nacional. Objeto: Servicio de vigilancia de seguridad en las dependencias del CAPN en El Pardo, San Lorenzo de El Escorial, Aranjuez, La Granja de San Ildefonso, Sevilla, Palma de Mallorca, Yuste, Lanzarote, Patronato de Huelgas y Patronato de Santa Clara. Expediente: 202660PA0148.
+  - Anuncio de la Confederación Hidrográfica del Tajo sobre la Información Pública de la Tarifa de Utilización del Agua de la Z.R. de Aranjuez. Año 2027.
+  - Anuncio de formalización de contratos de: Consejo de Administración del Patrimonio Nacional. Objeto: Servicio de vigilancia de seguridad en las dependencias del CAPN en El Pardo, San Lorenzo de El Escorial, Aranjuez, La Granja de San Ildefonso, Sevilla, Palma de Mallorca, Yuste, Lanzarote, Patronato de Huelgas y Patronato de Santa Clara. Expediente: 202660PA0148.
+  - Anuncio de formalización de contratos de: Consejo de Administración del Patrimonio Nacional. Objeto: Servicio de vigilancia de seguridad en las dependencias del CAPN en El Pardo, San Lorenzo de El Escorial, Aranjuez, La Granja de San Ildefonso, Sevilla, Palma de Mallorca, Yuste, Lanzarote, Patronato de Huelgas y Patronato de Santa Clara. Expediente: 202660PA0148.
+  - Anuncio de formalización de contratos de: Consejo de Administración del Patrimonio Nacional. Objeto: Servicio de vigilancia de seguridad en las dependencias del CAPN en El Pardo, San Lorenzo de El Escorial, Aranjuez, La Granja de San Ildefonso, Sevilla, Palma de Mallorca, Yuste, Lanzarote, Patronato de Huelgas y Patronato de Santa Clara. Expediente: 202660PA0148.
+  - Anuncio de formalización de contratos de: Consejo de Administración del Patrimonio Nacional. Objeto: Servicio de vigilancia de seguridad en las dependencias del CAPN en El Pardo, San Lorenzo de El Escorial, Aranjuez, La Granja de San Ildefonso, Sevilla, Palma de Mallorca, Yuste, Lanzarote, Patronato de Huelgas y Patronato de Santa Clara. Expediente: 202660PA0148.
+  - Anuncio de formalización de contratos de: Consejo de Administración del Patrimonio Nacional. Objeto: Servicio de vigilancia de seguridad en las dependencias del CAPN en El Pardo, San Lorenzo de El Escorial, Aranjuez, La Granja de San Ildefonso, Sevilla, Palma de Mallorca, Yuste, Lanzarote, Patronato de Huelgas y Patronato de Santa Clara. Expediente: 202660PA0148.
+  - Anuncio de formalización de contratos de: Consejo de Administración del Patrimonio Nacional. Objeto: Servicio de vigilancia de seguridad en las dependencias del CAPN en El Pardo, San Lorenzo de El Escorial, Aranjuez, La Granja de San Ildefonso, Sevilla, Palma de Mallorca, Yuste, Lanzarote, Patronato de Huelgas y Patronato de Santa Clara. Expediente: 202660PA0148.
+  - Anuncio de licitación de: Subdirección General de Planificación y Gestión Económica. Objeto: Servicio de Transporte de Personal al Centro Penitenciario de Madrid VI ( Aranjuez ) . Expediente: 020120260111.
+  - Anuncio de formalización de contratos de: Dirección General del Sector Ferroviario. Objeto: Contrato de servicios para la redacción del «Estudio de viabilidad para la optimización funcional e incremento de capacidad de la línea C-3 de Cercanías de Madrid. Tramo: San Cristóbal Industrial-Aranjuez". Expediente: 2025F2830250.
+  - Resolución de 18 de junio de 2026, del Ayuntamiento de Aranjuez (Madrid), referente a la convocatoria para proveer una plaza.
+  - Anuncio de licitación de: ADIF - Presidencia. Objeto: Servicios para la realización de la evaluación ambiental y la redacción del proyecto de construcción del nuevo puente de la L300 sobre el río Jarama (p.k. 45+800), Aranjuez (Madrid). Expediente: 3.26/27507.0141.
+  - Anuncio de licitación de: ADIF - Presidencia. Objeto: Ejecución de las obras del proyecto constructivo para la supresión de los pasos a nivel situados en los pp.kk. 19/836 y 21/299 de la línea 310 Aranjuez a Valencia la Font de Sant Lluis en el término municipal de Noblejas (Toledo). Expediente: 3.26/27507.0079.
+  - Anuncio de licitación de: Consejo de Administración del Patrimonio Nacional. Objeto: Seguimiento Del Sistema De Auscultación Y Monitorización Remota En La Casa Del Labrador. Real Sitio De Aranjuez. Expediente: 202620PAS243.
+  - Resolución de 22 de mayo de 2026, del Ayuntamiento de Aranjuez (Madrid), referente a la convocatoria para proveer varias plazas.
+  - Anuncio de licitación de: Consejo de Administración del Patrimonio Nacional. Objeto: Obras de mejora y eficiencia de infraestructuras del riego en jardines de Aranjuez y La Granja. Expediente: 202620PA0192.
+  - Anuncio de licitación de: Consejo de Administración del Patrimonio Nacional. Objeto: Servicio de vigilancia de seguridad en las dependencias del CAPN en El Pardo, San Lorenzo de El Escorial, Aranjuez, La Granja de San Ildefonso, Sevilla, Palma de Mallorca, Yuste, Lanzarote, Patronato de Huelgas y Patronato de Santa Clara. Expediente: 202660PA0148.
+  - Anuncio de formalización de contratos de: Jefatura de Enseñanza. Dirección General Guardia Civil. Objeto: Contratación de los trabajos de mantenimiento y conservación de áreas verdes, terrizas, jardineras, vegetación y plantas ornamentales existentes en el recinto de la Academia de Oficiales de la Guardia Civil en Aranjuez (Madrid). Expediente: J/0012/A/25/2.
+  - Resolución de 25 de marzo de 2026, de la Dirección General de Seguridad Jurídica y Fe Pública, por la que se nombra Notario Archivero de Protocolos del Distrito Notarial de Aranjuez, al notario de dicha localidad, don Luis Novoa Sánchez.
+  - Resolución de 25 de febrero de 2026, de la Entidad Pública Empresarial Administrador de Infraestructuras Ferroviarias, por la que se publica el Convenio con la Diputación Provincial de Cuenca y el Ayuntamiento de Tarancón, para la ejecución de actuaciones de integración urbana de los suelos ferroviarios de la línea ferroviaria 03-310 Aranjuez-Valencia Fuente de San Luis en Tarancón (Cuenca).
+  - Anuncio de licitación de: Consejo de Administración del Patrimonio Nacional. Objeto: Servicio de vigilancia de seguridad en las dependencias del CAPN en El Pardo, San Lorenzo de El Escorial, Aranjuez, La Granja de San Ildefonso, Sevilla, Palma de Mallorca, Yuste, Lanzarote, Patronato de Huelgas y Patronato de Santa Clara. Expediente: 202560PA0466.
+  - Anuncio de formalización de contratos de: ADIF - Presidencia. Objeto: Emergencia de las obras y de los servicios en línea 300 Madrid - Chamartín Clara Campoamor a Valencia-Estació del Nord, trayectos: túnel de Sol, Madrid - Atocha Cercanías - Pinto y Pinto - Aranjuez y línea 920 Móstoles - El Soto - Parla, Estación de Parla. Estación de Parla (pp.kk.24+375-24+675). Expediente: 3.25/27507.0240.
+  - Resolución de 29 de enero de 2026, de la Entidad Pública Empresarial Administrador de Infraestructuras Ferroviarias, por la que se publica la Adenda modificativa y de prórroga al Convenio con el Ayuntamiento de Noblejas, para la supresión de los pasos a nivel situados en los pp.kk. 19/836 y 21/299 de la línea Aranjuez-Valencia-La Font, en Noblejas (Toledo).
+  - Resolución de 2 de febrero de 2026, del Ayuntamiento de Aranjuez (Madrid), referente a la convocatoria para proveer varias plazas.
+  - Anuncio de licitación de: Dirección General del Sector Ferroviario. Objeto: Contrato de servicios para la redacción del «Estudio de viabilidad para la optimización funcional e incremento de capacidad de la línea C-3 de Cercanías de Madrid. Tramo: San Cristóbal Industrial-Aranjuez". Expediente: 2025F2830250.
+  - Anuncio de formalización de contratos de: Dirección del Centro Penitenciario Madrid VI (Aranjuez). Objeto: Servicio de atención especializada en odontología de prestaciones básicas para los internos del Centro Penitenciario de Madrid VI. Expediente: 2025GtD00049.
+  - Anuncio de formalización de contratos de: Dirección del Centro Penitenciario Madrid VI (Aranjuez). Objeto: Ejecución del servicio de limpieza de oficinas y otras dependencias del Centro Penitenciario MadridVI (Aranjuez). Expediente: 2025GtD00046.
+
+## título: solo el nombre del municipio (primera página, las 60 más recientes) · Belmonte de Tajo
+- fichero: boe_t_nombre_belmonte.html · sha256 908dafd0b85eecf180752c16bdb3fb7c10d6dace7658f880b4216376d556c0d0
+- referencias BOE-A distintas en la página: 33
+  - Resolución de 27 de octubre de 2026, del Ayuntamiento de Belmonte de Tajo (Madrid), referente a la convocatoria para proveer una plaza.
+  - Resolución de 7 de agosto de 2026, del Ayuntamiento de Belmonte de Tajo (Madrid), referente a la convocatoria para proveer una plaza.
+  - Resolución de 12 de diciembre de 2023, de la Secretaría General Técnica, por la que se publica el Convenio entre la Secretaría de Estado de Seguridad y el Ayuntamiento de Belmonte de Tajo, en materia de seguridad.
+  - Resolución de 20 de abril de 2023, de la Dirección General de Política Energética y Minas, por la que se otorga a Rabiza Solar, SLU, autorización administrativa previa para la instalación fotovoltaica Rabiza Solar de 75 MW de potencia instalada en Colmenar de Oreja y Belmonte de Tajo (Madrid).
+  - Resolución de 9 de diciembre de 2022, del Ayuntamiento de Belmonte de Tajo (Madrid), referente a la convocatoria para proveer varias plazas.
+  - Orden JUS/1161/2016, de 24 de junio, por la que se manda expedir, sin perjuicio de tercero de mejor derecho, Real Carta de Sucesión en el título de Conde de Belmonte de Tajo a favor de doña Carla Martínez de las Rivas y Palomar.
+  - Anuncio de la Subsecretaría (División de Derechos de Gracia y otros Derechos), sobre solicitud de sucesión por distribución en el título de Conde de Belmonte de Tajo.
+  - Resolución de 30 de julio de 2008, del Ayuntamiento de Belmonte de Tajo (Madrid), referente a la convocatoria para proveer varias plazas.
+  - Resolución de 13 de diciembre de 2007, del Ayuntamiento de Belmonte de Tajo (Madrid), referente a la convocatoria para proveer una plaza.
+  - Resolución de 22 de marzo de 2006, de la Dirección General de Política Energética y Minas, por la que se autoriza a «Enagas, Sociedad Anónima» la modificación de la posición K-54 del gasoducto Getafe-Tarancón-Cuenca-Fuentes, ubicada en el término municipal de Belmonte de Tajo (Madrid), así como la instalación de una estación de regulación y medida del tipo G-400.
+  - Resolución de 18 de octubre de 2002, del Ayuntamiento de Belmonte de Tajo (Madrid), referente a la convocatoria para proveer varias plazas.
+  - Resolución de 18 de junio de 2002, del Ayuntamiento de Belmonte de Tajo (Madrid), por la que se anuncia la oferta de empleo público para 2002.
+  - Resolución de 9 de febrero de 1999, aprobada por la Comisión Mixta para las Relaciones con el Tribunal de Cuentas en relación al informe de fiscalización del Ayuntamiento de Belmonte de Tajo (Madrid).
+  - Resolución 107/1999, de 15 de enero, de la Secretaría General Técnica de la Consejería de Medio Ambiente y Desarrollo Regional, por la que se da publicidad al acuerdo de 10 de diciembre de 1998, del Consejo de Gobierno, por el que se autoriza al Ayuntamiento de Belmonte de Tajo, de la provincia de Madrid, para adoptar escudo heráldico y bandera municipal.
+  - Resolución de 16 de enero de 1995, del Ayuntamiento de Belmonte de Tajo (Madrid), por la que se hace público el nombramiento de un Administrativo de Administración General.
+  - Resolución de la Secretaría General Técnica de la Consejería de Cooperación por la que se hace pública la adjudicación por concurso, mediante Orden de fecha de 9 de diciembre de 1994, de la ejecución de las obras de centro cultural en el municipio de Belmonte de Tajo.
+  - Resolución de 18 de mayo de 1994, del Ayuntamiento de Belmonte de Tajo (Madrid), referente a la convocatoria para proveer una plaza de Administrativo de Administración General.
+  - Resolución de 4 de abril de 1994, del Ayuntamiento de Belmonte de Tajo (Madrid), Referente a la convocatoria para proveer una plaza de Guardia de la Policía Local.
+  - Resolución de 1 de marzo de 1994, del Ayuntamiento de Belmonte de Tajo (Madrid), por la que se anuncia la oferta de empleo público para 1994.
+  - Orden de 23 de marzo de 1990 por la que se manda expedir, sin perjuicio de tercero de mejor derecho, Real Carta de Sucesión en el título de Conde de Belmonte de Tajo, a favor de don Juan Francisco Martínez de las Rivas y Maroto.
+  - Resolución de 18 de diciembre de 1989, de la Subsecretaría, por la que se anuncia haber sido solicitada por don Juan Francisco Martínez de las Rivas y Maroto la sucesión por cesión en el título de Conde de Belmonte de Tajo.
+  - Orden de 22 de marzo de 1985 por la que se manda expedir, sin perjuicio de tercero de mejor derecho, Real Carta de Sucesión en el título de Conde de Belmonte de Tajo, a favor de doña Agustina Maroto von Nagel.
+  - Orden de 22 de marzo de 1985 por la que se manda expedir, sin perjuicio de tercero de mejor derecho, Real Carta de Sucesión en el título de Conde de Belmonte de Tajo a favor de doña Agustina Maroto von Nagel.
+  - Real Decreto 436/1983, de 2 de febrero, por el que se aprueba la constitución y Estatutos de la Mancomunidad Intermunicipal voluntaria para el establecimiento y desarrollo del servicio de abastecimiento de agua potable del río Tajo, integrada por los municipios de Colmenar de Oreja, Belmonte de Tajo y Valdelaguna, de la provincia de Madrid.
+  - Resolución de 31 de enero de 1983, de la Subsecretaría, por la que se convoca a don Francisco Maroto y Pérez del Pulgar y doña Agustina Maroto y Von-Nagel en el expediente de sucesión del título de Conde de Belmonte de Tajo.
+  - Resolución de 18 de mayo de 1982, de la Subsecretaría, por la que se anuncia haber sido solicitada por don Francisco Maroto y Pérez del Pulgar y doña Agustina Maroto y Von-Nagel la sucesión en el título de Conde de Belmonte de Tajo.
+  - Orden de 15 de octubre de 1976 por la que se aprueba la modificación de las normas complementarias y subsidiarias de planeamiento de los términos municipales de Belmonte de Tajo, Valdelaguna y Valdilecha.
+  - Orden de 6 de agosto de 1966 por la que se crea la Biblioteca Pública Municipal de Belmonte de Tajo (Madrid).
+  - Decreto 1447/1964, de 6 de mayo, de declaración de pobreza legal del Ayuntamiento de Belmonte de Tajo (Madrid), para la construcción por el Estado de sus edificios escolares.
+  - Resolución de la Diputación Provincial de Madrid por la que se convoca subasta para la ejecución de las obras de reparación del camino vecinal de Chinchón a Belmonte de Tajo.
+
+## título: solo el nombre del municipio (primera página, las 60 más recientes) · Valdelaguna
+- fichero: boe_t_nombre_valdelaguna.html · sha256 5eecdb2d1f510a0ea9841759eff4abe5da2d582cdd5d80107e9a5200cadd7db9
+- referencias BOE-A distintas en la página: 19
+  - Anuncio de la Confederación Hidrográfica del Tajo de información pública en el expediente de extinción del derecho a un aprovechamiento de un caudal máximo aprovechable de 5,4 l/s de aguas subterráneas, con destino a usos domésticos, riego y abrevadero, en el T.M. de Valdelaguna (Madrid).
+  - Resolución de 9 de octubre de 2024, del Ayuntamiento de Valdelaguna (Madrid), referente a la convocatoria para proveer varias plazas.
+  - Resolución de 19 de junio de 2019, del Ayuntamiento de Valdelaguna (Madrid), referente a la convocatoria para proveer una plaza.
+  - Resolución 16 de abril de 2010, de la Secretaría General Técnica de la Consejería de Transportes e Infraestructuras por la que se hace pública la adjudicación definitiva del contrato de: Contrato de servicios de acondicionamiento M-224 Pozuelo del Rey y Torres de la Alameda; variante M-204 Villar del Olmo y variante M-315 en Valdelaguna.
+  - Resolución 13 de enero de 2010 de la Secretaría General Técnica de Consejería de Transportes e Infraestructuras por la que se hace pública convocatoria por procedimiento abierto para la adjudicación del contrato de servicios de: Contrato de servicios de acondicionamiento de la M-224 Pozuelo del Rey y Torres de la Alameda; variante M-204 Villar del Olmo y variante M-315 y M-316 en Valdelaguna.
+  - Resolución de 16 de octubre de 2009 de la Secretaría General Técnica de la Consejería de Transportes e Infraestructuras por la que se hace pública la adjudicación del contrato de "Variante de las carreteras M-315 y M-316 en Valdelaguna".
+  - Resolución de 5 de marzo de 2009, de la Secretaría General Técnica de la Consejería de Transportes e Infraestructuras por la que se hace pública convocatoria por procedimiento abierto para la adjudicación del contrato de obras de "Variante de las carreteras M-315 y M-316 en Valdelaguna".
+  - Resolución de la Dirección General de Industria, Energía y Minas por la que se convoca para el levantamiento del acta previa a la ocupación de la parcela n.o 179 del polígono 5 del paraje "Majada de las Zorras", del término municipal del Valdelaguna, en Madrid, propiedad del Ayuntamiento de Valdelaguna, afectada por la concesión minera "Las Majadas", número 3143-011.
+  - Resolución de la Secretaría General Técnica, de 17 de septiembre, por la que se hace pública la convocatoria al levantamiento de actas previas a la ocupación del proyecto de construcción de colector y de estación depuradora de aguas residuales (EDAR), en Valdelaguna, en el citado municipio. Entidad beneficiaria: Canal de Isabel II.
+  - Resolución de la Secretaría General Técnica de la Consejería de Obras Públicas, Urbanismo y Transportes por la que se hace pública la adjudicación del contrato de obras de mejora de la carretera M-317, tramo Valdelaguna a N-III.
+  - Resolución de la Secretaría General Técnica de la Consejería de Obras Públicas, Urbanismo y Transportes por la que se hace pública convocatoria 06-CO-00018.7/1999 para la licitación del contrato de obras de mejora de la carretera M-317. Tramo: Valdelaguna a N-III.
+  - Resolución de 2 de marzo de 1999, del Ayuntamiento de Valdelaguna (Madrid), por la que se anuncia la oferta de empleo público para 1999.
+  - Resolución de 30 de mayo de 1996, del Ayuntamiento de Valdelaguna (Madrid), referente a la convocatoria para proveer una plaza de Empleado de Servicios Múltiples.
+  - Resolución de 10 de agosto de 1989, de la Secretaría General Técnica de la Consejería de Agricultura y Cooperación, por la que se da publicidad al acuerdo del Consejo de Gobierno, de 27 de julio de 1989, por el que se autoriza al Ayuntamiento de Valdelaguna, de la provincia de Madrid, para adoptar Escudo Heráldico y Bandera Municipal.
+  - Orden de 30 de junio de 1989, de la Secretaría General Técnica de la Consejería de Agricultura y Cooperación, por la que se da publicidad al Acuerdo del Consejo de Gobierno, que autoriza al Ayuntamiento de Valdelaguna, de la provincia de Madrid, para adoptar escudo heráldico municipal.
+  - Real Decreto 436/1983, de 2 de febrero, por el que se aprueba la constitución y Estatutos de la Mancomunidad Intermunicipal voluntaria para el establecimiento y desarrollo del servicio de abastecimiento de agua potable del río Tajo, integrada por los municipios de Colmenar de Oreja, Belmonte de Tajo y Valdelaguna, de la provincia de Madrid.
+  - Orden de 15 de octubre de 1976 por la que se aprueba la modificación de las normas complementarias y subsidiarias de planeamiento de los términos municipales de Belmonte de Tajo, Valdelaguna y Valdilecha.
+  - Real Decreto 2105/1976, de 10 de agosto, por el que se aprueba la disolución de la Entidad Local Menor de Bezares, perteneciente al municipio de Valle de Valdelaguna (Burgos).
+  - Resolución por la que se dispone el cese de don Francisco Hoces Pérez en el cargo de Secretario interino del Ayuntamiento de Valdelaguna (Madrid).
+  - Resolución de la Diputación Provincial de Madrid por la que se convoca subasta para la ejecución de las obras de riego asfáltico del camino vecinal de Valdelaguna de Perales de Tajuña.
+
+## título: genéricas (sin municipio), primera página · «clasificación de las vías pecuarias»
+- fichero: boe_t_clasif_generica.html · sha256 bdb4cdf103dcfb0b2308881364be0af6f72cb5b789be1cfe0cd8f154be591749
+- referencias BOE-A distintas en la página: 50
+  - Orden de 21 de marzo de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Las Pedrosas (Zaragoza).
+  - Orden de 24 de noviembre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Las Paules (Huesca).
+  - Orden de 10 de septiembre de 1986 por la que se aprueba el proyecto de clasificación de las vías pecuarias existentes en el término municipal de Binéfar (Huesca).
+  - Corrección de errores de la Orden de 27 de junio de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Peñalba de la Sierra (Guadalajara).
+  - Corrección de errores de la Orden de 27 de junio de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de La Cierva (Cuenca).
+  - Corrección de errores de la Orden de 19 de agosto de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Villalpardo (Cuenca).
+  - Corrección de errores de la Orden de 19 de agosto de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de La Miñosa (Guadalajara).
+  - Corrección de errores de la Orden de 19 de agosto de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Talayuelas (Cuenca).
+  - Corrección de errores de la Orden de 19 de agosto de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Villarta (Cuenca).
+  - Corrección de errores de la Orden de 19 de agosto de 1985 de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Buenache de la Sierra (Cuenca).
+  - Corrección de errores de la Orden de 19 de agosto de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Fuertescusa (Cuenca).
+  - Corrección de errores de la Orden de 19 de agosto de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Rada de Haro (Cuenca).
+  - Corrección de errores de la Orden de 19 de agosto de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Puebla del Salvador (Cuenca).
+  - Orden de 7 de febrero de 1986, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Retuerta del Bullaque (Ciudad Real).
+  - Orden de 13 de septiembre de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Mota del Cuervo (Cuenca).
+  - Orden de 28 de febrero de 1986, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Robledo de Corpes (Guadalajara).
+  - Orden de 13 de abril de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Valsalobre (Cuenca).
+  - Orden de 24 de mayo de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Las Mesas (Cuenca).
+  - Orden de 3 de julio de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Peñalba de la Sierra (Guadalajara).
+  - Orden de 3 de julio de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de La Cierva (Cuenca).
+  - Orden de 2 de septiembre de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Buenache de la Sierra (Cuenca).
+  - Orden de 2 de septiembre de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Villarta (Cuenca).
+  - Orden de 2 de septiembre de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Talayuelas (Cuenca).
+  - Orden de 2 de septiembre de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Rada de Haro (Cuenca).
+  - Orden de 2 de septiembre de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Puebla del Salvador (Cuenca).
+  - Orden de 2 de septiembre de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de La Miñosa (Guadalajara).
+  - Orden de 2 de septiembre de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Fuertescusa (Cuenca).
+  - Orden de 2 de septiembre de 1985, de la Consejería de Agricultura, aprobatoria de la clasificación de las vías pecuarias del término municipal de Villalpardo (Cuenca).
+  - Orden de 5 de marzo de 1986, del Departamento de Agricultura, Ganadería y Montes, sobre la clasificación de las vías pecuarias existentes en el término municipal de Tierz (Huesca).
+  - Orden de 5 de marzo de 1986 del Departamento de Agricultura, Ganadería y Montes, sobre la clasificación de las vías pecuarias existentes en los términos municipales de Alerre, Banaries y Quicena de la provincia de Huesca.
+  - Orden de 12 de febrero de 1986, del Departamento de Agricultura, Ganadería y Montes, sobre la clasificación de las vías pecuarias existentes en el término municipal de Loporzano e incorporados, provincia de Huesca.
+  - Orden de 12 de febrero de 1986, del Departamento de Agricultura, Ganadería y Montes, sobre la clasificación de las vías pecuarias existentes en el término municipal de Monflorite-Lascasas, provincia de Huesca.
+  - Orden de 12 de febrero de 1986, del Departamento de Agricultura Ganadería y Montes, sobre la clasificación de las vías pecuarias existentes en el término municipal de Luzas (anexionado a Tolva), provincia de Huesca.
+  - Orden de 11 de noviembre de 1985, de la Consejería de Agricultura y Ganadería, por la que se aprueba la propuesta de modificación de la clasificación de las vías pecuarias existentes en el antiguo término municipal de Vallecas (Madrid).
+  - Orden de 12 de noviembre de 1985, de la Consejería de Agricultura y Ganadería, por la que se aprueba la propuesta de modificación de la clasificación de las vías pecuarias existentes en el término municipal de San Sebastián de los Reyes (Madrid).
+  - Orden de 18 de febrero de 1985, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Sabiñánigo, provincia de Huesca.
+  - Orden de 4 de febrero de 1985, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Albero Alto, provincia de Huesca.
+  - Orden de 4 de febrero de 1985, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Graus, provincia de Huesca.
+  - Orden de 6 de agosto de 1984 por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Villafranca del Duero, provincia de Valladolid.
+  - Orden de 6 de agosto de 1984 por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Cobeña, provincia de Madrid.
+  - Orden de 6 de agosto de 1984 por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Santiago Millas, provincia de León.
+  - Orden de 6 de agosto de 1984 por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Val de San Lorenzo, provincia de León.
+  - Orden de 6 de agosto de 1984 por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Prado de la Guzpeña, provincia de León.
+  - Orden de 6 de agosto de 1984 por la que se aprueba la modificación de la clasificación de las vías pecuarias existentes en el término municipal de Valdemoro de la Sierra, provincia de Cuenca.
+  - Orden de 6 de agosto de 1984 por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Masegosa, provincia de Cuenca.
+  - Orden de 6 de agosto de 1984 por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Las Pedroñeras, provincia de Cuenca.
+  - Orden de 6 de agosto de 1984 por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Pozorrubio, provincia de Cuenca.
+  - Orden de 6 de agosto de 1984 por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Horcajo de Santiago, provincia de Cuenca.
+  - Orden de 6 de agosto de 1984 por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Langayo, provincia de Valladolid.
+  - Orden de 6 de agosto de 1984 por la que se aprueba la clasificación de las vías pecuarias existentes en el término municipal de Villamejil, provincia de León.
+
+## título: genéricas (sin municipio), primera página · «proyecto de clasificación vías pecuarias»
+- fichero: boe_t_proyecto_clasif.html · sha256 ae754201cc052bec30e3493e21c9372c5daf22dc9a7ddb171c99dc74b4695369
+- referencias BOE-A distintas en la página: 50
+  - Orden de 21 de enero de 1992, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Cervera de la Cañada (Zaragoza).
+  - Orden de 20 de diciembre de 1991, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Villanova (Huesca).
+  - Orden de 24 de mayo de 1991, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Piedratajada (Zaragoza).
+  - Orden de 28 de mayo de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Malanquilla (Zaragoza).
+  - Orden de 28 de mayo de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Barcabo (Huesca).
+  - Orden de 20 de abril de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Villarroya de la Sierra (Zaragoza).
+  - Orden de 20 de abril de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Arguís (Huesca).
+  - Orden de 20 de abril de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Colungo (Huesca).
+  - Orden de 27 de marzo de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Torrijo de la Cañada (Zaragoza).
+  - Orden de 30 de marzo de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Adahuesca (Huesca).
+  - Orden de 30 de marzo de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Alquézar (Huesca).
+  - Orden de 30 de marzo de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Bierge (Huesca).
+  - Orden de 21 de marzo de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Puendeluna (Zaragoza).
+  - Orden de 21 de marzo de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Las Pedrosas (Zaragoza).
+  - Orden de 30 de marzo de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Casbas de Huesca (Huesca).
+  - Orden de 30 de marzo de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Clares de Ribota (Zaragoza).
+  - Orden de 30 de marzo de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Abiego (Huesca).
+  - Orden de 21 de marzo de 1990, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Valpalmas (Zaragoza).
+  - Orden de 31 de julio de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Castejón de Valdejasa (Zaragoza).
+  - Orden de 31 de julio de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Velilla de Ebro (Zaragoza).
+  - Orden de 31 de julio de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Villafranca de Ebro (Zaragoza).
+  - Orden de 31 de julio de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Mozota (Zaragoza).
+  - Orden de 17 de mayo de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Lumpiaque (Zaragoza).
+  - Corrección de errores de la Orden de 16 de noviembre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de La Zaida (Zaragoza).
+  - Orden de 25 de febrero de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Bielsa (Huesca).
+  - Orden de 1 de marzo de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Puértolas (Huesca).
+  - Orden de 25 de febrero de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Boltaña-Sieste (Huesca).
+  - Orden de 27 de febrero de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Laspuña (Huesca).
+  - Orden de 28 de febrero de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Abizanda (Huesca).
+  - Orden de 19 de enero de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Valle de Bardagi (Huesca).
+  - Orden de 20 de enero de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Secastilla (Huesca).
+  - Orden de 20 de enero de 1989 del Departamento de Agricultura, Ganadería y Montes por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Sahún (Huesca).
+  - Orden de 21 de enero de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Sesue (Huesca).
+  - Orden de 12 de enero de 1989, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Campo (Huesca).
+  - Orden de 24 de noviembre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Las Paules (Huesca).
+  - Orden de 11 de noviembre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Plan (Huesca).
+  - Orden de 24 de noviembre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Sopeira (Huesca).
+  - Orden de 16 de noviembre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de La Fueva (Huesca).
+  - Orden de 16 de noviembre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de La Zaida (Zaragoza).
+  - Orden de 17 de noviembre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Cabolafuente (Zaragoza).
+  - Orden de 21 de noviembre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Labuerda (Huesca).
+  - Orden de 24 de noviembre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Valle de Lierp (Huesca).
+  - Orden de 24 de noviembre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Chia (Huesca).
+  - Orden de 16 de noviembre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de San Juan de Plan (Huesca).
+  - Orden de 16 de noviembre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Escatrón (Zaragoza).
+  - Orden de 20 de octubre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Torrehermosa (Zaragoza).
+  - Orden de 21 de octubre de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Pozuel de Ariza (Zaragoza).
+  - Orden de 28 de julio de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Montanuy.
+  - Orden de 15 de julio de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Estopiñán del Castillo (Huesca).
+  - Orden de 15 de julio de 1988, del Departamento de Agricultura, Ganadería y Montes, por la que se aprueba el proyecto de clasificación de vías pecuarias existentes en el término municipal de Isabena (Huesca).

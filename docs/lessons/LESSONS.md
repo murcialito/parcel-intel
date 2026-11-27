@@ -871,3 +871,13 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en OGC API Features el enlace `rel=next` trae la URL completa con su query; para cachearla con `CachedRawFetcher` (clave = URL canónica) hay que partirla en base + parámetros (`urlsplit`/`parse_qsl`) y comprobar que la base es la de la colección antes de seguirla. Y no comprobar «sin duplicados» por nombre o longitud: en datos reales dos tramos distintos comparten nombre y hasta longitud; el `id` de la feature es la única clave.
   - **Aplica a**: adapters que paginen colecciones OGC API Features (red de transporte, nuevas capas) | revisión.
 
+## [2026-11-27] Historia #282 — Clasificación de vías pecuarias en BOE y BOCM
+
+- **Lección**: la búsqueda de texto libre del BOCM no exige todas las palabras: pone en la página 1 documentos de otros municipios con «Colmenar» o «vías pecuarias» (Colmenar del Arroyo, Chapinería), y el control con Villaconejos no lo deja arriba aunque el BOE tenga su orden. Un «no hay» en el BOCM solo vale con la frase exacta del título de la orden y con un control positivo que salga en primer lugar (Chapinería, orden 3/2011).
+  - **Causa**: sin control, la primera página de texto libre parecía un negativo válido para cuatro municipios y no lo era. Con la frase exacta, el control de Chapinería sí aparece el primero.
+  - **Aplica a**: BA (exigir control positivo antes de escribir «no localizada») | implementación (cualquier consulta a un buscador de boletines).
+- **Lección**: el buscador por título del BOE sirve como negativo cuando salen los controles positivos (Chinchón, Villaconejos, Villarejo), pero solo cubre el título. Un «no hay» en el texto completo o en los sumarios 1960–1990 no se afirma: esos canales se anotan «no se pudo leer» con su motivo.
+  - **Aplica a**: BA e implementación (cada canal de un registro de fuentes con su resultado, también cuando es ilegible).
+- **Lección**: cambiar el estado de filas de una tabla compartida rompe la guarda de otra historia que cuenta las mismas cadenas (`"| no encontrada |"` en #26). Se actualiza esa guarda al nuevo estado y se explica en la PR, en vez de mantener el dato viejo.
+  - **Aplica a**: implementación (antes de editar una tabla de `REGISTRY.md`, buscar las guardas que la leen por rango o por cadena).
+

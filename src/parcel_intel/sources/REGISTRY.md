@@ -751,19 +751,59 @@ Verificado el 2026-11-25 para la [historia #26](https://github.com/murcialito/pa
 
 ### Clasificación por municipio — orden, fecha y URL BOCM
 
-Estado de todas las filas: `bloqueado`. Motivo: el archivo del BOCM no se ha escaneado por fecha y no hay buscador accesible. "No encontrada" significa aquí "no localizada por los canales de arriba", no "no existe".
+Estado de las filas de Chinchón, Villaconejos y Villarejo de Salvanés: `bloqueado`. Motivo: el archivo del BOCM no se ha escaneado por fecha y no hay buscador accesible. "No encontrada" significa aquí "no localizada por los canales de arriba", no "no existe". Las de Colmenar de Oreja, Aranjuez, Belmonte de Tajo y Valdelaguna se consultaron en la historia #282: ver «Canales consultados — historia #282» más abajo.
 
 | Municipio | INE | Orden de clasificación | Estado |
 | --- | --- | --- | --- |
-| Colmenar de Oreja | 28043 | no encontrada | `bloqueado` |
-| Aranjuez | 28013 | no encontrada | `bloqueado` |
+| Colmenar de Oreja | 28043 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
+| Aranjuez | 28013 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
 | Chinchón | 28052 | no encontrada | `bloqueado` |
-| Belmonte de Tajo | 28019 | no encontrada | `bloqueado` |
+| Belmonte de Tajo | 28019 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
 | Villaconejos | 28170 | no encontrada | `bloqueado` |
 | Villarejo de Salvanés | 28180 | no encontrada | `bloqueado` |
-| Valdelaguna | 28157 | no encontrada | `bloqueado` |
+| Valdelaguna | 28157 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
 
 `asumido`: la clasificación de vías pecuarias en la Comunidad de Madrid se aprueba por orden de la Consejería competente en medio ambiente (Ley 8/1998, citada en el `Abstract` del WMS `Zonas`, `wms_zonas_getcapabilities.xml`). Por eso el sitio donde buscarla es el BOCM. La cita exacta de la norma de cada municipio no se ha comprobado.
+
+### Canales consultados — historia #282 (2026-11-27) — `confirmado` salvo lo indicado
+
+Consulta del 2026-11-27 para los cuatro municipios sin orden localizada en #26: Colmenar de Oreja (28043), Aranjuez (28013), Belmonte de Tajo (28019) y Valdelaguna (28157). Un canal que no se pudo leer se anota como tal, con su motivo, y no como «no hay». Los extractos versionados, con el sha256 de cada respuesta, son `tests/fixtures/caminos/clasificacion_282_extracto_boe.txt` (sha256 `96763e0bbe0e933d7ed508b9271d95a7f36755e0f69c1454d22284ecf6cbb0fe`) y `tests/fixtures/caminos/clasificacion_282_extracto_bocm.txt` (sha256 `f85670e06d25a3ce86a609ffab8c682530ed6648de99612fb4b316a65c0c3215`). Las respuestas crudas están en `data/raw/h282/` (caché, fuera de git).
+
+Patrones de consulta (`<municipio>` o `<término>` es lo que se indica en cada fila):
+
+- BOE, por título: `https://www.boe.es/buscar/boe.php?campo[1]=TITULOS&dato[1]=<término>&accion=Buscar&sort_field[0]=FPU&sort_order[0]=desc` (la búsqueda rápida del BOE redirige a esta URL).
+- BOCM, búsqueda avanzada: `https://www.bocm.es/advanced-search?search_api_views_fulltext_1=<término>`; con frase exacta, el término va entre `%22`.
+
+| Canal | Término | Colmenar de Oreja (28043) | Aranjuez (28013) | Belmonte de Tajo (28019) | Valdelaguna (28157) |
+| --- | --- | --- | --- | --- | --- |
+| BOE, título: clasificación | `clasificación vías pecuarias <municipio>` | sin documentos | sin documentos | sin documentos | sin documentos |
+| BOE, título: pecuarias | `pecuarias <municipio>` | sin documentos | sin documentos | sin documentos | sin documentos |
+| BOE, título: proyecto de clasificación | `proyecto de clasificación vías pecuarias <municipio>` | sin documentos | sin documentos | sin documentos | sin documentos |
+| BOE, título: solo el municipio | `<municipio>`, primera página (las 60 más recientes) | 25 documentos; ninguno de vías pecuarias | 8 documentos; ninguno de vías pecuarias | 33 documentos; ninguno de vías pecuarias | 19 documentos; ninguno de vías pecuarias |
+| BOCM, frase exacta | `"clasificación de las vías pecuarias del término municipal de <municipio>"` (paginador: 2.405 páginas) | página 1 sin orden del término; salen Colmenar del Arroyo, Chapinería y Lozoya | página 1 sin orden del término (paginador: 2.289 páginas) | página 1 sin orden del término (paginador: 2.345 páginas) | página 1 sin orden del término (paginador: 2.100 páginas) |
+| BOCM, texto libre | `vías pecuarias <municipio>` | página 1: ocupaciones de 2013 y 2023 en el término y la clasificación de Colmenar del Arroyo | página 1: una ocupación de 2022 en el término y deslindes de Redueña y Titulcia | página 1: un deslinde de Fuentidueña de Tajo | página 1: ningún resultado del término |
+
+Canales generales, sin municipio:
+
+| Canal | Consulta | Resultado |
+| --- | --- | --- |
+| BOE, título genérico | `campo[1]=TITULOS&dato[1]=clasificación de las vías pecuarias` | primera página (50 referencias): ningún título de los cuatro municipios; órdenes de otras provincias |
+| BOE, título genérico | `campo[1]=TITULOS&dato[1]=proyecto de clasificación vías pecuarias` | primera página (50 referencias): ningún título de los cuatro municipios |
+| BOE, texto completo | `campo[1]=TEXTO` y `campo[1]=TODO` | no se pudo leer: el formulario responde «Los valores de búsqueda enviados son incorrectos» |
+| BOE, sumarios 1960–1990 (Medio Ambiente y Agricultura) | lectura sumario a sumario | no se pudo leer: no se leyó ningún sumario de esos años. La búsqueda por título sí devuelve documentos de 1969 a 1986, pero no sustituye la lectura del sumario |
+| BOCM, archivo por boletín | boletines anteriores a 2009 | no se pudo leer: los resultados vistos empiezan en 2009 (Acuerdo de 11 de noviembre de 2009); no se comprobó el inicio de la serie del buscador ni se leyó ningún boletín anterior |
+| BOCM, ELI | `https://www.bocm.es/eli` | no se pudo leer como archivo: la página de entrada no muestra listado por norma ni por fecha |
+| BOCM, índices anuales de la Consejería | `https://www.bocm.es/boletin-archivo` | no se pudo leer: 404; no se localizó ningún índice anual |
+| BOE, control positivo | títulos con «pecuarias» y un municipio conocido | Chinchón (1 documento, orden de 1974), Villaconejos (1972) y Villarejo de Salvanés (1969 y 1974): el buscador por título encuentra órdenes cuando existen |
+| BOCM, control positivo | frase exacta con Chapinería | la Orden 3/2011 sale en el primer resultado |
+| BOCM, control no válido | texto libre con Villaconejos | no pone en la página 1 ninguna orden de Villaconejos, aunque el BOE sí tiene una de 1972: el texto libre no sirve para afirmar ausencias |
+
+Conclusión (`confirmado` para los canales; la conclusión sobre el municipio es de alcance limitado):
+
+- Colmenar de Oreja, Aranjuez, Belmonte de Tajo y Valdelaguna: **no localizada** en los canales de arriba (BOE por título; BOCM por frase exacta en la primera página). Esto no es un «no hay»: quedan sin leer los sumarios del BOE de 1960 a 1990, el archivo por boletín del BOCM anterior a 2009 y el texto completo del BOE.
+- Siguiente paso: solicitud al Fondo Documental, borrador en #284. Desde aquí no se envía nada.
+- Orden localizada (la fila con referencia, URL y fixture) y propuesta de historia hija en #280: no aplican, porque en esta pasada no se localizó ninguna orden legible.
+- Esta sección no clasifica ningún tramo ni cambia el mapa.
 
 ### Deslinde por municipio — `bloqueado`
 
