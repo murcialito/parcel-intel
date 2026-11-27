@@ -7,9 +7,8 @@ aprobación reales son tarea humana (fuera de alcance): ningún test crea `curat
 Adaptaciones, anotadas en la PR:
 - CA1: la descarga real [integración] no se prueba contra la fuente (la ventana del recorte
   sintético no es una ventana real cacheada); se prueba solo la parte de fixture.
-- CA6 (trazados de N≥2 municipios, rechazo de uno fuera del ámbito): el mecanismo de #20 admite
-  un único `municipality_code` por unidad y `trazados.geojson` no admite municipio por trazado,
-  así que no se puede cumplir sin tocar `src/`. Queda sin test y escalado al fundador en la issue.
+- CA6: retirado por decisión del fundador (2026-11-27); los trazados por municipio pasan a #162.
+  Se conserva la numeración, sin test.
 - CA5, CA7 con base de datos son `[PostGIS local]`.
 """
 
