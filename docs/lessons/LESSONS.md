@@ -529,6 +529,16 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el WMS de minutas del IGN devolvió byte a byte el mismo PNG (sha256 idéntico) del recorte versionado en #17 al día siguiente, así que un hash declarado en `unidad.json` es una comprobación realista y no un falso positivo. Aun así, el adapter trata cualquier diferencia como `RawImageMismatchError` y no escribe nada: los puntos de control se tomaron sobre aquella imagen.
   - **Aplica a**: implementación (adapters de imágenes con hash declarado) | review.
 
+## [2026-11-26] Historia #140 — Evidencia PNG de dos paneles
+
+- **Lección**: el WMS `pnoa-ma` del IGN sirve PNG de 8 bits RGB (tipo de color 2, sin entrelazar, todas las filas con filtro 0, 47 bloques `IDAT` en 400 × 352 px) y el recorte de minutas es igual. Con esos dos reales no se ejercita ningún filtro PNG distinto de 0: el decodificador propio sin Pillow se prueba con PNG **sintéticos escritos con un codificador independiente** (filtrado directo en el test) para los cinco tipos de color y los cinco filtros, además de los reales. Si solo hubiera fixtures reales, Sub, Up, Average y Paeth llegarían sin una sola prueba.
+  - **Aplica a**: implementación (decodificadores de formatos binarios: los reales dicen qué sirve la fuente hoy, no qué cubre el código).
+
+- **Lección**: para que un oráculo de banda «a ≤ 2 × LOO» se pueda fijar a mano, se elige 1 m por píxel y un LOO tal que el radio caiga en el centro de un píxel (LOO = 4,75 m → 9,5 m): los centros están a x,5 m y un radio entero dejaría la frontera exactamente sobre un centro (lección de #110). La fila a 9,5 m está dentro y la de 10,5 m (= 2 × LOO + 1) fuera.
+  - **Aplica a**: arquitecto e implementación (oráculos de máscaras sobre rejillas de centros de píxel).
+
+- **Lección**: una opción de CLI que el diseño no nombra (`--cache-pnoa`) fue necesaria para poder probar de extremo a extremo con `tmp_path`: sin ella, la caché de PNOA habría tenido que derivarse de `--cache` o escribirse en `data/raw/pnoa_ma` durante los tests. Se anota en CLAUDE.md y en la PR.
+  - **Aplica a**: arquitecto (una CLI con dos cachés crudas necesita dos opciones).
 ## [2026-11-27] Historia #127 — Señal `parcela_no_camino` y caso de uso de candidatos a corte
 
 - **Lección**: un criterio que cita «el error de sin datos que deje #37» no se cumple si #37 no dejó uno: `ParcelsInAreaPort` solo declara `AreaQueryLimitExceededError`, `TruncatedAreaQueryError` y `CadastralServiceError`. La señal trata esos tres como «tesela sin datos» (`TILE_UNAVAILABLE` en `application/cut_signals.py`) y propaga cualquier otro. Un `RawCacheMissError` (modo `--sin-red`) vive en un adapter y la aplicación no puede capturarlo: H3 (#128) debe declarar un error de port para «sin red» o envolverlo en el adapter, o ese modo abortaría en vez de dar `sin_datos`.
