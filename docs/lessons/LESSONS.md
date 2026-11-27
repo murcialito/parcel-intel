@@ -871,6 +871,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en OGC API Features el enlace `rel=next` trae la URL completa con su query; para cachearla con `CachedRawFetcher` (clave = URL canónica) hay que partirla en base + parámetros (`urlsplit`/`parse_qsl`) y comprobar que la base es la de la colección antes de seguirla. Y no comprobar «sin duplicados» por nombre o longitud: en datos reales dos tramos distintos comparten nombre y hasta longitud; el `id` de la feature es la única clave.
   - **Aplica a**: adapters que paginen colecciones OGC API Features (red de transporte, nuevas capas) | revisión.
 
+## [2026-11-27] Historia #243 — Estrechamiento de vías pecuarias
+
+- **Lección**: la capa derivada de vías pecuarias (#83) solo trae el área de la pieza recortada, no el `area_m2`/`length_m` del tramo completo de IDEM, y sin ellos no hay anchura oficial. Un cálculo que parta de la anchura oficial debe leer `MunicipalLivestockTrailLayer` (caché cruda de IDEM), no el GeoJSON derivado. Además, con la anchura catastral recortada a la franja, `A / W` es la fracción de la franja cubierta por parcelas VT: nunca supera 1, así que «A mayor que W» no existe como caso. Y `ruff format` sobre todo `src/` reformatea ficheros ajenos a la historia: formatear solo los ficheros propios.
+  - **Aplica a**: implementación (señales de anchura, ventanas a lo largo del eje) | revisión.
 ## [2026-11-27] Historia #282 — Clasificación de vías pecuarias en BOE y BOCM
 
 - **Lección**: la búsqueda de texto libre del BOCM no exige todas las palabras: pone en la página 1 documentos de otros municipios con «Colmenar» o «vías pecuarias» (Colmenar del Arroyo, Chapinería), y el control con Villaconejos no lo deja arriba aunque el BOE tenga su orden. Un «no hay» en el BOCM solo vale con la frase exacta del título de la orden y con un control positivo que salga en primer lugar (Chapinería, orden 3/2011).
