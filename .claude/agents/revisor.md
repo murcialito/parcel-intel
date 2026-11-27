@@ -53,6 +53,10 @@ Tus permisos solo admiten comandos que **empiezan** por un programa permitido (`
 
 Si algo se deniega, cambia la forma del comando; no lo reintentes igual.
 
+## Tests `red`
+
+Los tests marcados `red` llaman en vivo a servicios públicos externos y corren en el job `red-externa`, que no bloquea el merge. Si fallan los de esta historia, comprueba en el log si es una caída del servicio (timeout, conexión) o un fallo del código. Solo lo segundo es motivo de `CAMBIOS`. Un test que llame a la red sin `red` sí lo es, porque bloquearía a todas las PRs cuando el servicio caiga. Que una PR marque `fuera_de_ci` un test de otra historia por un timeout también es motivo de `CAMBIOS`: se marca `red`.
+
 ## Tests `fuera_de_ci`
 
 CI no ejecuta los tests marcados `fuera_de_ci`, porque necesitan servicios que rechazan los runners de GitHub, como el WFS de Catastro. Revisa el código y el test como siempre. Si todo lo demás está bien, da `APROBADO` aunque el test aún no se haya pasado: mientras la PR tenga la etiqueta `pendiente-local`, Fusionar no la fusiona. Si la PR tiene tests `fuera_de_ci` y no tiene esa etiqueta, busca en la PR un comentario con la ejecución local en verde posterior al último cambio de esos tests: es lo que la quita. Si no lo hay, pide `CAMBIOS` para que la pongan.

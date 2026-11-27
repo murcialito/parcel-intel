@@ -187,6 +187,7 @@ def test_ca7_parametros_exactos_de_la_peticion(tmp_path: Path) -> None:
 
 
 @pytest.mark.integration
+@pytest.mark.red
 def test_ca8_integracion_servicio_real(tmp_path: Path) -> None:
     """CA8. [integración] Dada la ventana de CA1, cuando se pide contra la red real para
     `PNOA2023` y `PNOA2010`, entonces la primera es JPEG con más de 0,02 bytes por píxel y

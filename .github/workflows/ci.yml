@@ -63,8 +63,37 @@ jobs:
         run: |
           set +e
           # fuera_de_ci: servicios que rechazan los runners de GitHub (Catastro); se pasan en local.
-          uv run pytest -m "acceptance and not fuera_de_ci"
+          # red: servicios públicos en vivo; van en el job red-externa, que no bloquea el merge.
+          uv run pytest -m "acceptance and not fuera_de_ci and not red"
           code=$?
           # 5 = ningún test recogido (todavía no hay tests de aceptación): no es un fallo.
           if [ "$code" -eq 5 ]; then exit 0; fi
+          exit "$code"
+
+  red-externa:
+    # Tests que llaman en vivo a servicios públicos (IGN, IDEE, PNOA, CNIG, IDEM). Si el servicio cae o
+    # va lento, todas las PRs se quedaban en rojo sin culpa suya: el 2026-11-27, IDEE agotaba el tiempo
+    # y #169 gastó cuatro vueltas marcando tests ajenos. Aquí se ejecutan y su check se ve, pero
+    # `continue-on-error` deja el run de CI en verde. Fusionar solo exige el check `checks`, y el
+    # job ci-rojo no salta por esto.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Instalar dependencias
+        run: uv sync --frozen --extra dev
+
+      - name: Tests contra servicios públicos en vivo
+        run: |
+          set +e
+          uv run pytest -m "acceptance and red and not fuera_de_ci"
+          code=$?
+          if [ "$code" -eq 5 ]; then exit 0; fi
+          if [ "$code" -ne 0 ]; then
+            echo "::warning::Fallan tests contra servicios públicos en vivo. No bloquea el merge: mira si es una caída del servicio o un cambio real de su respuesta."
+          fi
           exit "$code"

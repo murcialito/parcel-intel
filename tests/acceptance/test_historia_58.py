@@ -182,6 +182,7 @@ def test_ca1_la_imagen_en_cache_no_se_vuelve_a_descargar_y_la_procedencia_esta_c
 
 
 @pytest.mark.integration
+@pytest.mark.red
 def test_ca1_integracion_el_render_real_de_la_ventana_se_descarga() -> None:
     """CA1 [integración la descarga real del render]: la URL `GetMap` de la unidad devuelve un
     PNG del tamaño declarado."""

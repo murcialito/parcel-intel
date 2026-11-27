@@ -185,6 +185,7 @@ def test_ca1_sin_red_no_descarga_y_usa_la_procedencia_de_su_sidecar(
 
 
 @pytest.mark.integration
+@pytest.mark.red
 def test_ca1_integracion_el_render_real_de_la_ventana_se_descarga() -> None:
     """CA1 [integración la descarga]: la URL `GetMap` de la unidad devuelve un PNG del tamaño
     declarado. (La imagen es la ventana sintética; su sha256 no es el del render real.)"""

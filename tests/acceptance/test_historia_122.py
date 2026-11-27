@@ -336,6 +336,7 @@ def test_ca6_mismo_lote_mismos_bytes(tmp_path: Path) -> None:
 
 
 @pytest.mark.integration
+@pytest.mark.red
 def test_ca7_integracion_tramo_real_corto(tmp_path: Path) -> None:
     """CA7. [integración] Dado un tramo real corto del ámbito, cuando se ejecuta con red,
     entonces se cachean en `data/raw/` las cinco franjas (o sus omisiones `sin_cobertura`) y

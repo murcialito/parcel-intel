@@ -311,6 +311,7 @@ def test_ca7_el_cliente_sin_cache_sigue_igual_salvo_la_licencia() -> None:
 
 
 @pytest.mark.integration
+@pytest.mark.red
 def test_ca5_wfs_reales_de_idem_y_del_ign(tmp_path: Path) -> None:
     """[integración] Dados los WFS reales de IDEM y del IGN, cuando se genera la capa de los 7
     municipios, entonces cada `GetFeature` de IDEM devuelve tantas features parseadas como su
