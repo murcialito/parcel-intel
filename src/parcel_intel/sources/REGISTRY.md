@@ -893,10 +893,10 @@ Un `SOLAPE` reducido a su parte sin contraparte cambia de zona y por tanto de id
 | `public_id` | Tipo | Sobre asfalto | Después |
 | --- | --- | ---: | --- |
 | `228d09f82d066f2e` | `SOLAPE` vía → IGN | 82,2 % | deja de publicarse (reducido) |
-| `415956c18feed794` | `DESPLAZAMIENTO` IGN (sin asfaltar) → vía | 64,5 % | **sigue igual** |
+| `415956c18feed794` | `DESPLAZAMIENTO` IGN (sin asfaltar) → vía | 64,5 % | **se mantiene a propósito** |
 | `b1f47704c7f34945` | `SOLAPE` vía → IGN | 57,0 % | deja de publicarse (reducido) |
 
-`415956c18feed794` no cambia porque su sujeto es un camino **sin asfaltar** (`280430215621`) que corre a 24–40 m de la vía y a 13–25 m de una carretera; la vía, en ese tramo, no va por asfalto (1,9 % cubierta a ≤ 11,18 m). La red asfaltada no entra en esa comparación (su contraparte es la vía). Está abierto en el ADR 0050 y en la issue #183 para el fundador. Los otros tres que el arquitecto midió entre el 25 % y el 36 % (`58c697f68088debf`, `c6a7f6f2a943c5d9`, `a2d854c24b69ae92`) también se reducen.
+`415956c18feed794` se mantiene **a propósito** (decisión del fundador en #183, «opción 1», que reescribe CA8): su sujeto es un camino **sin asfaltar** (`280430215621`) que corre en paralelo a una carretera, a 13–25 m de ella y a 24–40 m de la vía, y no va bajo asfalto; la vía, en ese tramo, tampoco (1,9 % cubierta a ≤ 11,18 m). La red asfaltada no entra en esa comparación (su contraparte es la vía), y no se añade ninguna regla para suprimirlo (ADR 0050). Ningún indicio publicado tiene como sujeto un tramo asfaltado. Los otros tres que el arquitecto midió entre el 25 % y el 36 % (`58c697f68088debf`, `c6a7f6f2a943c5d9`, `a2d854c24b69ae92`) también se reducen.
 
 #### Paso local con Catastro (CA9 y CA13, `pendiente-local`)
 

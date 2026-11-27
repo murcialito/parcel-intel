@@ -30,6 +30,7 @@ import pytest
 from shapely.geometry import LineString
 
 from parcel_intel.adapters.discrepancy_files import GeoJsonDiscrepancyReportReader
+from parcel_intel.adapters.discrepancy_files.geojson_reader import read_report
 from parcel_intel.adapters.raw_cache import CachedRawFetcher
 from parcel_intel.adapters.road_network.adapter import LICENSE, SOURCE, RoadNetworkAdapter
 from parcel_intel.application.cut_signals import CadastralParcelSignalProvider
@@ -38,6 +39,8 @@ from parcel_intel.cli import main
 from parcel_intel.cli.main import AMBITO_HITO_INE
 from parcel_intel.domain.cut_method import BASE_COUNTERPARTS, CUT_METHOD
 from parcel_intel.domain.geometry import Geometry
+from parcel_intel.domain.published_discrepancy import public_indicio_id
+from parcel_intel.domain.road_segment import RoadSurface
 from tests.cut_signal_support import ORDINARY, Boundaries, ParcelsPort, Sink, parcel, rect
 from tests.road_layer_fixtures import prepare_road_batches, recorte_for
 
@@ -565,26 +568,42 @@ def test_ca12_un_municipio_sin_alguna_de_las_dos_consultas_no_escribe_nada(
 
 # --- CA8: integración con red real (IDEM e IDEE), sin Catastro -----------------------------
 
-INDICIOS_SOBRE_ASFALTO_28043 = ("228d09f82d066f2e", "415956c18feed794", "b1f47704c7f34945")
-"""`public_id` de los 3 indicios publicados en `main` (site/datos/discrepancias/28043.geojson,
-2026-11-27) con ≥ 57 % de su zona a ≤ 15 m de un tramo `paved` (82,2 %, 64,5 % y 57,0 %).
-Medidos en el Bloque 0 con shapely (REGISTRY.md, sección de #183); literales, no leídos."""
+INDICIOS_SOBRE_ASFALTO_28043 = ("228d09f82d066f2e", "b1f47704c7f34945")
+"""`public_id` de los 2 indicios `SOLAPE` vía → IGN publicados en `main`
+(site/datos/discrepancias/28043.geojson, 2026-11-27) que iban ≥ 57 % por asfalto (82,2 % y
+57,0 % de su zona a ≤ 15 m de un tramo `paved`). Medidos en el Bloque 0 con shapely
+(REGISTRY.md, sección de #183); literales, no leídos."""
+
+INDICIO_MANTENIDO_28043 = ("415956c18feed794", "280430215621")
+"""`public_id` del `DESPLAZAMIENTO` IGN → vía que se mantiene a propósito (CA8 vigente,
+opción 1 del fundador en #183) y id de su sujeto: un camino sin asfaltar del IGN en paralelo
+a una carretera (64,5 % de su zona a ≤ 15 m del asfalto, pero solo el 1,9 % de su vía a
+≤ 11,18 m de un tramo asfaltado)."""
 
 
 @pytest.mark.integration
 @pytest.mark.red
-def test_ca8_colmenar_con_red_los_indicios_sobre_asfalto_dejan_de_publicarse(
+def test_ca8_colmenar_con_red_los_solapes_sobre_asfalto_desaparecen_y_el_desplazamiento_sigue(
     tmp_path: Path,
 ) -> None:
-    """CA8. [integración] Dado Colmenar con red, cuando se regeneran la capa y las
-    discrepancias, entonces los 3 indicios que van ≥ 57 % por asfalto dejan de publicarse o
-    quedan reducidos a su parte sin contraparte, y se anota el recuento antes/después en
-    REGISTRY.md.
+    """CA8. [integración] [red] Dado Colmenar con red, cuando se regeneran la capa y las
+    discrepancias, entonces:
+    - los dos indicios `SOLAPE` vía → IGN que iban ≥ 57 % por asfalto (`228d09f82d066f2e`,
+      82,2 %; `b1f47704c7f34945`, 57,0 %) dejan de publicarse con esa zona, o quedan reducidos
+      a su parte sin contraparte;
+    - el indicio `DESPLAZAMIENTO` IGN → vía `415956c18feed794` (64,5 % de su zona a ≤ 15 m de
+      una carretera, pero solo el 1,9 % de su vía a ≤ 11,18 m de un tramo asfaltado) se
+      mantiene: su sujeto es un camino sin asfaltar y la vía no va bajo asfalto;
+    - ningún indicio publicado tiene como sujeto un tramo asfaltado;
+    - el recuento antes/después queda anotado en REGISTRY.md, con el motivo de por qué
+      `415956c18feed794` sigue.
 
     Regenera vías pecuarias y las dos capas del IGN de 28043 en `tmp_path` con red, ejecuta
     `discrepancias` (Catastro consta como ausente: no altera los registros vía → IGN) y
     `publicar-discrepancias`. Un indicio reducido cambia de zona y por tanto de id, así que
-    «dejan de publicarse o quedan reducidos» se comprueba como «su id ya no está»."""
+    «dejan de publicarse o quedan reducidos» se comprueba como «su id ya no está». El sujeto
+    de cada indicio publicado se busca en el fichero publicable de `discrepancias` por su id
+    público."""
     from parcel_intel.adapters.ign_admin_units import IgnAdministrativeUnitsAdapter
     from parcel_intel.adapters.ign_admin_units import client as ign_client
     from parcel_intel.adapters.livestock_trails import client as livestock_client
@@ -613,12 +632,16 @@ def test_ca8_colmenar_con_red_los_indicios_sobre_asfalto_dejan_de_publicarse(
         boundaries, LivestockTrailAdapter(fetcher=idem, today=today), ShapelyPolygonClipper()
     ).execute(["28043"])
     GeoJsonLivestockTrailLayerWriter(derived / "vias_pecuarias").write(vias)
-    for surface, folder in (("unpaved", "camino_actual"), ("paved", "camino_asfaltado")):
+    surfaces: tuple[tuple[RoadSurface, str], ...] = (
+        ("unpaved", "camino_actual"),
+        ("paved", "camino_asfaltado"),
+    )
+    for surface, folder in surfaces:
         batch = BuildMunicipalRoadLayersUseCase(
             boundaries,
             RoadNetworkAdapter(fetcher=fetcher, today=today),
             ShapelyLineClipper(),
-            surface=surface,  # type: ignore[arg-type]
+            surface=surface,
         ).execute(["28043"])
         assert batch.failures == ()
         GeoJsonRoadLayerWriter(derived / folder).write(batch.layers[0])
@@ -643,9 +666,30 @@ def test_ca8_colmenar_con_red_los_indicios_sobre_asfalto_dejan_de_publicarse(
     published = {f["id"] for f in _load(site / "discrepancias" / "28043.geojson")["features"]}
     assert published  # sigue habiendo indicios
     assert not published & set(INDICIOS_SOBRE_ASFALTO_28043)
-    assert "Red asfaltada del IGN como contraparte (historia #183)" in (
-        ROOT / "src" / "parcel_intel" / "sources" / "REGISTRY.md"
-    ).read_text(encoding="utf-8")
+
+    # Sujeto de cada indicio publicado, por su id público (ADR 0044), desde el publicable.
+    report = read_report(tmp_path / "discrepancias" / "publicable" / "28043.geojson")
+    subjects = {
+        public_indicio_id(record.discrepancy): (
+            record.discrepancy.kind,
+            record.discrepancy.subject.trail_id,
+        )
+        for record in report.records
+    }
+    assert published <= subjects.keys()
+    kept_id, kept_subject = INDICIO_MANTENIDO_28043
+    assert kept_id in published
+    assert subjects[kept_id] == ("DESPLAZAMIENTO", kept_subject)
+
+    paved = {
+        f["id"] for f in _load(derived / "camino_asfaltado" / "28043.geojson")["features"]
+    }
+    assert paved
+    assert not {subjects[public_id][1] for public_id in published} & paved
+
+    section = _registry_section()
+    assert kept_id in section
+    assert "a propósito" in section
 
 
 # --- CA9 y CA13: paso local con Catastro (`fuera_de_ci`, PR con `pendiente-local`) ---------

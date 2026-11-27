@@ -70,12 +70,13 @@ el servidor igual que `unpaved` y pagina con `offset`.
   `DESPLAZAMIENTO`, que el par vía → IGN no conserva, y el inverso no se evalúa
   porque el asfaltado es solo contraparte. Con un tramo sin asfaltar a esa
   distancia sigue saliendo el `DESPLAZAMIENTO` IGN → vía, como hasta ahora.
-- **Abierto**: un `DESPLAZAMIENTO` cuyo sujeto es un camino **sin asfaltar** no
+- **Se mantiene a propósito** (decisión del fundador en #183, «opción 1», que
+  reescribe CA8): un `DESPLAZAMIENTO` cuyo sujeto es un camino **sin asfaltar** no
   cambia aunque discurra junto a una carretera, porque la red asfaltada no entra en
   esa comparación (su contraparte es la vía). En Colmenar, `415956c18feed794`
-  (64,5 % de su zona a ≤ 15 m de asfalto) sigue igual: su vía no va por asfalto en
-  ese tramo (1,9 % cubierto) y el camino corre a 13–25 m de una carretera. Si el
-  fundador quiere suprimirlo, hace falta una regla nueva, fuera de este ADR.
+  (64,5 % de su zona a ≤ 15 m de asfalto) sigue publicándose: es un camino sin
+  asfaltar en paralelo a una carretera (a 13–25 m), no va bajo asfalto, y su vía
+  tampoco (1,9 % cubierto a ≤ 11,18 m). No se añade ninguna regla para suprimirlo.
 
 ## Alternativas descartadas
 
