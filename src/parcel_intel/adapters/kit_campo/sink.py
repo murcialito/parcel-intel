@@ -106,5 +106,9 @@ class FileFieldKitSink:
                     entries[str(item["ine"])] = item
             except (ValueError, KeyError, TypeError) as error:
                 raise KitSinkError(f"{path}: índice existente no válido: {error}") from error
-        entries.update(new_entries)
+        for code, entry in new_entries.items():
+            previous_entry = entries.get(code)
+            if isinstance(previous_entry, dict) and "qfield" in previous_entry:
+                entry["qfield"] = previous_entry["qfield"]  # lo añadió publicar-kit-campo-qfield
+            entries[code] = entry
         return {"aviso": KIT_NOTICE, "municipios": [entries[code] for code in sorted(entries)]}

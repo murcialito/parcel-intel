@@ -117,6 +117,15 @@ uv run python -m parcel_intel.cli.main publicar-discrepancias --ambito
 uv run python -m parcel_intel.cli.main publicar-kit-campo --municipio 28043 [--municipio ...] [--entrada site/datos] [--salida site/datos]
 uv run python -m parcel_intel.cli.main publicar-kit-campo --ambito
 
+# Proyecto de campo para QField (historia #222): lee lo ya publicado (como publicar-kit-campo, mismas comprobaciones: aviso, lista blanca, sin
+# titularidad ni referencia catastral) y escribe site/datos/kit/<ine>/qfield/paso_comun_<ine>.{gpkg,qgs,zip}, LEEME.txt y <zip>.procedencia.json:
+# GeoPackage (sqlite3) con una tabla por capa publicada y la capa editable vacía `incidencias` (tipo, estado, fecha, nota corta, foto opcional),
+# .qgs con los ValueMap y la advertencia aprobada (constante QFIELD_WARNING). Sin red, sin QGIS, sin QFieldCloud; reproducible byte a byte.
+# NO toca kit/indice.json ni se enlaza en el sitio hasta anotar en REGISTRY.md que alguien lo abrió en QField (--incluir-en-indice lo añade entonces).
+# Todo o nada: sale con 1 y no escribe si falla un municipio, no hay ninguna capa o un fichero pasa de 3.000.000 bytes.
+uv run python -m parcel_intel.cli.main publicar-kit-campo-qfield --municipio 28043 [--municipio ...] [--entrada site/datos] [--salida site/datos] [--incluir-en-indice]
+uv run python -m parcel_intel.cli.main publicar-kit-campo-qfield --ambito
+
 # Candidatos a corte por municipio (historia #128, ADR 0039): lee data/derived/discrepancias/interno/<ine>.geojson (#94) y las parcelas de Catastro
 # (#37, caché en data/raw/catastro) y escribe el fichero INTERNO data/derived/candidatos/interno/<ine>.geojson (EPSG:25830; deriva de Catastro: NUNCA se publica).
 # Un municipio sin informe de discrepancias se registra como «sin capas» (no escribe, no es fallo); uno que falla no frena el lote y hace salir con 1.
