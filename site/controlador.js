@@ -151,13 +151,35 @@ export function opcionesDeEstilo(capa) {
   };
 }
 
+const cadenaNoVacia = (valor) => typeof valor === "string" && valor.trim() !== "";
+
+// Resumen de la medición de la capa de tramos a verificar (historia #171, ADR 0048). Valida la
+// forma y devuelve las frases y la marca tal cual vienen: no calcula ni reformula cifras.
+// Lanza Error si falta `medicion.texto` (cuatro cadenas no vacías) o `revisado_a_mano`.
+export function resumenMedicion(propiedadesColeccion) {
+  const p = propiedadesColeccion;
+  const frases = p?.medicion?.texto;
+  if (
+    !Array.isArray(frases) ||
+    frases.length !== 4 ||
+    !frases.every(cadenaNoVacia) ||
+    !cadenaNoVacia(p.revisado_a_mano)
+  ) {
+    throw new Error("sin medición o sin «revisado a mano»");
+  }
+  return { frases: [...frases], revisadoAMano: p.revisado_a_mano };
+}
+
 export function crearControlador({ mapa, cargarJson, vista, config }) {
   const estado = { municipios: [], actual: null, peticion: 0, avisoBase: false, capas: {} };
   for (const capa of config.capas) {
     estado.capas[capa.id] = { cargada: false, visible: capa.visibleInicial ?? true };
   }
-  const esIndicio = (capa) => capa.tipo === "indicio";
-  const estadoVacio = (capa) => (esIndicio(capa) ? "sin_indicios" : "vacia");
+  // Los tipos con la ficha de #94/#169 (misma forma, `fichaIndicio`).
+  const esIndicio = (capa) => capa.tipo === "indicio" || capa.tipo === "candidato";
+  const esCandidato = (capa) => capa.tipo === "candidato";
+  const estadoVacio = (capa) =>
+    esCandidato(capa) ? "sin_candidatos" : esIndicio(capa) ? "sin_indicios" : "vacia";
 
   function actualizarAtribuciones() {
     mapa.ponerAtribuciones(atribucionesVisibles(config, estado));
@@ -166,7 +188,9 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
   async function cargarCapa(capa, ruta) {
     const json = await cargarJson(config.datos + ruta);
     if (!esFeatureCollection(json)) throw new Error("no es un FeatureCollection");
-    return json;
+    // Sin medición no se enseña ningún tramo: la capa va a error (CA4).
+    const resumen = esCandidato(capa) ? resumenMedicion(json.properties) : null;
+    return { json, resumen };
   }
 
   async function elegirMunicipio(ine) {
@@ -179,6 +203,7 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
     for (const capa of config.capas) {
       mapa.quitarCapa(capa.id);
       estado.capas[capa.id].cargada = false;
+      if (esCandidato(capa)) vista.ponerResumenCapa(capa.id, null);
     }
     actualizarAtribuciones();
     mapa.encuadrar(municipio.bbox);
@@ -201,7 +226,12 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
         errores.push(mensajeErrorCapa(capa, municipio));
         return;
       }
-      const geojson = resultado.value;
+      const { json: geojson, resumen } = resultado.value;
+      // Cero tramos: el mismo estado vacío y sin resumen (CA6); no hay nada que dibujar.
+      if (esCandidato(capa) && geojson.features.length === 0) {
+        vista.ponerEstadoCapa(capa.id, estadoVacio(capa));
+        return;
+      }
       mapa.anadirCapa(capa.id, geojson, {
         ...opcionesDeEstilo(capa),
         orden: capa.orden,
@@ -212,6 +242,7 @@ export function crearControlador({ mapa, cargarJson, vista, config }) {
       mapa.mostrarCapa(capa.id, estado.capas[capa.id].visible);
       estado.capas[capa.id].cargada = true;
       vista.ponerEstadoCapa(capa.id, geojson.features.length === 0 ? estadoVacio(capa) : "ok");
+      if (resumen) vista.ponerResumenCapa(capa.id, resumen);
     });
     if (errores.length > 0) vista.mostrarMensaje(errores.join(" "));
     actualizarAtribuciones();

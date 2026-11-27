@@ -20,8 +20,26 @@ export function crearVista(documento, textos) {
     cargando: textos.cargando,
     vacia: textos.sinTrazados,
     sin_indicios: textos.sinIndicios,
+    sin_candidatos: textos.sinCandidatos,
     error: textos.errorCapa,
   };
+
+  // Resumen de la medición bajo la capa de tramos a verificar (historia #171): las frases y la
+  // marca «revisado a mano» tal cual, con textContent. `null` lo vacía.
+  function ponerResumenCapa(id, resumen) {
+    const contenedor = porId(`resumen-${id}`);
+    contenedor.replaceChildren();
+    if (resumen === null) return;
+    for (const frase of resumen.frases) {
+      const p = documento.createElement("p");
+      p.textContent = frase;
+      contenedor.appendChild(p);
+    }
+    const marca = documento.createElement("p");
+    marca.className = "pc-capa__revisado";
+    marca.textContent = resumen.revisadoAMano;
+    contenedor.appendChild(marca);
+  }
 
   function ponerMunicipios(lista) {
     selector.replaceChildren();
@@ -136,8 +154,11 @@ export function crearVista(documento, textos) {
     }
     nodo.appendChild(lista);
 
-    nodo.appendChild(parrafo("ficha-criterio", `Criterio: ${ficha.criterio}`));
-    nodo.appendChild(parrafo("ficha-criterio", ficha.descripcionCriterio));
+    // Los tramos a verificar (#171) no traen criterio: no se pintan párrafos vacíos.
+    if (ficha.criterio !== "") nodo.appendChild(parrafo("ficha-criterio", `Criterio: ${ficha.criterio}`));
+    if (ficha.descripcionCriterio !== "") {
+      nodo.appendChild(parrafo("ficha-criterio", ficha.descripcionCriterio));
+    }
     if (ficha.avisoOmision !== null) nodo.appendChild(parrafo("ficha-aviso", ficha.avisoOmision));
     return nodo;
   }
@@ -147,6 +168,7 @@ export function crearVista(documento, textos) {
     ponerMunicipios,
     seleccionarMunicipio,
     ponerEstadoCapa,
+    ponerResumenCapa,
     mostrarMensaje,
     limpiarMensaje,
     mostrarAvisoBase,

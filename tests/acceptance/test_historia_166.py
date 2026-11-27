@@ -172,10 +172,16 @@ def test_ca1_panel_de_capas_con_muestra_nombre_descripcion_e_interruptor() -> No
     Siguen siendo exactamente cuatro controles nativos con su `<label for>` (#85 CA15)."""
     raiz = _arbol()
     titulos = _titulos_config()
-    assert set(titulos) == {"vias_pecuarias", "camino_actual", "discrepancias"}
-    familias = {"vias_pecuarias": "vias", "camino_actual": "camino", "discrepancias": "indicio"}
+    # #171 añade la cuarta capa, «candidatos».
+    assert set(titulos) == {"vias_pecuarias", "camino_actual", "discrepancias", "candidatos"}
+    familias = {
+        "vias_pecuarias": "vias",
+        "camino_actual": "camino",
+        "discrepancias": "indicio",
+        "candidatos": "candidato",
+    }
     capas = _buscar(raiz, "li", "pc-capa")
-    assert len(capas) == 3
+    assert len(capas) == 4
     visto = []
     for li in capas:
         filas = [h for h in li.hijos if h.tag == "label"]
@@ -214,13 +220,13 @@ def test_ca1_panel_de_capas_con_muestra_nombre_descripcion_e_interruptor() -> No
                 assert nivel in item.contenido().lower()
         else:
             assert niveles == []
-    assert visto == ["vias_pecuarias", "camino_actual", "discrepancias"]
+    assert visto == ["vias_pecuarias", "camino_actual", "discrepancias", "candidatos"]
     html = INDEX.read_text(encoding="utf-8")
     assert "historico" not in html.lower() and "histórico" not in html.lower()
     # Cuatro controles nativos, cada uno con su <label for> (#85 CA15).
     nativos = ("select", "input", "button", "textarea")
     controles = [n for n in raiz.descendientes() if n.tag in nativos]
-    assert len(controles) == 4
+    assert len(controles) == 5  # #171: el interruptor de la cuarta capa
     etiquetas = {n.attrs.get("for") for n in _buscar(raiz, "label")}
     for c in controles:
         assert c.attrs.get("id") in etiquetas

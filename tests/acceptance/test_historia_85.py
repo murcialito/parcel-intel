@@ -259,8 +259,9 @@ def test_ca4_atribuciones_literales_de_notice_y_visibles_con_su_capa(tmp_path: P
     notice = NOTICE.read_text(encoding="utf-8")
     registry = REGISTRY.read_text(encoding="utf-8")
     capas, base = _literales_config()
-    # Tres capas desde #95 (vías pecuarias, camino actual e indicios de discrepancia).
-    assert len(capas) == 3 and len(base) == 2, (capas, base)
+    # Cuatro capas desde #171 (vías pecuarias, camino actual, indicios de discrepancia y tramos a
+    # verificar).
+    assert len(capas) == 4 and len(base) == 2, (capas, base)
     for texto in capas + base:
         assert f"`{texto}`" in notice, f"no consta literalmente en NOTICE: {texto}"
     for texto in base:
@@ -270,7 +271,7 @@ def test_ca4_atribuciones_literales_de_notice_y_visibles_con_su_capa(tmp_path: P
     assert sidecars
     for sidecar in sidecars:
         atribucion = json.loads(sidecar.read_text(encoding="utf-8"))["atribucion"]
-        if sidecar.parent.name == "discrepancias":
+        if sidecar.parent.name in {"discrepancias", "candidatos"}:  # candidatos: #170/#171
             # #94 (ADR 0044): la capa de indicios cita la atribución de cada fuente de su
             # evidencia (lista). Cada una contiene un literal de capa de config.js o consta
             # literalmente en NOTICE (Catastro, ADR 0041); la muestra el visor de #95.
@@ -579,7 +580,7 @@ def test_ca15_accesibilidad_de_index_html() -> None:
     assert raiz and raiz[0].get("lang") == "es"
     etiquetas = {a.get("for") for t, a in tags if t == "label"}
     controles = [(t, a) for t, a in tags if t in ("select", "input", "button", "textarea")]
-    assert len(controles) == 4, controles  # selector + tres capas (la de indicios, de #95)
+    assert len(controles) == 5, controles  # selector + cuatro capas (indicios #95, tramos #171)
     for tag, attrs in controles:
         assert tag in ("select", "input"), tag
         if tag == "input":

@@ -164,7 +164,7 @@ def test_ca11_config_sin_colores_y_muestras_con_tokens(tmp_path: Path) -> None:
         _leer("estilo.css"),
         re.MULTILINE,
     )
-    assert len(muestras) == 6
+    assert len(muestras) == 8  # #171: halo y línea de la muestra de tramos a verificar
     for regla in muestras:
         assert not re.search(r"#[0-9a-fA-F]{3,8}\b|rgba?\(", regla), regla
         assert "var(--capa-" in regla, regla
