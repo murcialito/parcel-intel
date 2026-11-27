@@ -663,3 +663,7 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: un disparo por evento (`labeled`, `synchronize`) se pierde si la PR está en conflicto con `main` en ese momento: GitHub no crea runs de `pull_request` en una PR con conflictos, y no los crea después. Todo paso de la tubería que dependa de un evento de PR necesita un barrido de respaldo que mire el estado (aquí `correcciones_pendientes.sh`: `cambios-pedidos` sin un Corregir lanzado después). Ese barrido no debe duplicar el disparo normal: deja un margen y comprueba los runs en curso, y el workflow disparado vuelve a comprobar la condición al empezar.
   - **Causa**: el revisor puso `cambios-pedidos` en la PR #129 (#114) mientras Actualizar rama la sacaba de un conflicto. No se lanzó ningún Corregir y la PR quedó parada hasta la revisión manual.
   - **Aplica a**: workflows (`.github/`).
+
+- **Lección**: en un workflow con `cancel-in-progress: true` y un `if` que puede saltar el job, la `concurrency` va en el job, no en el workflow. A nivel de workflow, un run que luego se salta cancela igualmente al anterior. El check queda en «skipped» sobre el último commit y Fusionar no fusiona nunca.
+  - **Causa**: el desarrollador de #115 hizo push y `gh pr ready` casi a la vez. El run de `ready_for_review` se canceló, y el del push, con la PR aún en borrador en su evento, se saltó.
+  - **Aplica a**: workflows (`.github/`).
