@@ -562,6 +562,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: las muestras de `trail_samples` salen de interpolaciones en coma flotante (`102.49999999999999`), así que un test que compare coordenadas con `==` falla aunque el método sea correcto; y el tramo de un candidato lleva un vértice por pieza de 5 m, no solo los dos extremos. Compara con `pytest.approx` y por extremos.
   - **Aplica a**: implementación (tests sobre muestras o tramos).
 
+## [2026-11-27] Historia #60 — Fixtures de Villarejo y runbook histórico
+
+- **Lección**: para una segunda unidad sintética que reutilice la imagen de otra, basta **trasladar** los puntos de control: la afín es invariante a la traslación, así que RMSE, residuo máximo y LOO coinciden con el oráculo de #139 (aquí con `abs=0.005`) sin recalcular nada. Cambian el `puntos_sha256` (hay que copiarlo a `control_points_sha256` de los trazados aprobados, con `sha256sum` del fichero ya escrito) y el `BBOX` de la URL. Para distinguir las unidades por su `.provenance.json` en un test, se da a cada sidecar una fecha de descarga distinta.
+  - **Aplica a**: implementación (fixtures hermanas).
+
+- **Lección**: al comprobar el orden de pasos de un runbook con `text.index`, la primera aparición de una palabra («CODEOWNERS») puede estar en la introducción; se indexan los encabezados de los pasos numerados, no las palabras sueltas.
+  - **Aplica a**: implementación (tests de documentos).
+
 - **Lección**: `ruff format .` sin límite reformatea decenas de ficheros ajenos a la historia (aquí 51, incluidos ADR y código de otras historias) y ensucia la PR. Formatea solo los ficheros que has tocado (`ruff format <rutas>`), o comprueba `git status` antes de hacer commit.
   - **Aplica a**: implementación.
 
