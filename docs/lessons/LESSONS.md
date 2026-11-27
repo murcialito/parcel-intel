@@ -774,3 +774,18 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: una captura de una fixture sintética sobre el mapa real (un tramo inventado con texto de indicio en un punto de Colmenar) parece un hallazgo real. Esas capturas se enseñan en local y no se suben a `docs/`.
   - **Aplica a**: diseño (capturas de la PR).
 
+## [2026-11-27] Historia #214 — Fuentes de sitios de interés
+
+- **Lección**: un servicio público que responde 200 no es un recuento. Overpass dio un 200 con cero nodos porque la consulta por `area["ref:INE"="28043"]` no encontró el área (la relación de Colmenar no lleva esa etiqueta en OSM), y la búsqueda de relaciones con la misma etiqueta también dio cero. Un cero solo vale si antes se ha comprobado que el objeto de referencia existe en la fuente. Lo que no responde se anota como `bloqueado`, con el intento, no como negativo.
+  - **Causa**: el espejo agotó el tiempo en las consultas por caja y el servidor principal devolvió 502 «at capacity» en varios intentos.
+  - **Aplica a**: BA (al exigir un recuento, pedir el canal y el intento fallido) | implementación (antes de registrar un recuento de OSM o de un servicio público, comprobar que el objeto de referencia existe).
+
+- **Lección**: dos fuentes que parecen independientes pueden ser la misma geometría. El Nomenclátor (NGBE) trae 217 de 230 topónimos de la caja con el campo `fuente` igual a `MITMA.IGN.BTN25`. Antes de sumar cobertura de dos fuentes, mirar el campo de procedencia.
+  - **Aplica a**: BA e implementación (fuentes del IGN que se solapan; no contar dos veces el mismo dato como verificación cruzada).
+
+- **Lección**: una especificación de producto descargada de la web puede estar sustituida. La BTN25 que se encuentra en ign.es es la v1.0 de 2009, y dice que desde septiembre de 2021 la sustituye ESPBTN_MOD21. Anotar la versión y la fecha de la especificación leída, y comprobar si hay una vigente antes de citar sus códigos.
+  - **Aplica a**: BA (al verificar un producto, anotar la versión y la fecha de la especificación leída).
+
+- **Lección**: un PDF de más de 10 MB no pasa por `WebFetch` y `pdftoppm` no está instalado. Descargar con `curl` a un directorio aparte y extraer el texto de los flujos Flate con `zlib` (`python3 -I`) sirve para buscar cláusulas. Ese texto no es una cita certificada: las citas se copian de él y se marcan como extraídas.
+  - **Aplica a**: implementación (verificación de licencias en PDF de gran tamaño).
+
