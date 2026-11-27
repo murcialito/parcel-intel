@@ -603,3 +603,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: la ruta que un criterio nombra (`tests/fixtures/caminos/planimetrias/280027/`) puede diferir de la que fija la línea `Toca:` y el método de #20 (`historico/280027-w1/`). Manda la convención vigente del repo; la diferencia se anota en el docstring del módulo de tests y en la PR.
   - **Aplica a**: refinador | implementación.
 
+## [2026-11-27] Historia #160 — Integrar `catastro-caminos` con `discrepancias` y `candidatos-corte`
+
+- **Lección**: un criterio «el fichero se genera» pasa con datos inservibles si productor y consumidor no se prueban juntos. #128 dio 0 candidatos porque `catastro-caminos` no escribía el formato común y porque dos órdenes teselaban con rejillas distintas (la clave de la caché cruda lleva el bbox exacto de la tesela). Los tests de #160 encadenan productor → lector y `catastro-caminos` → caché → `candidatos-corte --sin-red` sobre la misma caché.
+  - **Aplica a**: refinador (un criterio de integración nombra al consumidor) | implementación.
+
+- **Lección**: si dos comandos comparten una caché cuya clave depende de una geometría, esa geometría la calcula una única función de dominio (`municipality_tiles`), no dos copias del cálculo. El test de «teselas idénticas» falla si divergen.
+  - **Aplica a**: cualquier caché cruda indexada por bbox.
+
+- **Lección**: `ruff format src` sin acotar reformateó 14 ficheros ajenos (tercera vez, ver #127 y #128). Formatea solo las rutas tocadas.
+  - **Aplica a**: implementación.
+

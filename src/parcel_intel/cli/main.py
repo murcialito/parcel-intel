@@ -11,6 +11,7 @@ import requests
 
 from parcel_intel.adapters.catastro import client as catastro_client
 from parcel_intel.adapters.catastro.area_adapter import (
+    CATASTRO_INSPIRE_LICENSE,
     CATASTRO_WFS_TILE_SIDE_M,
     CatastroAreaAdapter,
 )
@@ -66,7 +67,11 @@ from parcel_intel.adapters.road_layer_files import (
 from parcel_intel.adapters.road_network import client as roadlink_client
 from parcel_intel.adapters.road_network.adapter import RoadNetworkAdapter
 from parcel_intel.adapters.shapely_geometry import ShapelyLineClipper, ShapelyPolygonClipper
-from parcel_intel.adapters.trail_layers import GeoJsonTrailLayerReader, TrailLayerFormatError
+from parcel_intel.adapters.trail_layers import (
+    GeoJsonCadastralRoadWriter,
+    GeoJsonTrailLayerReader,
+    TrailLayerFormatError,
+)
 from parcel_intel.application.author_rule_proposal import AuthorRuleProposalUseCase
 from parcel_intel.application.build_cadastral_road_layer import BuildCadastralRoadLayerUseCase
 from parcel_intel.application.build_comparison_images import BuildComparisonImagesUseCase
@@ -94,7 +99,7 @@ from parcel_intel.domain.comparison_image import DegenerateStretchError
 from parcel_intel.domain.digitization import StaleApprovalError
 from parcel_intel.domain.discrepancy import DiscrepancyKind
 from parcel_intel.domain.discrepancy_report import LayerStatus
-from parcel_intel.domain.geometry import BBox
+from parcel_intel.domain.geometry import BBox, outward_integer_bbox, shape_bbox
 from parcel_intel.domain.georeferencing import (
     ControlPointSet,
     GeoreferenceFit,
@@ -108,7 +113,7 @@ from parcel_intel.domain.georeferencing import (
 from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
 from parcel_intel.domain.municipal_road_layer import MunicipalRoadLayerBatch
 from parcel_intel.domain.parcel import Parcel
-from parcel_intel.domain.provenance import Provenance
+from parcel_intel.domain.provenance import Provenance, Redistribution
 from parcel_intel.domain.published_discrepancy import OmittedByLicense
 from parcel_intel.domain.published_layers import PUBLISHED_LAYERS, PublishedLayerId
 from parcel_intel.domain.rule import Rule, WithinDistanceCondition
@@ -451,17 +456,64 @@ def _bbox_argument(value: str) -> BBox:
     return (numbers[0], numbers[1], numbers[2], numbers[3])
 
 
+def municipality_grid_bbox(
+    municipality_code: str,
+    cache_dir: Path,
+    offline: bool,
+    ign_http_get: HttpGet = ign_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> BBox:
+    """Bbox de la rejilla de teselas de un municipio (historia #160): el del límite del IGN
+    redondeado hacia fuera a metro entero, el mismo que usa `candidatos-corte`."""
+    fetcher = CachedRawFetcher(ign_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    boundaries = IgnAdministrativeUnitsAdapter(
+        AMBITO_HITO_BBOX_ETRS89, fetcher=fetcher, today=today
+    )
+    [boundary] = boundaries.get_municipal_boundaries([municipality_code])
+    return outward_integer_bbox(shape_bbox(boundary.geometry))
+
+
+def cadastral_road_layer_provenance(layer: CadastralRoadLayer) -> Provenance:
+    """Procedencia de la capa: la petición WFS más antigua de sus caminos (fecha real de
+    descarga); sin caminos, la fuente genérica con la fecha de hoy."""
+    if layer.roads:
+        first = min(layer.roads, key=lambda road: road.provenance.retrieved_at)
+        return first.provenance
+    return Provenance(
+        source="catastro_wfs_cp",
+        url=catastro_client.WFS_PARCEL_URL,
+        retrieved_at=_today(),
+        license=CATASTRO_INSPIRE_LICENSE,
+        redistribution=Redistribution.INTERNAL_ONLY,
+    )
+
+
+def _format_bbox(bbox: BBox) -> str:
+    return ",".join(f"{value:.2f}".rstrip("0").rstrip(".") for value in bbox)
+
+
 def _catastro_caminos(args: argparse.Namespace) -> int:
     try:
+        if args.bbox is None:
+            bbox = municipality_grid_bbox(args.codigo, args.cache, args.sin_red)
+        else:
+            bbox = args.bbox
         layer = build_cadastral_road_layer(
             args.provincia,
             args.municipio,
             args.codigo,
-            args.bbox,
+            bbox,
             args.cache_dir,
             args.sin_red,
         )
+        # Todo o nada: solo se escribe con la capa completa y validada.
+        path = GeoJsonCadastralRoadWriter(args.salida).write(
+            layer, cadastral_road_layer_provenance(layer)
+        )
     except (
+        MunicipalBoundaryNotFoundError,
+        MunicipalBoundaryUnusableError,
         AreaQueryLimitExceededError,
         TruncatedAreaQueryError,
         CadastralServiceError,
@@ -473,7 +525,12 @@ def _catastro_caminos(args: argparse.Namespace) -> int:
     except requests.RequestException as error:
         print(f"Error de red: {error}", file=sys.stderr)
         return 1
+    except OSError as error:
+        print(f"Error al escribir la capa: {error}", file=sys.stderr)
+        return 1
     print(_format_cadastral_road_layer(layer, args.municipio))
+    print(f"  rejilla: bbox {_format_bbox(bbox)} (teselas de {CATASTRO_WFS_TILE_SIDE_M:g} m)")
+    print(f"Capa escrita en {path}")
     return 0
 
 
@@ -1106,8 +1163,21 @@ def _build_parser() -> argparse.ArgumentParser:
     caminos_parser.add_argument(
         "--bbox",
         type=_bbox_argument,
-        required=True,
-        help="MINX,MINY,MAXX,MAXY del término en EPSG:25830 (orden E,N)",
+        default=None,
+        help="MINX,MINY,MAXX,MAXY en EPSG:25830 (E,N); por defecto, el límite del IGN "
+        "redondeado hacia fuera (la rejilla que usa candidatos-corte)",
+    )
+    caminos_parser.add_argument(
+        "--cache",
+        type=Path,
+        default=Path("data/raw"),
+        help="Caché cruda del límite del IGN (solo sin --bbox)",
+    )
+    caminos_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("data/derived/catastro_caminos"),
+        help="Directorio de los ficheros <codigo>.geojson (uso interno, nunca se publica)",
     )
     caminos_parser.add_argument(
         "--cache-dir",
