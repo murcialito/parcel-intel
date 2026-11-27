@@ -591,6 +591,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: `ruff format src tests` sin acotar volvió a reformatear 34 ficheros ajenos (ya avisaba la lección de #127). Pasa `ruff format` solo con las rutas tocadas.
   - **Aplica a**: implementación.
+## [2026-11-27] Historia #58 — Belmonte de Tajo (280040-w1)
+
+- **Lección**: el diseño de una historia hija escrita antes de #139 puede citar una forma que ya no existe (`historico cargar --documento 280040`, ids `280040:<trazado>`, fixture en `planimetrias/280040/`). Con el código fusionado manda lo real: `historico cargar 280040-w1`, id `280040-w1-<trazado>`, fixture en `planimetrias/historico/280040-w1/`. Se anota en el docstring del módulo de tests y en la PR. El CA8 («sha256 que declara el fichero de puntos de control») se cumple con el `sha256` de `unidad.json` (la entrada curada), que es donde vive hoy ese dato.
+  - **Aplica a**: refinador (al partir hijas, citar la CLI y las rutas del código ya fusionado) | implementación.
 ## [2026-11-27] Historia #61 — Unidad sintética de Aranjuez (280027-w1)
 
 - **Lección**: un criterio que cita `historico cargar --documento 280022` describe una opción que no existe: el comando recibe la unidad (`280022-w1`) y el documento y la fecha viajan juntos en su `unidad.json`. Pedir el documento de 1943 sin unidad curada falla con «no existe» (salida 1, nada escrito), y un `document_id` distinto del prefijo del `unit_id` se rechaza al leer la unidad. Los tests prueban esos dos caminos en vez de inventar la opción.
