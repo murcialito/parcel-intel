@@ -108,6 +108,8 @@ def assess_width(
         return no_data(f"pieza de {piece_length:.0f} m, demasiado corta para medir su anchura")
     if road_parcel_count <= 0 or covered_area_m2 <= 0.0:
         return WidthAssessment(outcome="sin_parcela_camino")
+    # Se acota al área de la pieza: si parcelas VT se solapan, el área cubierta podría pasar
+    # del 100 % y el solapamiento queda oculto en vez de señalado (límite conocido).
     covered = min(covered_area_m2, piece_area_m2)
     cadastral_width = covered / piece_length
     ratio = cadastral_width / width
