@@ -643,6 +643,149 @@ def dense_bbox_buildings() -> tuple[SyntheticBuilding, ...]:
     return (own, outside_diamond, *neighbours)
 
 
+# --- Plantillas: WFS cp:CadastralZoning (historia #217) -----------------------
+
+
+@dataclass(frozen=True)
+class SyntheticZone:
+    reference: str  # zona, p. ej. "99043A040"; el parser no la lee
+    label: str
+    level: str  # "1stOrder" | "2ndOrder"
+    surfaces: tuple[SyntheticSurface, ...]
+
+
+def _cz_member(zone: SyntheticZone) -> list[str]:
+    ref = zone.reference
+    gml_id = f"ES.SDGC.CP.Z.{ref}"
+    ref_x, ref_y = _center_of(_envelope_of([s.exterior for s in zone.surfaces]))
+    lines = [
+        "  <member>",
+        f'    <cp:CadastralZoning gml:id="{gml_id}">',
+        '      <cp:estimatedAccuracy uom="m">1</cp:estimatedAccuracy>',
+        "      <cp:geometry>",
+        f'        <gml:MultiSurface gml:id="MultiSurface_{gml_id}" srsName="{_SRS_CP}">',
+    ]
+    for index, surface in enumerate(zone.surfaces, start=1):
+        lines += [
+            "          <gml:surfaceMember>",
+            f'            <gml:Surface gml:id="Surface_{gml_id}.{index}" srsName="{_SRS_CP}">',
+            "              <gml:patches>",
+            "                <gml:PolygonPatch>",
+        ]
+        lines += _linear_ring("exterior", surface.exterior, "                ")
+        for interior in surface.interiors:
+            lines += _linear_ring("interior", interior, "                ")
+        lines += [
+            "                </gml:PolygonPatch>",
+            "              </gml:patches>",
+            "            </gml:Surface>",
+            "          </gml:surfaceMember>",
+        ]
+    lines += [
+        "        </gml:MultiSurface>",
+        "      </cp:geometry>",
+        f"      <cp:label>{zone.label}</cp:label>",
+        "      <cp:level "
+        'xlink:href="http://inspire.ec.europa.eu/codelist/CadastralZoningLevelValue/'
+        f'{zone.level}"></cp:level>',
+        "      <cp:levelName>",
+        '        <gmd:LocalisedCharacterString locale="esp">POLIGONO '
+        "</gmd:LocalisedCharacterString>",
+        "      </cp:levelName>",
+        f"      <cp:nationalCadastalZoningReference>{ref}</cp:nationalCadastalZoningReference>",
+        "      <cp:originalMapScaleDenominator>5000</cp:originalMapScaleDenominator>",
+        "      <cp:referencePoint>",
+        f'        <gml:Point gml:id="ReferencePoint_{gml_id}" srsName="{_SRS_CP}">',
+        f"          <gml:pos>{_fmt(ref_x)} {_fmt(ref_y)}</gml:pos>",
+        "        </gml:Point>",
+        "      </cp:referencePoint>",
+        "    </cp:CadastralZoning>",
+        "  </member>",
+    ]
+    return lines
+
+
+def wfs_cz_collection(zones: Sequence[SyntheticZone]) -> bytes:
+    """`GetFeature` de `cp:CadastralZoning` (WFS 2.0, GML 3.2, EPSG:25830)."""
+    n = len(zones)
+    lines = [
+        '<?xml version="1.0" encoding="ISO-8859-1"?>',
+        HEADER_COMMENT,
+        f'<FeatureCollection {_CP_ROOT_ATTRS} timeStamp="{_TIMESTAMP}" '
+        f'numberMatched="{n}" numberReturned="{n}">',
+    ]
+    for zone in zones:
+        lines += _cz_member(zone)
+    lines.append("</FeatureCollection>")
+    return ("\n".join(lines) + "\n").encode("latin-1")
+
+
+ZONING_SHARED_LABEL = "901"
+ZONING_SHARED_RING = rectangle(460000.0, 4436000.0, 460800.0, 4436700.0)
+ZONING_ONLY_TILE_1_LABEL = "902"
+ZONING_ONLY_TILE_2_LABEL = "903"
+
+
+def zoning_tile_1_zones() -> tuple[SyntheticZone, ...]:
+    """Primera tesela: un polígono compartido, uno con dos partes y el término (1stOrder)."""
+    return (
+        SyntheticZone(
+            "99043A901",
+            ZONING_SHARED_LABEL,
+            "2ndOrder",
+            (SyntheticSurface(ZONING_SHARED_RING),),
+        ),
+        SyntheticZone(
+            "99043A902",
+            ZONING_ONLY_TILE_1_LABEL,
+            "2ndOrder",
+            (
+                SyntheticSurface(rectangle(459000.0, 4435000.0, 459300.0, 4435300.0)),
+                SyntheticSurface(rectangle(459400.0, 4435000.0, 459700.0, 4435300.0)),
+            ),
+        ),
+        SyntheticZone(
+            "99043",
+            "99043",
+            "1stOrder",
+            (SyntheticSurface(rectangle(458000.0, 4434000.0, 462000.0, 4438000.0)),),
+        ),
+    )
+
+
+def zoning_tile_2_zones() -> tuple[SyntheticZone, ...]:
+    """Segunda tesela: el mismo polígono compartido y uno nuevo."""
+    return (
+        SyntheticZone(
+            "99043A901",
+            ZONING_SHARED_LABEL,
+            "2ndOrder",
+            (SyntheticSurface(ZONING_SHARED_RING),),
+        ),
+        SyntheticZone(
+            "99043A903",
+            ZONING_ONLY_TILE_2_LABEL,
+            "2ndOrder",
+            (SyntheticSurface(rectangle(460900.0, 4436000.0, 461200.0, 4436300.0)),),
+        ),
+    )
+
+
+def _zoning_limit_exception() -> bytes:
+    """`ExceptionReport` con el texto en español que Catastro da a `CadastralZoning` cuando el
+    bbox supera el límite (comprobado el 2026-11-27 contra el servicio real)."""
+    lines = [
+        '<?xml version=\'1.0\' encoding="ISO-8859-1" standalone="no"?>',
+        HEADER_COMMENT,
+        '<ExceptionReport xmlns="http://www.opengis.net/ows/1.1" version="2.0.0">',
+        '<Exception exceptionCode="OperationProcessingFailed">',
+        "<ExceptionText><![CDATA[Area de la extensión fuera de los límites]]></ExceptionText>",
+        "</Exception>",
+        "</ExceptionReport>",
+    ]
+    return ("\n".join(lines) + "\n").encode("latin-1")
+
+
 def _cpmrc_of(parcel: SyntheticParcel, ldt: str) -> bytes:
     x, y = _center_of(_envelope_of([s.exterior for s in parcel.surfaces]))
     return cpmrc_found(parcel.reference, x, y, ldt)
@@ -682,6 +825,9 @@ FIXTURES: Mapping[str, Callable[[], bytes]] = {
     ),
     "wfsBU_colmenar_dense_bbox.xml": lambda: wfs_bu_collection(dense_bbox_buildings()),
     "wfsBU_colmenar_urbano_por_centroide.xml": lambda: wfs_bu_collection(()),
+    "wfsCP_zoning_tesela1.xml": lambda: wfs_cz_collection(zoning_tile_1_zones()),
+    "wfsCP_zoning_tesela2.xml": lambda: wfs_cz_collection(zoning_tile_2_zones()),
+    "wfsCP_zoning_limite.xml": lambda: _zoning_limit_exception(),
     "wfsCP_getcapabilities.xml": wfs_cp_capabilities,
     "wfsBU_getcapabilities.xml": wfs_bu_capabilities,
 }

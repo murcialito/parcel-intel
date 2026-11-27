@@ -796,3 +796,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el `GetFeatureInfo` de `primera-edicion-mtn` devuelve la hoja de un solo punto; para saber qué hojas cubren un término hay que muestrear una rejilla dentro del límite (2,5 km bastó) y contar puntos por hoja. Una sola consulta en el centro oculta las hojas de borde (Colmenar tiene dos; Chinchón, cuatro). Los enlaces de descarga del CNIG devuelven la ficha HTML con reCAPTCHA v3, no el zip: se anota `bloqueado` y se trabaja con el render del WMS.
   - **Aplica a**: refinador, implementación (historias que inventarían la cobertura de un WMS histórico).
 
+## [2026-11-27] Historia #217 — Polígonos catastrales (`CadastralZoning`)
+
+- **Lección**: el texto de una `ExceptionReport` de Catastro depende de la capa y del idioma (parcelas: `out of limits`; `CadastralZoning`: `Area de la extensión fuera de los límites`). Al reutilizar la detección de «bbox demasiado grande» de otra capa, pedir una vez la excepción real a esa capa y reconocer su texto, no asumir el de la anterior.
+  - **Aplica a**: implementación (adaptadores nuevos sobre el WFS de Catastro).
+
