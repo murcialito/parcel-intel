@@ -54,11 +54,11 @@ def test_ca1_ficheros_woff2_validos_y_ligeros() -> None:
 def test_ca2_cobertura_del_subconjunto_latino() -> None:
     """CA2. Dado el subconjunto latino indicado en `LEEME.md`, cuando se compara con el volcado de
     codepoints (`cmap-*.txt`) guardado en `site/fonts/`, entonces las dos Next cubren `ñ`, `Ñ`,
-    vocales con tilde y diéresis (`áéíóúü`), `¿`, `¡`, `€`, `–`, `—` y las flechas `←↑→↓`, y la
+    vocales con tilde y diéresis (`áéíóúü`), `¿`, `¡`, `€`, `–`, `—`, y la
     Mono cubre al menos U+0000–00FF y la puntuación general de su `unicode-range`."""
-    # Hallazgo (site/fonts/PROCEDENCIA.md): la fuente oficial 2.001 NO trae las flechas U+2190-2193
-    # ni U+00AD ni U+00B5, y tampoco los códigos de control U+0000-001F / U+007F-009F.
-    obligatorios = {ord(c) for c in "ñÑáéíóúüÁÉÍÓÚÜ¿¡€–—←↑→↓"}
+    # Decisión del fundador (#114): la fuente oficial 2.001 NO trae las flechas U+2190-2193 ni
+    # U+00AD ni U+00B5 (site/fonts/PROCEDENCIA.md); no se exigen y caen a `system-ui`.
+    obligatorios = {ord(c) for c in "ñÑáéíóúüÁÉÍÓÚÜ¿¡€–—"}
     for nombre in ("next-400", "next-700"):
         faltan = obligatorios - _volcado(nombre)
         assert not faltan, (nombre, sorted(hex(c) for c in faltan))
@@ -69,7 +69,7 @@ def test_ca2_cobertura_del_subconjunto_latino() -> None:
         | _rango(0xA0, 0xFF)
         | {0x2013, 0x2014, 0x2022, 0x2026}
         | _rango(0x2018, 0x201E)
-    )
+    ) - {0xAD, 0xB5, 0x201B}  # la Mono oficial 2.001 no trae estos tres; caen a system-ui
     faltan_mono = esperado - mono
     assert not faltan_mono, sorted(hex(c) for c in faltan_mono)
 

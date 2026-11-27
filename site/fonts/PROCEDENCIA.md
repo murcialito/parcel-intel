@@ -20,7 +20,7 @@ Atkinson Hyperlegible (Braille Institute), alojada en el propio sitio: el navega
 - **Comando de subconjunto** (`fonttools` y `brotli` solo en la generación, no están en `pyproject.toml`):
 
 ```sh
-UNICODES="U+0000-00FF,U+0131,U+0152-0153,U+2013-2014,U+2018-201E,U+2022,U+2026,U+20AC,U+2190-2193"
+UNICODES="U+0000-00FF,U+0131,U+0152-0153,U+2013-2014,U+2018-201E,U+2022,U+2026,U+20AC"
 uv run --no-project --with fonttools --with brotli pyftsubset AtkinsonHyperlegibleNext-Regular.ttf --unicodes="$UNICODES" --flavor=woff2 --layout-features='kern,liga,tnum' --output-file=atkinson-hyperlegible-next-400.woff2
 uv run --no-project --with fonttools --with brotli pyftsubset AtkinsonHyperlegibleNext-Bold.ttf    --unicodes="$UNICODES" --flavor=woff2 --layout-features='kern,liga,tnum' --output-file=atkinson-hyperlegible-next-700.woff2
 uv run --no-project --with fonttools --with brotli pyftsubset AtkinsonHyperlegibleMono-Regular.ttf --unicodes="$UNICODES" --flavor=woff2 --output-file=atkinson-hyperlegible-mono-400.woff2
@@ -30,4 +30,4 @@ uv run --no-project --with fonttools --with brotli pyftsubset AtkinsonHyperlegib
 
 ## Hallazgo: las flechas no están en la fuente oficial
 
-El `unicode-range` de `tokens.css` declara `U+2190-2193` (← ↑ → ↓), pero la versión 2.001 oficial de Next y de Mono **no incluye esos glifos**, ni tampoco U+00AD ni U+00B5. Se comprobó sobre el TTF completo, no solo sobre el subconjunto. No se han añadido glifos propios. Esos caracteres, si se usan, se pintan con la fuente del sistema (`system-ui` está en la pila).
+La versión 2.001 oficial de Next y de Mono **no incluye** U+2190-2193 (← ↑ → ↓), ni U+00AD ni U+00B5. Se comprobó sobre el TTF completo, no solo sobre el subconjunto. No se han añadido glifos propios. Por decisión del fundador, el `unicode-range` de `tokens.css` los excluye (las flechas y, en las Next, también U+00AD y U+00B5) y se pintan con la fuente del sistema (`system-ui` está en la pila).
