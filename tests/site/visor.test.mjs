@@ -2192,6 +2192,18 @@ test("H185: mapa.js dibuja el velo con un hueco por municipio, sus bordes y la e
   assert.deepEqual(pulsados, [B.ine, "hito"]);
 });
 
+test("H185: ponerCobertura dos veces no duplica el velo, los bordes ni la etiqueta", async () => {
+  const { mapa, reg, m } = mapaReal();
+  const cobertura = await leer("cobertura.geojson");
+  mapa.ponerCobertura(cobertura, { etiqueta: { textContent: "Primer hito" } });
+  const [geojsons, marcadores] = [reg.geojsons.length, reg.marcadores.length];
+  const primeras = [...reg.geojsons, ...reg.marcadores];
+  mapa.ponerCobertura(cobertura, { etiqueta: { textContent: "Primer hito" } });
+  for (const capa of primeras) assert.ok(!m.hasLayer(capa), "las capas anteriores se quitan");
+  const nuevas = [...reg.geojsons.slice(geojsons), ...reg.marcadores.slice(marcadores)];
+  assert.equal(nuevas.filter((capa) => m.hasLayer(capa)).length, 4, "velo, halo, bordes y etiqueta, una vez");
+});
+
 test("H185: mapa.js cambia de fondo sin duplicar teselas y selecciona un trazado por id", () => {
   const { mapa, reg, m } = mapaReal();
   const [gris, orto] = reg.tiles;

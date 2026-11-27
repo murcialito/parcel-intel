@@ -360,20 +360,23 @@ body[data-ficha="abierta"] .leaflet-container .leaflet-right .leaflet-control-at
     border-bottom: 0;
     box-shadow: var(--shadow-map);
   }
-  .pc-cuerpo { z-index: var(--z-panel); max-height: 72%; background: var(--color-surface); border: 1px solid var(--color-line); }
+  .pc-cuerpo { z-index: var(--z-panel); max-height: min(72%, calc(100% - 64px - var(--atribucion-alto, 0px))); background: var(--color-surface); border: 1px solid var(--color-line); }
   .pc-cuerpo__asa { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-1); width: 100%; min-height: var(--asa-alto); padding: var(--space-1) var(--space-4) var(--space-2); font: inherit; font-weight: var(--weight-bold); color: var(--color-fg); background: none; border: 0; cursor: pointer; }
   .pc-cuerpo__tirador { display: block; width: 36px; height: 4px; border-radius: var(--radius-pill); background: var(--color-muted); }
   body:not([data-panel="abierto"]) .pc-cuerpo__contenido { display: none; }
   .pc-cuerpo__contenido { padding-top: 0; }
   .pc-ficha { max-height: 55%; padding-bottom: env(safe-area-inset-bottom); }
-  .pc-ficha[data-ampliada="true"] { max-height: calc(100% - 64px); }
+  /* Ampliada, deja sitio a la barra de búsqueda y, sobre la hoja, a la atribución. */
+  .pc-ficha[data-ampliada="true"] { max-height: calc(100% - 64px - var(--atribucion-alto, 0px)); }
   .pc-ficha__cabecera { padding: var(--space-1) var(--space-2) var(--space-3) var(--space-4); }
   .pc-ficha__asa { display: flex; grid-column: 1 / -1; align-items: center; justify-content: center; width: 100%; min-height: 28px; padding: 0; background: none; border: 0; cursor: pointer; }
   .pc-ficha__cerrar { grid-row: 2 / span 2; margin-top: 0; }
   .pc-ficha__cuerpo { padding: var(--space-3) var(--space-4) var(--space-5); }
   /* En móvil el aviso va bajo la barra de búsqueda: abajo están la atribución y las hojas. */
   .pc-avisos { left: var(--hueco); right: var(--hueco); bottom: auto; top: calc(var(--hueco) + 60px); max-width: none; }
-  .leaflet-bottom { bottom: var(--asa-alto); }
+  /* La atribución va siempre por encima de la hoja abierta (ficha o capas): app.js publica en
+     --hoja-alto lo que tapa la hoja; sin JS, la altura del asa plegada. Nunca queda tapada. */
+  .leaflet-bottom { bottom: var(--hoja-alto, var(--asa-alto)); }
   .leaflet-container .leaflet-control-zoom { display: none; }
   body[data-ficha="abierta"] .leaflet-right { right: 0; }
   .leaflet-container .leaflet-right .leaflet-control-attribution,

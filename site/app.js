@@ -44,6 +44,29 @@ function relleno() {
   };
 }
 
+// En móvil, la atribución de Leaflet sube por encima de la hoja abierta (ficha o capas): nunca
+// queda tapada (CA5 de #185, invariante de atribución visible). `--hoja-alto` es lo que tapa
+// la hoja por abajo; `--atribucion-alto`, lo que ocupa la atribución, para que la ficha
+// ampliada le deje sitio bajo la barra de búsqueda.
+function publicarHojas() {
+  const raiz = document.documentElement.style;
+  const atribucion = document.querySelector(".leaflet-control-attribution");
+  raiz.setProperty("--hoja-alto", `${Math.round(relleno().abajo)}px`);
+  raiz.setProperty(
+    "--atribucion-alto",
+    `${Math.ceil(atribucion?.getBoundingClientRect().height ?? 0)}px`,
+  );
+}
+let pendiente = false;
+const vigilarHojas = () => {
+  if (pendiente) return;
+  pendiente = true;
+  requestAnimationFrame(() => {
+    pendiente = false;
+    publicarHojas();
+  });
+};
+
 const vista = crearVista(document, CONFIG.textos);
 let controlador = null;
 const mapa = crearMapa(document.getElementById("mapa"), {
@@ -136,5 +159,20 @@ document.addEventListener("keydown", (evento) => {
     controlador.cerrarFicha();
   }
 });
+
+// --- atribución por encima de las hojas (móvil) -----------------------------------------------
+if (globalThis.ResizeObserver) {
+  const tamanos = new ResizeObserver(vigilarHojas);
+  for (const selector of [".pc-ficha", ".pc-cuerpo", ".pc-barra", ".leaflet-control-attribution"]) {
+    const elemento = document.querySelector(selector);
+    if (elemento) tamanos.observe(elemento);
+  }
+}
+new MutationObserver(vigilarHojas).observe(document.body, {
+  attributes: true,
+  attributeFilter: ["data-ficha", "data-panel"],
+});
+globalThis.addEventListener("resize", vigilarHojas);
+publicarHojas();
 
 controlador.iniciar(leerEnlace(location.search));

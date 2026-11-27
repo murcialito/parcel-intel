@@ -200,6 +200,24 @@ def test_ca5_invariantes(tmp_path: Path) -> None:
     assert_node_tests_pass("^H185 CA5:", tmp_path)
 
 
+def test_ca5_atribucion_por_encima_de_las_hojas_en_movil() -> None:
+    """CA5 (atribución en móvil). La atribución de cada capa sigue visible con la ficha o la
+    hoja de capas abiertas: en móvil sube por encima de la hoja (`--hoja-alto`, que publica
+    app.js con lo que tapa la hoja), y la ficha ampliada le deja sitio (`--atribucion-alto`)."""
+    movil = _css()[_css().index("@media (max-width: 899px)") :]
+    assert ".leaflet-bottom { bottom: var(--hoja-alto, var(--asa-alto)); }" in movil
+    for selector in (r'\.pc-ficha\[data-ampliada="true"\]', r"\.pc-cuerpo"):
+        regla = re.search(selector + r" \{[^}]*max-height:[^;}]*var\(--atribucion-alto", movil)
+        assert regla is not None, selector
+    app = (SITE / "app.js").read_text(encoding="utf-8")
+    assert 'setProperty("--hoja-alto", `${Math.round(relleno().abajo)}px`)' in app
+    assert '"--atribucion-alto"' in app
+    # Se recalcula al abrir o cerrar una hoja y al cambiar su tamaño o el de la atribución.
+    assert 'attributeFilter: ["data-ficha", "data-panel"]' in app
+    for selector in (".pc-ficha", ".pc-cuerpo", ".leaflet-control-attribution"):
+        assert f'"{selector}"' in app, selector
+
+
 def test_ca5_cobertura_publicada_desde_los_limites_del_ign(tmp_path: Path) -> None:
     """CA5 (cobertura). `publicar-cobertura` publica solo `ine` y `nombre` de cada municipio,
     con procedencia redistribuible y en EPSG:4326, a partir de la respuesta grabada del WFS de

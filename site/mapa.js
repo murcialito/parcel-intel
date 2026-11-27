@@ -274,7 +274,25 @@ export function crearMapa(contenedor, opciones) {
   }
 
   // --- cobertura ------------------------------------------------------------------------
-  const cobertura = { velo: null, halo: null, bordes: new Map(), etiqueta: null, activo: null };
+  const cobertura = {
+    velo: null,
+    halo: null,
+    grupoBordes: null,
+    bordes: new Map(),
+    etiqueta: null,
+    alZoom: null,
+    activo: null,
+  };
+
+  // Deja el mapa sin cobertura: `ponerCobertura` es idempotente.
+  function quitarCobertura() {
+    for (const capa of [cobertura.velo, cobertura.halo, cobertura.grupoBordes, cobertura.etiqueta]) {
+      if (capa && mapa.hasLayer(capa)) mapa.removeLayer(capa);
+    }
+    if (cobertura.alZoom) mapa.off?.("zoomend", cobertura.alZoom);
+    Object.assign(cobertura, { velo: null, halo: null, grupoBordes: null, etiqueta: null, alZoom: null });
+    cobertura.bordes.clear();
+  }
 
   function pintarCobertura() {
     const c = COBERTURA[tema];
@@ -291,6 +309,7 @@ export function crearMapa(contenedor, opciones) {
       const pane = mapa.getPane(nombre) ?? mapa.createPane(nombre);
       pane.style.zIndex = nombre === "pc-cobertura-velo" ? "350" : "390";
     }
+    quitarCobertura();
     cobertura.velo = L.geoJSON(veloCobertura(geojson), { pane: "pc-cobertura-velo", interactive: false });
     cobertura.halo = L.geoJSON(geojson, { pane: "pc-cobertura", interactive: false });
     const bordes = L.geoJSON(geojson, {
@@ -304,6 +323,7 @@ export function crearMapa(contenedor, opciones) {
         });
       },
     });
+    cobertura.grupoBordes = bordes;
     for (const capa of [cobertura.velo, cobertura.halo, bordes]) capa.addTo(mapa);
     pintarCobertura();
 
@@ -329,6 +349,7 @@ export function crearMapa(contenedor, opciones) {
           if (ver && !presente) mapa.addLayer(cobertura.etiqueta);
           if (!ver && presente) mapa.removeLayer(cobertura.etiqueta);
         };
+        cobertura.alZoom = actualizar;
         mapa.on("zoomend", actualizar);
         actualizar();
       }
