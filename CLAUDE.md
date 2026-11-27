@@ -113,6 +113,12 @@ uv run python -m parcel_intel.cli.main imagenes-comparacion --municipio 28043 --
 # Ejemplos sobre la fixture sintética (la imagen debe estar en la caché; los tests la copian de tests/fixtures/caminos/planimetrias/):
 uv run python -m parcel_intel.cli.main historico ajuste 280075-w1 --curated tests/fixtures/caminos/planimetrias/historico --cache data/raw/ign_planimetrias --sin-red
 uv run python -m parcel_intel.cli.main historico cargar 280075-w1 --curated tests/fixtures/caminos/planimetrias/historico --cache data/raw/ign_planimetrias --sin-red
+
+# Evidencia de los trazados históricos propuestos de una unidad (historia #140, ADR 0043): un PNG de dos paneles por trazado `propuesto`
+# (la planimetría con el trazado; PNOA en PNG con el trazado transformado y su banda de ± 2 × LOO) y su .procedencia.json, en
+# <curated>/<unit_id>/evidencia/. Los aprobados y rechazados no se tocan. Sin base de datos. Sale con 1, sin escribir, si la unidad no es
+# aceptable o tiene aprobaciones caducadas. La imagen de trabajo sale de --cache y PNOA de --cache-pnoa; --sin-red: solo desde las cachés.
+uv run python -m parcel_intel.cli.main historico evidencia <unit_id> [--curated curated/historico] [--cache data/raw/ign_planimetrias] [--cache-pnoa data/raw/pnoa_ma] [--sin-red]
 ```
 
 ## Contexto de negocio (resumen)

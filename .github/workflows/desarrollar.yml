@@ -183,6 +183,16 @@ jobs:
           REPO: ${{ github.repository }}
         run: gh workflow run desarrollar.yml -R "$REPO" --ref main
 
+      - name: PRs de agentes en conflicto con main
+        # La PR que acaba de abrir el agente puede nacer en conflicto (otra historia entró en main
+        # mientras tanto). GitHub no le pasa CI y Fusionar solo mira tras cada merge: se actualiza ya.
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: .github/scripts/ramas_en_conflicto.sh
+
   corregir:
     # Solo lanza corregir.yml desde main. Este job se ejecuta con el workflow de la versión de la PR,
     # y claude-code-action se salta en silencio si no coincide con main: aquí no hay agente.
