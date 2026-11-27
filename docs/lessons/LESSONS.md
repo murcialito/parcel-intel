@@ -730,3 +730,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: en las Actions de los agentes, `python -c "…"` con un salto de línea seguido de `#` dentro de la cadena se deniega («Newline followed by #»). Para cambios de varias líneas en un fichero, `Edit`.
   - **Aplica a**: implementación.
+
+## [2026-11-27] Historia #172 — Imágenes de comparación en la ficha publicada
+
+- **Lección**: para probar «el manifiesto no corresponde al tramo actual» no basta con desplazar el candidato: su `candidate_id` depende del tramo, así que el manifiesto regenerado lleva otro id y el fallo sale como «no está en el manifiesto». Se desplaza el tramo en una copia del fichero de candidatos **conservando el id** y se pasa por el productor real (`imagenes-comparacion` con un `http_get` falso que responde según `params["layers"]`). Un desplazamiento de 0,2 m deja la misma ventana y solo cambia el trazo en píxeles: así se prueba cada comprobación por separado.
+  - **Aplica a**: implementación (tests de coherencia entre ficheros derivados indexados por id).
+
+- **Lección**: al añadir claves a una lista blanca publicada, los tests de otras historias que buscan fugas por subcadena en el fichero entero (`"0.5"` para la confianza) dan falsos positivos con datos nuevos legítimos (`resolucion_m: 0.5`). Se acota la búsqueda al bloque que el criterio protegía y el bloque nuevo se cubre con su propia lista blanca de claves, sin relajar el test (lección de #170, ahora entre historias).
+  - **Aplica a**: implementación y revisión (CA de «actualizar los tests de #N sin relajarlos»).
+
+- **Lección**: un criterio puede citar como «URL publicada» la de un id de la fixture que no se publica (`12b804770c6c38bd` es el candidato sin revisión). Se comprueba en el Bloque 0 el papel de cada id citado; el test pide la URL de ese id desde el manifiesto (la misma función que la publicada) y además una URL realmente publicada, y la adaptación se anota en el docstring.
+  - **Aplica a**: refinador y arquitecto (al citar ids de fixtures en criterios) | implementación.
