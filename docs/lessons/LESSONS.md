@@ -679,6 +679,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **También**: con `cancel-in-progress: true`, la `concurrency` va en el job y no en el workflow, porque así un run que se salta por el `if` no cancela al que sí revisa. Y si cambia `revisar.yml` en `main`, las PRs abiertas fallan la revisión con `SIN_VEREDICTO` hasta traerse `main`: la acción se salta si su workflow no coincide.
   - **Aplica a**: workflows (`.github/`).
 
+- **Lección**: nunca `uv run ruff format .` sobre todo el repo: reformatea decenas de ficheros ajenos (aquí 48, con ADR y tests de otras historias) y rompe tests que leen el texto de esos ficheros (`test_historia_109` busca una línea alineada de `cut_candidate.py`). Formatea solo los ficheros de la historia (`ruff format <rutas>`) y mira `git status` antes de seguir.
+  - **Causa**: historia #169. Tras `ruff format .` falló un test de aceptación de #109 sin relación con el cambio; se restauró con `git checkout -- docs scripts src tests`.
+  - **Aplica a**: desarrollo.
 ## [2026-11-27] Tubería — tests contra servicios en vivo en el check obligatorio
 
 - **Lección**: un test que llama en vivo a un servicio público no puede estar en el check del que depende el merge. Si el servicio cae o va lento, todas las PRs se quedan en rojo sin culpa suya, y los agentes «arreglan» CI marcando tests ajenos uno por uno. Esos tests llevan el marcador `red` y corren en el job `red-externa`, con `continue-on-error`, así que su resultado se ve sin bloquear. `fuera_de_ci` es para los servicios que rechazan siempre a GitHub (Catastro), no para una caída.
