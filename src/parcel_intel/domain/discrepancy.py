@@ -105,7 +105,10 @@ class Discrepancy:
 
 
 @dataclass(frozen=True)
-class _Sample:
+class TrailSample:
+    """Muestra del eje de un trazado (ADR 0025 §2): punto medio de una pieza,
+    con su peso (longitud), la parte a la que pertenece y los extremos."""
+
     point: Point
     weight: float
     part: int  # índice global de anillo/parte del sujeto
@@ -117,7 +120,9 @@ def _lerp(a: Point, b: Point, t: float) -> Point:
     return (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
 
 
-def _pieces(a: Point, b: Point, offset: Point, weight_factor: float, part: int) -> list[_Sample]:
+def _pieces(
+    a: Point, b: Point, offset: Point, weight_factor: float, part: int
+) -> list[TrailSample]:
     """Trocea el segmento `a`-`b` en `ceil(L / SAMPLE_STEP_M)` piezas
     iguales; muestra en el punto medio de cada pieza, desplazada `offset`."""
     length = math.hypot(b[0] - a[0], b[1] - a[1])
@@ -129,12 +134,12 @@ def _pieces(a: Point, b: Point, offset: Point, weight_factor: float, part: int) 
     def shifted(p: Point) -> Point:
         return (p[0] + ox, p[1] + oy)
 
-    samples: list[_Sample] = []
+    samples: list[TrailSample] = []
     for k in range(n):
         start = _lerp(a, b, k / n)
         end = b if k + 1 == n else _lerp(a, b, (k + 1) / n)
         samples.append(
-            _Sample(
+            TrailSample(
                 point=shifted(_lerp(a, b, (k + 0.5) / n)),
                 weight=weight_factor * length / n,
                 part=part,
@@ -145,7 +150,7 @@ def _pieces(a: Point, b: Point, offset: Point, weight_factor: float, part: int) 
     return samples
 
 
-def _sample_shape(shape: TrailShape) -> list[_Sample]:
+def trail_samples(shape: TrailShape) -> tuple[TrailSample, ...]:
     """Muestras ordenadas y deterministas del trazado sujeto (§1c, paso 3).
 
     Polilíneas: cada segmento troceado, peso L/n. Franjas: pseudo-eje por
@@ -153,14 +158,14 @@ def _sample_shape(shape: TrailShape) -> list[_Sample]:
     `h = |área| / perímetro`, peso 0,5·L/n (la longitud total del sujeto es
     el semiperímetro). Anillos de < 3 puntos o área 0 y líneas de < 2 puntos
     no aportan muestras."""
-    samples: list[_Sample] = []
+    samples: list[TrailSample] = []
     if isinstance(shape, MultiLineGeometry):
         for part, line in enumerate(shape.lines):
             if len(line) < 2:
                 continue
             for a, b in zip(line, line[1:], strict=False):
                 samples.extend(_pieces(a, b, (0.0, 0.0), 1.0, part))
-        return samples
+        return tuple(samples)
 
     for part, ring in enumerate(shape.rings):
         if len(ring) < 3:
@@ -180,7 +185,7 @@ def _sample_shape(shape: TrailShape) -> list[_Sample]:
                 (-dy / length, dx / length) if counter_clockwise else (dy / length, -dx / length)
             )
             samples.extend(_pieces(a, b, (nx * half_width, ny * half_width), 0.5, part))
-    return samples
+    return tuple(samples)
 
 
 def _expand(bbox: BBox, margin: float) -> BBox:
@@ -199,7 +204,7 @@ def _check_crs(shape: TrailShape) -> None:
         )
 
 
-def _uncovered_zone(samples: Sequence[_Sample], covered: Sequence[bool]) -> MultiLineGeometry:
+def _uncovered_zone(samples: Sequence[TrailSample], covered: Sequence[bool]) -> MultiLineGeometry:
     """Piezas no cubiertas, uniendo en una sola polilínea las consecutivas
     del mismo anillo/parte."""
     lines: list[Line] = []
@@ -219,6 +224,13 @@ def _uncovered_zone(samples: Sequence[_Sample], covered: Sequence[bool]) -> Mult
     if current:
         lines.append(tuple(current))
     return MultiLineGeometry(lines=tuple(lines), srid=METRIC_SRID)
+
+
+def samples_stretch(samples: Sequence[TrailSample], selected: Sequence[bool]) -> MultiLineGeometry:
+    """Tramo formado por las piezas de las muestras `selected`, uniendo en una
+    sola polilínea las consecutivas de la misma parte (mismo criterio que la
+    zona no cubierta). Lo usa el método de candidatos a corte (ADR 0039 §3)."""
+    return _uncovered_zone(samples, [not flag for flag in selected])
 
 
 def _rounded(value: float) -> float:
@@ -256,7 +268,7 @@ def compare_trail(
     radius = search_radius_m(tolerance)
 
     # 3. Muestreo del sujeto.
-    samples = _sample_shape(subject.shape)
+    samples = trail_samples(subject.shape)
     if not samples:
         return None
 

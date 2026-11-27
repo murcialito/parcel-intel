@@ -16,7 +16,7 @@ from parcel_intel.domain.historic_trail import (
 from parcel_intel.domain.provenance import Provenance
 from parcel_intel.ports.errors import HistoricTrailNotFoundError, HistoricTrailNotPendingError
 
-_COLUMNS = """
+HISTORIC_TRAIL_COLUMNS = """
     identifier, municipality_code, document_kind, document_id, document_date,
     document_date_precision, ST_AsText(geometry), georeferencing_error_m,
     provenance_source, provenance_url, provenance_retrieved_at, provenance_license,
@@ -54,16 +54,16 @@ _RECORD_REVIEW_SQL = """
     WHERE identifier = %s AND status = 'proposed'
 """
 
-_SELECT_BY_ID_SQL = f"SELECT {_COLUMNS} FROM historic_trail WHERE identifier = %s"
+_SELECT_BY_ID_SQL = f"SELECT {HISTORIC_TRAIL_COLUMNS} FROM historic_trail WHERE identifier = %s"
 
 _SELECT_PENDING_SQL = f"""
-    SELECT {_COLUMNS} FROM historic_trail
+    SELECT {HISTORIC_TRAIL_COLUMNS} FROM historic_trail
     WHERE status = 'proposed' AND municipality_code = %s
     ORDER BY identifier
 """
 
 _SELECT_APPROVED_BY_MUNICIPALITY_SQL = f"""
-    SELECT {_COLUMNS} FROM historic_trail
+    SELECT {HISTORIC_TRAIL_COLUMNS} FROM historic_trail
     WHERE status = 'approved' AND municipality_code = %s
     ORDER BY identifier
 """
@@ -71,14 +71,14 @@ _SELECT_APPROVED_BY_MUNICIPALITY_SQL = f"""
 # `&&` solo poda por índice (compara rectángulos envolventes); quien decide es
 # `ST_Intersects` sobre la línea real (lección de la historia 0018).
 _SELECT_APPROVED_IN_BBOX_SQL = f"""
-    SELECT {_COLUMNS} FROM historic_trail
+    SELECT {HISTORIC_TRAIL_COLUMNS} FROM historic_trail
     WHERE status = 'approved'
       AND geometry && ST_MakeEnvelope(%s, %s, %s, %s, {METRIC_SRID})
       AND ST_Intersects(geometry, ST_MakeEnvelope(%s, %s, %s, %s, {METRIC_SRID}))
     ORDER BY identifier
 """
 
-_HistoricTrailRow = tuple[
+HistoricTrailRow = tuple[
     str,
     str,
     str,
@@ -97,7 +97,7 @@ _HistoricTrailRow = tuple[
 ]
 
 
-def _row_to_trail(row: _HistoricTrailRow) -> HistoricTrail:
+def row_to_historic_trail(row: HistoricTrailRow) -> HistoricTrail:
     (
         identifier,
         municipality_code,
@@ -209,26 +209,27 @@ class PostgisHistoricTrailRepository:
         rows = self._fetch(_SELECT_BY_ID_SQL, (identifier,))
         if not rows:
             raise HistoricTrailNotFoundError(identifier)
-        return _row_to_trail(rows[0])
+        return row_to_historic_trail(rows[0])
 
     def list_pending(self, municipality_code: str) -> list[HistoricTrail]:
         return [
-            _row_to_trail(row) for row in self._fetch(_SELECT_PENDING_SQL, (municipality_code,))
+            row_to_historic_trail(row)
+            for row in self._fetch(_SELECT_PENDING_SQL, (municipality_code,))
         ]
 
     def list_approved_by_municipality(self, municipality_code: str) -> list[HistoricTrail]:
         rows = self._fetch(_SELECT_APPROVED_BY_MUNICIPALITY_SQL, (municipality_code,))
-        return [_row_to_trail(row) for row in rows]
+        return [row_to_historic_trail(row) for row in rows]
 
     def list_approved_in_bbox(self, bbox: BBox) -> list[HistoricTrail]:
         rows = self._fetch(_SELECT_APPROVED_IN_BBOX_SQL, (*bbox, *bbox))
-        return [_row_to_trail(row) for row in rows]
+        return [row_to_historic_trail(row) for row in rows]
 
-    def _fetch(self, sql: str, params: tuple[object, ...]) -> list[_HistoricTrailRow]:
+    def _fetch(self, sql: str, params: tuple[object, ...]) -> list[HistoricTrailRow]:
         try:
             with self._connection.cursor() as cur:
                 cur.execute(sql, params)
-                rows: list[_HistoricTrailRow] = cur.fetchall()
+                rows: list[HistoricTrailRow] = cur.fetchall()
             self._connection.commit()
         except Exception:
             self._connection.rollback()

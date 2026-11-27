@@ -212,7 +212,14 @@ def test_ca3_cada_feature_lleva_tipo_medidas_confianza_evidencia_criterio_y_traz
         for trail in _trails(feature):
             procedencia = trail["procedencia"]
             assert isinstance(procedencia, dict)
-            assert set(procedencia) == {"fuente", "url", "fecha_descarga", "licencia"}
+            # #94 (ADR 0044) añade la marca `redistribucion` a toda procedencia.
+            assert set(procedencia) == {
+                "fuente",
+                "url",
+                "fecha_descarga",
+                "licencia",
+                "redistribucion",
+            }
             assert all(procedencia.values())
 
     # Oráculo fijado a mano (LEEME.md): R-3 (IGN) paralela a 12,5 m de VP-3 (tolerancia 11,18 m).
@@ -302,6 +309,11 @@ def test_ca5_geojson_en_25830_con_criterio_y_sin_titularidad(salida: Path) -> No
         assert collection["publicable"] is (variant == "publicable")
         for feature in _features(document):
             assert _properties(feature)["criterio"] == criterion
+        # #94 (ADR 0044) añade `nombre_municipio` a la colección: es el nombre del término
+        # municipal del IGN, no de una persona. Se comprueba aparte y se excluye del
+        # recorrido; cualquier otra clave o valor con "nombre" sigue fallando.
+        municipality_name = collection.pop("nombre_municipio")
+        assert municipality_name is None or isinstance(municipality_name, str)
         for text in _walk(document):
             lowered = text.lower()
             assert not any(word in lowered for word in _FORBIDDEN), text

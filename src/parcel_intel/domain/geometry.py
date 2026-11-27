@@ -134,6 +134,11 @@ def _segment_distance(p1: Point, p2: Point, p3: Point, p4: Point) -> float:
     )
 
 
+def segment_distance(p1: Point, p2: Point, p3: Point, p4: Point) -> float:
+    """Distancia mínima entre los segmentos `p1`-`p2` y `p3`-`p4` (0 si se cruzan)."""
+    return _segment_distance(p1, p2, p3, p4)
+
+
 def point_in_ring(point: Point, ring: Ring) -> bool:
     """Ray casting estándar: punto dentro del anillo (polígono simple).
 
@@ -374,3 +379,43 @@ def distance_point_to_shape(point: Point, shape: TrailShape) -> float:
     if isinstance(shape, Geometry) and point_in_any_ring(point, shape.rings):
         return 0.0
     return min(_point_segment_distance(point, a, b) for a, b in segments)
+
+
+def tile_bbox(bbox: BBox, side_m: float) -> tuple[BBox, ...]:
+    """Teselas contiguas (sin solape) de lado `side_m` que cubren `bbox`, en orden
+    fila a fila desde (minx, miny). Las de la última fila y columna se recortan al
+    borde de `bbox`. `ValueError` si `side_m <= 0` o si `bbox` es degenerado."""
+    minx, miny, maxx, maxy = bbox
+    if side_m <= 0:
+        raise ValueError(f"el lado de la tesela debe ser positivo: {side_m}")
+    if minx >= maxx or miny >= maxy:
+        raise ValueError(f"bbox degenerado: {bbox}")
+    columns = max(1, math.ceil((maxx - minx) / side_m - 1e-9))
+    rows = max(1, math.ceil((maxy - miny) / side_m - 1e-9))
+    tiles: list[BBox] = []
+    for row in range(rows):
+        y0 = miny + row * side_m
+        y1 = maxy if row == rows - 1 else miny + (row + 1) * side_m
+        for column in range(columns):
+            x0 = minx + column * side_m
+            x1 = maxx if column == columns - 1 else minx + (column + 1) * side_m
+            tiles.append((x0, y0, x1, y1))
+    return tuple(tiles)
+
+
+def outward_integer_bbox(bbox: BBox) -> BBox:
+    """`bbox` redondeado hacia fuera a metro entero: mínimos al `floor`, máximos al `ceil`."""
+    minx, miny, maxx, maxy = bbox
+    return (
+        float(math.floor(minx)),
+        float(math.floor(miny)),
+        float(math.ceil(maxx)),
+        float(math.ceil(maxy)),
+    )
+
+
+def municipality_tiles(boundary_bbox: BBox, side_m: float) -> tuple[BBox, ...]:
+    """Rejilla de teselas de un municipio (historias #37, #128, #160): la de `tile_bbox` sobre
+    el bbox del límite del IGN redondeado hacia fuera. Única fuente de la rejilla: las claves de
+    la caché cruda de Catastro dependen del bbox exacto de cada tesela."""
+    return tile_bbox(outward_integer_bbox(boundary_bbox), side_m)

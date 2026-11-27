@@ -1,0 +1,79 @@
+{
+ "type": "FeatureCollection",
+ "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::25830"}},
+ "properties": {
+  "fuente": "via_pecuaria_oficial",
+  "municipio": "28043",
+  "nombre_municipio": "Colmenar de Oreja",
+  "procedencia": {
+   "fuente": "SINTÉTICO capa de vías pecuarias",
+   "url": "https://example.invalid/vias_pecuarias?bbox=465000.0%2C4440000.0%2C465300.0%2C4440700.0",
+   "fecha_descarga": "2026-11-20",
+   "licencia": "SINTÉTICA CC BY 4.0, solo para pruebas",
+   "redistribucion": "publicable"
+  },
+  "aviso": "SINTÉTICO: capa inventada para pruebas, no es cartografía real."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "VP-1",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [[[465000, 4440000], [465200, 4440000], [465200, 4440010], [465000, 4440010], [465000, 4440000]]]
+   },
+   "properties": {
+    "procedencia": {
+     "fuente": "SINTÉTICO capa de vías pecuarias",
+     "url": "https://example.invalid/vias_pecuarias?bbox=465000.0%2C4440000.0%2C465300.0%2C4440700.0",
+     "fecha_descarga": "2026-11-20",
+     "licencia": "SINTÉTICA CC BY 4.0, solo para pruebas",
+     "redistribucion": "publicable"
+    },
+    "fecha_dato": "2014-01-01",
+    "nombre": "Vereda sintética 1",
+    "tipo": "Vereda"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "VP-2",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [[[465000, 4440300], [465100, 4440300], [465100, 4440310], [465000, 4440310], [465000, 4440300]]],
+     [[[465200, 4440300], [465300, 4440300], [465300, 4440310], [465200, 4440310], [465200, 4440300]]]
+    ]
+   },
+   "properties": {
+    "procedencia": {
+     "fuente": "SINTÉTICO capa de vías pecuarias",
+     "url": "https://example.invalid/vias_pecuarias?bbox=465000.0%2C4440000.0%2C465300.0%2C4440700.0",
+     "fecha_descarga": "2026-11-20",
+     "licencia": "SINTÉTICA CC BY 4.0, solo para pruebas",
+     "redistribucion": "publicable"
+    },
+    "fecha_dato": "2014-01-01",
+    "nombre": "Colada sintética 2",
+    "tipo": "Colada"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "VP-3",
+   "geometry": {"type": "LineString", "coordinates": [[465000, 4440600], [465200, 4440600]]},
+   "properties": {
+    "procedencia": {
+     "fuente": "SINTÉTICO capa de vías pecuarias",
+     "url": "https://example.invalid/vias_pecuarias?bbox=465000.0%2C4440000.0%2C465300.0%2C4440700.0",
+     "fecha_descarga": "2026-11-20",
+     "licencia": "SINTÉTICA CC BY 4.0, solo para pruebas",
+     "redistribucion": "publicable"
+    },
+    "fecha_dato": "2014-01-01",
+    "nombre": "Cordel sintético 3",
+    "tipo": "Cordel"
+   }
+  }
+ ]
+}

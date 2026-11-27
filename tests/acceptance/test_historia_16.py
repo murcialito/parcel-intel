@@ -6,10 +6,12 @@ fuente sin licencia verificada se prueban con fuentes sintéticas.
 
 import dataclasses
 from datetime import date
+from types import MappingProxyType
 from typing import get_args
 
 import pytest
 
+from parcel_intel.domain import public_card
 from parcel_intel.domain.discrepancy import (
     Discrepancy,
     DiscrepancyKind,
@@ -176,11 +178,17 @@ def test_ca5_evidencia_de_catastro_solo_derivada() -> None:
         )
 
 
-def test_ca6_fuente_sin_licencia_verificada_se_omite() -> None:
+def test_ca6_fuente_sin_licencia_verificada_se_omite(monkeypatch: pytest.MonkeyPatch) -> None:
     """CA6. Dada una discrepancia cuya fuente carece de licencia de redistribución
     verificada, cuando se genera la ficha para publicación, entonces esa evidencia se omite
     y la ficha lo indica, sin inventar sustituto."""
-    # Red de transporte del IGN: licencia `asumido` en REGISTRY.md, sin verificar.
+    # Desde #94 (ADR 0044) la red de transporte del IGN está verificada (#24), así que ya
+    # no sirve de ejemplo real: se marca como no verificada solo en este test.
+    policy = dict(public_card.SOURCE_POLICY)
+    policy["ign_red_transporte"] = dataclasses.replace(
+        policy["ign_red_transporte"], redistribution_verified=False, attribution=""
+    )
+    monkeypatch.setattr(public_card, "SOURCE_POLICY", MappingProxyType(policy))
     card = build_card(_discrepancy(a="ign_red_transporte", b="via_pecuaria_oficial"))
     assert [s.role for s in card.sources] == ["contraparte"]
     assert card.omission_notice == OMISSION_NOTICE
