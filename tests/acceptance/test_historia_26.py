@@ -39,10 +39,11 @@ def test_ca1_clasificacion_por_municipio_o_no_encontrada() -> None:
     seccion = _seccion()
     for municipio in MUNICIPIOS:
         assert municipio in seccion, municipio
-    # Los municipios sin orden localizada en #26 dicen "no encontrada". Cuatro de ellos
-    # (Colmenar de Oreja, Aranjuez, Belmonte de Tajo, Valdelaguna) se consultaron en #282 y
-    # pasaron a "no localizada"; quedan tres.
-    assert seccion.count("| no encontrada |") == len(MUNICIPIOS) - 4
+    # Los siete municipios dicen "no encontrada" en #26. Cuatro (Colmenar de Oreja, Aranjuez,
+    # Belmonte de Tajo, Valdelaguna) se consultaron en #282 y pasaron a "no localizada"; los
+    # otros tres (Chinchón, Villaconejos, Villarejo de Salvanés) se leyeron en el BOE en #281 y
+    # pasaron a `confirmado`. Ya no queda ninguna "no encontrada".
+    assert seccion.count("| no encontrada |") == 0
     # Las búsquedas hechas y la fecha constan en la sección.
     assert "2026-11-25" in seccion
     assert "bocm_buscador_texto_404.html" in seccion

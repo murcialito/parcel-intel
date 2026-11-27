@@ -890,3 +890,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: el endpoint `GetData?...format=geojson` de la ficha devolvió la portada de `opendata.caceres.es` (6.619 bytes, `text/html`) con código 200 tras una redirección a HTTPS con cadena de certificados incompleta. Los datos reales están en `ide.caceres.es` (WFS), que no respondió desde GitHub Actions: el contenido quedó `pendiente-local`.
   - **Aplica a**: refinador (no citar una licencia o un formato de una ficha sin abrir el recurso) | implementación (un `200` no prueba que haya dato).
 
+## [2026-11-27] Historia #281 — Órdenes de clasificación en el BOE
+
+- **Lección**: el PDF de una disposición del BOE se saca del enlace «PDF» de la ficha `doc.php?id=<BOE-A-…>` (patrón `/boe/dias/AAAA/MM/DD/pdfs/A<página inicial>-<final>.pdf`) y es la página entera del boletín, con otras disposiciones sin relación. El texto extraído confunde cifras («6,E9» por 6,69): una cifra se da por buena solo contra la imagen que devuelve `Read`. Si `Read` con `pages` falla por falta de `pdftoppm`, leerlo sin `pages`.
+  - **Aplica a**: implementación (fixtures de disposiciones: grabar el PDF íntegro, pero no copiar a texto los nombres de personas que cite la página).
+
