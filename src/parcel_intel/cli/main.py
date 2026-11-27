@@ -19,6 +19,7 @@ from parcel_intel.adapters.comparison_files import (
     StretchFileFormatError,
     read_stretches,
 )
+from parcel_intel.adapters.curated_historic import CuratedHistoricFiles
 from parcel_intel.adapters.deepseek.adapter import DeepSeekAdapter, MissingDeepSeekApiKeyError
 from parcel_intel.adapters.deepseek.client import DeepSeekApiError
 from parcel_intel.adapters.discrepancy_files import (
@@ -26,8 +27,17 @@ from parcel_intel.adapters.discrepancy_files import (
     GeoJsonDiscrepancyReportReader,
     GeoJsonDiscrepancyWriter,
 )
+from parcel_intel.adapters.evidence import (
+    PngTrailEvidence,
+    PnoaPngSource,
+    default_png_http_get,
+)
+from parcel_intel.adapters.evidence.pnoa_png import NotPngResponseError
 from parcel_intel.adapters.ign_admin_units import IgnAdministrativeUnitsAdapter
 from parcel_intel.adapters.ign_admin_units import client as ign_client
+from parcel_intel.adapters.ign_historic import HttpGet as HistoricHttpGet
+from parcel_intel.adapters.ign_historic import IgnHistoricImageAdapter
+from parcel_intel.adapters.ign_historic import default_http_get as historic_default_http_get
 from parcel_intel.adapters.livestock_trails import client as livestock_client
 from parcel_intel.adapters.livestock_trails.adapter import LivestockTrailAdapter
 from parcel_intel.adapters.pnoa import client as pnoa_client
@@ -66,6 +76,7 @@ from parcel_intel.application.build_municipal_livestock_trail_layers import (
     BuildMunicipalLivestockTrailLayersUseCase,
 )
 from parcel_intel.application.build_municipal_road_layers import BuildMunicipalRoadLayersUseCase
+from parcel_intel.application.build_trail_evidence import BuildTrailEvidenceUseCase
 from parcel_intel.application.detect_discrepancies import DetectDiscrepanciesUseCase
 from parcel_intel.application.publish_discrepancies import PublishDiscrepanciesUseCase
 from parcel_intel.application.publish_layers import (
@@ -74,9 +85,11 @@ from parcel_intel.application.publish_layers import (
 )
 from parcel_intel.domain.cadastral_road import CadastralRoadLayer
 from parcel_intel.domain.comparison_image import DegenerateStretchError
+from parcel_intel.domain.digitization import StaleApprovalError
 from parcel_intel.domain.discrepancy import DiscrepancyKind
 from parcel_intel.domain.discrepancy_report import LayerStatus
 from parcel_intel.domain.geometry import BBox
+from parcel_intel.domain.georeferencing import GeoreferenceRejectedError
 from parcel_intel.domain.municipal_livestock_trails import MunicipalLivestockTrailLayer
 from parcel_intel.domain.municipal_road_layer import MunicipalRoadLayerBatch
 from parcel_intel.domain.provenance import Provenance
@@ -87,13 +100,17 @@ from parcel_intel.ports.errors import (
     AreaQueryLimitExceededError,
     CadastralServiceError,
     ClippedGeometryHasHolesError,
+    CuratedUnitNotFoundError,
+    EvidenceImageFormatError,
     IncompleteWfsResponseError,
     InvalidLlmProposalError,
     InvalidRuleLayerError,
     MunicipalBoundaryNotFoundError,
     MunicipalBoundaryUnusableError,
+    RawImageMismatchError,
     RuleProposalNotFoundError,
     TruncatedAreaQueryError,
+    WorkingImageUnavailableError,
 )
 
 _LAYER_CHOICES = ["dph_cauce", "via_pecuaria", "red_natura_plan"]
@@ -708,6 +725,68 @@ def _imagenes_comparacion(args: argparse.Namespace) -> int:
     return 0
 
 
+def build_evidence_use_case(
+    curated: Path,
+    cache: Path,
+    cache_pnoa: Path,
+    offline: bool,
+    image_http_get: HistoricHttpGet = historic_default_http_get,
+    pnoa_http_get: HttpGet = default_png_http_get,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> BuildTrailEvidenceUseCase:
+    """Composition root de `historico evidencia` (historia #140, ADR 0043).
+
+    Lee la entrada humana de `curated`, la imagen de trabajo de `cache` y pide PNOA en PNG a
+    través de la caché cruda `cache_pnoa`. La evidencia se escribe junto a la entrada, en
+    `curated/<unit_id>/evidencia/`. Con `offline=True` nada llama a la red."""
+    fetcher = CachedRawFetcher(pnoa_http_get, cache_pnoa, today, sleep=sleep, offline=offline)
+    return BuildTrailEvidenceUseCase(
+        inputs=CuratedHistoricFiles(curated),
+        images=IgnHistoricImageAdapter(
+            cache, image_http_get, today, sleep=sleep, offline=offline
+        ),
+        evidence=PngTrailEvidence(cache, curated, PnoaPngSource(fetcher)),
+    )
+
+
+def _historico_evidencia(args: argparse.Namespace) -> int:
+    unit_id: str = args.unit_id
+    use_case = build_evidence_use_case(args.curated, args.cache, args.cache_pnoa, args.sin_red)
+    try:
+        records = use_case.execute(unit_id)
+    except GeoreferenceRejectedError as error:
+        print(f"ERROR {unit_id}: {error}; no se ha escrito nada", file=sys.stderr)
+        return 1
+    except StaleApprovalError as error:
+        print(
+            f"ERROR {unit_id}: {error}; devuelve esos trazados a `propuesto` y regenera la "
+            "evidencia; no se ha escrito nada",
+            file=sys.stderr,
+        )
+        return 1
+    except (
+        CuratedUnitNotFoundError,
+        RawImageMismatchError,
+        WorkingImageUnavailableError,
+        EvidenceImageFormatError,
+        NotPngResponseError,
+        RawCacheMissError,
+        RawCacheCorruptError,
+        requests.RequestException,
+        ValueError,
+        OSError,
+    ) as error:
+        print(f"ERROR {unit_id}: {error}", file=sys.stderr)
+        return 1
+    folder = args.curated / unit_id / "evidencia"
+    for record in records:
+        path = folder / f"{record.trail_id}.png"
+        print(f"{record.trail_id}: {path} sha256={record.png_sha256}")
+    print(f"{unit_id}: {len(records)} evidencias")
+    return 0
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="parcel_intel.cli.main")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -915,6 +994,40 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio de los manifiestos <codigo_ine>.json",
     )
     comparacion_parser.set_defaults(func=_imagenes_comparacion)
+
+    historico_parser = subparsers.add_parser(
+        "historico", help="Trazados históricos georreferenciados de una unidad (ADR 0043)"
+    )
+    historico_subparsers = historico_parser.add_subparsers(
+        dest="historico_command", required=True
+    )
+    evidencia_parser = historico_subparsers.add_parser(
+        "evidencia",
+        help="PNG de dos paneles de cada trazado propuesto de una unidad, para revisarlo",
+    )
+    evidencia_parser.add_argument("unit_id", help="Unidad, p. ej. 280075-w1")
+    evidencia_parser.add_argument(
+        "--curated",
+        type=Path,
+        default=Path("curated/historico"),
+        help="Entrada humana versionada; la evidencia se escribe en <unit_id>/evidencia/",
+    )
+    evidencia_parser.add_argument(
+        "--cache",
+        type=Path,
+        default=Path("data/raw/ign_planimetrias"),
+        help="Caché cruda de las imágenes de trabajo",
+    )
+    evidencia_parser.add_argument(
+        "--cache-pnoa",
+        type=Path,
+        default=Path("data/raw/pnoa_ma"),
+        help="Caché cruda de las respuestas PNG de PNOA",
+    )
+    evidencia_parser.add_argument(
+        "--sin-red", action="store_true", help="Solo las cachés; un hueco es un fallo"
+    )
+    evidencia_parser.set_defaults(func=_historico_evidencia)
 
     return parser
 
