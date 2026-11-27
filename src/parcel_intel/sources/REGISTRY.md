@@ -809,7 +809,10 @@ Las dos integraciones pendientes están en la #160.
 
 - `catastro-caminos` escribe ahora `data/derived/catastro_caminos/<ine>.geojson` (formato común de #32, `fuente: catastro_vt`, EPSG:25830, `redistribucion: solo_uso_interno`; un feature por camino con id `VT-0001…`, sin referencias catastrales; atómico). **Nunca se publica** (INSPIRE). Sin fuente nueva ni proveedor nuevo.
 - La rejilla de teselas de un municipio es única: `municipality_tiles(bbox del límite del IGN, 900 m)`, con el bbox redondeado hacia fuera a metro entero (`domain/geometry.py`). Para Colmenar reproduce el bbox de #37 (`449341,4431623,470702,4442906`; origen `(449341, 4431623)`). Sin `--bbox`, `catastro-caminos` lo toma del límite del IGN; con `--bbox` se respeta y se imprime la rejilla usada.
-- **CA8 pendiente de pasar en local** (`PASO_COMUN_DATOS_LOCALES=1 uv run pytest -m "acceptance and integration" tests/acceptance/test_historia_160.py`; usa `data/` del fundador, no el CI). La caché de 107 MB de #128 se descargó con el mismo bbox de #37, así que sus teselas deberían encajar con la rejilla nueva; si alguna no encaja, anótalo en la PR y no se redescarga en el CI. Recuento de candidatos de Colmenar: _por anotar tras la ejecución local_ (sin nombres ni referencias catastrales).
+- **CA8 pendiente de pasar en local** (`PASO_COMUN_DATOS_LOCALES=1 uv run pytest -m "acceptance and integration" tests/acceptance/test_historia_160.py`; usa `data/` del fundador, no el CI). La caché de 107 MB de #128 se descargó con el mismo bbox de #37, así que sus teselas deberían encajar con la rejilla nueva; si alguna no encaja, anótalo en la PR y no se redescarga en el CI. Recuento de Colmenar (`28043`), CA8 pasado en local el 2026-11-27 con la caché de 107 MB, todo `--sin-red`, en 11 min:
+  - `discrepancias`: 416 registros (`SOLAPE` 343, `AUSENTE_EN_FUENTE` 70, `DESPLAZAMIENTO` 3). Siguen ausentes `mtn50_historico` y `planimetria_historica`.
+  - `candidatos-corte`: **40 candidatos**. La señal `parcela_no_camino` tiene datos en todas las teselas (ninguna `sin_datos`).
+  - Los 40 tienen la misma confianza, 0,415, porque solo hay una señal. Longitud: mínimo 50 m, mediana 153 m, máximo 1.259 m, 10,5 km en total.
 
 ---
 
