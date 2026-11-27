@@ -1,0 +1,9 @@
+point_id,col,row,x_25830,y_25830,coordinate_source,description,retained,discard_reason
+P01,60.0,70.0,457123.0,4446858.0,Lectura sobre el PNOA 2023 (fixture sintética),Cruce de caminos al noroeste,true,
+P02,430.0,80.0,457858.0,4446843.0,Lectura sobre el PNOA 2023 (fixture sintética),Esquina de edificio al noreste,true,
+P03,250.0,250.0,457501.0,4446502.0,Lectura sobre el PNOA 2023 (fixture sintética),Plaza en el centro,true,
+P04,80.0,420.0,457157.0,4446159.0,Lectura sobre el PNOA 2023 (fixture sintética),Ermita al suroeste,true,
+P05,440.0,410.0,457882.0,4446177.0,Lectura sobre el PNOA 2023 (fixture sintética),Cementerio al sureste,true,
+P06,250.0,120.0,457499.0,4446761.0,Lectura sobre el PNOA 2023 (fixture sintética),Iglesia al norte del centro,true,
+P07,150.0,330.0,457302.0,4446342.0,Lectura sobre el PNOA 2023 (fixture sintética),Cruce de caminos al suroeste del centro,true,
+P08,350.0,360.0,457740.0,4446245.0,Lectura sobre el PNOA 2023 (fixture sintética),Edificio dudoso,false,Referencia ambigua en el mapa
