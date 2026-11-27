@@ -539,4 +539,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: una opción de CLI que el diseño no nombra (`--cache-pnoa`) fue necesaria para poder probar de extremo a extremo con `tmp_path`: sin ella, la caché de PNOA habría tenido que derivarse de `--cache` o escribirse en `data/raw/pnoa_ma` durante los tests. Se anota en CLAUDE.md y en la PR.
   - **Aplica a**: arquitecto (una CLI con dos cachés crudas necesita dos opciones).
+## [2026-11-27] Historia #127 — Señal `parcela_no_camino` y caso de uso de candidatos a corte
+
+- **Lección**: un criterio que cita «el error de sin datos que deje #37» no se cumple si #37 no dejó uno: `ParcelsInAreaPort` solo declara `AreaQueryLimitExceededError`, `TruncatedAreaQueryError` y `CadastralServiceError`. La señal trata esos tres como «tesela sin datos» (`TILE_UNAVAILABLE` en `application/cut_signals.py`) y propaga cualquier otro. Un `RawCacheMissError` (modo `--sin-red`) vive en un adapter y la aplicación no puede capturarlo: H3 (#128) debe declarar un error de port para «sin red» o envolverlo en el adapter, o ese modo abortaría en vez de dar `sin_datos`.
+  - **Aplica a**: arquitecto/refinador (al citar un error «acordado» de otra historia, comprobar que existe en `ports/errors.py`) | implementación de #128.
+
+- **Lección**: las muestras de `trail_samples` salen de interpolaciones en coma flotante (`102.49999999999999`), así que un test que compare coordenadas con `==` falla aunque el método sea correcto; y el tramo de un candidato lleva un vértice por pieza de 5 m, no solo los dos extremos. Compara con `pytest.approx` y por extremos.
+  - **Aplica a**: implementación (tests sobre muestras o tramos).
+
+- **Lección**: `ruff format .` sin límite reformatea decenas de ficheros ajenos a la historia (aquí 51, incluidos ADR y código de otras historias) y ensucia la PR. Formatea solo los ficheros que has tocado (`ruff format <rutas>`), o comprueba `git status` antes de hacer commit.
+  - **Aplica a**: implementación.
 
