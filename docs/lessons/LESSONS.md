@@ -774,3 +774,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: una captura de una fixture sintética sobre el mapa real (un tramo inventado con texto de indicio en un punto de Colmenar) parece un hallazgo real. Esas capturas se enseñan en local y no se suben a `docs/`.
   - **Aplica a**: diseño (capturas de la PR).
 
+## [2026-11-27] Historia #211 — Catastrones del IGN
+
+- **Lección**: el `GetFeatureInfo` de `primera-edicion-mtn` devuelve la hoja de un solo punto; para saber qué hojas cubren un término hay que muestrear una rejilla dentro del límite (2,5 km bastó) y contar puntos por hoja. Una sola consulta en el centro oculta las hojas de borde (Colmenar tiene dos; Chinchón, cuatro). Los enlaces de descarga del CNIG devuelven la ficha HTML con reCAPTCHA v3, no el zip: se anota `bloqueado` y se trabaja con el render del WMS.
+  - **Aplica a**: refinador, implementación (historias que inventarían la cobertura de un WMS histórico).
+

@@ -1,0 +1,282 @@
+{
+  "28043": [
+    {
+      "hoja": "0605",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=451342.00,4436124.00,452342.00,4437124.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 489424,
+      "sha256": "7bb04c2b6c1a1d7028fda4f30de9e61923c2e36cef7e00cddb386104c5b8c278",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 36.23,
+      "fraccion_no_blanca": 1.0,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 0.999,
+        "4": 0.989,
+        "8": 0.887,
+        "16": 0.75,
+        "32": 0.623
+      }
+    },
+    {
+      "hoja": "0606",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=459714.00,4436778.00,460714.00,4437778.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 416485,
+      "sha256": "247a1b99496364199d9775c02f6cf83be0a7b68b4a951568288eb6ac835c5897",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 27.75,
+      "fraccion_no_blanca": 1.0,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 0.999,
+        "4": 0.989,
+        "8": 0.881,
+        "16": 0.734,
+        "32": 0.602
+      }
+    }
+  ],
+  "28013": [
+    {
+      "hoja": "0605",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=443770.00,4428314.00,444770.00,4429314.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 492821,
+      "sha256": "e4bf2bfeadc5e29549d1744ab2ea3d82a416bfb777638a79a07a3dcfd8139199",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 35.34,
+      "fraccion_no_blanca": 1.0,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 0.999,
+        "4": 0.989,
+        "8": 0.886,
+        "16": 0.746,
+        "32": 0.613
+      }
+    },
+    {
+      "hoja": "0630",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=427172.00,4417272.00,428172.00,4418272.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 353043,
+      "sha256": "20f43e017f4227a10b4f55dd9c8085432023c5ce49621fdb093181f4c43b80ee",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 33.19,
+      "fraccion_no_blanca": 0.9999,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 0.998,
+        "4": 0.987,
+        "8": 0.864,
+        "16": 0.696,
+        "32": 0.553
+      }
+    }
+  ],
+  "28052": [
+    {
+      "hoja": "0582",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=452483.00,4448405.00,453483.00,4449405.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 540585,
+      "sha256": "877af140d9f31208fcdbca9b40c14304d05a6396f4d179c17b10300c1b790c80",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 36.59,
+      "fraccion_no_blanca": 1.0,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 0.999,
+        "4": 0.99,
+        "8": 0.885,
+        "16": 0.727,
+        "32": 0.57
+      }
+    },
+    {
+      "hoja": "0583",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=457483.00,4445905.00,458483.00,4446905.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 435344,
+      "sha256": "06d28048ecf0dd44ab34f7fd0010582f06be9f28a7e0b8581cee2b8bf2b3ba22",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 24.98,
+      "fraccion_no_blanca": 1.0,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 0.998,
+        "4": 0.987,
+        "8": 0.877,
+        "16": 0.717,
+        "32": 0.558
+      }
+    },
+    {
+      "hoja": "0605",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=452483.00,4440905.00,453483.00,4441905.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 504290,
+      "sha256": "5d56ac560891fb64138a974d0f1703515fec7a3634b624351de5752412b79948",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 36.43,
+      "fraccion_no_blanca": 1.0,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 1.0,
+        "4": 0.992,
+        "8": 0.893,
+        "16": 0.762,
+        "32": 0.614
+      }
+    },
+    {
+      "hoja": "0606",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=459437.00,4444942.00,460437.00,4445942.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 454223,
+      "sha256": "8905dc330e7826f5ee4608552b8e5406dcc1157bb841e210d6e030aa1c4bfd93",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 29.77,
+      "fraccion_no_blanca": 1.0,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 0.999,
+        "4": 0.988,
+        "8": 0.87,
+        "16": 0.709,
+        "32": 0.557
+      }
+    }
+  ],
+  "28019": [
+    {
+      "hoja": "0606",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=470954.00,4442586.00,471954.00,4443586.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 513270,
+      "sha256": "67f242f857d6ddcd61f5ba617b24c2d1e529958f184d37cd1c2bc806e7dcd6eb",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 33.59,
+      "fraccion_no_blanca": 1.0,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 0.999,
+        "4": 0.99,
+        "8": 0.886,
+        "16": 0.735,
+        "32": 0.589
+      }
+    }
+  ],
+  "28170": [
+    {
+      "hoja": "0606",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=456897.00,4439872.00,457897.00,4440872.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 442100,
+      "sha256": "8555e96189dcd0011ceec5f7bdcd91acf174101c8309a7f80cafb8f8ac1e1b55",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 30.56,
+      "fraccion_no_blanca": 1.0,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 1.0,
+        "4": 0.992,
+        "8": 0.896,
+        "16": 0.747,
+        "32": 0.609
+      }
+    }
+  ],
+  "28180": [
+    {
+      "hoja": "0583",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=474675.00,4448018.00,475675.00,4449018.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 557674,
+      "sha256": "9b3082f02afcbc957c467b42111c207f79c587e46acf2464fe8a8ca5d889861b",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 40.47,
+      "fraccion_no_blanca": 1.0,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 1.0,
+        "4": 0.991,
+        "8": 0.899,
+        "16": 0.764,
+        "32": 0.613
+      }
+    },
+    {
+      "hoja": "0606",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=478194.00,4442150.00,479194.00,4443150.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 441361,
+      "sha256": "45d97a469a0d200b1dc2f24d441303988473ca91766abaefc0ed46e048dd3b1b",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 32.99,
+      "fraccion_no_blanca": 1.0,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 0.999,
+        "4": 0.989,
+        "8": 0.885,
+        "16": 0.732,
+        "32": 0.558
+      }
+    }
+  ],
+  "28157": [
+    {
+      "hoja": "0583",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=468675.00,4446948.00,469675.00,4447948.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 526640,
+      "sha256": "04f600b675c652d8f9acf363ed1c9dcd01ccf3a0c407adda0cd3745c50dda08d",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 32.58,
+      "fraccion_no_blanca": 1.0,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 1.0,
+        "4": 0.99,
+        "8": 0.895,
+        "16": 0.752,
+        "32": 0.61
+      }
+    },
+    {
+      "hoja": "0606",
+      "url": "https://www.ign.es/wms/primera-edicion-mtn?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=catastrones&STYLES=&CRS=EPSG:25830&BBOX=465994.00,4444659.00,466994.00,4445659.00&WIDTH=500&HEIGHT=500&FORMAT=image/png",
+      "content_type": "image/png",
+      "bytes": 420462,
+      "sha256": "abcc589903d8909700c3ec02cce79dd926b5c66b208686ca1f5ae1430089b5c6",
+      "ancho_px": 500,
+      "alto_px": 500,
+      "desviacion_tipica_gris": 28.38,
+      "fraccion_no_blanca": 1.0,
+      "curva_gradiente_normalizada_0.25mpx": {
+        "1": 1.0,
+        "2": 1.0,
+        "4": 0.987,
+        "8": 0.858,
+        "16": 0.682,
+        "32": 0.531
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "fuente": "IGN — WMS https://www.ign.es/wms/primera-edicion-mtn capa catastrones; fichas del Centro de Descargas del CNIG",
+  "licencia": "CC BY 4.0 (AccessConstraints del GetCapabilities: «CC BY 4.0 ign.es»)",
+  "atribucion": "Obra derivada de Minutas MTN50 (catastrones) CC-BY 4.0 © Instituto Geográfico Nacional de España",
+  "fecha_descarga": "2026-11-27",
+  "generado_por": "scripts/verificar_catastrones.py (historia #211)",
+  "nota": "Recortes de 1 km a 2 m/px del render del WMS; no son los originales."
+}
