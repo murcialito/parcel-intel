@@ -578,6 +578,19 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: `ruff format .` sin límite reformatea decenas de ficheros ajenos a la historia (aquí 51, incluidos ADR y código de otras historias) y ensucia la PR. Formatea solo los ficheros que has tocado (`ruff format <rutas>`), o comprueba `git status` antes de hacer commit.
   - **Aplica a**: implementación.
 
+## [2026-11-27] Historia #128 — Fichero interno de candidatos y comando `candidatos-corte`
+
+- **Lección**: un fichero ausente y uno vacío significan cosas distintas. `CutCandidateSource.get_report` devuelve `None` si no hay fichero («sin capas») y un informe con `candidates == ()` si lo hay sin features («municipio evaluable»); un fichero ilegible o en otro CRS lanza `CutCandidateFileError`, nunca `None`. La escritura es atómica (temporal + `os.replace`) para que un fallo a medias no deje un fichero truncado que se tome por «evaluable».
+  - **Aplica a**: cualquier lector de ficheros derivados con semántica «ausente ≠ vacío» (#110, #111, #103).
+
+- **Lección**: el `RawCacheMissError` de `--sin-red` vive en un adapter y la aplicación no lo captura (lección de #127). Se resuelve en el composition root: `_CachedParcels` (en `cli/main.py`) lo convierte en `CadastralServiceError`, que la señal ya trata como «tesela sin datos». Así `--sin-red` da `sin_datos` con su motivo en vez de abortar.
+  - **Aplica a**: composition roots que inyecten un adapter con caché a un caso de uso que solo conoce errores de port.
+
+- **Lección**: las coordenadas de un tramo salen de interpolaciones en coma flotante (`110.00000000000001`) y el fichero las guarda a 0,01 m, así que `leer(escribir(x)) == x` solo vale si `x` ya está en esa rejilla. Los tests de ida y vuelta redondean el informe de partida; el fichero es idempotente (escribir, leer y volver a escribir da los mismos bytes).
+  - **Aplica a**: tests de ida y vuelta de geometría.
+
+- **Lección**: `ruff format src tests` sin acotar volvió a reformatear 34 ficheros ajenos (ya avisaba la lección de #127). Pasa `ruff format` solo con las rutas tocadas.
+  - **Aplica a**: implementación.
 ## [2026-11-27] Historia #58 — Belmonte de Tajo (280040-w1)
 
 - **Lección**: el diseño de una historia hija escrita antes de #139 puede citar una forma que ya no existe (`historico cargar --documento 280040`, ids `280040:<trazado>`, fixture en `planimetrias/280040/`). Con el código fusionado manda lo real: `historico cargar 280040-w1`, id `280040-w1-<trazado>`, fixture en `planimetrias/historico/280040-w1/`. Se anota en el docstring del módulo de tests y en la PR. El CA8 («sha256 que declara el fichero de puntos de control») se cumple con el `sha256` de `unidad.json` (la entrada curada), que es donde vive hoy ese dato.

@@ -793,6 +793,18 @@ Ejecución real del 2026-11-26: `vias-pecuarias-municipios` y `camino-actual-mun
 
 Ningún fichero supera el umbral de simplificación (3 000 000 bytes). Belmonte de Tajo (28019) no tiene piezas de vías pecuarias, y su capa vacía no se publica (resuelto en #86, ADR 0036). El ámbito completo se publicó en #86: 13 capas, ninguna sobre el umbral.
 
+### Candidatos a corte — fichero interno (historia #128)
+
+`candidatos-corte` escribe `data/derived/candidatos/interno/<ine>.geojson` (EPSG:25830, fuera de git). **Deriva de Catastro** (parcelas del WFS de #37, licencia INSPIRE) y de las capas base de #94: es de **uso interno y no redistribuible**; la procedencia de cada señal (`redistribucion: solo_uso_interno`) viaja en el propio fichero. No lleva datos de titularidad, referencias catastrales ni geometría de parcela. Publicar candidatos es #103 y exigirá su propia redacción. Sin fuente nueva ni proveedor nuevo.
+
+Verificación con datos reales de Colmenar de Oreja (CA12, `integration` + `fuera_de_ci`), **en verde** en local el 2026-11-27, con `data/` generada por `catastro-caminos` (41 min), `camino-actual-municipios` y `discrepancias --municipio 28043`. El fichero se genera y el lector lo reconstruye, pero el resultado aún no sirve:
+
+- **0 candidatos**, sobre 17 registros base (discrepancias `SOLAPE` o `AUSENTE_EN_FUENTE` frente a la red del IGN).
+- Señal `parcela_no_camino` en **`sin_datos`**: 59 teselas no están en la caché. `candidatos-corte` corta las teselas con otra rejilla, de origen fraccionario, que la de `catastro-caminos` (bbox redondeado del término).
+- En `discrepancias` falta además la fuente `catastro_vt`, porque `catastro-caminos` no escribe `data/derived/catastro_caminos/<ine>.geojson`.
+
+Las dos integraciones pendientes están en la #160.
+
 ---
 
 ## Resumen de fuentes no verificadas en esta pasada
