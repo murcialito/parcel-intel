@@ -34,8 +34,11 @@ def test_ca1_capa_dibujada_con_estilo_distinto_y_casilla_rotulada(tmp_path: Path
     html = _html()
     assert 'id="capa-discrepancias"' in html
     assert re.search(
-        r'<label for="capa-discrepancias">.*?Indicios a verificar \(no son un dictamen\)</label>',
+        r'<label for="capa-discrepancias"[^>]*>.*?'
+        r"Indicios a verificar \(no son un dictamen\)</span>",
         html,
+        # #166: la etiqueta ocupa varias líneas y el rótulo es el nombre de la fila.
+        re.DOTALL,
     )
     assert_node_tests_pass("^H95 CA1:", tmp_path)
 

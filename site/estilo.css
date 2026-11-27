@@ -1,15 +1,10 @@
 /* Estilos del visor (historia #85). Sin recursos externos.
    Los colores, espaciados, radios y tipografías vienen de css/tokens.css (historia #114). */
 
-/* Variables locales que los tokens no definen. Mismo criterio de tema que tokens.css. */
+/* Variable local que los tokens no definen. */
 :root {
-  --error: #9f1d1d;
   --fondo-mapa: var(--color-surface-2); /* fondo neutro si fallan las teselas (CA10) */
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-tema="claro"]) { --error: #ff9c9c; }
-}
-:root[data-tema="oscuro"] { --error: #ff9c9c; }
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -37,6 +32,7 @@ a { color: var(--color-accent); }
   overflow-y: auto;
   border-right: 1px solid var(--color-line);
 }
+.pc-mapa { position: relative; flex: 1; display: flex; min-width: 0; }
 #mapa {
   flex: 1;
   min-height: 24rem;
@@ -48,6 +44,7 @@ a { color: var(--color-accent); }
 .campo select {
   width: 100%;
   font: inherit;
+  min-height: var(--tap);
   padding: var(--space-1);
   /* Borde de control: --color-line-strong no llega a 3:1 frente al fondo (CA7). */
   border: 1px solid var(--color-muted);
@@ -55,34 +52,14 @@ a { color: var(--color-accent); }
 }
 fieldset { border: 1px solid var(--color-line); padding: var(--space-2) var(--space-3); margin: var(--space-4) 0; }
 legend { font-weight: var(--weight-bold); }
-.capa { margin: var(--space-2) 0; }
-.capa input { margin-right: var(--space-1); }
-.estado-capa { display: block; color: var(--color-muted); font-size: var(--text-sm); margin-left: 1.6rem; }
-.estado-capa[data-estado="error"] { color: var(--error); }
-.muestra {
-  display: inline-block;
-  width: 1.2rem;
-  height: .8rem;
-  vertical-align: middle;
-  border-radius: 2px;
-}
-.muestra-vias_pecuarias { background: var(--capa-vias); border: 2px solid var(--capa-vias-halo); }
-.muestra-camino_actual { height: .3rem; background: var(--capa-camino); box-shadow: 0 0 0 1px var(--capa-camino-halo); }
-.muestra-discrepancias { background: transparent; border: 3px dotted var(--capa-indicio); box-shadow: 0 0 0 1px var(--capa-indicio-halo); }
 .mensaje:not(:empty) {
-  color: var(--error);
-  border-left: 3px solid var(--error);
+  color: var(--color-nota-fg);
+  background: var(--color-nota-bg);
+  border-left: 3px solid var(--color-nota-border);
   padding: var(--space-1) var(--space-2);
   margin: var(--space-2) 0;
 }
 .aviso-base:not(:empty) { color: var(--color-muted); font-size: var(--text-sm); margin: var(--space-2) 0; }
-.aviso {
-  background: var(--color-nota-bg);
-  color: var(--color-nota-fg);
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--text-sm);
-  border-radius: var(--radius-sm);
-}
 .pie { padding: var(--space-2) var(--space-4); border-top: 1px solid var(--color-line); font-size: var(--text-sm); color: var(--color-muted); }
 .pie p { margin: 0; }
 .ficha strong { display: block; }
@@ -94,8 +71,68 @@ legend { font-weight: var(--weight-bold); }
 .ficha-fuentes { margin: var(--space-2) 0 0; padding-left: 1.1rem; }
 .ficha-fuentes a { overflow-wrap: anywhere; }
 .ficha-criterio { color: var(--color-muted); font-size: var(--text-sm); }
+/* Panel de capas, avisos y estados: adaptado de docs/design-system/site/css/componentes.css
+   (CC BY 4.0, historia #166). La muestra de cada línea replica el estilo del mapa de
+   site/estilos-capas.js: un test compara grosores, trazos, opacidades y colores (CA2). */
+.pc-capas { list-style: none; margin: 0; padding: 0; }
+.pc-capa { border-bottom: 1px solid var(--color-line); }
+.pc-capa:last-child { border-bottom: 0; }
+.pc-capa__fila { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); min-height: var(--tap); padding: var(--space-2) 0; cursor: pointer; }
+.pc-capa__nombre { display: block; font-weight: var(--weight-bold); line-height: var(--leading-tight); }
+.pc-capa__desc { display: block; font-weight: var(--weight-regular); font-size: var(--text-sm); color: var(--color-muted); margin-top: 2px; }
+.pc-capa__estado { color: var(--color-muted); font-size: var(--text-sm); }
+.pc-capa__estado:not(:empty) { padding: 0 0 var(--space-2) calc(44px + var(--space-3)); }
+.pc-capa__estado[data-estado="error"] { color: var(--color-nota-fg); background: var(--color-nota-bg); border-left: 3px solid var(--color-nota-border); }
+.pc-capa__niveles { list-style: none; margin: 0; padding: 0 0 var(--space-2); display: grid; gap: var(--space-1); font-size: var(--text-sm); color: var(--color-muted); }
+.pc-capa__niveles li { display: flex; align-items: center; gap: var(--space-2); }
+.pc-capa__niveles .pc-muestra { width: 36px; flex: none; }
+
+.pc-muestra { width: 44px; height: 16px; overflow: visible; }
+.pc-muestra line { fill: none; }
+.pc-muestra--vias .h { stroke: var(--capa-vias-halo); stroke-opacity: 0.55; stroke-width: 9; }
+.pc-muestra--vias .l { stroke: var(--capa-vias); stroke-width: 6; }
+.pc-muestra--camino .h { stroke: var(--capa-camino-halo); stroke-opacity: 0.75; stroke-width: 5.5; stroke-linecap: round; }
+.pc-muestra--camino .l { stroke: var(--capa-camino); stroke-width: 2.5; stroke-linecap: round; }
+.pc-muestra--indicio .h, .pc-muestra--indicio .l { stroke-linecap: round; }
+.pc-muestra--indicio .h { stroke: var(--capa-indicio-halo); }
+.pc-muestra--indicio .l { stroke: var(--capa-indicio); }
+.pc-muestra--baja .h { stroke-width: 8; stroke-opacity: 0.55; stroke-dasharray: 1 12; }
+.pc-muestra--baja .l { stroke-width: 5; stroke-dasharray: 1 12; }
+.pc-muestra--media .h { stroke-width: 10; stroke-opacity: 0.65; stroke-dasharray: 1 11; }
+.pc-muestra--media .l { stroke-width: 7; stroke-dasharray: 1 11; }
+.pc-muestra--alta .h { stroke-width: 12; stroke-opacity: 0.75; stroke-dasharray: 1 10; }
+.pc-muestra--alta .l { stroke-width: 9; stroke-dasharray: 1 10; }
+
+/* Interruptor: el apagado usa --color-muted (--color-line-strong no llega a 3:1, lección de #114). */
+.pc-switch { appearance: none; position: relative; width: 44px; height: 26px; margin: 0; flex: none; border-radius: var(--radius-pill); background: var(--color-muted); cursor: pointer; transition: background var(--dur) var(--ease); }
+.pc-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--color-surface); box-shadow: var(--shadow-1); transition: transform var(--dur) var(--ease); }
+.pc-switch:checked { background: var(--color-accent); }
+.pc-switch:checked::after { transform: translateX(18px); }
+.pc-switch:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+
+/* Avisos permanentes sobre el mapa: tranquilos, sin rojo. No tapan el arrastre del mapa. */
+.pc-avisos { position: absolute; top: var(--space-2); left: 56px; right: var(--space-2); z-index: var(--z-map-controls); display: grid; gap: var(--space-2); pointer-events: none; }
+.pc-aviso { display: block; margin: 0; padding: var(--space-2) var(--space-3); font-size: var(--text-sm); line-height: 1.4; color: var(--color-nota-fg); background: var(--color-nota-bg); border: 1px solid var(--color-nota-border); border-radius: var(--radius-md); }
+.pc-aviso strong { font-weight: var(--weight-bold); }
+
+/* Atribución de Leaflet: siempre visible, legible y sin recortar (texto de 13 px: --color-fg). */
+.leaflet-container .leaflet-control-attribution { background: var(--color-surface); color: var(--color-fg); font: var(--text-xs)/1.4 var(--font-sans); white-space: normal; max-width: 100%; }
+.leaflet-container .leaflet-control-attribution a { color: var(--color-fg); }
+
+/* Estado de carga de una capa */
+.pc-progreso { width: 100%; height: 4px; margin-bottom: var(--space-1); border-radius: var(--radius-pill); background: var(--color-surface-2); overflow: hidden; }
+.pc-progreso i { display: block; width: 40%; height: 100%; background: var(--color-accent); border-radius: inherit; animation: pc-avance 1.6s var(--ease) infinite; }
+@keyframes pc-avance { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }
+}
+@media (forced-colors: active) {
+  .pc-switch { border: 2px solid ButtonText; }
+  .pc-switch:checked { background: Highlight; }
+}
 @media (max-width: 40rem) {
   .visor { flex-direction: column; }
   .panel { width: auto; max-width: none; border-right: 0; border-bottom: 1px solid var(--color-line); }
-  #mapa { min-height: 60vh; }
+  .pc-mapa { min-height: 60vh; }
 }

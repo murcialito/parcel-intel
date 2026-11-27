@@ -40,31 +40,50 @@
 
       <fieldset>
         <legend>Capas</legend>
-        <p class="capa">
-          <input type="checkbox" id="capa-vias_pecuarias" name="vias_pecuarias" checked>
-          <label for="capa-vias_pecuarias"><span class="muestra muestra-vias_pecuarias" aria-hidden="true"></span> Vías pecuarias (Comunidad de Madrid)</label>
-          <span class="estado-capa" id="estado-vias_pecuarias"></span>
-        </p>
-        <p class="capa">
-          <input type="checkbox" id="capa-camino_actual" name="camino_actual" checked>
-          <label for="capa-camino_actual"><span class="muestra muestra-camino_actual" aria-hidden="true"></span> Camino actual (red de transporte del IGN, sin asfaltar)</label>
-          <span class="estado-capa" id="estado-camino_actual"></span>
-        </p>
-        <p class="capa">
-          <input type="checkbox" id="capa-discrepancias" name="discrepancias">
-          <label for="capa-discrepancias"><span class="muestra muestra-discrepancias" aria-hidden="true"></span> Indicios a verificar (no son un dictamen)</label>
-          <span class="estado-capa" id="estado-discrepancias"></span>
-        </p>
+        <ul class="pc-capas">
+        <li class="pc-capa">
+          <label for="capa-vias_pecuarias" class="pc-capa__fila">
+            <svg class="pc-muestra pc-muestra--vias" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg>
+            <span class="pc-capa__texto"><span class="pc-capa__nombre">Vías pecuarias (Comunidad de Madrid)</span><span class="pc-capa__desc">Banda ancha continua · informativa, no deslinde</span></span>
+            <input type="checkbox" role="switch" class="pc-switch" id="capa-vias_pecuarias" name="vias_pecuarias" checked>
+          </label>
+          <div class="pc-capa__estado" id="estado-vias_pecuarias"></div>
+        </li>
+        <li class="pc-capa">
+          <label for="capa-camino_actual" class="pc-capa__fila">
+            <svg class="pc-muestra pc-muestra--camino" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg>
+            <span class="pc-capa__texto"><span class="pc-capa__nombre">Camino actual (red de transporte del IGN, sin asfaltar)</span><span class="pc-capa__desc">Línea fina continua · tramos sin asfaltar (IGN)</span></span>
+            <input type="checkbox" role="switch" class="pc-switch" id="capa-camino_actual" name="camino_actual" checked>
+          </label>
+          <div class="pc-capa__estado" id="estado-camino_actual"></div>
+        </li>
+        <li class="pc-capa">
+          <label for="capa-discrepancias" class="pc-capa__fila">
+            <svg class="pc-muestra pc-muestra--indicio pc-muestra--media" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg>
+            <span class="pc-capa__texto"><span class="pc-capa__nombre">Indicios a verificar (no son un dictamen)</span><span class="pc-capa__desc">Punteada · a verificar sobre el terreno</span></span>
+            <input type="checkbox" role="switch" class="pc-switch" id="capa-discrepancias" name="discrepancias">
+          </label>
+          <div class="pc-capa__estado" id="estado-discrepancias"></div>
+          <ul class="pc-capa__niveles">
+            <li><svg class="pc-muestra pc-muestra--indicio pc-muestra--baja" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg> Confianza baja · punto pequeño y espaciado</li>
+            <li><svg class="pc-muestra pc-muestra--indicio pc-muestra--media" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg> Confianza media · punto mediano</li>
+            <li><svg class="pc-muestra pc-muestra--indicio pc-muestra--alta" aria-hidden="true" viewBox="0 0 44 16"><line class="h" x1="4" y1="8" x2="40" y2="8"/><line class="l" x1="4" y1="8" x2="40" y2="8"/></svg> Confianza alta · punto grande y denso</li>
+          </ul>
+        </li>
+        </ul>
       </fieldset>
     </form>
 
     <div id="mensaje" class="mensaje" role="status" aria-live="polite"></div>
     <div id="aviso-base" class="aviso-base" role="status" aria-live="polite"></div>
 
-    <p class="aviso"><strong>Aviso:</strong> la capa de vías pecuarias es cartografía de carácter informativo, no un deslinde. Ningún trazado de este mapa prueba por sí solo que un camino sea público ni que esté cortado.</p>
+    <p class="pc-aviso"><strong>Aviso:</strong> la capa de vías pecuarias es cartografía de carácter informativo, no un deslinde. Ningún trazado de este mapa prueba por sí solo que un camino sea público ni que esté cortado.</p>
   </aside>
 
-  <div id="mapa" role="region" aria-label="Mapa"></div>
+  <div class="pc-mapa">
+    <div id="mapa" role="region" aria-label="Mapa"></div>
+    <div class="pc-avisos" role="note" aria-label="Avisos"><p class="pc-aviso"><strong>Cartografía informativa, no es un deslinde.</strong> Indicios a verificar, no ilegalidades.</p></div>
+  </div>
 </main>
 
 <footer class="pie">

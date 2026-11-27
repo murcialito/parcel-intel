@@ -1361,3 +1361,53 @@ test("H165 CA11: config.js sin colores y con claves del sistema de diseño", () 
     for (const clave of nombradas) assert.ok(CLAVES.includes(clave), clave);
   }
 });
+
+// --- Historia #166: estados de capa en el panel ------------------------------------------
+
+test("H166 CA4: en carga, una barra aria-hidden y el texto; textContent es el de config.js", () => {
+  const doc = documentoFalso();
+  const vista = crearVista(doc, CONFIG.textos);
+  vista.ponerEstadoCapa("vias_pecuarias", "cargando");
+  const el = doc.elementos["estado-vias_pecuarias"];
+  assert.equal(el.dataset.estado, "cargando");
+  assert.equal(el.textContent, CONFIG.textos.cargando);
+  assert.equal(el.textContent, "cargando…");
+  assert.equal(el.children.length, 2);
+  const [barra, texto] = el.children;
+  assert.equal(barra.className, "pc-progreso");
+  assert.equal(barra.atributos["aria-hidden"], "true");
+  assert.equal(barra.children.length, 1);
+  assert.equal(barra.children[0].tagName, "i");
+  assert.equal(texto.tagName, "span");
+});
+
+test("H166 CA4: vacía y error llevan solo el texto, sin barra, y el estado anterior se limpia", () => {
+  const doc = documentoFalso();
+  const vista = crearVista(doc, CONFIG.textos);
+  vista.ponerEstadoCapa("vias_pecuarias", "cargando");
+  vista.ponerEstadoCapa("vias_pecuarias", "vacia");
+  const el = doc.elementos["estado-vias_pecuarias"];
+  assert.equal(el.dataset.estado, "vacia");
+  assert.equal(el.textContent, CONFIG.textos.sinTrazados);
+  assert.ok(el.children.every((c) => c.className !== "pc-progreso"));
+  vista.ponerEstadoCapa("vias_pecuarias", "error");
+  assert.equal(el.dataset.estado, "error");
+  assert.equal(el.textContent, CONFIG.textos.errorCapa);
+  assert.equal(el.children.length, 1);
+  vista.ponerEstadoCapa("discrepancias", "sin_indicios");
+  assert.equal(doc.elementos["estado-discrepancias"].textContent, CONFIG.textos.sinIndicios);
+  vista.ponerEstadoCapa("vias_pecuarias", "ok");
+  assert.equal(el.textContent, "");
+  assert.equal(el.children.length, 0);
+  assert.equal(el.dataset.estado, "ok");
+});
+
+test("H166 CA4: el error de una capa deja las otras dibujadas y en ok", async () => {
+  const cargar = async (ruta) =>
+    ruta.endsWith("indice.json") ? INDICE : ruta.includes("vias_pecuarias") ? { type: "Feature" } : cargarJsonFixture(ruta);
+  const { mapa, vista } = await iniciado(cargar);
+  assert.equal(vista.estados.vias_pecuarias, "error");
+  assert.equal(vista.estados.camino_actual, "ok");
+  assert.ok(mapa.r.anadidas.some((a) => a.id === "camino_actual"));
+  assert.ok(!mapa.r.anadidas.some((a) => a.id === "vias_pecuarias"));
+});
