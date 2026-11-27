@@ -855,3 +855,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: un proyecto QGIS/QField se puede generar sin QGIS (GeoPackage con `sqlite3` + `.qgs` XML a mano), pero eso solo prueba que el fichero es válido como SQLite y XML, no que QField lo abra. Dejar la apertura real como reserva `asumido` en `REGISTRY.md` y pedirla a quien tenga el móvil. `WebFetch` devuelve 404 en varias rutas de `docs.qfield.org` que salen en buscadores; hay que partir de las que enlaza la propia documentación.
   - **Aplica a**: la historia hija que genere el proyecto real por municipio | revisión.
 
+## [2026-11-27] Historia #223 — Kit de campo en el visor
+
+- **Lección**: los tests de #166, #171 y #185 fijan el marcado y `config.js` con regex frágiles: `<section class="pc-cuerpo">…</section>` no admite otro `<section>` dentro (cierra en el primero) y `id: "candidatos",\s*titulo:` exige que `titulo` siga a `id`. Una sección nueva del panel va en un `<div role="group">` y las claves nuevas de una capa (`kitNombre`) van después de `nombre`, no entre `id` y `titulo`. `grep` de esos patrones en `tests/acceptance/` antes de tocar `index.html` o `config.js`.
+  - **Aplica a**: implementación (cambios de `index.html` y de `config.js` del visor).
+
+- **Lección**: un recurso opcional del visor (el índice del kit) se carga en paralelo al índice principal con un `try/catch` propio que solo escribe en `console`, y el arranque lo espera, para que la sección salga ya al elegir municipio sin carreras. La validación de ese índice descarta entradas y claves (no lanza) y deriva el texto de las capas de `config.js`, nunca del dato.
+  - **Aplica a**: implementación (otros ficheros opcionales publicados en `site/datos/`, como el proyecto de campo de #222).
+

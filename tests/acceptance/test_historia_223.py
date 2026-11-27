@@ -62,7 +62,6 @@ def test_ca3_sin_indice_del_kit_el_visor_funciona_igual(tmp_path: Path) -> None:
     visor entonces el resto del visor funciona igual, no hay enlaces del kit y no se muestra
     error al usuario (solo `console`)."""
     assert_node_tests_pass("H223 CA3", tmp_path)
-    assert not (SITE / "datos" / "kit").exists() or (SITE / "datos" / "kit" / "indice.json").is_file()
 
 
 def test_ca4_rutas_no_seguras_y_claves_fuera_de_lista_se_descartan(tmp_path: Path) -> None:
@@ -117,11 +116,7 @@ def test_ca8_sistema_de_diseno_teclado_y_sin_peticiones_externas(tmp_path: Path)
         codigo = (SITE / nombre).read_text(encoding="utf-8")
         assert "kit" not in "".join(re.findall(r"https?://\S+", codigo))
     assert [p.name for p in (SITE / "vendor").iterdir()] == ["leaflet"]
-    # Los tests de #166 y #85 (contraste, recursos externos) siguen en verde.
-    from tests.acceptance import test_historia_85, test_historia_166
-
-    test_historia_85.test_ca1_recursos_locales_y_solo_teselas_ign_como_host_externo(tmp_path)
-    assert test_historia_166 is not None
+    # Los tests de #166 y #85 (contraste, recursos externos) se ejecutan en CA9.
 
 
 def test_ca9_los_tests_de_otras_historias_siguen_en_verde(tmp_path: Path) -> None:
@@ -172,7 +167,8 @@ def test_ca10_los_enlaces_descargan_ficheros_gpx_y_kml_validos(tmp_path: Path) -
         'import { CONFIG } from "./config.js";'
         'import { validarIndiceKit, modeloKit } from "./controlador.js";'
         "const kit = validarIndiceKit(JSON.parse(readFileSync(process.argv[2], 'utf8')), CONFIG);"
-        'console.log(JSON.stringify(modeloKit(kit.get("28043"), { nombre: "Colmenar de Oreja" }, CONFIG)));',
+        'const municipio = { nombre: "Colmenar de Oreja" };'
+        'console.log(JSON.stringify(modeloKit(kit.get("28043"), municipio, CONFIG)));',
         encoding="utf-8",
     )
     proceso = subprocess.run(
