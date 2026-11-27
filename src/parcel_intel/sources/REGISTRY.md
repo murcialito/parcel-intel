@@ -751,16 +751,16 @@ Verificado el 2026-11-25 para la [historia #26](https://github.com/murcialito/pa
 
 ### Clasificación por municipio — orden, fecha y URL BOCM
 
-Estado de las filas de Chinchón, Villaconejos y Villarejo de Salvanés: `bloqueado`. Motivo: el archivo del BOCM no se ha escaneado por fecha y no hay buscador accesible. "No encontrada" significa aquí "no localizada por los canales de arriba", no "no existe". Las de Colmenar de Oreja, Aranjuez, Belmonte de Tajo y Valdelaguna se consultaron en la historia #282: ver «Canales consultados — historia #282» más abajo.
+En #26 las siete filas quedaron `bloqueado`: solo se había buscado en el BOCM, y las clasificaciones anteriores a 1984 se publicaron en el BOE. Chinchón, Villaconejos y Villarejo de Salvanés se resolvieron en la historia #281 (2026-11-27): ver «Órdenes de clasificación leídas en el BOE — historia #281» más abajo. Colmenar de Oreja, Aranjuez, Belmonte de Tajo y Valdelaguna se consultaron en la historia #282: ver «Canales consultados — historia #282». «No localizada» significa «no localizada por los canales consultados», no «no existe».
 
 | Municipio | INE | Orden de clasificación | Estado |
 | --- | --- | --- | --- |
 | Colmenar de Oreja | 28043 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
 | Aranjuez | 28013 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
-| Chinchón | 28052 | no encontrada | `bloqueado` |
+| Chinchón | 28052 | Orden de 20/05/1974, BOE-A-1974-44784 (sección #281) | `confirmado` |
 | Belmonte de Tajo | 28019 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
-| Villaconejos | 28170 | no encontrada | `bloqueado` |
-| Villarejo de Salvanés | 28180 | no encontrada | `bloqueado` |
+| Villaconejos | 28170 | Orden de 13/07/1972, BOE-A-1972-46448 (sección #281) | `confirmado` |
+| Villarejo de Salvanés | 28180 | Orden de 08/10/1969, BOE-A-1969-49149, y primera modificación de 20/05/1974, BOE-A-1974-44786 (sección #281) | `confirmado` |
 | Valdelaguna | 28157 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
 
 `asumido`: la clasificación de vías pecuarias en la Comunidad de Madrid se aprueba por orden de la Consejería competente en medio ambiente (Ley 8/1998, citada en el `Abstract` del WMS `Zonas`, `wms_zonas_getcapabilities.xml`). Por eso el sitio donde buscarla es el BOCM. La cita exacta de la norma de cada municipio no se ha comprobado.
@@ -804,6 +804,85 @@ Conclusión (`confirmado` para los canales; la conclusión sobre el municipio es
 - Siguiente paso: solicitud al Fondo Documental, borrador en #284. Desde aquí no se envía nada.
 - Orden localizada (la fila con referencia, URL y fixture) y propuesta de historia hija en #280: no aplican, porque en esta pasada no se localizó ninguna orden legible.
 - Esta sección no clasifica ningún tramo ni cambia el mapa.
+
+### Órdenes de clasificación leídas en el BOE — historia #281
+
+Descargadas y leídas el **2026-11-27** (historia [#281](https://github.com/murcialito/paso-comun/issues/281), hija de #280). Cada PDF se descargó con `curl` desde el enlace «PDF» de la ficha `doc.php?id=…` y se leyó con la herramienta de lectura de PDF (imagen y texto de la página). Las cifras de las tablas se transcriben de la **imagen**; el texto extraído tiene errores de reconocimiento (en Chinchón, «6,E9» y «6 69» por 6,69). Fixtures en `tests/fixtures/caminos/` (el PDF es la página de la disposición en el BOE, que comparte página con otras disposiciones sin relación).
+
+| Municipio | Disposición | Fecha de la orden | Ficha | PDF | Fixture (bytes) | Estado |
+| --- | --- | --- | --- | --- | --- | --- |
+| Chinchón (28052) | BOE-A-1974-44784, clasificación | 1974-05-20 (BOE 177, 25-07-1974, pp. 15414-15415) | https://www.boe.es/buscar/doc.php?id=BOE-A-1974-44784 | https://www.boe.es/boe/dias/1974/07/25/pdfs/A15414-15415.pdf | `boe_BOE-A-1974-44784.pdf` (164 669) | `confirmado` |
+| Villarejo de Salvanés (28180) | BOE-A-1969-49149, clasificación | 1969-10-08 (BOE 248, 16-10-1969, p. 16179) | https://www.boe.es/buscar/doc.php?id=BOE-A-1969-49149 | https://www.boe.es/boe/dias/1969/10/16/pdfs/A16179-16179.pdf | `boe_BOE-A-1969-49149.pdf` (86 526) | `confirmado` |
+| Villarejo de Salvanés (28180) | BOE-A-1974-44786, primera modificación | 1974-05-20 (BOE 177, 25-07-1974, p. 15415) | https://www.boe.es/buscar/doc.php?id=BOE-A-1974-44786 | https://www.boe.es/boe/dias/1974/07/25/pdfs/A15415-15415.pdf | `boe_BOE-A-1974-44786.pdf` (88 331) | `confirmado` |
+| Villaconejos (28170) | BOE-A-1972-46448, clasificación | 1972-07-13 (BOE 199, 19-08-1972, p. 15328) | https://www.boe.es/buscar/doc.php?id=BOE-A-1972-46448 | https://www.boe.es/boe/dias/1972/08/19/pdfs/A15328-15328.pdf | `boe_BOE-A-1972-46448.pdf` (87 682) | `confirmado` |
+
+Fecha de descarga de las cuatro: 2026-11-27. En la ficha del BOE la orden de Villaconejos lleva fecha de publicación 1972-08-19; la fecha de la orden es la que firma el texto (13 de julio de 1972).
+
+**Licencia — `confirmado`.** Condiciones de reutilización de la sede del BOE, leídas el 2026-11-27 en `https://www.boe.es/informacion/aviso_legal/index.php` (apartado «Condiciones de reutilización», conforme a la licencia tipo aprobada por Resolución de la Agencia de 27 de junio de 2024): permiten «la reutilización de los documentos sometidos a ellas para fines comerciales y no comerciales, siempre que dicho uso no constituya una actividad administrativa pública y que se realice una utilización diligente de los contenidos». Condiciones que se cumplen aquí: citar la fuente con enlace a `https://www.boe.es`; en una obra derivada, «Basado en datos de la Agencia Estatal Boletín Oficial del Estado»; no sugerir carácter oficial ni patrocinio de la Agencia. Las anchuras transcritas son una extracción de datos de la orden, no el texto oficial.
+
+**Regla común a las tres órdenes.** Cada una dice, con esta redacción en lo esencial, que «en aquellos tramos de las mismas afectados por situaciones topográficas, paso por zonas urbanas, alteraciones por el transcurso del tiempo en cauces fluviales o situaciones de derecho previstas en el artículo 2.º del Reglamento de Vías Pecuarias, su anchura quedará definitivamente fijada al practicarse el deslinde». Esa frase **afecta a todas las vías de la orden** y a los tramos que reúnan alguna de esas situaciones. Villarejo de Salvanés (1969) la escribe «en el artículo segundo». Las anchuras de abajo son dato de la orden, no prueba de ocupación ni de que el camino exista hoy con esa anchura.
+
+#### Chinchón — Orden de 20/05/1974 (BOE-A-1974-44784), 10 vías y 4 abrevaderos/descansaderos
+
+Proyecto de clasificación de fecha 13 de abril de 1967, «cuyo contenido se tendrá presente en todo cuanto les afecte».
+
+| N.º | Vía | Clase | Anchura según la orden | Tramo o descripción |
+| --- | --- | --- | --- | --- |
+| 1 | Cañada Galiana | cañada | tramo primero 37,61 m; tramo segundo 75,22 m | dos tramos; el recorrido está en el proyecto de 1967 |
+| 2 | Cordel llamado de La Julia | cordel | tramo primero 37,61 m | solo se cita el tramo primero |
+| 3 | Vereda de La Blanca | vereda | tramo primero 6,69 m; tramo segundo 20,89 m | dos tramos |
+| 4 | Vereda de La Carcabilla y Mojón Alto | vereda | 20,89 m | — |
+| 5 | Vereda de Molincaldo | vereda | 20,89 m | — |
+| 6 | Vereda del Rosario, Rostro de Valquegigoso y Valladares | vereda | 20,89 m | — |
+| 7 | Vereda de La Cuesta del Gramoso | vereda | 20,89 m | — |
+| 8 | Vereda de Valdelazarza | vereda | 20,89 m | — |
+| 9 | Colada del Puente de Tablas o del Quiñón | colada | 6,69 m | — |
+| 10 | Colada del Serranillo | colada | 12 m | — |
+
+Frase de deslinde: afecta a las 10 vías (ver «Regla común»).
+
+Abrevaderos y descansaderos: la orden da **superficie**, no anchura: A) La Fuente del Valle, 29 áreas y 11 centiáreas; B) Valquegigoso, 6 áreas y 82 centiáreas; C) Valdelaspozas, 29 áreas y 11 centiáreas; D) Valdelazarza, 46 áreas y 50 centiáreas. La orden no dice cuál es abrevadero y cuál descansadero; la encabeza «Abrevaderos y descansaderos». Las superficies de los tres primeros que aparecen en el texto con ruido («seis areas», «SO centiáreas») se comprobaron en la imagen.
+
+#### Villarejo de Salvanés — Orden de 08/10/1969 (BOE-A-1969-49149), 3 vías
+
+| Vía | Clase | Anchura según la orden | Tramo o descripción |
+| --- | --- | --- | --- |
+| Vereda del Cañuelo | vereda | 20,89 m | — |
+| Vereda de San José | vereda | 20,89 m | — |
+| Vereda de las Esperillas | vereda | 20,89 m | «Estas tres veredas con una anchura de 20,89 metros» |
+
+Frase de deslinde: afecta a las tres (ver «Regla común»). La orden no recoge descansaderos ni abrevaderos. La modificación de 1974 escribe «Asperillas» donde esta orden escribe «Esperillas»: se recoge tal como figura en cada una; no se identifican como la misma vía sin leer el proyecto.
+
+#### Villarejo de Salvanés — primera modificación, Orden de 20/05/1974 (BOE-A-1974-44786)
+
+Amplía la clasificación de 1969 con dos vías y rectifica el recorrido de otra (proyecto de modificación de 29 de septiembre de 1973). Declara firme lo no opuesto del proyecto de 1969. Esta disposición comparte página con otras dos órdenes (Tales, Castellón; Domeño, Navarra), sin relación con el ámbito.
+
+| N.º en la orden | Vía | Clase | Anchura según la orden | Tramo o descripción |
+| --- | --- | --- | --- | --- |
+| 3 a) | Vereda de las Asperillas, primer tramo | vereda | 33,43 m («anchura legal») | «queda comprendido entre los términos municipales de Villarrubia de Santiago y Villamanrique de Tajo» |
+| 4 | Colada Toledana | colada | variable, mínimo 6 m, «determinada con exactitud en el acto de su reglamentario deslinde» | «tiene como eje el antiguo camino viejo de Villamanrique a Fuentidueña de Tajo» |
+| 3 b) | Vereda de las Asperillas, segundo tramo | vereda | no se da anchura | «su itinerario queda fijado de conformidad con la descripción» del proyecto de modificación (recorrido rectificado) |
+
+Frase de deslinde: esta orden no la repite; la anchura de la Colada Toledana la fija el deslinde por su propio texto. La cifra 33,43 m (inusual frente a los 20,89 m de la orden de 1969) se comprobó en la imagen: «33,43 metros».
+
+#### Villaconejos — Orden de 13/07/1972 (BOE-A-1972-46448), 2 vías
+
+Proyecto de clasificación redactado por un perito agrícola del Estado (no se reproduce su nombre).
+
+| Vía | Clase | Anchura según la orden | Tramo o descripción |
+| --- | --- | --- | --- |
+| Vereda del Raso | vereda | 20,89 m | — |
+| Vereda del Rosario | vereda | 20,89 m | — |
+
+Frase de deslinde: afecta a las dos (ver «Regla común»). La orden no recoge descansaderos ni abrevaderos.
+
+#### Qué se verificó y qué no (#281)
+
+- **Verificado contra la imagen del PDF:** las cifras de anchura y superficie de las cuatro tablas, los nombres de las vías, las fechas de las órdenes y los números de página. Los nombres de vías se dan como en la imagen (el texto extraído tiene errores de OCR: «Cañweio» por «Cañuelo»).
+- **No verificado / fuera de la orden:** el recorrido, la dirección y la superficie de cada vía están en los proyectos de clasificación (1967, 1973 y los de 1969 y 1972), que **no** se han localizado ni leído. La anchura de la orden es la legal, no la que hoy tenga el camino. Aquí no hay geometría ni deslinde.
+- **Canal ilegible ≠ «no hay»:** no se leyó el texto completo del BOE (`campo[1]=TEXTO`), ni los sumarios de 1960–1990 (ver #282); en Chinchón no se buscó una modificación posterior ni deslindes. Para Villaconejos y Chinchón no se ha comprobado si existe modificación como la de Villarejo.
+- **Datos personales:** las cuatro páginas del BOE mencionan nombres de personas (periciales de los proyectos y, en la modificación de Villarejo, una reclamación desestimada). No se copian a este registro ni a ningún fichero de texto; el PDF es el documento oficial tal cual.
+- **Anchuras y ley vigente:** las órdenes citan el Reglamento de Vías Pecuarias de 1944; no dicen de dónde salen sus cifras. Su relación con las anchuras máximas de la Ley 3/1995, art. 4, no se ha estudiado aquí.
 
 ### Deslinde por municipio — `bloqueado`
 
