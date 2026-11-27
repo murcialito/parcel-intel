@@ -153,6 +153,18 @@ class ElementoFalso {
   setAttribute(nombre, valor) {
     this.atributos = { ...(this.atributos ?? {}), [nombre]: String(valor) };
   }
+  getAttribute(nombre) {
+    return this.atributos?.[nombre] ?? null;
+  }
+  removeAttribute(nombre) {
+    if (this.atributos) delete this.atributos[nombre];
+  }
+  addEventListener(tipo, f) {
+    this.oyentes = { ...(this.oyentes ?? {}), [tipo]: f };
+  }
+  disparar(tipo) {
+    this.oyentes?.[tipo]?.();
+  }
   appendChild(hijo) {
     this.children.push(hijo);
     return hijo;
@@ -172,6 +184,11 @@ function documentoFalso() {
     elementos,
     getElementById: (id) => elementos[id] ?? null,
     createElement: (tag) => new ElementoFalso(tag),
+    createElementNS: (ns, tag) => {
+      const e = new ElementoFalso(tag);
+      e.espacio = ns;
+      return e;
+    },
   };
 }
 
@@ -1636,6 +1653,148 @@ test("H171 CA8: ningún texto del visor ni de la fixture lleva palabras vetadas 
     ...Object.values(PUBLICADO.properties).filter((v) => typeof v === "string"),
     ...PUBLICADO.properties.medicion.texto, ...PUBLICADO.properties.atribucion,
     ...PUBLICADO.features.map((f) => nodoCand(f.properties).textContent),
+  ];
+  for (const t of textos) {
+    assert.ok(!REFCAT.test(t), t);
+    for (const palabra of vetadas) assert.ok(!t.toLowerCase().includes(palabra), `${palabra}: ${t}`);
+  }
+});
+
+// --- Historia #178: imágenes de comparación en la ficha (nombres «H178 CA<n>:») -------------
+
+const PUBLICADO_IMG = JSON.parse(await readFile(process.env.VISOR_CANDIDATOS_IMG, "utf8"));
+const CON_IMG = PUBLICADO_IMG.features[0].properties;
+const SIN_IMG = PUBLICADO_IMG.features[1].properties;
+const NOTAS = PUBLICADO_IMG.properties.comparacion;
+
+// Ficha tal como la arma el controlador al pulsar un tramo del fichero publicado.
+async function fichaPulsada(publicado, propiedades) {
+  const { cargar } = cargadorCandidatos(copia(publicado));
+  const mapa = crearMapaDoble();
+  const vista = crearVista(documentoFalso(), CONFIG.textos);
+  const ctl = crearControlador({ mapa, cargarJson: cargar, vista, config: CONFIG });
+  await ctl.iniciar();
+  const dibujada = mapa.r.anadidas.find((a) => a.id === "candidatos");
+  return dibujada.opciones.alPulsar(propiedades);
+}
+const porTag = (nodo, tag) => hijos(nodo).filter((h) => h.tagName === tag);
+const porClase = (nodo, clase) => hijos(nodo).filter((h) => h.className === clase);
+
+test("H178 CA1: imágenes en orden cronológico con periodo, atribución, lazy y URL publicada", async () => {
+  // Se desordenan en la entrada para comprobar el orden cronológico.
+  const props = copia(CON_IMG);
+  props.imagenes_comparacion[0].imagenes.reverse();
+  const ficha = await fichaPulsada(PUBLICADO_IMG, props);
+  const imgs = porTag(ficha, "img");
+  assert.equal(imgs.length, 2);
+  assert.deepEqual(
+    imgs.map((i) => i.atributos.src),
+    CON_IMG.imagenes_comparacion[0].imagenes.map((i) => i.url),
+  );
+  for (const i of imgs) assert.equal(i.atributos.loading, "lazy");
+  const texto = ficha.textContent;
+  for (const i of CON_IMG.imagenes_comparacion[0].imagenes) {
+    assert.ok(texto.includes(i.periodo), i.periodo);
+    assert.ok(texto.includes(i.atribucion), i.atribucion);
+    assert.ok(i.atribucion.startsWith("Obra derivada de "));
+  }
+  assert.ok(texto.indexOf("1997-1999") < texto.indexOf("2023"));
+  assert.equal(imgs[0].atributos.alt, "Ortofoto de 1997-1999 con el tramo a verificar marcado");
+});
+
+test("H178 CA2: el trazo es un svg con viewBox y una polyline por parte, con createElementNS; se oculta con un control", async () => {
+  const ficha = await fichaPulsada(PUBLICADO_IMG, copia(CON_IMG));
+  const svgs = porTag(ficha, "svg");
+  assert.equal(svgs.length, 2);
+  const [v] = CON_IMG.imagenes_comparacion;
+  for (const svg of svgs) {
+    assert.equal(svg.espacio, "http://www.w3.org/2000/svg");
+    assert.equal(svg.atributos.viewBox, `0 0 ${v.ancho_px} ${v.alto_px}`);
+    const lineas = porTag(svg, "polyline");
+    assert.equal(lineas.length, v.trazo_px.length);
+    assert.equal(lineas[0].espacio, "http://www.w3.org/2000/svg");
+    assert.equal(lineas[0].atributos.points, "120,320 520,320");
+    assert.equal(lineas[1].atributos.points, "520,330 560,400");
+  }
+  const [control] = porTag(ficha, "button");
+  assert.equal(control.atributos.type, "button");
+  assert.equal(control.atributos["aria-pressed"], "true");
+  assert.ok(control.textContent.length > 0, "tiene nombre accesible");
+  control.disparar("click");
+  assert.equal(control.atributos["aria-pressed"], "false");
+  for (const svg of svgs) assert.equal(svg.atributos.hidden, "");
+  control.disparar("click");
+  for (const svg of svgs) assert.equal(svg.atributos.hidden, undefined);
+});
+
+test("H178 CA2: el documento falso prohíbe innerHTML y la vista no lo usa", async () => {
+  const fuente = await readFile(join(VISOR_DIR, "vista.js"), "utf8");
+  assert.ok(!/innerHTML|outerHTML|insertAdjacentHTML/.test(fuente.replace(/\/\/.*$/gm, "")));
+  assert.ok(fuente.includes("createElementNS"));
+});
+
+test("H178 CA3: una imagen que falla dice «imagen no disponible», conserva la atribución y el resto de la ficha", async () => {
+  const ficha = await fichaPulsada(PUBLICADO_IMG, copia(CON_IMG));
+  const [primera] = porTag(ficha, "img");
+  primera.disparar("error");
+  const lienzos = porClase(ficha, "pc-comparacion__lienzo");
+  assert.equal(lienzos[0].textContent, NOTAS.no_disponible);
+  assert.equal(porTag(lienzos[0], "img").length, 0);
+  assert.equal(porTag(lienzos[1], "img").length, 1, "la otra imagen sigue");
+  const [figura] = porClase(ficha, "pc-comparacion__imagen");
+  assert.ok(figura.textContent.includes(CON_IMG.imagenes_comparacion[0].imagenes[0].atribucion));
+  assert.ok(ficha.textContent.includes(CON_IMG.texto), "el resto de la ficha sigue");
+  assert.ok(ficha.textContent.includes(CON_IMG.aviso));
+});
+
+test("H178 CA3: una URL que no es https no se carga y se dice no disponible", async () => {
+  const props = copia(CON_IMG);
+  props.imagenes_comparacion[0].imagenes[0].url = "javascript:alert(1)";
+  const ficha = await fichaPulsada(PUBLICADO_IMG, props);
+  assert.equal(porTag(ficha, "img").length, 1);
+  assert.ok(ficha.textContent.includes(NOTAS.no_disponible));
+});
+
+test("H178 CA4: huecos, franjas omitidas y nota de quién sirve las imágenes, con el texto publicado", async () => {
+  const ficha = await fichaPulsada(PUBLICADO_IMG, copia(CON_IMG));
+  const texto = ficha.textContent;
+  assert.ok(texto.includes(NOTAS.huecos[0].texto));
+  assert.ok(texto.includes("sin cobertura de ese vuelo"));
+  assert.ok(texto.includes(CON_IMG.imagenes_comparacion[0].omitidas[0].franja));
+  assert.ok(texto.includes(NOTAS.servidas_por));
+  // Sin recomponer: un texto distinto en el fichero se ve igual.
+  const otro = copia(PUBLICADO_IMG);
+  otro.properties.comparacion.huecos[0].texto = "Texto de hueco distinto.";
+  const props = copia(otro.features[0].properties);
+  props.imagenes_comparacion[0].omitidas[0].texto = "Omitida distinta.";
+  const f2 = await fichaPulsada(otro, props);
+  assert.ok(f2.textContent.includes("Texto de hueco distinto."));
+  assert.ok(f2.textContent.includes("Omitida distinta."));
+});
+
+test("H178 CA5: un tramo sin imagenes_comparacion, o con un campo roto, se ve como antes y sin error", async () => {
+  const antes = nodoDe(SIN_IMG).textContent;
+  const ficha = await fichaPulsada(PUBLICADO_IMG, copia(SIN_IMG));
+  assert.equal(ficha.textContent, antes);
+  assert.equal(porTag(ficha, "img").length, 0);
+  assert.equal(porTag(ficha, "button").length, 0);
+  // Un fichero anterior a #172 (sin bloque `comparacion`) tampoco da error.
+  const viejo = copia(PUBLICADO);
+  assert.equal((await fichaPulsada(viejo, copia(viejo.features[0].properties))).textContent, nodoDe(viejo.features[0].properties).textContent);
+  for (const roto of [null, {}, "x", [], [null], [{}], [{ ancho_px: 0, alto_px: 5, imagenes: [] }]]) {
+    const p = { ...copia(SIN_IMG), imagenes_comparacion: roto };
+    assert.equal((await fichaPulsada(PUBLICADO_IMG, p)).textContent, antes);
+  }
+});
+
+test("H178 CA6: ningún texto nuevo del visor ni del fichero lleva palabras vetadas ni referencias catastrales", async () => {
+  const vetadas = JSON.parse(process.env.VISOR_BANNED_WORDS ?? "[]");
+  assert.ok(vetadas.length > 0);
+  const ficha = await fichaPulsada(PUBLICADO_IMG, copia(CON_IMG));
+  const textos = [
+    CONFIG.textos.tituloComparacion, CONFIG.textos.mostrarTrazo, CONFIG.textos.imagenNoDisponible,
+    ficha.textContent, JSON.stringify(PUBLICADO_IMG.properties.comparacion),
+    JSON.stringify(CON_IMG.imagenes_comparacion),
   ];
   for (const t of textos) {
     assert.ok(!REFCAT.test(t), t);

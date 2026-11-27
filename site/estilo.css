@@ -70,6 +70,16 @@ legend { font-weight: var(--weight-bold); }
 .ficha-confianza { font-weight: var(--weight-bold); }
 .ficha-fuentes { margin: var(--space-2) 0 0; padding-left: 1.1rem; }
 .ficha-fuentes a { overflow-wrap: anywhere; }
+.pc-comparacion { margin-top: var(--space-3); }
+.pc-comparacion__control { margin: var(--space-1) 0; font: inherit; }
+.pc-comparacion__imagen { margin: var(--space-2) 0 0; }
+.pc-comparacion__lienzo { position: relative; max-width: 100%; }
+.pc-comparacion__lienzo img { display: block; width: 100%; height: auto; }
+.pc-comparacion__trazo { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.pc-comparacion__trazo[hidden] { display: none; }
+.pc-comparacion__trazo polyline { stroke: var(--color-nota-fg); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.pc-comparacion__periodo { font-weight: var(--weight-bold); }
+.pc-comparacion__no-disponible { color: var(--color-muted); font-size: var(--text-sm); }
 .ficha-criterio { color: var(--color-muted); font-size: var(--text-sm); }
 /* Panel de capas, avisos y estados: adaptado de docs/design-system/site/css/componentes.css
    (CC BY 4.0, historia #166). La muestra de cada línea replica el estilo del mapa de
