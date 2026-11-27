@@ -1,0 +1,98 @@
+/* Paso Común · Tokens de diseño · CC BY 4.0
+   Tipografías OFL alojadas en /fonts (ver fonts/LEEME.md). Sin peticiones a terceros. */
+
+@font-face { font-family: "Atkinson Hyperlegible Next"; src: url("../fonts/atkinson-hyperlegible-next-400.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; unicode-range: U+0000-00AC, U+00AE-00B4, U+00B6-00FF, U+0131, U+0152-0153, U+2013-2014, U+2018-201E, U+2022, U+2026, U+20AC; }
+@font-face { font-family: "Atkinson Hyperlegible Next"; src: url("../fonts/atkinson-hyperlegible-next-700.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; unicode-range: U+0000-00AC, U+00AE-00B4, U+00B6-00FF, U+0131, U+0152-0153, U+2013-2014, U+2018-201E, U+2022, U+2026, U+20AC; }
+@font-face { font-family: "Atkinson Hyperlegible Mono"; src: url("../fonts/atkinson-hyperlegible-mono-400.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; unicode-range: U+0000-00AC, U+00AE-00B4, U+00B6-00FF, U+2013-2014, U+2018-201E, U+2022, U+2026; }
+
+:root {
+  color-scheme: light dark;
+
+  /* Tipografía */
+  --font-sans: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --text-xs: 0.8125rem;   /* 13 px · solo metadatos, nunca texto corrido */
+  --text-sm: 0.875rem;    /* 14 px */
+  --text-base: 1rem;      /* 16 px */
+  --text-md: 1.125rem;    /* 18 px */
+  --text-lg: 1.25rem;     /* 20 px */
+  --text-xl: 1.5rem;      /* 24 px */
+  --text-2xl: 1.875rem;   /* 30 px */
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --weight-regular: 400;
+  --weight-bold: 700;
+
+  /* Espaciado (base 4 px) */
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+  --space-5: 1.5rem;  --space-6: 2rem;   --space-7: 3rem;    --space-8: 4rem;
+  --tap: 44px;        /* objetivo táctil mínimo */
+
+  /* Radios */
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 14px; --radius-pill: 999px;
+
+  /* Movimiento */
+  --dur-fast: 120ms; --dur: 200ms; --ease: cubic-bezier(.2, .7, .2, 1);
+
+  /* z-index (Leaflet usa 400 overlay, 600 marcadores, 700 popups, 1000 controles) */
+  --z-map: 0;
+  --z-map-controls: 1000;
+  --z-panel: 1100;
+  --z-header: 1200;
+  --z-sheet: 1300;
+  --z-toast: 1400;
+  --z-modal: 1500;
+
+  /* Color · claro */
+  --color-bg: #fbfaf7;
+  --color-surface: #ffffff;
+  --color-surface-2: #f3f1ec;
+  --color-fg: #1f2421;
+  --color-muted: #5d655f;
+  --color-line: #e3e0d8;
+  --color-line-strong: #b9b4a7;
+  --color-accent: #2f6b3f;
+  --color-accent-hover: #255632;
+  --color-accent-soft: #e4eee6;
+  --color-on-accent: #ffffff;
+  --color-nota-bg: #fff4e0;
+  --color-nota-fg: #6b4a12;
+  --color-nota-border: #ecd6ac;
+  --color-focus: #2f6b3f;
+  --shadow-1: 0 1px 2px rgb(31 36 33 / .10);
+  --shadow-2: 0 2px 6px rgb(31 36 33 / .10), 0 8px 24px rgb(31 36 33 / .12);
+  --shadow-map: 0 1px 3px rgb(0 0 0 / .28), 0 6px 20px rgb(0 0 0 / .18);
+  --map-tiles-filter: none;
+
+  /* Capas del mapa (sobre ortofoto: siempre con halo) */
+  --capa-vias: #e69f00;      --capa-vias-halo: #1b1408;
+  --capa-camino: #fdf3c4;    --capa-camino-halo: #1b1b17;
+  --capa-historico: #e3a6d0; --capa-historico-halo: #2a1424;
+  --capa-indicio: #56b4e9;   --capa-indicio-halo: #0b2433;
+  --capa-seleccion-halo: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --color-bg: #151816; --color-surface: #1d211e; --color-surface-2: #252a26;
+    --color-fg: #e8ebe8; --color-muted: #a3aba5; --color-line: #323833; --color-line-strong: #5a635c;
+    --color-accent: #7cc290; --color-accent-hover: #95d0a6; --color-accent-soft: #1f3325; --color-on-accent: #0f1a12;
+    --color-nota-bg: #2a2316; --color-nota-fg: #f0d49a; --color-nota-border: #4a3d22; --color-focus: #7cc290;
+    --shadow-1: 0 1px 2px rgb(0 0 0 / .4); --shadow-2: 0 2px 6px rgb(0 0 0 / .35), 0 8px 24px rgb(0 0 0 / .4);
+    --map-tiles-filter: brightness(.82) saturate(.9);
+    --capa-vias: #f2b33d; --capa-camino: #fff6d6; --capa-historico: #edb9dd; --capa-indicio: #7cc8f0;
+    --capa-seleccion-halo: #e8ebe8;
+  }
+}
+:root[data-tema="oscuro"] {
+  --color-bg: #151816; --color-surface: #1d211e; --color-surface-2: #252a26;
+  --color-fg: #e8ebe8; --color-muted: #a3aba5; --color-line: #323833; --color-line-strong: #5a635c;
+  --color-accent: #7cc290; --color-accent-hover: #95d0a6; --color-accent-soft: #1f3325; --color-on-accent: #0f1a12;
+  --color-nota-bg: #2a2316; --color-nota-fg: #f0d49a; --color-nota-border: #4a3d22; --color-focus: #7cc290;
+  --shadow-1: 0 1px 2px rgb(0 0 0 / .4); --shadow-2: 0 2px 6px rgb(0 0 0 / .35), 0 8px 24px rgb(0 0 0 / .4);
+  --map-tiles-filter: brightness(.82) saturate(.9);
+  --capa-vias: #f2b33d; --capa-camino: #fff6d6; --capa-historico: #edb9dd; --capa-indicio: #7cc8f0;
+  --capa-seleccion-halo: #e8ebe8;
+  color-scheme: dark;
+}
+:root[data-tema="claro"] { color-scheme: light; }

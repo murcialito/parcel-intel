@@ -14,7 +14,7 @@ Descarga los TTF desde el repositorio oficial del Braille Institute o desde el p
 
 ```sh
 pip install fonttools brotli
-UNICODES="U+0000-00FF,U+0131,U+0152-0153,U+2013-2014,U+2018-201E,U+2022,U+2026,U+20AC,U+2190-2193"
+UNICODES="U+0000-00FF,U+0131,U+0152-0153,U+2013-2014,U+2018-201E,U+2022,U+2026,U+20AC"
 pyftsubset AtkinsonHyperlegibleNext-Regular.ttf --unicodes="$UNICODES" --flavor=woff2 --layout-features='kern,liga,tnum' --output-file=atkinson-hyperlegible-next-400.woff2
 pyftsubset AtkinsonHyperlegibleNext-Bold.ttf    --unicodes="$UNICODES" --flavor=woff2 --layout-features='kern,liga,tnum' --output-file=atkinson-hyperlegible-next-700.woff2
 pyftsubset AtkinsonHyperlegibleMono-Regular.ttf --unicodes="$UNICODES" --flavor=woff2 --output-file=atkinson-hyperlegible-mono-400.woff2
