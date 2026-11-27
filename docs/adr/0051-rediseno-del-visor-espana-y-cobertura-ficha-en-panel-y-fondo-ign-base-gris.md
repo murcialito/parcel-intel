@@ -19,7 +19,9 @@ El 2026-11-27 el fundador dijo que el visor era pobre: abría en un municipio si
 7. **Sin popups.** Al pulsar un trazado, `mapa.js` llama a `alPulsar(propiedades, id)` y el controlador manda un modelo de ficha a la vista, que lo pinta en `<aside id="ficha">`: panel lateral en escritorio, hoja inferior ampliable en móvil (< 900 px). Resumen primero (texto validado, confianza y aviso, nunca plegado) y después `<details>`: imágenes de comparación, fuentes (con «Abrir la consulta original» en lugar de la URL entera) y cómo se ha calculado. Los textos validados de #16 y #169 no cambian.
 8. **Estado en el enlace:** `?municipio=<ine>&tramo=<id de 16 hex>`, leído y escrito por el módulo puro `enlace.js` y aplicado con `history.replaceState`. Un enlace a un tramo enciende su capa (que nace apagada) solo para mostrarlo. Un tramo que ya no está publicado abre el municipio y lo dice.
 9. **Buscador de municipio** como combobox ARIA (`input role="combobox"` + `ul role="listbox"`), sin tildes ni mayúsculas, solo entre los municipios con datos. Sustituye al `<select>`.
-10. **Tokens nuevos** en `site/css/tokens.css` y en el original de `docs/design-system/`: `--map-mapa-filter` (en oscuro invierte el mapa gris), `--capa-cobertura` y `--capa-cobertura-velo`.
+10. **Rótulos sobre la ortofoto** (feedback del fundador, 2026-11-27: al entrar en un municipio se perdían los nombres y las carreteras). El fondo `ortofoto` lleva encima la capa transparente `IGNBaseOrto` del mismo servicio, en escala de grises (sus carreteras naranjas se confundían con las vías pecuarias) y por debajo de los trazados. Atribución `IGNBaseOrto CC BY 4.0 scne.es` (REGISTRY.md, NOTICE).
+11. **Atribución en móvil con una hoja abierta** (revisión de la PR): la ficha y la hoja de capas tapan el pie del mapa, así que cada una repite en su pie fijo (fuera de la zona que se desplaza) la misma lista de atribuciones visibles que el control del mapa. Con la hoja de capas plegada se ve la del mapa.
+12. **Tokens nuevos** en `site/css/tokens.css` y en el original de `docs/design-system/`: `--map-mapa-filter` (en oscuro atenúa el mapa gris sin invertirlo: invertido quedaba demasiado oscuro, feedback del fundador), `--capa-cobertura` y `--capa-cobertura-velo`.
 
 ### Decisiones de producto a revisar con el fundador
 
@@ -28,9 +30,12 @@ El 2026-11-27 el fundador dijo que el visor era pobre: abría en un municipio si
 - El tema sigue al sistema; no hay conmutador claro/oscuro.
 - Tolerancia de 15 m de los contornos y zoom 9 para cambiar la etiqueta por los contornos.
 - Las filas de indicios y tramos conservan el nombre completo validado («… (no son un dictamen)»); las de vías pecuarias y camino actual se acortan.
+- El resumen de la medición de los tramos se pliega en «Cómo se ha medido» y queda a la vista «revisado a mano» (feedback del fundador: ver todas las capas a la vez).
+- Opacidad del velo: 0,22 en claro y 0,28 en oscuro.
 
 ## Consecuencias
 
 - Los tests de #85, #95, #114, #115, #165, #166, #171 y #178 que fijaban el `<select>`, los popups o el marcado viejo se reescriben para comprobar lo mismo sobre la estructura nueva. Las invariantes (aviso, palabras vetadas, nada catastral, atribución visible, capas apagadas, rutas existentes) siguen probadas.
 - El visor pide `datos/cobertura.geojson` al arrancar. Si falla, sigue sin velo y lo dice en el panel; no es un error de capa.
+- `cobertura.geojson` es obra derivada (reproyectada y simplificada) del límite del IGN y lleva `CC BY 4.0 ign.es` sin «Obra derivada de…»: el formato del SCNE para unidades administrativas sigue «pendiente de verificar» en NOTICE desde #35. Queda para una historia aparte.
 - Cada municipio nuevo del índice necesita volver a ejecutar `publicar-cobertura`; el test de #185 comprueba que la cobertura publicada y el índice tienen los mismos municipios.

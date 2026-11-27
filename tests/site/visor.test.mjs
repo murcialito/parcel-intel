@@ -162,6 +162,10 @@ function crearVistaDoble() {
     nodoEtiquetaHito(texto) {
       return { etiqueta: texto };
     },
+    atribuciones: [],
+    ponerAtribuciones(lista) {
+      v.atribuciones.push([...lista]);
+    },
   };
   return v;
 }
@@ -246,7 +250,7 @@ function documentoFalso() {
     // Historia #185: buscador, ámbito, ficha en panel, hoja móvil y aviso flotante.
     "buscar", "sugerencias", "ambito-nombre", "ambito-resumen", "ver-espana", "plegar",
     "ficha", "ficha-tipo", "ficha-titulo", "ficha-cuerpo", "ficha-ampliar", "aviso-flotante",
-    "fondo-mapa", "fondo-ortofoto",
+    "fondo-mapa", "fondo-ortofoto", "panel-atribucion", "ficha-atribucion",
     ...capas.flatMap((c) => [`estado-${c}`, `recuento-${c}`, `capa-${c}`]),
   ]) {
     elementos[id] = new ElementoFalso("div");
@@ -708,8 +712,9 @@ test("CA9: vista.js escribe el mensaje en su región y lo limpia", () => {
 
 test("CA10: el mapa base usa la URL de config.js y un fallo de tesela no quita capas", () => {
   const { mapa, reg, m, fallos } = mapaReal();
-  // Historia #185: un fondo por entrada de config.js; arranca el de la vista de España.
-  assert.deepEqual(reg.tiles.map((t) => t.datos), CONFIG.fondos.map((f) => f.url));
+  // Historia #185: un fondo por entrada de config.js (con sus rótulos si los tiene); arranca el
+  // de la vista de España.
+  assert.deepEqual(reg.tiles.map((t) => t.datos), CONFIG.fondos.flatMap((f) => (f.rotulos ? [f.url, f.rotulos] : [f.url])));
   const base = reg.tiles.find((t) => t.datos === MAPA.url);
   assert.ok(m.hasLayer(base));
   assert.ok(!m.hasLayer(reg.tiles.find((t) => t.datos === ORTO.url)));
@@ -856,7 +861,9 @@ test("unidad: una elección antigua que termina tarde no pisa la más reciente",
   // Desde #185 `iniciar()` abre España; el enlace `?municipio=` hace que elija A.
   const inicio = ctl.iniciar({ municipio: A.ine }); // sus cargas quedan pendientes
   // Se espera a que A haya pedido sus dos capas (antes van el índice y la cobertura).
-  for (let i = 0; i < 100 && esperas.length < 2; i += 1) await new Promise((r) => setImmediate(r));
+  // Por tiempo y no por vueltas: la cobertura se lee de disco y en CI tarda más.
+  const limite = Date.now() + 2000;
+  while (esperas.length < 2 && Date.now() < limite) await new Promise((r) => setTimeout(r, 5));
   assert.equal(esperas.length, 2);
   const deA = esperas.splice(0);
   const eleccionC = ctl.elegirMunicipio(C.ine);
@@ -1701,8 +1708,16 @@ test("H171 CA3: el resumen muestra las cuatro frases y «revisado a mano» tal c
   const vista2 = crearVista(doc, CONFIG.textos);
   vista2.ponerResumenCapa("candidatos", r.vista.resumenes.candidatos);
   const cont = doc.elementos["resumen-candidatos"];
-  assert.deepEqual(cont.children.map((c) => c.textContent), [...otro.properties.medicion.texto, "Marca distinta."]);
-  assert.ok(cont.children.every((c) => c.tagName === "p"));
+  // #185 (feedback del fundador): la marca va a la vista y las cuatro frases, en orden, en un
+  // plegable «Cómo se ha medido».
+  const [marca, plegable] = cont.children;
+  assert.equal(marca.tagName, "p");
+  assert.equal(marca.textContent, "Marca distinta.");
+  assert.equal(plegable.tagName, "details");
+  assert.equal(plegable.children[0].textContent, CONFIG.textos.comoSeMide);
+  const frases = plegable.children.slice(1);
+  assert.deepEqual(frases.map((c) => c.textContent), otro.properties.medicion.texto);
+  assert.ok(frases.every((c) => c.tagName === "p"));
   vista2.ponerResumenCapa("candidatos", null);
   assert.equal(cont.children.length, 0);
 });
@@ -2194,12 +2209,15 @@ test("H185: mapa.js dibuja el velo con un hueco por municipio, sus bordes y la e
 
 test("H185: mapa.js cambia de fondo sin duplicar teselas y selecciona un trazado por id", () => {
   const { mapa, reg, m } = mapaReal();
-  const [gris, orto] = reg.tiles;
+  const [gris, orto, rotulos] = reg.tiles;
+  assert.equal(rotulos.datos, ORTO.rotulos);
+  assert.ok(rotulos.opciones.className.includes("pc-fondo--rotulos"));
+  assert.ok(rotulos.opciones.zIndex > orto.opciones.zIndex, "los rótulos, encima de la ortofoto");
   mapa.ponerFondo("ortofoto");
-  assert.ok(m.hasLayer(orto) && !m.hasLayer(gris));
+  assert.ok(m.hasLayer(orto) && m.hasLayer(rotulos) && !m.hasLayer(gris));
   mapa.ponerFondo("ortofoto");
   mapa.ponerFondo("mapa");
-  assert.ok(m.hasLayer(gris) && !m.hasLayer(orto));
+  assert.ok(m.hasLayer(gris) && !m.hasLayer(orto) && !m.hasLayer(rotulos));
   assert.throws(() => mapa.ponerFondo("satelite"), /Fondo desconocido/);
   const [t] = dibujar(mapa, reg, "discrepancias", coleccionDe({ ...feat(lineaDe(SEGMENTO)), id: ID_A }), { claveDe: () => "indicioAlta", orden: 40 });
   assert.equal(mapa.seleccionar("discrepancias", ID_B), false);
@@ -2219,4 +2237,29 @@ test("H185 CA5: ningún texto nuevo del visor lleva palabras vetadas ni referenc
     for (const v of vetadas) assert.ok(!normalizar(t).includes(normalizar(v)), `${v} en «${t}»`);
     assert.doesNotMatch(t, REFCAT);
   }
+});
+
+test("H185 CA5: en móvil las hojas repiten en su pie las mismas atribuciones que el mapa", async () => {
+  const { mapa, vista, ctl } = await iniciado();
+  assert.deepEqual(ultima(vista.atribuciones), ultima(mapa.r.atribuciones));
+  ctl.cambiarCapa("vias_pecuarias", false);
+  assert.deepEqual(ultima(vista.atribuciones), ultima(mapa.r.atribuciones));
+  assert.ok(ultima(vista.atribuciones).includes("IGNBaseOrto CC BY 4.0 scne.es"), "los rótulos sobre la ortofoto");
+  const doc = documentoFalso();
+  crearVista(doc, CONFIG.textos).ponerAtribuciones(["A <b>", "B"]);
+  for (const id of ["panel-atribucion", "ficha-atribucion"]) {
+    assert.equal(doc.elementos[id].textContent, "A <b> · B", "texto plano");
+  }
+});
+
+test("H185: ponerCobertura es idempotente: llamarla dos veces no duplica el velo ni la etiqueta", async () => {
+  const { mapa, reg, m } = mapaReal();
+  const cobertura = await leer("cobertura.geojson");
+  mapa.ponerCobertura(cobertura, { etiqueta: { textContent: "Primer hito" } });
+  m.off = () => m;
+  mapa.ponerCobertura(cobertura, { etiqueta: { textContent: "Primer hito" } });
+  const velos = reg.geojsons.filter((g) => g.opciones.pane === "pc-cobertura-velo");
+  assert.equal(velos.length, 2);
+  assert.ok(!m.hasLayer(velos[0]) && m.hasLayer(velos[1]));
+  assert.equal(reg.marcadores.filter((e) => m.hasLayer(e)).length, 1);
 });

@@ -100,29 +100,37 @@ export function crearMapa(contenedor, opciones) {
   };
 
   // --- fondos ---------------------------------------------------------------------------
+  // Cada fondo es una o dos capas de teselas: la imagen y, si la tiene, sus rótulos encima
+  // (siempre por debajo de los trazados, que van en panes propios).
   const teselas = new Map();
   let fondoActual = null;
-  for (const fondo of fondos) {
-    const capa = L.tileLayer(fondo.url, {
+  const capaTeselas = (url, fondo, clase, zIndex) => {
+    const capa = L.tileLayer(url, {
       minZoom: fondo.minZoom,
       maxZoom: fondo.maxZoom,
       tileSize: 256,
       crossOrigin: false,
-      className: `pc-fondo pc-fondo--${fondo.id}`,
+      className: `pc-fondo pc-fondo--${clase}`,
+      zIndex,
     });
     // Un fallo de tesela no toca las capas vectoriales: solo se avisa (CA10 de #85).
     capa.on("tileerror", () => {
       if (typeof alFallarTesela === "function") alFallarTesela();
     });
-    teselas.set(fondo.id, capa);
+    return capa;
+  };
+  for (const fondo of fondos) {
+    const capas = [capaTeselas(fondo.url, fondo, fondo.id, 1)];
+    if (fondo.rotulos) capas.push(capaTeselas(fondo.rotulos, fondo, "rotulos", 2));
+    teselas.set(fondo.id, capas);
   }
 
   function ponerFondo(id) {
-    const nueva = teselas.get(id);
-    if (!nueva) throw new Error(`Fondo desconocido: ${id}`);
+    const nuevas = teselas.get(id);
+    if (!nuevas) throw new Error(`Fondo desconocido: ${id}`);
     if (fondoActual === id) return;
-    if (fondoActual !== null) mapa.removeLayer(teselas.get(fondoActual));
-    nueva.addTo(mapa);
+    if (fondoActual !== null) for (const capa of teselas.get(fondoActual)) mapa.removeLayer(capa);
+    for (const capa of nuevas) capa.addTo(mapa);
     fondoActual = id;
   }
 
@@ -286,7 +294,17 @@ export function crearMapa(contenedor, opciones) {
     }
   }
 
+  function quitarCobertura() {
+    for (const capa of [cobertura.velo, cobertura.halo, cobertura.capaBordes, cobertura.etiqueta]) {
+      if (capa && mapa.hasLayer(capa)) mapa.removeLayer(capa);
+    }
+    if (cobertura.alZoom) mapa.off?.("zoomend", cobertura.alZoom);
+    Object.assign(cobertura, { velo: null, halo: null, capaBordes: null, etiqueta: null, alZoom: null });
+    cobertura.bordes.clear();
+  }
+
   function ponerCobertura(geojson, { etiqueta, zoomEtiqueta = 9, alPulsarMunicipio, alPulsarEtiqueta } = {}) {
+    quitarCobertura(); // idempotente: llamarla dos veces no duplica el velo
     for (const nombre of ["pc-cobertura-velo", "pc-cobertura"]) {
       const pane = mapa.getPane(nombre) ?? mapa.createPane(nombre);
       pane.style.zIndex = nombre === "pc-cobertura-velo" ? "350" : "390";
@@ -304,6 +322,7 @@ export function crearMapa(contenedor, opciones) {
         });
       },
     });
+    cobertura.capaBordes = bordes;
     for (const capa of [cobertura.velo, cobertura.halo, bordes]) capa.addTo(mapa);
     pintarCobertura();
 
@@ -329,6 +348,7 @@ export function crearMapa(contenedor, opciones) {
           if (ver && !presente) mapa.addLayer(cobertura.etiqueta);
           if (!ver && presente) mapa.removeLayer(cobertura.etiqueta);
         };
+        cobertura.alZoom = actualizar;
         mapa.on("zoomend", actualizar);
         actualizar();
       }

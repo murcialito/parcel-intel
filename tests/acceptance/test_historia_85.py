@@ -274,8 +274,9 @@ def test_ca4_atribuciones_literales_de_notice_y_visibles_con_su_capa(tmp_path: P
     registry = REGISTRY.read_text(encoding="utf-8")
     capas, base = _literales_config()
     # Cuatro capas desde #171 (vías pecuarias, camino actual, indicios de discrepancia y tramos a
-    # verificar) y, desde #185, la cobertura; la base son los dos fondos (gris y ortofoto).
-    assert len(capas) == 5 and len(base) == 3, (capas, base)
+    # verificar) y, desde #185, la cobertura; la base son los dos fondos (gris y ortofoto, con
+    # los rótulos del IGN encima de la ortofoto).
+    assert len(capas) == 5 and len(base) == 4, (capas, base)
     for texto in capas + base:
         assert f"`{texto}`" in notice, f"no consta literalmente en NOTICE: {texto}"
     for texto in base:

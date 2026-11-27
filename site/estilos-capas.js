@@ -125,13 +125,13 @@ export function temaDe(forzado, prefiereOscuro) {
 // una capa de trazados: no entra en CLAVES ni en el sistema de diseño original de #165.
 export const COBERTURA = congelar({
   claro: {
-    velo: { color: "#2e3430", opacity: 0.3 },
+    velo: { color: "#2e3430", opacity: 0.22 },
     borde: { color: "#2f6b3f", weight: 2.5, opacity: 1 },
     halo: { color: "#ffffff", weight: 6, opacity: 0.9 },
     activo: { color: "#2f6b3f", weight: 3.5, opacity: 1 },
   },
   oscuro: {
-    velo: { color: "#000000", opacity: 0.38 },
+    velo: { color: "#000000", opacity: 0.28 },
     borde: { color: "#7cc290", weight: 2.5, opacity: 1 },
     halo: { color: "#151816", weight: 6, opacity: 0.9 },
     activo: { color: "#95d0a6", weight: 3.5, opacity: 1 },

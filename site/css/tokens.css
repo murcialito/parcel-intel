@@ -72,7 +72,7 @@
   --capa-indicio: #56b4e9;   --capa-indicio-halo: #0b2433;
   --capa-candidato: #d55e00; --capa-candidato-halo: #2b1100;
   --capa-seleccion-halo: #ffffff;
-  --capa-cobertura: #2f6b3f; --capa-cobertura-velo: rgb(46 52 48 / .3);
+  --capa-cobertura: #2f6b3f; --capa-cobertura-velo: rgb(46 52 48 / .22);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -86,8 +86,8 @@
     --capa-vias: #f2b33d; --capa-camino: #fff6d6; --capa-historico: #edb9dd; --capa-indicio: #7cc8f0;
     --capa-candidato: #f08a3a;
     --capa-seleccion-halo: #e8ebe8;
-    --map-mapa-filter: invert(1) hue-rotate(180deg) brightness(1.05) contrast(.82);
-    --capa-cobertura: #7cc290; --capa-cobertura-velo: rgb(0 0 0 / .38);
+    --map-mapa-filter: brightness(.88) contrast(.92);
+    --capa-cobertura: #7cc290; --capa-cobertura-velo: rgb(0 0 0 / .28);
   }
 }
 :root[data-tema="oscuro"] {
@@ -100,8 +100,8 @@
   --capa-vias: #f2b33d; --capa-camino: #fff6d6; --capa-historico: #edb9dd; --capa-indicio: #7cc8f0;
   --capa-candidato: #f08a3a;
   --capa-seleccion-halo: #e8ebe8;
-  --map-mapa-filter: invert(1) hue-rotate(180deg) brightness(1.05) contrast(.82);
-  --capa-cobertura: #7cc290; --capa-cobertura-velo: rgb(0 0 0 / .38);
+  --map-mapa-filter: brightness(.88) contrast(.92);
+  --capa-cobertura: #7cc290; --capa-cobertura-velo: rgb(0 0 0 / .28);
   color-scheme: dark;
 }
 :root[data-tema="claro"] { color-scheme: light; }

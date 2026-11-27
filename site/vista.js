@@ -154,13 +154,17 @@ export function crearVista(documento, textos) {
 
   // --- capas ---------------------------------------------------------------------------
   // Resumen de la medición bajo la capa de tramos a verificar (historia #171): las frases y la
-  // marca «revisado a mano» tal cual, con textContent. `null` lo vacía.
+  // marca «revisado a mano» tal cual, con textContent. `null` lo vacía. Desde #185 (feedback del
+  // fundador) la marca queda a la vista y las frases se pliegan en «Cómo se ha medido», para ver
+  // todas las capas a la vez sin desplazar el panel.
   function ponerResumenCapa(id, resumen) {
     const contenedor = porId(`resumen-${id}`);
     contenedor.replaceChildren();
     if (resumen === null) return;
-    for (const frase of resumen.frases) contenedor.appendChild(parrafo("", frase));
     contenedor.appendChild(parrafo("pc-capa__revisado", resumen.revisadoAMano));
+    const plegable = detalle(textos.comoSeMide, "pc-medicion");
+    for (const frase of resumen.frases) plegable.appendChild(parrafo("", frase));
+    contenedor.appendChild(plegable);
   }
 
   function ponerRecuentoCapa(id, n) {
@@ -200,6 +204,16 @@ export function crearVista(documento, textos) {
 
   function limpiarMensaje() {
     mensaje.textContent = "";
+  }
+
+  // Móvil: las hojas tapan el pie del mapa, así que repiten en su pie fijo las atribuciones
+  // visibles (revisión de #185). Texto plano, la misma lista que el control del mapa.
+  function ponerAtribuciones(lista) {
+    const texto = lista.join(" · ");
+    for (const id of ["panel-atribucion", "ficha-atribucion"]) {
+      const elemento = documento.getElementById(id);
+      if (elemento) elemento.textContent = texto;
+    }
   }
 
   function mostrarAvisoBase(texto) {
@@ -478,6 +492,7 @@ export function crearVista(documento, textos) {
     mostrarMensaje,
     limpiarMensaje,
     mostrarAvisoBase,
+    ponerAtribuciones,
     avisar,
     nodoFicha,
     nodoFichaIndicio,

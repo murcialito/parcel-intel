@@ -29,9 +29,14 @@ export const CONFIG = Object.freeze({
       url: "https://www.ign.es/wmts/pnoa-ma?service=WMTS&request=GetTile&version=1.0.0&layer=OI.OrthoimageCoverage&style=default&tilematrixset=GoogleMapsCompatible&format=image/jpeg&tilematrix={z}&tilerow={y}&tilecol={x}",
       minZoom: 5,
       maxZoom: 19,
+      // Rótulos y carreteras del IGN sobre la ortofoto, para no perder la orientación al entrar
+      // en un municipio (PNG transparente; verificado 2026-11-27, REGISTRY.md «IGN-Base»).
+      rotulos:
+        "https://www.ign.es/wmts/ign-base?service=WMTS&request=GetTile&version=1.0.0&layer=IGNBaseOrto&style=default&tilematrixset=GoogleMapsCompatible&format=image/png&tilematrix={z}&tilerow={y}&tilecol={x}",
       atribuciones: Object.freeze([
         "PNOA 2023 CC-BY 4.0 scne.es",
         "MosaicoSentinel2 2018-2026 CC-BY 4.0 ign.es",
+        "IGNBaseOrto CC BY 4.0 scne.es",
       ]),
     }),
   ]),
@@ -149,6 +154,7 @@ export const CONFIG = Object.freeze({
     // Rótulos de la ficha.
     fuentes: "Fuentes",
     comoSeCalcula: "Cómo se ha calculado",
+    comoSeMide: "Cómo se ha medido",
     abrirConsulta: "Abrir la consulta original",
     acercar: "Acercar",
     copiarEnlace: "Copiar enlace",

@@ -177,6 +177,17 @@ def test_ca5_invariantes(tmp_path: Path) -> None:
     # Atribución de cada fondo y de la cobertura, literal de NOTICE y en REGISTRY.md.
     notice = NOTICE.read_text(encoding="utf-8")
     assert "`IGNBase-gris CC BY 4.0 scne.es`" in notice
+    assert "`IGNBaseOrto CC BY 4.0 scne.es`" in notice
+    assert "layer=IGNBaseOrto" in _config()
+    # En móvil las hojas tapan el pie del mapa: cada una repite las atribuciones en su pie fijo,
+    # fuera de la zona que se desplaza (revisión de #185).
+    for hoja, pie in (("ficha", "ficha-atribucion"), ("pc-cuerpo", "panel-atribucion")):
+        bloque = re.search(
+            rf'(<aside id="{hoja}"|<section class="{hoja}").*?</(aside|section)>', html, re.DOTALL
+        )
+        assert bloque is not None and f'id="{pie}"' in bloque.group(0), hoja
+    movil = _css()[_css().index("@media (max-width: 899px)") :]
+    assert re.search(r"\.pc-hoja__atribucion \{ display: block;", movil)
     assert "`CC BY 4.0 ign.es`" in notice
     assert "IGNBase-gris CC BY 4.0 scne.es" in REGISTRY.read_text(encoding="utf-8")
     assert 'atribucion: "CC BY 4.0 ign.es"' in _config()

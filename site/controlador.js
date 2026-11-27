@@ -287,7 +287,9 @@ export function crearControlador({ mapa, cargarJson, vista, config, alCambiarEnl
   const capaPorId = (id) => config.capas.find((c) => c.id === id);
 
   function actualizarAtribuciones() {
-    mapa.ponerAtribuciones(atribucionesVisibles(config, estado));
+    const lista = atribucionesVisibles(config, estado);
+    mapa.ponerAtribuciones(lista);
+    vista.ponerAtribuciones?.(lista); // pie de las hojas en móvil (#185)
   }
 
   function avisarEnlace() {

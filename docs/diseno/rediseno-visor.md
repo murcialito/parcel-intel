@@ -162,6 +162,13 @@ Cambios respecto a la propuesta, al construir:
 - El lema «Señala indicios a verificar, nunca ilegalidades» va bajo el logo en escritorio; en móvil lo dice el aviso del mapa, que pasa a estar bajo la barra de búsqueda (abajo quedan la atribución y las hojas).
 - El resumen de la medición de los tramos sigue entero en la fila de la capa (validado, #171). Candidato a plegarse si estorba.
 
+Primera ronda de feedback del fundador (2026-11-27), aplicada en la misma PR:
+
+- El resumen de la medición de los tramos se pliega («Cómo se ha medido»), para ver todas las capas a la vez.
+- Sobre la ortofoto se ponen los rótulos del IGN (pueblos, carreteras), en grises, para no desorientarse al entrar en un municipio.
+- En modo oscuro el mapa gris ya no se invierte (quedaba muy oscuro) y el velo es más suave.
+- Revisión de la PR: en móvil las hojas abiertas repiten en su pie las atribuciones, que el mapa deja tapadas.
+
 Las decisiones técnicas están en el [ADR 0051](../adr/0051-rediseno-del-visor-espana-y-cobertura-ficha-en-panel-y-fondo-ign-base-gris.md).
 
 ## 11. Resultado
