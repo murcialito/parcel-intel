@@ -27,6 +27,7 @@ a { color: var(--color-accent); }
 :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
 .cabecera { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-line); }
 .cabecera h1 { margin: 0; font-size: var(--text-xl); line-height: var(--leading-tight); }
+.cabecera .logo { display: block; height: 2rem; min-height: 24px; width: auto; }
 .cabecera p { margin: var(--space-1) 0 0; max-width: 60rem; }
 .visor { flex: 1; display: flex; min-height: 0; }
 .panel {

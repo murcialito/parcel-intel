@@ -169,7 +169,8 @@ def test_ca1_recursos_locales_y_solo_teselas_ign_como_host_externo(tmp_path: Pat
             local(valor)
             if tag == "script":
                 scripts.append(valor)
-            if tag == "link":
+            # Solo hojas de estilo: los favicons y el manifest (#115) también son <link>.
+            if tag == "link" and attrs.get("rel") == "stylesheet":
                 hojas.append(valor)
     # Leaflet (script clásico) antes que la aplicación (módulo).
     assert scripts == ["vendor/leaflet/leaflet.js", "app.js"], scripts

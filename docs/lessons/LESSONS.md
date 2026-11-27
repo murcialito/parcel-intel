@@ -431,6 +431,16 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: un test unitario con alcance 0,5 m esperaba 0,5 y la función dio 0,505: el primer punto medio del segundo segmento quedaba a 0,5 m exactos. La función era correcta; el oráculo no.
   - **Aplica a**: arquitecto e implementación (oráculos de funciones muestreadas).
 
+## [2026-11-26] Historia #115 — Marca Paso Común en el sitio
+
+- **Lección**: un «dato verificado» de una historia (aquí la URL de Pages `…/parcel-intel/`) caduca si el repositorio se renombra entre el refinado y el desarrollo. CLAUDE.md ya decía `…/paso-comun/`. Antes de fijar una URL absoluta en un criterio, contrastarla con CLAUDE.md y con `git remote -v`; el desarrollador que la ve distinta la usa corregida, lo deja escrito en el docstring de los tests y lo escala.
+  - **Aplica a**: BA (no copiar URLs de una consulta antigua) | implementación.
+
+- **Lección**: en las Actions de los agentes `cp` y las redirecciones piden aprobación, también para binarios (PNG). Funciona `uv run python -I -c "import shutil; shutil.copy(...)"` para copiar ficheros ya versionados.
+  - **Aplica a**: implementación.
+
+- **Lección**: los tests que fijan la lista exacta de `<link>` de `index.html` (#85 CA1) se rompen en cuanto se añaden favicons o manifest. Filtrar por `rel="stylesheet"` en vez de comparar todos los `<link>`.
+  - **Aplica a**: implementación (editar `<head>`; #114 y #116 también lo tocan).
 ## [2026-11-26] Historia #114 — Tokens de diseño y tipografía Atkinson Hyperlegible
 
 - **Lección**: un `unicode-range` declarado en un CSS de diseño no prueba que la fuente tenga esos glifos. `tokens.css` anuncia U+2190-2193 (flechas) para Atkinson Hyperlegible Next y Mono, pero la versión oficial 2.001 no los trae (tampoco U+00AD ni U+00B5). Se comprueba sobre el TTF completo con `fontTools` antes de fijar un criterio de cobertura, y el volcado de codepoints de cada WOFF2 se guarda junto a él.
