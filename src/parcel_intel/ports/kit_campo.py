@@ -25,6 +25,16 @@ class PublishedLayerSource(Protocol):
         ...
 
 
+class FieldProjectSink(Protocol):
+    """Capacidad: escribir el proyecto de campo de QField (GeoPackage, `.qgs` y ZIP) (#222)."""
+
+    def write(
+        self, kits: Sequence[MunicipalKit], include_in_index: bool
+    ) -> tuple[PublishedKitFile, ...]:
+        """Todo o nada. Con `include_in_index` falso no toca `kit/indice.json`."""
+        ...
+
+
 class FieldKitSink(Protocol):
     """Capacidad: escribir el kit de campo (GPX y KML) como ficheros estáticos (#213)."""
 

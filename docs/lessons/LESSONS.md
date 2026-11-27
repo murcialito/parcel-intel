@@ -855,3 +855,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: un proyecto QGIS/QField se puede generar sin QGIS (GeoPackage con `sqlite3` + `.qgs` XML a mano), pero eso solo prueba que el fichero es válido como SQLite y XML, no que QField lo abra. Dejar la apertura real como reserva `asumido` en `REGISTRY.md` y pedirla a quien tenga el móvil. `WebFetch` devuelve 404 en varias rutas de `docs.qfield.org` que salen en buscadores; hay que partir de las que enlaza la propia documentación.
   - **Aplica a**: la historia hija que genere el proyecto real por municipio | revisión.
 
+## [2026-11-27] Historia #222 — Proyecto de QField con formulario de incidencia
+
+- **Lección**: para generar un GeoPackage reproducible byte a byte basta construirlo en `sqlite3.connect(":memory:")` y volcar `connection.serialize()` (sin ficheros temporales ni marcas de tiempo del sistema); el ZIP necesita `ZipInfo` con fecha fija (1980-01-01), orden de nombres y `external_attr` fijos. Una función que añade un campo opcional a un índice público compartido (`kit/indice.json`) debe conservar lo que otro comando escribió en él, y por defecto no tocarlo si la publicación está condicionada a una comprobación manual pendiente.
+  - **Aplica a**: cualquier exportación binaria determinista | comandos que comparten un índice publicado.
+
