@@ -5,9 +5,6 @@ Todo con la fixture SINTÉTICA `280264-w1`: derivada de la de #137 con otra tras
 parecerse a ningún trazado real de Villaconejos. Los puntos de control, la digitalización y la
 aprobación reales son tarea humana; ningún test crea `curated/historico/280264-*`. La imagen de
 trabajo es el recorte de #17.
-
-Divergencias entre el texto de los criterios y el mecanismo de #20 (el subcomando recibe
-`<unit_id>`, no `--documento`; la unidad sin entrada curada sale con 1): ver CA8.
 """
 
 import contextlib
@@ -408,14 +405,10 @@ def test_ca8_sin_entrada_curada_no_se_carga_nada_y_la_salida_lo_dice(
     fake_repository: RecordingRepository,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    """CA8. Dado que el documento 280264 no tiene aún `curated/planimetrias/280264/` aprobado
-    por una persona cuando se ejecuta `historico cargar --documento 280264` entonces no se
-    carga ningún trazado y la salida lo dice explícitamente (cargados 0), sin error de
-    ejecución.
-
-    El mecanismo de #20 recibe `<unit_id>` y, sin entrada curada, sale con código 1 y el motivo
-    en stderr. Este test fija lo que el mecanismo hace hoy (nada cargado, motivo explícito);
-    el código de salida 0 y el literal «cargados 0» del criterio no se cumplen: ver la PR."""
+    """CA8. Dado que la unidad `280264-w1` no tiene aún entrada curada y aprobada por una
+    persona (`curated/historico/280264-w1/`) cuando se ejecuta `historico cargar 280264-w1`
+    entonces no se carga ningún trazado, el proceso sale con código 1 y el motivo explícito
+    (`CuratedUnitNotFoundError`) aparece en stderr."""
     curated = tmp_path / "curated"
     curated.mkdir()
     cache = tmp_path / "cache"
