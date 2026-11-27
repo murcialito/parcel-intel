@@ -694,3 +694,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: un test que llama en vivo a un servicio público no puede estar en el check del que depende el merge. Si el servicio cae o va lento, todas las PRs se quedan en rojo sin culpa suya, y los agentes «arreglan» CI marcando tests ajenos uno por uno. Esos tests llevan el marcador `red` y corren en el job `red-externa`, con `continue-on-error`, así que su resultado se ve sin bloquear. `fuera_de_ci` es para los servicios que rechazan siempre a GitHub (Catastro), no para una caída.
   - **Causa**: el 2026-11-27 sobre las 09:45 UTC, `api-features.idee.es` empezó a agotar el tiempo de lectura (30 s) con las consultas reales, también desde local. La PR #174 (#169) gastó cuatro vueltas marcando `fuera_de_ci` tests de #84, #27 y #25, acabó en `veto`, y `main` se quedó en rojo.
   - **Aplica a**: implementación, revisión y workflows.
+
+## [2026-11-27] Historia #166 — Panel de capas, avisos y estados en el visor
+
+- **Lección**: al sustituir marcado que otros tests fijan (`<label for>` con el rótulo, reglas `.muestra-*`), el test viejo se actualiza a lo que de verdad prueba (el rótulo ahora es el nombre de la fila; las muestras ahora son reglas `.pc-muestra--* .h/.l`), no se relaja. Un regex sin `re.DOTALL` sobre HTML falla en silencio en cuanto el elemento pasa a varias líneas: `grep` de `index.html` en `tests/acceptance/` antes de editarlo.
+  - **Causa**: #95 CA1 y #165 CA11 fijaban la etiqueta en una línea y las reglas `.muestra-*`; no estaban en la línea `Toca:` de la issue.
+  - **Aplica a**: implementación (cambios de marcado de `index.html`) | BA (listar en `Toca:` los tests de otras historias que fijan el marcado).
+
+- **Lección**: los tests de contraste y de estilo leen las reglas reales de `estilo.css` (la primera fuera de `@media`), no una lista de tokens fijada en el test; así un token cambiado se detecta. Una regla de `@media (forced-colors)` con el mismo selector no debe fusionarse con la base.
+  - **Aplica a**: implementación (tests sobre `estilo.css`).

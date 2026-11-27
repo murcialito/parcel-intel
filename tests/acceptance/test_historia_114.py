@@ -229,17 +229,13 @@ def _variables(bloque: str) -> dict[str, str]:
 
 def _temas() -> dict[str, dict[str, str]]:
     tokens = TOKENS.read_text(encoding="utf-8")
-    estilo = ESTILO.read_text(encoding="utf-8")
     claro = _variables(_bloque(tokens, ":root {"))
     oscuro_pref = _variables(_bloque(tokens, ':root:not([data-tema="claro"])'))
     oscuro_forzado = _variables(_bloque(tokens, ':root[data-tema="oscuro"]'))
-    error_claro = _variables(_bloque(estilo, ":root {"))["--error"]
-    error_pref = _variables(_bloque(estilo, ':root:not([data-tema="claro"])'))["--error"]
-    error_forzado = _variables(_bloque(estilo, ':root[data-tema="oscuro"]'))["--error"]
     return {
-        "claro": {**claro, "--error": error_claro},
-        "oscuro (prefers-color-scheme)": {**claro, **oscuro_pref, "--error": error_pref},
-        'oscuro (data-tema="oscuro")': {**claro, **oscuro_forzado, "--error": error_forzado},
+        "claro": claro,
+        "oscuro (prefers-color-scheme)": {**claro, **oscuro_pref},
+        'oscuro (data-tema="oscuro")': {**claro, **oscuro_forzado},
     }
 
 
@@ -264,10 +260,10 @@ def test_contraste_calculo_de_referencia() -> None:
 def test_ca7_contraste_wcag_en_los_dos_temas() -> None:
     """CA7. Dado cada par de colores texto/fondo que usa el visor (`--color-fg`/`--color-bg`,
     `--color-muted`/`--color-bg`, `--color-accent`/`--color-bg`, `--color-on-accent`/
-    `--color-accent`, `--color-nota-fg`/`--color-nota-bg`, y el color de error sobre
-    `--color-bg`), cuando se calcula el contraste WCAG 2.x en tema claro y en oscuro (incluido
-    `data-tema="oscuro"`), entonces es de al menos 4,5:1 para texto y 3:1 para el color de foco y
-    los bordes de controles frente al fondo."""
+    `--color-accent`, `--color-nota-fg`/`--color-nota-bg`; #166 retira el rojo de error:
+    usa los tokens de nota), cuando se calcula el contraste WCAG 2.x en tema claro y en oscuro
+    (incluido `data-tema="oscuro"`), entonces es de al menos 4,5:1 para texto y 3:1 para el color
+    de foco y los bordes de controles frente al fondo."""
     temas = _temas()
     assert len(temas) == 3
     texto = [
@@ -276,7 +272,6 @@ def test_ca7_contraste_wcag_en_los_dos_temas() -> None:
         ("--color-accent", "--color-bg"),
         ("--color-on-accent", "--color-accent"),
         ("--color-nota-fg", "--color-nota-bg"),
-        ("--error", "--color-bg"),
     ]
     # El borde de los controles es el token que usa `.campo select` en estilo.css.
     borde = re.search(
@@ -312,7 +307,8 @@ def test_ca8_tests_del_visor_siguen_en_verde() -> None:
     assert resultado.returncode == 0, resultado.stdout[-2000:]
     # Las clases que usa la vista siguen definidas en estilo.css.
     estilo = ESTILO.read_text(encoding="utf-8")
-    for clase in (".capa", ".estado-capa", ".mensaje", ".ficha", ".ficha-fuente", ".aviso-base"):
+    clases = (".pc-capa", ".pc-capa__estado", ".mensaje", ".ficha", ".ficha-fuente", ".aviso-base")
+    for clase in clases:
         assert clase in estilo, clase
 
 

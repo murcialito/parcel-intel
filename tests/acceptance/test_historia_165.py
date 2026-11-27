@@ -157,8 +157,14 @@ def test_ca11_config_sin_colores_y_muestras_con_tokens(tmp_path: Path) -> None:
     `--capa-*`."""
     assert_node_tests_pass("^H165 CA11:", tmp_path)
     assert not re.search(r"#[0-9a-fA-F]{6}\b", _leer("config.js"))
-    muestras = re.findall(r"^\.muestra-[\w_]+\s*\{[^}]*\}", _leer("estilo.css"), re.MULTILINE)
-    assert len(muestras) == 3
+    # #166 sustituye las reglas `.muestra-*` por las `.pc-muestra--<familia> .h/.l` (SVG): las
+    # que dan color (`stroke:`) son halo y línea de vías, camino e indicio.
+    muestras = re.findall(
+        r"^\.pc-muestra--[\w-]+ \.[hl]\s*\{[^}]*\bstroke:[^}]*\}",
+        _leer("estilo.css"),
+        re.MULTILINE,
+    )
+    assert len(muestras) == 6
     for regla in muestras:
         assert not re.search(r"#[0-9a-fA-F]{3,8}\b|rgba?\(", regla), regla
         assert "var(--capa-" in regla, regla
