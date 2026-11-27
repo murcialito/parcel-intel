@@ -103,6 +103,15 @@ uv run python -m parcel_intel.cli.main publicar-cobertura --municipio 28043 [--m
 uv run python -m parcel_intel.cli.main publicar-discrepancias --municipio 28043 [--municipio ...]
 uv run python -m parcel_intel.cli.main publicar-discrepancias --ambito
 
+# Kit de campo (historia #213): exporta lo ya publicado en site/datos/<capa>/<ine>.geojson (vias_pecuarias, camino_actual, discrepancias y, si existe,
+# candidatos; con su .procedencia.json) a site/datos/kit/<ine>/tramos.gpx y tramos.kml (GPX 1.1 y KML 2.2, EPSG:4326) con su .procedencia.json y el índice
+# site/datos/kit/indice.json. Solo lee lo publicado (nunca Catastro ni nada interno). El aviso de cada tramo y la fuente, licencia y atribución de cada capa
+# van en la descripción y en los metadatos. Lista blanca de propiedades por capa. Sin red. Todo o nada: sale con 1 y no escribe si un elemento no lleva aviso,
+# trae una propiedad fuera de la lista blanca o de titularidad/referencia catastral, no hay ninguna capa publicada o un fichero pasa de 3.000.000 bytes.
+# El resumen dice qué capas incluyó y cuáles faltaban. Reproducible byte a byte (la fecha de generación es la del día).
+uv run python -m parcel_intel.cli.main publicar-kit-campo --municipio 28043 [--municipio ...] [--entrada site/datos] [--salida site/datos]
+uv run python -m parcel_intel.cli.main publicar-kit-campo --ambito
+
 # Candidatos a corte por municipio (historia #128, ADR 0039): lee data/derived/discrepancias/interno/<ine>.geojson (#94) y las parcelas de Catastro
 # (#37, caché en data/raw/catastro) y escribe el fichero INTERNO data/derived/candidatos/interno/<ine>.geojson (EPSG:25830; deriva de Catastro: NUNCA se publica).
 # Un municipio sin informe de discrepancias se registra como «sin capas» (no escribe, no es fallo); uno que falla no frena el lote y hace salir con 1.
