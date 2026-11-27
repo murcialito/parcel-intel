@@ -1275,7 +1275,7 @@ Verificado el **2026-11-27** para la [historia #219](https://github.com/murciali
 
 ## Catálogo de caminos públicos de Cáceres y Extremadura como conjunto de validación (historia #279)
 
-Verificado el **2026-11-27** (hija de #271). Solo investigación: sin código, sin port, sin fichero de este catálogo en git ni en `site/`. Estado: **parcial**. Lo leído por red desde GitHub Actions está abajo; el **contenido** del catálogo (CA1, CA2) **no se pudo descargar** desde Actions y queda `pendiente-local`.
+Verificado el **2026-11-27** (hija de #271). Solo investigación: sin código, sin port, sin fichero de este catálogo en git ni en `site/`. Estado: **completo**. Lo leído por red desde GitHub Actions está abajo; el **contenido** del catálogo (CA1, CA2) no se pudo descargar desde Actions y quedó `pendiente-local`: se pasó en local el 2026-11-27 (19:54 UTC) y sus resultados están en CA1 y CA2.
 
 ### Lo que se leyó (`confirmado`)
 
@@ -1285,20 +1285,25 @@ Verificado el **2026-11-27** (hija de #271). Solo investigación: sin código, s
 - **Licencia: discrepancia con la historia.** El registro del portal dice `licence: ["No se aplican condiciones"]`, `access_constraints: []` y **no trae `license_id`**. La historia citaba **CC-BY** (ficha de datos.gob.es, que no se leyó en esta pasada). Ninguna es la licencia leída en un documento aparte, y «No se aplican condiciones» es el mismo tipo de campo de metadato que la lección de 0021 dice que **no** es la licencia (`asumido`). Antes de redistribuir nada hay que leer el aviso legal de `opendata.caceres.es` o `ide.caceres.es` y citarlo; aquí no se hizo.
 - **Contenido declarado**: líneas de caminos (resumen JIIDE 2023, citado en la historia: 204–208 caminos, ~1.088–1.100 km, aprobado el 10 de mayo de 2023). El linaje del metadato describe las fuentes históricas usadas para demostrar la existencia del camino (planimetrías 1898–1945, MTN, catastros de rústica de 1956 y 1981, vuelo de 1956, Libro de Yerbas de 1909). **No menciona puntos de pérdida de traza, cancelas ni obras de acceso.**
 
-### CA1 — descarga del GeoJSON real: `pendiente-local`
+### CA1 — descarga del GeoJSON real: `confirmado` (en local, 2026-11-27)
 
-Desde GitHub Actions `ide.caceres.es` agotó el tiempo de espera en todas las peticiones (raíz, `geoserver/web/`, `GetCapabilities`, `GetFeature`, `descargas/movilidad-catalogo/`; 30–300 s), y `opendata.caceres.es` respondió solo a ratos: mismo patrón que Catastro (servicio que no atiende a los runners). **No hay sha256, nº de elementos, CRS real ni campos reales.** A rellenar por quien lo pase en local:
+Desde GitHub Actions `ide.caceres.es` agotó el tiempo de espera en todas las peticiones (raíz, `geoserver/web/`, `GetCapabilities`, `GetFeature`, `descargas/movilidad-catalogo/`; 30–300 s), y `opendata.caceres.es` respondió solo a ratos: mismo patrón que Catastro (servicio que no atiende a los runners). En local responde sin problema.
 
-```bash
-curl -sS -L -A "parcel-intel-verificacion/0.1" -o data/raw/caceres_caminos/caminos.geojson "https://ide.caceres.es/geoserver/sigaytocc/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=sigaytocc%3Acaminos&outputFormat=application%2Fjson"
-sha256sum data/raw/caceres_caminos/caminos.geojson
-```
+- **URL**: `https://ide.caceres.es/geoserver/sigaytocc/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=sigaytocc%3Acaminos&outputFormat=application%2Fjson` (`User-Agent: parcel-intel-verificacion/0.1`), `200 application/json`, 1.352.223 bytes.
+- **Fecha de descarga**: 2026-11-27 (19:54 UTC). Fichero: `data/raw/caceres_caminos/caminos.geojson` (fuera de git).
+- **sha256**: `636efda3644cb7c416a44130269ebd2ab8b7c2cb65e0d3f4260f35ca3abcbecb`.
+- **Elementos**: 278 features (`totalFeatures` = `numberMatched` = `numberReturned` = 278: la respuesta no está truncada), todas `MultiLineString`. Son 274 índices distintos: los índices 12, 47, 50 y 124 aparecen dos veces (un camino en dos piezas). La suma del campo `longitud` da ~1.221 km (el resumen JIIDE hablaba de 204–208 caminos y ~1.100 km).
+- **CRS**: la respuesta declara `urn:ogc:def:crs:EPSG::4326` y redondea las coordenadas a **4 decimales (~10 m)**. El dato nativo es EPSG:25829 (ETRS89 / UTM 29N): con `&srsName=EPSG:25829` el mismo WFS devuelve coordenadas al décimo de milímetro (comprobado con `maxFeatures=2`). Para cualquier uso métrico hay que pedirlo así, no en 4326.
+- **Campos** (todos presentes en las 278): `indice`, `nombre` (nombre del camino), `anchura` (0 en 169 de 278; 5–10 m en el resto), `longitud` (m), `inicio`, `fin` (texto: término municipal, otro camino, carretera o «acceso a parcelas»), `url` (ficha PDF por camino en `https://sig.caceres.es/fotosOriginales/CAMINOS/FICHAS_CAMINOS/<indice>.pdf`), `inicio_x`/`inicio_y`/`fin_x`/`fin_y`/`centro_x`/`centro_y` (ETRS89 / UTM 29N), `inicio_lat`/`inicio_lon`/`fin_lat`/`fin_lon`/`lat`/`long`.
+- **Defectos del origen**: en las 278 features `fin_lat`/`fin_lon` repiten `inicio_lat`/`inicio_lon`, así que sirven solo `fin_x`/`fin_y`; hay al menos un `fin_x` con un dígito de más (`7340403`, índice 12, también en su ficha PDF).
+- **Licencia leída en la página de origen**: el pie de `https://ide.caceres.es/descargas/movilidad-catalogo/` (página de descarga del conjunto, leída el 2026-11-27) dice «Contenidos liberados bajo licencia: Creative Commons Reconocimiento 4.0 — IDE Cáceres © 2026» (la misma página arrastra un pie antiguo con «Reconocimiento 3.0 — © 2016»). Es decir, **CC BY 4.0, atribución «IDE Cáceres»** (`confirmado` en la página de origen). En cambio, el CKAN de `opendata.caceres.es` dice «No se ha provisto de una licencia» y su metadato `licence` dice «No se aplican condiciones»: no es la licencia (lección de 0021). La ficha de datos.gob.es (CC-BY) queda como dato secundario.
 
-Anotar aquí: URL, fecha, sha256, nº de `features`, `crs` (comprobarlo), lista de campos y licencia **leída en la página de origen**. `data/raw/` está fuera de git.
+### CA2 — ¿hay pérdida de traza, cancela u obra de acceso en los datos?: **no, solo trazados** (en local, 2026-11-27)
 
-### CA2 — ¿hay pérdida de traza, cancela u obra de acceso en los datos?: `pendiente-local`
-
-Sin el contenido no se puede responder sí/no con el campo. Solo se comprobó que la ficha y su linaje no lo mencionan. **Esa ausencia no equivale a «no hay».** En local: listar las `properties` de las features y buscar campos o valores con «pérdida», «traza», «cancela», «obra»; anotar el nombre del campo o «solo trazados». Sin nombres de personas ni referencias catastrales copiados.
+- **Ningún campo** del GeoJSON trata de pérdida de traza, cancelas, obras de acceso, cortes u ocupación (lista completa de campos en CA1).
+- **Ningún valor** los menciona. Búsqueda en todos los campos de texto de `pérdid|traza|cancel|obra|cort|cerrad|vall|portill|usurp|ocupa|interrump|desapar`: solo coinciden topónimos («Valle Redondo», «Valle Cristóbal», «Cortijada de Casas Altas»). Los valores «acceso a parcelas» del campo `fin` (46 de 278) describen dónde termina el camino, no una obra de acceso.
+- **Fichas PDF por camino** (muestra de 3: índices 12, 26 y 100, descargadas solo para verificar, no guardadas en el proyecto): índice, anchura estimada, longitud, inicio y fin con coordenadas ETRS89, nombre y dos mapas de situación con el trazado. **Sin apartado de incidencias**, pérdidas de traza ni obras de acceso. Con 3 de 274 fichas no se puede afirmar que ninguna lo tenga, pero el formato es una plantilla fija.
+- Respuesta: **solo hay trazados**. Ningún nombre de persona ni referencia catastral copiados aquí.
 
 ### CA3 — canales de Extremadura (~13.000 pérdidas de traza, ~19.000 obras de acceso)
 
@@ -1313,6 +1318,6 @@ Sin el contenido no se puede responder sí/no con el campo. Solo se comprobó qu
 
 Licencia de un conjunto de Extremadura: **no se encontró** (no se halló conjunto).
 
-### Conclusión provisional (para CA4)
+### Conclusión (CA4)
 
-Con lo leído: el catálogo de Cáceres es de **trazados**, no de cortes; no hay evidencia de un conjunto descargable de pérdidas de traza en Extremadura, pero quedaron sin leer el visor IDEEX, CICTEX y la ficha de la Junta. La conclusión definitiva («verdad de cortes descargable», «solo trazados» o «no sirve») depende de CA1/CA2 en local. Fuera de Madrid, la red del IGN y Catastro VT son nacionales; las vías pecuarias de IDEM no tienen equivalente registrado en Extremadura (no se buscó) y su coste no se estimó.
+**Solo hay trazados.** El catálogo de Cáceres (CC BY 4.0, IDE Cáceres) da 274 caminos públicos aprobados que **deberían existir**, sin ningún dato de pérdida de traza, cancela ni obra de acceso, ni en el GeoJSON ni en la muestra de fichas. No es verdad conocida de cortes. Sirve, como mucho, de **control de recall de la capa de trazados**, no del método de cortes. En Extremadura no se encontró un conjunto descargable de pérdidas de traza, pero quedaron sin leer el visor IDEEX, CICTEX y la ficha de la Junta. Usarlo fuera de Madrid exigiría: la red del IGN y Catastro VT, que son nacionales; y un sustituto de las vías pecuarias de IDEM, que no tiene equivalente registrado en Extremadura (no se buscó, coste sin estimar). Además, pedir el WFS en EPSG:25829, no en 4326.

@@ -64,10 +64,13 @@ def test_ca2_registry_responde_si_hay_perdida_de_traza() -> None:
     )
 
 
-def test_ca2_hoy_no_se_afirma_que_no_hay() -> None:
-    """CA2 (parte sin red): la ausencia en la ficha no se lee como «no hay»."""
+def test_ca2_responde_solo_trazados_con_los_campos() -> None:
+    """CA2 (parte sin red): la respuesta es sí/no con los campos, y la muestra de fichas no se
+    generaliza más allá de lo que se leyó."""
     parte = SECCION.split("### CA2", 1)[1].split("### CA3", 1)[0]
-    assert "no equivale a «no hay»" in parte
+    assert "solo hay trazados" in parte
+    assert "Ningún campo" in parte and "Ningún valor" in parte
+    assert "no se puede afirmar que ninguna lo tenga" in parte
 
 
 def test_ca3_canales_de_extremadura_con_resultado() -> None:
@@ -82,13 +85,14 @@ def test_ca3_canales_de_extremadura_con_resultado() -> None:
     assert "Licencia de un conjunto de Extremadura" in parte
 
 
-def test_ca4_conclusion_provisional_y_pendiente_de_comentario() -> None:
+def test_ca4_conclusion_en_registry() -> None:
     """Dado el resultado, cuando se cierra la historia, entonces un comentario en la issue #271
     concluye una de: «hay verdad de cortes descargable», «solo hay trazados» o «no sirve», con las
-    fuentes del método que faltarían allí y su coste. (El comentario lo pone quien cierra CA1/CA2;
-    aquí queda la conclusión provisional en REGISTRY.)"""
-    parte = SECCION.split("### Conclusión provisional", 1)[1]
-    assert "trazados" in parte and "vías pecuarias" in parte and "Catastro VT" in parte
+    fuentes del método que faltarían allí y su coste. (El comentario en #271 lo pone el fundador;
+    aquí se comprueba la conclusión que recoge.)"""
+    parte = SECCION.split("### Conclusión (CA4)", 1)[1]
+    assert "Solo hay trazados" in parte
+    assert "vías pecuarias" in parte and "Catastro VT" in parte and "coste" in parte
 
 
 def test_ca5_ningun_fichero_del_catalogo_en_git_ni_en_site() -> None:
