@@ -423,7 +423,8 @@ def thresholds_m(scale_denominator: int) -> tuple[float, float]:
     )
 
 
-def _occupied_quadrants(points: Sequence[ControlPoint], width_px: int, height_px: int) -> int:
+def occupied_quadrants(points: Sequence[ControlPoint], width_px: int, height_px: int) -> int:
+    """Cuadrantes de la imagen (mitades por `width/2` y `height/2`) con algún punto retenido."""
     return len({(p.col >= width_px / 2, p.row >= height_px / 2) for p in points if p.retained})
 
 
@@ -440,7 +441,7 @@ def check_acceptable(
         reasons.append(
             f"residuo_max {fit.max_residual_m:.2f} m > umbral {max_limit:.2f} m ({scale})"
         )
-    quadrants = _occupied_quadrants(points, spec.image_width_px, spec.image_height_px)
+    quadrants = occupied_quadrants(points, spec.image_width_px, spec.image_height_px)
     if quadrants < MIN_QUADRANTS:
         reasons.append(f"cuadrantes ocupados {quadrants} < mínimo {MIN_QUADRANTS}")
     if points:
