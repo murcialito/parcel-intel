@@ -679,6 +679,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **También**: con `cancel-in-progress: true`, la `concurrency` va en el job y no en el workflow, porque así un run que se salta por el `if` no cancela al que sí revisa. Y si cambia `revisar.yml` en `main`, las PRs abiertas fallan la revisión con `SIN_VEREDICTO` hasta traerse `main`: la acción se salta si su workflow no coincide.
   - **Aplica a**: workflows (`.github/`).
 
+- **Lección**: el desarrollador puede terminar con la historia en `estado:en-revision` y la PR aún en borrador si se le olvida `gh pr ready`. Ningún paso de la tubería lo recogía: la revisión se salta los borradores, el barrido de revisiones solo miraba PRs listas y «devolver a la cola» solo actúa si la historia sigue en desarrollo. Ahora `revisiones_pendientes.sh` también marca lista (con `PROJECT_TOKEN`) una PR `claude/historia-<n>-*` en borrador cuando la historia `n` lleva más de 10 minutos en revisión y no hay un Corregir en marcha; el revisor decide si está completa. Y el barrido de revisiones se salta las PRs en conflicto: sin runs de `pull_request`, pedir la revisión no sirve; las saca Actualizar rama.
+  - **Causa**: PRs #232 (#216), #234 (#217) y #184 (#183), 2026-11-27. Una sola ejecución del agente cada una, sin ningún evento `ready_for_review`; la #184 llevó así casi tres horas y quedó en conflicto con `main`.
+  - **Aplica a**: workflows (`.github/`), desarrollador (paso 8: `gh pr ready` antes de pasar la historia a revisión).
+
 ## [2026-11-27] Historia #165 — Estilos de capa del sistema de diseño en el mapa
 
 - **Lección**: para no divergir de un paquete de diseño entregado como script global, el test ejecuta el original en `node:vm` con `window` y `document` falsos y compara con `deepStrictEqual`. Los objetos de otro contexto de `vm` tienen otro prototipo y `deepStrictEqual` los distingue: normaliza los dos lados con `JSON.parse(JSON.stringify(x))`. Un comentario del módulo que nombre `data-tema` o `window` rompe los tests estáticos que buscan esas palabras: reescríbelo.
