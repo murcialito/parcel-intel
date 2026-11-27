@@ -578,6 +578,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: `ruff format .` sin límite reformatea decenas de ficheros ajenos a la historia (aquí 51, incluidos ADR y código de otras historias) y ensucia la PR. Formatea solo los ficheros que has tocado (`ruff format <rutas>`), o comprueba `git status` antes de hacer commit.
   - **Aplica a**: implementación.
 
+## [2026-11-27] Historia #62 — Hoja MTN50 0606 (0606-w1)
+
+- **Lección**: un criterio que dice «sin cambios en el mecanismo» puede ser incompatible con otro criterio de la misma historia. #62 (CA6) pide trazados de varios municipios en una hoja, pero `unidad.json` lleva un único `municipality_code` y `trazados.geojson` no admite municipio por trazado (`_ALLOWED_PROPERTIES`). Antes de escribir los tests se contrasta cada criterio con `adapters/curated_historic/files.py` y `domain/digitization.py`; el que no cabe se escala al fundador en vez de tocar `src/` fuera de la línea `Toca:`.
+  - **Aplica a**: refinador (al exigir una capacidad nueva en una historia «de patrón», comprobar que el formato de #20 la admite) | implementación.
+
+- **Lección**: la atribución «exacta» de un criterio puede ser la de capa y no la que imprime la CLI. Del MTN50 hay dos: por trazado (`Obra derivada de Primera edición MTN50, IGN, hoja 0606 1881 …`, `derived_work_attribution`) y de capa (`…MTN50 1875-1968…`, `layer_attributions`). El test comprueba cada una donde vive. El `unit_id` de una hoja lleva ceros a la izquierda (`0606-w1`) y casa con `^[0-9]{4,6}-[wh][0-9]+$`.
+  - **Aplica a**: refinador | implementación.
+
 ## [2026-11-27] Historia #128 — Fichero interno de candidatos y comando `candidatos-corte`
 
 - **Lección**: un fichero ausente y uno vacío significan cosas distintas. `CutCandidateSource.get_report` devuelve `None` si no hay fichero («sin capas») y un informe con `candidates == ()` si lo hay sin features («municipio evaluable»); un fichero ilegible o en otro CRS lanza `CutCandidateFileError`, nunca `None`. La escritura es atómica (temporal + `os.replace`) para que un fallo a medias no deje un fichero truncado que se tome por «evaluable».
