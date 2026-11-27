@@ -871,3 +871,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en OGC API Features el enlace `rel=next` trae la URL completa con su query; para cachearla con `CachedRawFetcher` (clave = URL canónica) hay que partirla en base + parámetros (`urlsplit`/`parse_qsl`) y comprobar que la base es la de la colección antes de seguirla. Y no comprobar «sin duplicados» por nombre o longitud: en datos reales dos tramos distintos comparten nombre y hasta longitud; el `id` de la feature es la única clave.
   - **Aplica a**: adapters que paginen colecciones OGC API Features (red de transporte, nuevas capas) | revisión.
 
+## [2026-11-27] Historia #279 — Catálogo de caminos de Cáceres
+
+- **Lección**: la URL de descarga que cita una ficha de datos.gob.es puede estar muerta o devolver la portada HTML con `200`; el recurso real está en el registro del propio portal (`package_show` de CKAN). Antes de dar un fichero por descargado, comprobar que es JSON (`head -c`), y si no lo es, no guardarlo con la extensión del dato.
+  - **Causa**: el endpoint `GetData?...format=geojson` de la ficha devolvió la portada de `opendata.caceres.es` (6.619 bytes, `text/html`) con código 200 tras una redirección a HTTPS con cadena de certificados incompleta. Los datos reales están en `ide.caceres.es` (WFS), que no respondió desde GitHub Actions: el contenido quedó `pendiente-local`.
+  - **Aplica a**: refinador (no citar una licencia o un formato de una ficha sin abrir el recurso) | implementación (un `200` no prueba que haya dato).
+

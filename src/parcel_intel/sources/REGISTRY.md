@@ -1272,3 +1272,47 @@ Verificado el **2026-11-27** para la [historia #219](https://github.com/murciali
 - **Canales no leídos**: la versión mínima de Android/iOS y de QGIS de QField (la ficha de Google Play y las docs no la dan en el texto recuperado); las páginas `get-started/tutorial`, `how-to/outside-layers` e `installation` de las docs (404); la lista de ficheros de la release; el texto del estándar GeoPackage más allá de los primeros 100.000 caracteres (las tablas obligatorias se tomaron del Anexo C y de la especificación conocida); la licencia de los ficheros de proyecto de QGIS como obra. Que no se leyeran no equivale a que no existan.
 - **Alternativa (punto 5)**: no hace falta de momento; si la reserva falla, GPX con puntos de interés y hoja de campo imprimible (el kit GPX/KML de #213 ya existe, coste cero).
 - **Generador real (historia #222)**: `publicar-kit-campo-qfield` escribe el proyecto por municipio con `sqlite3` y `xml.etree`. **Apertura en QField: PENDIENTE (`asumido`, no verificada).** Hasta que alguien con móvil abra el `.qgs` real de un municipio y anote aquí versión de QField, dispositivo y resultado (¿carga las capas? ¿aparece la advertencia y los desplegables de `tipo` y `estado`? ¿se guarda una incidencia con foto?), el ZIP no se enlaza ni se despliega en `site/` y `kit/indice.json` no se toca. El formulario usa elementos que la fixture de #219 no tenía (`DateTime`, `ExternalResource`, `attributeEditorHtmlElement` como cabecera): tampoco están comprobados en QField. Cuando se anote, ejecutar con `--incluir-en-indice`.
+
+## Catálogo de caminos públicos de Cáceres y Extremadura como conjunto de validación (historia #279)
+
+Verificado el **2026-11-27** (hija de #271). Solo investigación: sin código, sin port, sin fichero de este catálogo en git ni en `site/`. Estado: **parcial**. Lo leído por red desde GitHub Actions está abajo; el **contenido** del catálogo (CA1, CA2) **no se pudo descargar** desde Actions y queda `pendiente-local`.
+
+### Lo que se leyó (`confirmado`)
+
+- **Ficha en el portal del Ayuntamiento** (`https://opendata.caceres.es/datosabiertos/catalogo/dataset/catalogo-caminos-publicos-de-caceres`, CKAN; API `.../api/3/action/package_show?id=catalogo-caminos-publicos-de-caceres`): título «Catálogo Caminos Públicos de Cáceres», nota «BOP-2023-2983 Aprobación definitiva del Catálogo de Caminos Públicos del Término Municipal de Cáceres», responsable SIG de Cáceres (Ayuntamiento), fecha de creación 2023-01-26, «Fecha de última actualización de datos» 8 de octubre de 2026, frecuencia `notPlanned`, CRS declarado EPSG:25829 (el WMS ofrece también EPSG:4326).
+- **El endpoint de la ficha de datos.gob.es ya no sirve datos**: `http://opendata.caceres.es/GetData/GetData?dataset=om%3ACamino&format=geojson&geojson=LineString` redirige (301) a HTTPS, cuyo certificado no valida con la cadena del sistema (`unable to get local issuer certificate`; se usó `curl -k` solo para esta verificación) y responde `200 text/html` con la **portada del portal**, no un GeoJSON (6.619 bytes). No es dato.
+- **Recursos reales del conjunto** (de `package_show`): WMS (`https://ide.caceres.es/geoserver/sigaytocc/caminos/wms` y `.../sigaytocc/wms`), **CSV** y **GeoJSON** por WFS 1.0.0 de `sigaytocc:caminos` en `https://ide.caceres.es/geoserver/sigaytocc/ows` (`outputFormat=CSV` y `application/json`), página de descarga `https://ide.caceres.es/descargas/movilidad-catalogo/`, dos visores (`sig.caceres.es`) y apps móviles.
+- **Licencia: discrepancia con la historia.** El registro del portal dice `licence: ["No se aplican condiciones"]`, `access_constraints: []` y **no trae `license_id`**. La historia citaba **CC-BY** (ficha de datos.gob.es, que no se leyó en esta pasada). Ninguna es la licencia leída en un documento aparte, y «No se aplican condiciones» es el mismo tipo de campo de metadato que la lección de 0021 dice que **no** es la licencia (`asumido`). Antes de redistribuir nada hay que leer el aviso legal de `opendata.caceres.es` o `ide.caceres.es` y citarlo; aquí no se hizo.
+- **Contenido declarado**: líneas de caminos (resumen JIIDE 2023, citado en la historia: 204–208 caminos, ~1.088–1.100 km, aprobado el 10 de mayo de 2023). El linaje del metadato describe las fuentes históricas usadas para demostrar la existencia del camino (planimetrías 1898–1945, MTN, catastros de rústica de 1956 y 1981, vuelo de 1956, Libro de Yerbas de 1909). **No menciona puntos de pérdida de traza, cancelas ni obras de acceso.**
+
+### CA1 — descarga del GeoJSON real: `pendiente-local`
+
+Desde GitHub Actions `ide.caceres.es` agotó el tiempo de espera en todas las peticiones (raíz, `geoserver/web/`, `GetCapabilities`, `GetFeature`, `descargas/movilidad-catalogo/`; 30–300 s), y `opendata.caceres.es` respondió solo a ratos: mismo patrón que Catastro (servicio que no atiende a los runners). **No hay sha256, nº de elementos, CRS real ni campos reales.** A rellenar por quien lo pase en local:
+
+```bash
+curl -sS -L -A "parcel-intel-verificacion/0.1" -o data/raw/caceres_caminos/caminos.geojson "https://ide.caceres.es/geoserver/sigaytocc/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=sigaytocc%3Acaminos&outputFormat=application%2Fjson"
+sha256sum data/raw/caceres_caminos/caminos.geojson
+```
+
+Anotar aquí: URL, fecha, sha256, nº de `features`, `crs` (comprobarlo), lista de campos y licencia **leída en la página de origen**. `data/raw/` está fuera de git.
+
+### CA2 — ¿hay pérdida de traza, cancela u obra de acceso en los datos?: `pendiente-local`
+
+Sin el contenido no se puede responder sí/no con el campo. Solo se comprobó que la ficha y su linaje no lo mencionan. **Esa ausencia no equivale a «no hay».** En local: listar las `properties` de las features y buscar campos o valores con «pérdida», «traza», «cancela», «obra»; anotar el nombre del campo o «solo trazados». Sin nombres de personas ni referencias catastrales copiados.
+
+### CA3 — canales de Extremadura (~13.000 pérdidas de traza, ~19.000 obras de acceso)
+
+| Canal | Resultado |
+|---|---|
+| Resumen JIIDE 2023 (`dgterritorio.gov.pt/jiide2023/pdfs/resumos/27-ES_Resumen_FaustinoCordero.pdf`) | **descargado (211 KB, 2 págs.), texto no extraído** (sin herramienta de PDF en el entorno). Por sus enlaces es un resumen de autores del Ayuntamiento de Cáceres (`sig.caceres.es`, `visor.caceres.es/visor?map=6`, QGIS), no un documento de descarga de datos. Las cifras de Extremadura vienen de la historia, no se verificaron aquí. |
+| datos.gob.es, API `apidata/catalog/dataset/title/caminos` (13 resultados) | **solo dos fichas de Cáceres**; ninguna de la Junta de Extremadura sobre pérdidas ni obras de acceso. La búsqueda es por título: un conjunto con otro título no saldría. |
+| Búsqueda web (Junta de Extremadura, IDEEX, datos.gob.es) | sin conjunto descargable; solo el marco legal (art. 178 Ley Agraria de Extremadura: el catálogo oficial lo elabora la Consejería e incluye longitud, puntos inicial y final, denominación y anchura estimada) y presentaciones antiguas de IDEEX (2010, 2016), vistas en resultados, no leídas. |
+| `visor.ideex.es` | **ilegible**: responde 200, pero es una aplicación Ionic/Angular que se pinta con JavaScript; sin navegador no se ve ninguna capa. **No equivale a que no existan.** |
+| CICTEX | **no consultado**. |
+| Catálogo de datos de la Junta (datos.gob.es) y PDF «Datos abiertos 2026» de `juntaex.es` | solo vistos en resultados de búsqueda; **no leídos**. |
+
+Licencia de un conjunto de Extremadura: **no se encontró** (no se halló conjunto).
+
+### Conclusión provisional (para CA4)
+
+Con lo leído: el catálogo de Cáceres es de **trazados**, no de cortes; no hay evidencia de un conjunto descargable de pérdidas de traza en Extremadura, pero quedaron sin leer el visor IDEEX, CICTEX y la ficha de la Junta. La conclusión definitiva («verdad de cortes descargable», «solo trazados» o «no sirve») depende de CA1/CA2 en local. Fuera de Madrid, la red del IGN y Catastro VT son nacionales; las vías pecuarias de IDEM no tienen equivalente registrado en Extremadura (no se buscó) y su coste no se estimó.

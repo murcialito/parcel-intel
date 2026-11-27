@@ -41,5 +41,7 @@ El validador es `src/parcel_intel/adapters/validation_cases/casos_schema.py` (`v
 uv run pytest tests/validacion tests/acceptance/test_historia_51.py
 ```
 
+**Catálogos aprobados de otras zonas (historia #279, hija de #271).** El catálogo de caminos públicos de Cáceres es, por lo leído, un conjunto de **trazados**, no de cortes: no se ha visto ningún dato de pérdida de traza ni obra de acceso, y no sería verdad conocida de cortes. Su contenido y licencia están pendientes de leer en local (ver `REGISTRY.md`, «Catálogo de caminos públicos de Cáceres y Extremadura»). Hasta entonces no forma parte de ningún conjunto congelado ni se publica.
+
 Los mínimos del conjunto (6 casos, 2 de ellos en el ámbito; la meta de 10/5 se alcanzará con nuevas versiones congeladas) los comprueban las
 historias #52, #53 y #54, no este formato.
