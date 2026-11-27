@@ -26,7 +26,7 @@ FIXTURES = ROOT / "tests" / "fixtures" / "visor" / "datos"
 CANDIDATOS = ROOT / "tests" / "fixtures" / "site" / "candidatos_28043.geojson"
 CANDIDATOS_IMG = ROOT / "tests" / "fixtures" / "site" / "candidatos_comparacion_28043.geojson"
 DISENO = ROOT / "docs" / "design-system" / "site" / "js" / "estilos-capas.js"
-MODULOS = ("config.js", "controlador.js", "estilos-capas.js", "mapa.js", "vista.js")
+MODULOS = ("config.js", "controlador.js", "enlace.js", "estilos-capas.js", "mapa.js", "vista.js")
 
 
 @dataclass(frozen=True)

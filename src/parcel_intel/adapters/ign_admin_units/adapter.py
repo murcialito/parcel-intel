@@ -17,7 +17,7 @@ from parcel_intel.adapters.ign_admin_units.parsing import (
 from parcel_intel.adapters.raw_cache import CachedRawFetcher
 from parcel_intel.domain.geometry import Geometry
 from parcel_intel.domain.municipality import MunicipalBoundary
-from parcel_intel.domain.provenance import Provenance
+from parcel_intel.domain.provenance import Provenance, Redistribution
 from parcel_intel.ports.errors import (
     IncompleteWfsResponseError,
     MunicipalBoundaryNotFoundError,
@@ -91,7 +91,14 @@ class IgnAdministrativeUnitsAdapter:
         if missing:
             raise MunicipalBoundaryNotFoundError(missing)
 
-        provenance = Provenance(source=SOURCE, url=url, retrieved_at=retrieved_at, license=LICENSE)
+        # CC BY 4.0 ign.es, «Publicar» en REGISTRY.md: redistribuible (historia #185, ADR 0051).
+        provenance = Provenance(
+            source=SOURCE,
+            url=url,
+            retrieved_at=retrieved_at,
+            license=LICENSE,
+            redistribution=Redistribution.PUBLIC,
+        )
         transformer = Transformer.from_crs(_SOURCE_CRS, f"EPSG:{TARGET_SRID}")
         return [_to_boundary(by_code[code], transformer, provenance) for code in ine_codes]
 

@@ -133,7 +133,10 @@ def test_ca10_tema_lo_resuelve_app_js_y_la_ortofoto_se_atenua(tmp_path: Path) ->
     y `"claro"` en otro caso. `app.js` es el único fichero JS que lee `data-tema` y
     `prefers-color-scheme`: llama a `temaDe`, pasa el tema a `crearMapa` y, si cambia la
     preferencia del sistema, llama a `mapa.ponerTema`. `estilo.css` aplica
-    `filter: var(--map-tiles-filter)` a `#mapa .leaflet-tile-pane`."""
+    `filter: var(--map-tiles-filter)` a `#mapa .leaflet-tile-pane`.
+
+    #185 (ADR 0051): hay dos fondos y cada uno lleva su clase; el filtro de la ortofoto se aplica
+    a `#mapa .pc-fondo--ortofoto` y el mapa gris lleva el suyo (`--map-mapa-filter`)."""
     assert_node_tests_pass("^H165 CA10:", tmp_path, minimum=2)
     for fichero in sorted(SITE.glob("*.js")):
         texto = fichero.read_text(encoding="utf-8")
@@ -145,8 +148,9 @@ def test_ca10_tema_lo_resuelve_app_js_y_la_ortofoto_se_atenua(tmp_path: Path) ->
     assert re.search(r"addEventListener\?\.\(\s*\"change\".*?ponerTema", app, re.DOTALL)
     css = _leer("estilo.css")
     assert re.search(
-        r"#mapa\s+\.leaflet-tile-pane\s*\{[^}]*filter:\s*var\(--map-tiles-filter\)", css
+        r"#mapa\s+\.pc-fondo--ortofoto\s*\{[^}]*filter:\s*var\(--map-tiles-filter\)", css
     )
+    assert re.search(r"#mapa\s+\.pc-fondo--mapa\s*\{[^}]*filter:\s*var\(--map-mapa-filter\)", css)
 
 
 def test_ca11_config_sin_colores_y_muestras_con_tokens(tmp_path: Path) -> None:

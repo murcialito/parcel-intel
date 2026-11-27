@@ -27,6 +27,14 @@ de memoria.
 - Formato de obra derivada del PNOA histórico con producto y fecha: pendiente de verificar
   (REGISTRY no cita el texto exacto para esas capas).
 
+### IGN/CNIG — mapa base cartográfico IGN-Base gris (visor, historia #185)
+
+- Licencia: CC BY 4.0, declarada por el servicio (WMTS https://www.ign.es/wmts/ign-base, capa `IGNBase-gris`, teselas sin transformar).
+- URL de licencia: https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf
+- Atribución: `IGNBase-gris CC BY 4.0 scne.es`
+- Rótulos sobre la ortofoto (capa `IGNBaseOrto`, teselas sin transformar salvo el paso a escala de grises): `IGNBaseOrto CC BY 4.0 scne.es`
+- Formato del SCNE con producto y fecha: pendiente de verificar (la tabla de productos del SCNE no lista IGN-Base).
+
 ### IGN/CNIG — imágenes de comparación de los tramos a verificar (ADR 0042 y 0049, historia #172)
 
 - Las imágenes de comparación de cada tramo a verificar se sirven desde el WMS histórico del

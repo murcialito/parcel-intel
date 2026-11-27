@@ -273,9 +273,10 @@ def test_ca7_contraste_wcag_en_los_dos_temas() -> None:
         ("--color-on-accent", "--color-accent"),
         ("--color-nota-fg", "--color-nota-bg"),
     ]
-    # El borde de los controles es el token que usa `.campo select` en estilo.css.
+    # El borde de los controles es el token que usa `.campo select` en estilo.css; desde #185 el
+    # selector es el buscador `.pc-buscador input`, con el mismo borde.
     borde = re.search(
-        r"\.campo select\s*\{[^}]*border:\s*1px solid var\((--[\w-]+)\)",
+        r"\.pc-buscador input\s*\{[^}]*border:\s*1px solid var\((--[\w-]+)\)",
         ESTILO.read_text(encoding="utf-8"),
     )
     assert borde is not None
