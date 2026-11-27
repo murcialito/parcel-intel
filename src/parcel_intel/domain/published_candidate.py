@@ -57,9 +57,7 @@ MEASUREMENT_SCOPE_ONE = "Solo 1 caso en el ámbito, no es una estadística."
 MEASUREMENT_SCOPE = "Solo {casos} casos en el ámbito, no es una estadística."
 MEASUREMENT_DATE = "Medición del {fecha} con el conjunto {conjunto} y el método {metodo}."
 NOT_COMPUTABLE = "no calculable"
-REVIEWED_BY_HAND = (
-    "Revisado a mano: cada tramo publicado lo ha aprobado una persona tras mirarlo."
-)
+REVIEWED_BY_HAND = "Revisado a mano: cada tramo publicado lo ha aprobado una persona tras mirarlo."
 
 LOWER_BOUND = "inferior"
 
@@ -173,9 +171,7 @@ def summarize_measurement(report: MeasurementReport, method: CriterionRef) -> Me
     if report.out_of_scope_cases > report.total_cases:
         raise MeasurementNotUsableError("el informe da más casos fuera del ámbito que casos")
     _check_ratio("cobertura", report.coverage, report.flagged_cases, report.evaluable_cases)
-    _check_ratio(
-        "precisión", report.precision, report.hit_candidates, report.evaluable_candidates
-    )
+    _check_ratio("precisión", report.precision, report.hit_candidates, report.evaluable_candidates)
 
     method_label = _method_label(method)
     cases_in_scope = report.total_cases - report.out_of_scope_cases

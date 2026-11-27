@@ -27,7 +27,10 @@ from typing import Any
 import pytest
 
 from parcel_intel.adapters.cut_candidate_files import GeoJsonCutCandidateWriter
-from parcel_intel.adapters.published_layers import GeoJsonPublishedCandidateSink, PublishedLayerError
+from parcel_intel.adapters.published_layers import (
+    GeoJsonPublishedCandidateSink,
+    PublishedLayerError,
+)
 from parcel_intel.adapters.published_layers.projection import to_lonlat
 from parcel_intel.adapters.validation_cases.congelacion import congelar
 from parcel_intel.cli import main
@@ -238,9 +241,7 @@ def test_ca1_publica_geojson_en_4326_con_procedencia(published: dict[str, Any]) 
         flat = coordinates if feature["geometry"]["type"] == "LineString" else sum(coordinates, [])
         for lon, lat in flat:
             assert -4.0 < lon < -3.0 and 39.5 < lat < 40.5
-    assert (
-        f"publicado {published['site'] / 'candidatos' / '28043.geojson'}" in published["out"]
-    )
+    assert f"publicado {published['site'] / 'candidatos' / '28043.geojson'}" in published["out"]
     assert "3 tramos aprobados (sin publicar: 1 propuestos, 1 rechazados)" in published["out"]
 
 
@@ -428,8 +429,7 @@ def test_ca8_resumen_literal_de_la_medicion_y_revisado_a_mano(
             "Tramos que casan con un caso: 0 de 0 evaluables; precisión como cota inferior: "
             "no calculable.",
             "Solo 2 casos en el ámbito, no es una estadística.",
-            "Medición del 27/11/2026 con el conjunto validacion-v1 y el método "
-            "candidato_corte v1.",
+            "Medición del 27/11/2026 con el conjunto validacion-v1 y el método candidato_corte v1.",
         ],
     }
     # Ningún número del resumen se puede leer como 0 % (el «80 %» de la ficha es otra cosa).

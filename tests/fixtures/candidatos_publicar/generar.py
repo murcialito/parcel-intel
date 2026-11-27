@@ -73,7 +73,9 @@ def revision_document() -> dict[str, object]:
 
 def _not_evaluable(out_of_scope: int, without_geometry: int) -> tuple[NotEvaluableCase, ...]:
     cases = [NotEvaluableCase(f"fuera-{i}", "fuera_del_ambito") for i in range(out_of_scope)]
-    cases += [NotEvaluableCase(f"sin-geometria-{i}", "sin_geometria") for i in range(without_geometry)]
+    cases += [
+        NotEvaluableCase(f"sin-geometria-{i}", "sin_geometria") for i in range(without_geometry)
+    ]
     return tuple(sorted(cases, key=lambda item: item.case_id))
 
 
