@@ -779,3 +779,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el `GetFeatureInfo` de `primera-edicion-mtn` devuelve la hoja de un solo punto; para saber qué hojas cubren un término hay que muestrear una rejilla dentro del límite (2,5 km bastó) y contar puntos por hoja. Una sola consulta en el centro oculta las hojas de borde (Colmenar tiene dos; Chinchón, cuatro). Los enlaces de descarga del CNIG devuelven la ficha HTML con reCAPTCHA v3, no el zip: se anota `bloqueado` y se trabaja con el render del WMS.
   - **Aplica a**: refinador, implementación (historias que inventarían la cobertura de un WMS histórico).
 
+## [2026-11-27] Historia #216 — Fuente SIGPAC de la Comunidad de Madrid
+
+- **Lección**: antes de dar por inexistente un documento de licencia («el Acuerdo del FEGA no se puede leer»), mirar dentro del paquete descargado: los términos de uso del FEGA (HVD, CC BY 4.0) venían como PDF dentro del ZIP de recintos, no en el feed ni en la ficha. Un texto de licencia que el feed cita y no se encuentra se deja `asumido`, pero antes hay que revisar cada fichero del paquete y la ficha del catálogo.
+  - **Aplica a**: implementación y refinador (al verificar la licencia de una capa de descarga, listar el contenido completo del ZIP antes de buscar el documento en la web).
+- **Lección**: las guardas de tests que leen una sección de `REGISTRY.md` por rango (`index(...)` hasta `## Resumen…`) cubren también todo lo que se inserte antes del resumen. Así, una palabra inocua de una sección nueva («propietario») rompió el test de #26. Escribir las secciones nuevas sin esos términos o, mejor, acotar la guarda al encabezado de su propia sección.
+  - **Aplica a**: implementación (al añadir una sección a `REGISTRY.md`, ejecutar la suite completa, no solo los tests de la historia).
+- **Lección**: el cruce de control entre una capa de trazados (GML en EPSG:25830) y otra de polígonos (SHP en EPSG:4258) se hizo con stdlib (inverso de UTM sobre los vértices y punto-en-polígono). Que el 99 % de los vértices caiga dentro de un recinto valida la reproyección a la escala del problema; si el porcentaje cayera, habría que revisar la conversión antes de sacar conclusiones.
+  - **Aplica a**: implementación (cruces entre capas en distintos CRS sin dependencias de geoprocesamiento en `domain/`).
+
