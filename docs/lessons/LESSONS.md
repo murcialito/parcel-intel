@@ -642,7 +642,7 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: si dos comandos comparten una caché cuya clave depende de una geometría, esa geometría la calcula una única función de dominio (`municipality_tiles`), no dos copias del cálculo. El test de «teselas idénticas» falla si divergen.
   - **Aplica a**: cualquier caché cruda indexada por bbox.
 
-- **Lección**: `ruff format src` sin acotar reformateó 14 ficheros ajenos (tercera vez, ver #127 y #128). Formatea solo las rutas tocadas.
+- **Lección**: `ruff format src` sin acotar reformateó 14 ficheros ajenos (tercera vez, ver #127 y #128; cuarta en #111 con `ruff format .`, 47 ficheros). Formatea solo los ficheros nuevos y comprueba `git status` antes del commit; `ruff format` también retoca líneas ya existentes de los ficheros que tocas: revierte ese ruido.
   - **Aplica a**: implementación.
 
 ## [2026-11-27] Historia #162 — Municipio por trazado en el formato histórico
