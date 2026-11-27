@@ -97,6 +97,13 @@ uv run python -m parcel_intel.cli.main publicar-capas --ambito
 uv run python -m parcel_intel.cli.main publicar-discrepancias --municipio 28043 [--municipio ...]
 uv run python -m parcel_intel.cli.main publicar-discrepancias --ambito
 
+# Candidatos a corte por municipio (historia #128, ADR 0039): lee data/derived/discrepancias/interno/<ine>.geojson (#94) y las parcelas de Catastro
+# (#37, caché en data/raw/catastro) y escribe el fichero INTERNO data/derived/candidatos/interno/<ine>.geojson (EPSG:25830; deriva de Catastro: NUNCA se publica).
+# Un municipio sin informe de discrepancias se registra como «sin capas» (no escribe, no es fallo); uno que falla no frena el lote y hace salir con 1.
+# --sin-red: solo la caché; una tesela que falta deja la señal parcela_no_camino en sin_datos con su motivo. Sin --municipio ni --ambito sale con 1.
+uv run python -m parcel_intel.cli.main candidatos-corte --municipio 28043 [--municipio ...] [--sin-red]
+uv run python -m parcel_intel.cli.main candidatos-corte --ambito
+
 # Imágenes de comparación de los tramos de un municipio (historia #122, ADR 0042): descarga y comprueba las ortofotos en la caché cruda
 # data/raw y escribe el manifiesto INTERNO data/derived/comparacion/<ine>.json (URL canónica, sha256, atribución, píxeles del trazo). Entrada:
 # GeoJSON de tramos en EPSG:25830 con properties.id de 16 hexadecimales. Nada va a site/. Todo o nada: sale con 1 y no escribe si una franja

@@ -788,6 +788,12 @@ Ejecución real del 2026-11-26: `vias-pecuarias-municipios` y `camino-actual-mun
 
 Ningún fichero supera el umbral de simplificación (3 000 000 bytes). Belmonte de Tajo (28019) no tiene piezas de vías pecuarias, y su capa vacía no se publica (resuelto en #86, ADR 0036). El ámbito completo se publicó en #86: 13 capas, ninguna sobre el umbral.
 
+### Candidatos a corte — fichero interno (historia #128)
+
+`candidatos-corte` escribe `data/derived/candidatos/interno/<ine>.geojson` (EPSG:25830, fuera de git). **Deriva de Catastro** (parcelas del WFS de #37, licencia INSPIRE) y de las capas base de #94: es de **uso interno y no redistribuible**; la procedencia de cada señal (`redistribucion: solo_uso_interno`) viaja en el propio fichero. No lleva titularidad, referencias de finca ni geometría de parcela. Publicar candidatos es #103 y exigirá su propia redacción. Sin fuente nueva ni proveedor nuevo.
+
+Verificación con datos reales de Colmenar de Oreja (CA12, `integration` + `fuera_de_ci`): pendiente de pasar en local con `data/` generada; anotar aquí recuento de candidatos y señales `sin_datos`.
+
 ---
 
 ## Resumen de fuentes no verificadas en esta pasada
