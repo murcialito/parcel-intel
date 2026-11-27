@@ -862,4 +862,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: un recurso opcional del visor (el índice del kit) se carga en paralelo al índice principal con un `try/catch` propio que solo escribe en `console`, y el arranque lo espera, para que la sección salga ya al elegir municipio sin carreras. La validación de ese índice descarta entradas y claves (no lanza) y deriva el texto de las capas de `config.js`, nunca del dato.
   - **Aplica a**: implementación (otros ficheros opcionales publicados en `site/datos/`, como el proyecto de campo de #222).
+## [2026-11-27] Historia #257 — Cauces de IDEE paginados y cacheados
+
+- **Lección**: en OGC API Features el enlace `rel=next` trae la URL completa con su query; para cachearla con `CachedRawFetcher` (clave = URL canónica) hay que partirla en base + parámetros (`urlsplit`/`parse_qsl`) y comprobar que la base es la de la colección antes de seguirla. Y no comprobar «sin duplicados» por nombre o longitud: en datos reales dos tramos distintos comparten nombre y hasta longitud; el `id` de la feature es la única clave.
+  - **Aplica a**: adapters que paginen colecciones OGC API Features (red de transporte, nuevas capas) | revisión.
 
