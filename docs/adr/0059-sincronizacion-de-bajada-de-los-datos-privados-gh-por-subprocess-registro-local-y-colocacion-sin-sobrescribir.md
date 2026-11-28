@@ -1,11 +1,11 @@
-# ADR 0058 — Sincronización de bajada de los datos privados: `gh` por subprocess, registro local y colocación sin sobrescribir
+# ADR 0059 — Sincronización de bajada de los datos privados: `gh` por subprocess, registro local y colocación sin sobrescribir
 
 - Estado: aceptada
 - Fecha: 2026-11-28
 - Historia: #295 (feature #293; sigue en #320)
 - Relacionados: ADR 0055 (repo privado, catálogo y acceso), ADR 0028 y la caché cruda de #34 (inmutabilidad), ADR 0022 y 0024 (agentes en Actions)
 
-> Numeración: el diseño de #295 lo proponía como «ADR 0057». Ese número lo ocupó #313 (tabla de convergencia) mientras esta historia esperaba en la cola. Donde la issue #295 o #320 dicen «ADR 0057 §n», léase este ADR 0058 §n.
+> Numeración: el diseño de #295 lo proponía como «ADR 0057». Ese número lo ocupó #313 (tabla de convergencia) mientras esta historia esperaba en la cola, y el 0058 lo ocupó #102 (privacidad de los avisos con foto) mientras la PR estaba abierta. Donde la issue #295 o #320 dicen «ADR 0057 §n», léase este ADR 0059 §n.
 
 ## Contexto
 

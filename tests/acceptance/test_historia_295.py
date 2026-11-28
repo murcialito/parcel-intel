@@ -1,5 +1,5 @@
 """Tests de aceptación de la historia #295: `datos-privados sincronizar`, la sincronización
-de bajada del repo privado de datos (ADR 0055 §3 y §5, ADR 0058).
+de bajada del repo privado de datos (ADR 0055 §3 y §5, ADR 0059).
 
 Fixtures SINTÉTICAS (`tests/fixtures/private_data/`, ver su `LEEME.md`): año 2099, sin
 referencias catastrales ni nombres. Ningún test lanza `gh` ni toca la red: el almacén es
@@ -7,8 +7,8 @@ referencias catastrales ni nombres. Ningún test lanza `gh` ni toca la red: el a
 local es la real (`LocalPrivateDataArea`) sobre `tmp_path`.
 
 Adaptaciones respecto a la issue (anotadas en la PR):
-- El ADR que propone el diseño como «ADR 0057» es el **ADR 0058**: el 0057 lo ocupó #313
-  mientras esta historia esperaba (lección de #313).
+- El ADR que propone el diseño como «ADR 0057» es el **ADR 0059**: el 0057 lo ocupó #313
+  mientras esta historia esperaba y el 0058, #102, con la PR abierta (lección de #313).
 - CA10 no es un test de aceptación ejecutable (CI corre `-m "acceptance and …"`, que anula
   el `not integration`): aquí solo se comprueba estáticamente el test de integración, que
   pasa el fundador a mano.
@@ -886,7 +886,7 @@ def test_ca17_argumentos_exactos_de_gh(runner: FakeGhRunner, tmp_path: Path) -> 
         ("gh", "api", "--method", "GET", "-H", RAW_ACCEPT, f"{contents}/{TP_GIT_PATH}"),
     ]
     assert RAW_ACCEPT == "Accept: application/vnd.github.raw+json"
-    adr = next((ROOT / "docs/adr").glob("0058-*.md")).read_text("utf-8")
+    adr = next((ROOT / "docs/adr").glob("0059-*.md")).read_text("utf-8")
     for form in (
         "`gh api --method GET repos/<repo>/contents/catalogo`",
         '`-H "Accept: application/vnd.github.raw+json"`',

@@ -1,5 +1,5 @@
 """Catálogo del repo privado de datos internos (ADR 0055 §3) y resultado de su
-sincronización de bajada (historia #295, ADR 0058).
+sincronización de bajada (historia #295, ADR 0059).
 
 Solo stdlib. Todo se valida antes de tocar nada: un catálogo con una entrada mal
 formada, una ruta que sale de `data/`, una clave de titularidad o un valor con forma de

@@ -1,4 +1,4 @@
-"""Zona local `data/` de los datos privados (historia #295, ADR 0058 §6 y §8).
+"""Zona local `data/` de los datos privados (historia #295, ADR 0059 §6 y §8).
 
 Mismo contrato que la caché cruda (`CachedRawFetcher`): inmutable, sha256 comprobado y
 escritura atómica. Todo se descarga a `data/privados/.preparacion/<temporal>` (mismo

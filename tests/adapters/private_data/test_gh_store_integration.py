@@ -1,7 +1,7 @@
 """CA10 de la historia #295: descarga real de la entrada de prueba del repo privado.
 
 **Solo lo pasa el fundador, a mano, desde su terminal** (ADR 0055 §5: ningún agente usa
-`gh` contra el repo privado; ADR 0058). Marcado `integration` y `fuera_de_ci`, y además se
+`gh` contra el repo privado; ADR 0059). Marcado `integration` y `fuera_de_ci`, y además se
 salta si está definida cualquier variable de la guarda (`CI`, `GITHUB_ACTIONS`,
 `CLAUDECODE`) o si falta `PASO_COMUN_DATOS_PRIVADOS=1`:
 

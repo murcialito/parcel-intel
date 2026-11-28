@@ -4,7 +4,7 @@
 - `FakePrivateDataStore` implementa el port: registra cada llamada y puede fallar o
   devolver otros bytes por objeto.
 - `FakeGhRunner` es un ejecutor falso para el adapter real `GhCliPrivateDataStore`: responde
-  a las tres formas de llamada del ADR 0058 §3 con la fixture y registra los argumentos.
+  a las tres formas de llamada del ADR 0059 §3 con la fixture y registra los argumentos.
 """
 
 import json

@@ -250,7 +250,7 @@ PRIVATE_DATA_REFUSAL = (
     "la sincronización de datos privados solo la lanza el fundador desde su terminal"
 )
 PRIVATE_DATA_ENV_GUARD = ("CI", "GITHUB_ACTIONS", "CLAUDECODE")
-"""Si cualquiera está definida (aunque sea vacía), el comando se niega (ADR 0058 §5)."""
+"""Si cualquiera está definida (aunque sea vacía), el comando se niega (ADR 0059 §5)."""
 PRIVATE_DATA_STORE_FAILURE = "no se pudieron leer los catálogos del repo de datos privados"
 
 
@@ -1982,7 +1982,7 @@ def _historico_evidencia(args: argparse.Namespace) -> int:
 
 
 def build_private_data_sync(data_root: Path) -> SyncPrivateDataUseCase:
-    """Composition root de `datos-privados sincronizar` (historia #295, ADR 0058): el
+    """Composition root de `datos-privados sincronizar` (historia #295, ADR 0059): el
     almacén sobre el `gh` del usuario y la zona local `data_root`. No crea nada."""
     return SyncPrivateDataUseCase(
         store=GhCliPrivateDataStore(PRIVATE_DATA_REPO),

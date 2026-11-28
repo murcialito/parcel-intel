@@ -425,7 +425,7 @@ class HistoricCoverageError(Exception):
 
 class PrivateDataUnavailable(Exception):
     """Sin acceso al repo de datos privados: sin `gh`, sin sesión o sin permisos
-    (historia #295, ADR 0058). El mensaje es fijo: ni repo, ni rutas, ni `stderr` de `gh`."""
+    (historia #295, ADR 0059). El mensaje es fijo: ni repo, ni rutas, ni `stderr` de `gh`."""
 
     def __init__(self) -> None:
         super().__init__("sin acceso al repo de datos privados")

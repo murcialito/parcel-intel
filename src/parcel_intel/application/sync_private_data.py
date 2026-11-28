@@ -1,5 +1,5 @@
 """Sincronización de bajada de los datos privados (historia #295, ADR 0055 §3 y §5,
-ADR 0058).
+ADR 0059).
 
 Lee todos los catálogos del almacén y los valida **antes** de descargar nada o de tocar
 la zona local. Después procesa cada entrada por separado: un fallo en una no frena las

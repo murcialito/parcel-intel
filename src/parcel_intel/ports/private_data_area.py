@@ -1,5 +1,5 @@
 """Port de la zona local `data/` donde se sincronizan los datos privados (historia #295,
-ADR 0058). Inmutable: nunca sobrescribe."""
+ADR 0059). Inmutable: nunca sobrescribe."""
 
 from contextlib import AbstractContextManager
 from pathlib import Path

@@ -1,5 +1,5 @@
 """Adapters de la sincronización de bajada de los datos privados (historia #295,
-ADR 0058): el almacén sobre el CLI `gh` y la zona local `data/`."""
+ADR 0059): el almacén sobre el CLI `gh` y la zona local `data/`."""
 
 from parcel_intel.adapters.private_data.gh_store import (
     CommandResult,

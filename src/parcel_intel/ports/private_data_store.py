@@ -1,4 +1,4 @@
-"""Port del almacén remoto de datos privados (historia #295, ADR 0055 §3 y ADR 0058)."""
+"""Port del almacén remoto de datos privados (historia #295, ADR 0055 §3 y ADR 0059)."""
 
 from pathlib import Path
 from typing import Protocol

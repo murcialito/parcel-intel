@@ -1,4 +1,4 @@
-"""Almacén de datos privados sobre el CLI `gh` del usuario (historia #295, ADR 0058 §3).
+"""Almacén de datos privados sobre el CLI `gh` del usuario (historia #295, ADR 0059 §3).
 
 Solo tres formas de llamada: el listado de `catalogo/` con `gh api`, el contenido de un
 fichero de git con `gh api` y la cabecera `Accept` de contenido en bruto, y
