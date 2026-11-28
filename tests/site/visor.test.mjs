@@ -2529,3 +2529,168 @@ test("H223 CA8: la sección no usa innerHTML y los textos nuevos no llevan palab
     assert.ok(!sin.toLowerCase().includes(palabra), palabra);
   }
 });
+
+// --- Historia #248: tabla de convergencia en la ficha (nombres «H248 CA<n>:») ---------------
+// Fixture SINTÉTICA (forma de #246/#315, textos inventados); además se usa el fichero
+// publicado sintético de #208, que ya lleva `convergencia`.
+
+const CONV = {
+  titulo: "Qué fuentes muestran este trazado (sintético)",
+  filas: [
+    {
+      fuente: "fuente_a", rotulo: "Fuente sintética A", tipo_evidencia: "trazado", valor: "aparece",
+      texto: "Aparece", anio: "2024", fecha_consulta: "2026-11-26", enlaces: [],
+      atribucion: ["Atribución sintética A", "Segunda atribución A"],
+    },
+    {
+      fuente: "fuente_b", rotulo: "Fuente sintética B", tipo_evidencia: "trazado", valor: "sin_cobertura",
+      texto: "Sin cobertura", anio: null, fecha_consulta: null, enlaces: [], atribucion: [],
+    },
+    {
+      fuente: "orto", rotulo: "Ortofoto sintética", tipo_evidencia: "ortofoto", valor: "imagen_disponible",
+      texto: "Imagen disponible", anio: "1956–1957", fecha_consulta: "2026-11-27",
+      enlaces: ["https://ejemplo.invalid/uno", "javascript:alert(1)", "http://ejemplo.invalid/dos"],
+      atribucion: ["Obra derivada de sintética"],
+    },
+  ],
+  imagenes: null,
+  aviso: "Aviso sintético de la tabla.",
+  metodo: "método interno sintético",
+  criterio: "criterio interno sintético",
+  id_interno: "no debe salir",
+};
+
+const PUBLICADO_CONV = JSON.parse(await readFile(process.env.VISOR_CANDIDATOS_IDEM, "utf8"));
+
+function fichaConConv(convergencia, extra = {}) {
+  const props = { ...propsIndicio(), ...extra };
+  if (convergencia !== undefined) props.convergencia = convergencia;
+  const doc = documentoFalso();
+  const vista = crearVista(doc, CONFIG.textos);
+  vista.abrirFicha({
+    tipo: "indicio", capaId: "discrepancias", id: null, nombreCapa: "Indicio a verificar",
+    ficha: fichaIndicio(props, CONFIG), comparacion: null,
+    convergencia: controladorMod.fichaConvergencia(props),
+  });
+  return doc.elementos["ficha-cuerpo"];
+}
+
+test("H248 CA1: título, una fila por entrada en el orden del fichero y el aviso bajo la tabla", () => {
+  const cuerpo = fichaConConv(copia(CONV));
+  const [tabla] = porTag(cuerpo, "table");
+  assert.equal(porTag(tabla, "caption")[0].textContent, CONV.titulo);
+  const filas = porTag(tabla, "tr");
+  assert.deepEqual(filas.map((f) => porTag(f, "th")[0].textContent), CONV.filas.map((f) => f.rotulo));
+  assert.ok(filas[0].textContent.includes("Aparece") && filas[0].textContent.includes("2024"));
+  assert.ok(filas[1].textContent.includes("Sin cobertura"));
+  const t = cuerpo.textContent;
+  assert.ok(t.indexOf("Fuente sintética A") < t.indexOf("Fuente sintética B"));
+  assert.ok(t.indexOf("Fuente sintética B") < t.indexOf(CONV.aviso));
+  const bloque = porClase(cuerpo, "pc-convergencia")[0];
+  assert.equal(bloque.children.at(-1).textContent, CONV.aviso, "el aviso va el último, bajo la tabla");
+  // La tabla va tras el aviso de la ficha, antes de las fuentes, y fuera de todo `details`.
+  assert.ok(t.indexOf(AVISO) < t.indexOf(CONV.titulo));
+  assert.ok(t.indexOf(CONV.titulo) < t.indexOf("Fuentes ("));
+  assert.ok(!hijos(cuerpo).some((n) => n.tagName === "details" && hijos(n).includes(bloque)));
+});
+
+test("H248 CA1: la fixture publicada con `convergencia` se ve entera, fila a fila", () => {
+  const props = copia(PUBLICADO_CONV.features[0].properties);
+  const cuerpo = fichaConConv(props.convergencia, props);
+  const filas = porTag(porTag(cuerpo, "table")[0], "tr");
+  assert.equal(filas.length, props.convergencia.filas.length);
+  assert.deepEqual(filas.map((f) => porTag(f, "th")[0].textContent), props.convergencia.filas.map((f) => f.rotulo));
+  assert.ok(cuerpo.textContent.includes(props.convergencia.aviso));
+});
+
+test("H248 CA2: los enlaces seguros son externos con noopener noreferrer y los demás se omiten", () => {
+  const cuerpo = fichaConConv(copia(CONV));
+  const [fila] = porTag(cuerpo, "tr").filter((f) => f.textContent.includes("Ortofoto sintética"));
+  const a = enlaces(fila);
+  assert.equal(a.length, 1);
+  assert.equal(a[0].atributos.href, "https://ejemplo.invalid/uno");
+  assert.equal(a[0].atributos.rel, "noopener noreferrer");
+  assert.equal(a[0].atributos.target, "_blank");
+  assert.ok(fila.textContent.includes("Imagen disponible"), "la fila sigue entera");
+});
+
+test("H248 CA3: «Imagen no disponible» se muestra tal cual y no falla", () => {
+  const conv = copia(CONV);
+  conv.filas = conv.filas.slice(0, 2);
+  conv.imagenes = "Imagen no disponible";
+  const cuerpo = fichaConConv(conv);
+  const notas = porClase(cuerpo, "ficha-nota").filter((n) => n.textContent === "Imagen no disponible");
+  assert.equal(notas.length, 1);
+  assert.equal(porTag(cuerpo, "table").length, 1);
+});
+
+test("H248 CA4: sin `convergencia` o con forma inesperada no hay bloque y el resto queda igual", () => {
+  const sin = fichaConConv(undefined).textContent;
+  const rotos = [
+    null, "x", 5, [], {}, { titulo: "t", aviso: "a", filas: "no" }, { titulo: "t", aviso: "a", filas: [] },
+    { titulo: "t", aviso: "a", filas: [null, 3, {}, { rotulo: "x" }] }, { titulo: "t", filas: [CONV.filas[0]] },
+    { filas: [CONV.filas[0]], aviso: "a" },
+  ];
+  for (const roto of rotos) {
+    const cuerpo = fichaConConv(roto);
+    assert.equal(porTag(cuerpo, "table").length, 0, JSON.stringify(roto));
+    assert.equal(cuerpo.textContent, sin);
+  }
+  assert.equal(controladorMod.fichaConvergencia(undefined), null);
+  assert.equal(controladorMod.fichaConvergencia(null), null);
+});
+
+test("H248 CA4: una fila inválida se descarta y las demás se ven", () => {
+  const conv = copia(CONV);
+  conv.filas.splice(1, 0, null, { rotulo: "" });
+  assert.equal(porTag(fichaConConv(conv), "tr").length, 3);
+});
+
+test("H248 CA5: cada atribución y la fecha de consulta tal cual; nada de HTML ni valores recalculados", () => {
+  const conv = copia(CONV);
+  conv.filas[0].atribucion = ["<b>Atribución</b> & «tal cual»", "Segunda atribución A"];
+  conv.filas[0].texto = "Texto <i>raro</i>";
+  const cuerpo = fichaConConv(conv); // innerHTML lanzaría
+  const filas = porTag(cuerpo, "tr");
+  assert.ok(filas[0].textContent.includes("<b>Atribución</b> & «tal cual»"));
+  assert.ok(filas[0].textContent.includes("Segunda atribución A"));
+  assert.ok(filas[0].textContent.includes("Consultada el 2026-11-26"));
+  assert.ok(filas[0].textContent.includes("Texto <i>raro</i>"));
+  assert.ok(!filas[1].textContent.includes("Consultada"));
+  // El orden es el del fichero, aunque no tenga sentido.
+  const orden = copia(CONV);
+  orden.filas.reverse();
+  assert.deepEqual(porTag(fichaConConv(orden), "th").map((h) => h.textContent), orden.filas.map((x) => x.rotulo));
+});
+
+test("H248 CA6: solo se copian las claves de la lista blanca", () => {
+  const conv = copia(CONV);
+  conv.filas[0].referencia = "0000000VK0000N0001AA";
+  conv.filas[0].fuente = "clave_interna_fuente";
+  const modelo = controladorMod.fichaConvergencia({ convergencia: conv });
+  assert.deepEqual(Object.keys(modelo).sort(), ["aviso", "filas", "imagenes", "titulo"]);
+  for (const f of modelo.filas) {
+    assert.deepEqual(Object.keys(f).sort(), ["anio", "atribucion", "enlaces", "fechaConsulta", "rotulo", "texto"]);
+  }
+  const t = fichaConConv(conv).textContent;
+  for (const prohibido of ["no debe salir", "método interno", "criterio interno", "clave_interna_fuente", "0000000VK0000N0001AA"]) {
+    assert.ok(!t.includes(prohibido), prohibido);
+  }
+  const props = copia(PUBLICADO_CONV.features[0].properties);
+  assert.ok(!REFCAT.test(fichaConConv(props.convergencia, props).textContent));
+});
+
+test("H248 CA7: tabla semántica con caption y th scope=row, sin anchura fija ni desborde", async () => {
+  const cuerpo = fichaConConv(copia(CONV));
+  const ths = porTag(porTag(cuerpo, "table")[0], "th");
+  assert.equal(ths.length, 3);
+  for (const th of ths) assert.equal(th.atributos.scope, "row");
+  assert.equal(porTag(cuerpo, "caption").length, 1);
+});
+
+test("H248: el controlador añade `convergencia` al modelo de la ficha al pulsar un tramo", async () => {
+  const props = copia(PUBLICADO_CONV.features[0].properties);
+  assert.equal(porTag(await fichaPulsada(copia(PUBLICADO_CONV), props), "table").length, 1);
+  delete props.convergencia;
+  assert.equal(porTag(await fichaPulsada(copia(PUBLICADO_CONV), props), "table").length, 0);
+});
