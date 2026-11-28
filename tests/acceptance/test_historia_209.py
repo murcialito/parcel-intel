@@ -45,7 +45,8 @@ def test_ca2_licencia_citada_y_pregunta_abierta() -> None:
     s = _seccion()
     assert "https://www.catastro.hacienda.gob.es/webinspire/documentos/Licencia.pdf" in s
     assert "por Internet ni por ningún otro medio sin su previa transformación" in s
-    assert "Pregunta abierta para el fundador" in s
+    # La pregunta quedó resuelta el 2026-11-28 (decisión del fundador en #201, anotada por #236).
+    assert "Pregunta abierta para el fundador" in s or "Decisión del fundador" in s
     assert "no es un permiso" in s
 
 
