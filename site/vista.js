@@ -397,6 +397,43 @@ export function crearVista(documento, textos) {
     return seccion;
   }
 
+  // Tabla de convergencia (historia #248): `<table>` con `<caption>`, una fila por fuente con su
+  // rótulo como `th scope="row"`; todo con textContent y los enlaces solo si pasan ENLACE_SEGURO.
+  function nodoConvergencia(tabla) {
+    const bloque = crear("div", "pc-convergencia");
+    const t = crear("table", "pc-convergencia__tabla");
+    t.appendChild(crear("caption", "pc-convergencia__titulo", tabla.titulo));
+    const cuerpo = documento.createElement("tbody");
+    for (const fila of tabla.filas) {
+      const tr = documento.createElement("tr");
+      const th = crear("th", "pc-convergencia__fuente", fila.rotulo);
+      th.setAttribute("scope", "row");
+      tr.appendChild(th);
+      const td = crear("td", "pc-convergencia__detalle");
+      td.appendChild(crear("span", "pc-convergencia__valor", fila.texto));
+      if (fila.anio !== "") td.appendChild(crear("span", "pc-convergencia__anio", fila.anio));
+      for (const url of fila.enlaces) {
+        if (!ENLACE_SEGURO.test(url)) continue;
+        const enlace = crear("a", "ficha-enlace", textos.abrirConsulta);
+        enlace.setAttribute("href", url);
+        enlace.setAttribute("rel", "noopener noreferrer");
+        enlace.setAttribute("target", "_blank");
+        td.appendChild(enlace);
+      }
+      if (fila.fechaConsulta !== "") {
+        td.appendChild(parrafo("ficha-fuente", `Consultada el ${fila.fechaConsulta}`));
+      }
+      for (const a of fila.atribucion) td.appendChild(parrafo("ficha-fuente", a));
+      tr.appendChild(td);
+      cuerpo.appendChild(tr);
+    }
+    t.appendChild(cuerpo);
+    bloque.appendChild(t);
+    if (tabla.imagenes !== "") bloque.appendChild(parrafo("ficha-nota", tabla.imagenes));
+    bloque.appendChild(parrafo("ficha-aviso", tabla.aviso));
+    return bloque;
+  }
+
   function nodoFuentes(evidencia) {
     const seccion = detalle(`${textos.fuentes} (${evidencia.length})`, "pc-fuentes");
     const lista = crear("ul", "ficha-fuentes");
@@ -440,7 +477,7 @@ export function crearVista(documento, textos) {
 
   // Cuerpo de la ficha de un indicio o tramo (historias #95, #171, #185). Primero el resumen
   // (texto validado, confianza y aviso, que nunca se pliega); después el detalle plegable.
-  function nodoFichaIndicio(ficha, comparacion = null) {
+  function nodoFichaIndicio(ficha, comparacion = null, convergencia = null) {
     const nodo = crear("div", "ficha ficha-indicio");
     if (!ficha.disponible) {
       nodo.appendChild(parrafo("", textos.fichaNoDisponible));
@@ -457,6 +494,7 @@ export function crearVista(documento, textos) {
     nodo.appendChild(parrafo("ficha-aviso", ficha.aviso));
     if (ficha.avisoOmision !== null) nodo.appendChild(parrafo("ficha-aviso", ficha.avisoOmision));
     nodo.appendChild(nodoAcciones());
+    if (convergencia !== null) nodo.appendChild(nodoConvergencia(convergencia));
     if (comparacion !== null) nodo.appendChild(nodoComparacion(comparacion));
     nodo.appendChild(nodoFuentes(ficha.evidencia));
     // Los tramos a verificar (#171) no traen criterio: no se pintan párrafos vacíos.
@@ -482,7 +520,7 @@ export function crearVista(documento, textos) {
       cuerpo = nodoFicha(modelo.ficha, modelo.atribucion);
     } else {
       titulo = modelo.ficha.disponible && modelo.ficha.etiqueta ? modelo.ficha.etiqueta : modelo.nombreCapa;
-      cuerpo = nodoFichaIndicio(modelo.ficha, modelo.comparacion);
+      cuerpo = nodoFichaIndicio(modelo.ficha, modelo.comparacion, modelo.convergencia ?? null);
     }
     porId("ficha-titulo").textContent = titulo;
     porId("ficha-cuerpo").replaceChildren(cuerpo);

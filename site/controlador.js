@@ -282,6 +282,34 @@ export function fichaComparacion(propiedades, notas, config) {
   };
 }
 
+// Tabla «Qué fuentes muestran este trazado» (historia #248, ADR 0057). Lista blanca cerrada:
+// de la tabla se copian `titulo`, `filas`, `imagenes` y `aviso`; de cada fila, `rotulo`, `texto`,
+// `anio`, `fecha_consulta`, `enlaces` y `atribucion`. Todo tal cual y en el orden del fichero:
+// no calcula ni reordena. Devuelve null si no hay tabla válida (sin título, sin aviso o sin filas
+// válidas), y la ficha se ve como antes.
+export function fichaConvergencia(propiedades) {
+  const t = propiedades?.convergencia;
+  if (t === null || typeof t !== "object" || Array.isArray(t)) return null;
+  if (!cadenaNoVacia(t.titulo) || !cadenaNoVacia(t.aviso) || !Array.isArray(t.filas)) return null;
+  const filas = t.filas
+    .filter((f) => f !== null && typeof f === "object" && cadenaNoVacia(f.rotulo) && cadenaNoVacia(f.texto))
+    .map((f) => ({
+      rotulo: f.rotulo,
+      texto: f.texto,
+      anio: texto(f.anio),
+      fechaConsulta: texto(f.fecha_consulta),
+      enlaces: (Array.isArray(f.enlaces) ? f.enlaces : []).filter((e) => typeof e === "string"),
+      atribucion: (Array.isArray(f.atribucion) ? f.atribucion : []).filter(cadenaNoVacia),
+    }));
+  if (filas.length === 0) return null;
+  return {
+    titulo: t.titulo,
+    filas,
+    imagenes: cadenaNoVacia(t.imagenes) ? t.imagenes : "",
+    aviso: t.aviso,
+  };
+}
+
 // Una respuesta que no es un FeatureCollection es fallo, no «vacío».
 export function esFeatureCollection(json) {
   return (
@@ -409,6 +437,7 @@ export function crearControlador({ mapa, cargarJson, vista, config, alCambiarEnl
         nombreCapa: capa.nombre ?? capa.titulo,
         ficha: fichaIndicio(propiedades, config),
         comparacion: esCandidato(capa) ? fichaComparacion(propiedades, notas, config) : null,
+        convergencia: fichaConvergencia(propiedades),
       };
     }
     return {

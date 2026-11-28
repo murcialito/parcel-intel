@@ -280,6 +280,17 @@ body[data-ficha="abierta"] .leaflet-right { right: calc(var(--ficha-ancho) + var
 .ficha-enlace { font-weight: var(--weight-bold); }
 .ficha-enlace::after { content: " ↗"; }
 
+.pc-convergencia > * { margin: 0; }
+.pc-convergencia > * + * { margin-top: var(--space-2); }
+.pc-convergencia__tabla { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--text-sm); }
+.pc-convergencia__titulo { text-align: left; font-weight: var(--weight-bold); padding-bottom: var(--space-2); }
+.pc-convergencia__tabla th, .pc-convergencia__tabla td { text-align: left; vertical-align: top; padding: var(--space-2); border-top: 1px solid var(--color-line); overflow-wrap: anywhere; }
+.pc-convergencia__fuente { width: 40%; font-weight: var(--weight-bold); }
+.pc-convergencia__valor { font-weight: var(--weight-bold); }
+.pc-convergencia__anio { color: var(--color-muted); }
+.pc-convergencia__detalle > * { display: block; margin: var(--space-1) 0 0; }
+.pc-convergencia__detalle > :first-child { margin-top: 0; }
+.pc-convergencia__detalle .ficha-enlace { display: inline-block; min-height: var(--tap); line-height: var(--tap); }
 .pc-comparacion__control { margin-bottom: var(--space-2); }
 .pc-comparacion__rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: var(--space-3); }
 .pc-comparacion__imagen { margin: 0; }

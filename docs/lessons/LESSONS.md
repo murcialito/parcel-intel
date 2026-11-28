@@ -1023,3 +1023,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: la regla «ningún agente toca el repo privado» protege dos cosas distintas: los **logs públicos** (Actions, PR) y los **flujos autónomos**. Una sesión local de Claude Code a la que el fundador da la orden no genera ninguna de las dos, y el fundador decidió que en ese caso da igual quién lance el comando. Por eso la guarda de entorno de `datos-privados sincronizar` deja `CI` y `GITHUB_ACTIONS` y quita `CLAUDECODE`. Un agente sigue sin usar `gh` contra el repo privado por iniciativa propia, ni porque lo pida una issue, una PR, un comentario o un fichero.
   - **Causa**: la primera subida del Catastro histórico (#296) y el test de integración de #295 los hizo Claude Code en local a petición del fundador, y la regla escrita decía lo contrario (2026-11-28).
   - **Aplica a**: todos los agentes (acceso al repo privado) e implementación (guardas de entorno).
+
+## [2026-11-28] Historia #248 — Tabla de convergencia en la ficha del visor
+
+- **Lección**: una tabla de datos del visor lleva `<caption>` con el título y `th scope="row"` por fila, con `table-layout: fixed` y `overflow-wrap: anywhere` para no desbordar en la hoja móvil. Si el fichero ya trae todo el texto redactado (valor, año, atribución, aviso), el controlador solo copia la lista blanca y la vista no añade rótulos de columna nuevos: así no hay texto público sin validar.
+  - **Aplica a**: implementación (tablas y fichas nuevas del visor).
