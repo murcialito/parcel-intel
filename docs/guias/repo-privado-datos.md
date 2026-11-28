@@ -6,7 +6,7 @@ Qué cubre: crear el repo privado, subir la copia de seguridad del Catastro hist
 
 ## Reglas que no se negocian
 
-- **Ningún agente ni workflow del repo público ejecuta esta guía ni usa `gh` contra el repo privado.** Ni en Actions ni en local. Una sesión de Claude Code en el portátil no sube ni descarga nada del repo privado.
+- **Ningún agente ni workflow del repo público ejecuta esta guía ni usa `gh` contra el repo privado en GitHub** (Actions, workflows). En local, una sesión de Claude Code en el portátil puede seguirla **solo si el fundador se lo pide en esa sesión** (enmienda del ADR 0055 §5, 2026-11-28).
 - **Ningún dato de titularidad entra en el repo privado.** No se sube ni se descarga ninguna Hoja de Características, Relación de Propietarios ni Ficha parcelaria (ADR 0055 §6).
 - **Lo subido es inmutable.** Una versión nueva es un fichero nuevo con `id` y procedencia propios; a la vieja solo se le rellena `sustituido_por`.
 - Las rutas son relativas a la raíz del repo público (`data/...`). No hay rutas del portátil en esta guía.
