@@ -255,13 +255,15 @@ producto alineado con #86)."""
 
 PRIVATE_DATA_REPO = "murcialito/paso-comun-datos"
 """Repo privado de datos internos (ADR 0055). Solo lo usa `datos-privados sincronizar`,
-que lanza el fundador desde su terminal; ningún agente ni workflow (ADR 0055 §5)."""
+que se lanza en local (el fundador, o Claude Code si él lo pide); ningún workflow (ADR 0055 §5)."""
 PRIVATE_DATA_NO_ACCESS = "sin acceso al repo de datos privados; nada que hacer"
 PRIVATE_DATA_REFUSAL = (
     "la sincronización de datos privados solo la lanza el fundador desde su terminal"
 )
-PRIVATE_DATA_ENV_GUARD = ("CI", "GITHUB_ACTIONS", "CLAUDECODE")
-"""Si cualquiera está definida (aunque sea vacía), el comando se niega (ADR 0059 §5)."""
+PRIVATE_DATA_ENV_GUARD = ("CI", "GITHUB_ACTIONS")
+"""Si cualquiera está definida (aunque sea vacía), el comando se niega (ADR 0059 §5). Sin
+`CLAUDECODE` desde la enmienda del 2026-11-28: en local, Claude Code puede lanzarlo si el
+fundador se lo pide."""
 PRIVATE_DATA_STORE_FAILURE = "no se pudieron leer los catálogos del repo de datos privados"
 
 

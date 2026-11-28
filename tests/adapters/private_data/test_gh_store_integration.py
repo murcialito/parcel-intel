@@ -1,9 +1,9 @@
 """CA10 de la historia #295: descarga real de la entrada de prueba del repo privado.
 
-**Solo lo pasa el fundador, a mano, desde su terminal** (ADR 0055 §5: ningún agente usa
-`gh` contra el repo privado; ADR 0059). Marcado `integration` y `fuera_de_ci`, y además se
-salta si está definida cualquier variable de la guarda (`CI`, `GITHUB_ACTIONS`,
-`CLAUDECODE`) o si falta `PASO_COMUN_DATOS_PRIVADOS=1`:
+**Solo se pasa a mano, en local**: lo lanza el fundador o, si él lo pide en la sesión, Claude
+Code (ADR 0055 §5, enmienda del 2026-11-28; ADR 0059). Ningún workflow. Marcado `integration`
+y `fuera_de_ci`, y además se salta si está definida cualquier variable de la guarda (`CI`,
+`GITHUB_ACTIONS`) o si falta `PASO_COMUN_DATOS_PRIVADOS=1`:
 
     PASO_COMUN_DATOS_PRIVADOS=1 uv run pytest -m integration \
         tests/adapters/private_data/test_gh_store_integration.py
