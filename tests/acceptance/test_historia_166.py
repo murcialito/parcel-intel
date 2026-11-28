@@ -516,4 +516,4 @@ def test_ca8_todo_el_visor_en_verde() -> None:
     for viejo in (".capa ", ".estado-capa", ".muestra-"):
         assert viejo not in css, viejo
     html = INDEX.read_text(encoding="utf-8")
-    assert not re.search(r"https?://(?!www\.ign\.es|murcialito|creativecommons|github)", html)
+    assert not re.search(r"https?://(?!www\.ign\.es|pasocomun\.org|murcialito|creativecommons|github)", html)

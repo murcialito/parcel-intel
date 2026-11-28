@@ -936,3 +936,7 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el WMS de Catastro (`ServidorWMS.aspx`) es 1.1.1: se pide con `SRS`, no con `CRS`. Con `VERSION=1.3.0` responde `200` con una `ServiceException` en XML. Acepta `TIME=AAAA-MM-DD` aunque su `GetCapabilities` no declare ninguna dimensión. Con una fecha sin datos devuelve **`200` y un PNG que solo tiene el rótulo «FECHA: …»**, y con una fecha incompleta (`TIME=2005`) ignora el parámetro y devuelve el mapa actual. Para dar por buena una imagen hay que comprobar que trae líneas (píxeles dibujados) y el rótulo de fecha, no el código HTTP ni el tipo de contenido.
   - **Causa**: la primera tanda de `GetMap` se pidió con `CRS` y las cinco «imágenes» eran el mismo XML de error de 432 bytes guardado como `.png`.
   - **Aplica a**: implementación (cualquier adapter del WMS de Catastro; comprobar el tipo real del cuerpo antes de guardarlo con extensión de imagen).
+## [2026-11-28] Historia #227 — dominio propio
+
+- **Lección**: al cambiar la URL absoluta del sitio, buscar con Grep también los tests de otras historias que fijan una lista blanca de dominios en `index.html` (el de #166 CA8 admitía `murcialito` pero no el dominio nuevo). Se actualizan añadiendo el dominio nuevo, sin relajar el resto de la regla. Y un test `red` que comprueba el sitio en vivo falla hasta que se despliega la PR (el dominio sirve aún la versión anterior): se anota en la PR, no es un fallo.
+  - **Aplica a**: implementación (cambios de dominio o de URL base).
