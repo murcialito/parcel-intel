@@ -89,3 +89,21 @@ def test_propiedad_catastral_anidada_falla() -> None:
 def test_capa_sin_elementos_da_capa_vacia() -> None:
     empty = PublishedLayerFile("vias_pecuarias", "28043", (), "f", "l", ("a",), "n")
     assert build_kit_layer(empty).tramos == ()
+
+
+@pytest.mark.parametrize("layer", ["discrepancias", "candidatos"])
+def test_convergencia_se_admite_y_no_se_exporta(layer: str) -> None:
+    """#315 (ADR 0057 §8): la tabla de convergencia entra en la lista blanca de las dos
+    capas con ficha, pero no pasa a la descripción del tramo."""
+    table = {
+        "titulo": "Qué fuentes muestran este trazado",
+        "filas": [{"fuente": "catastro_vt", "rotulo": "Catastro: vía de comunicación"}],
+        "aviso": "Aviso de la tabla.",
+    }
+    kit = build_kit_layer(file_of(layer, card(convergencia=table)))
+    description = kit.tramos[0].description
+    for text in ("Qué fuentes", "Catastro: vía", "Aviso de la tabla", "convergencia"):
+        assert text not in description
+    assert (
+        kit.tramos[0].description == build_kit_layer(file_of(layer, card())).tramos[0].description
+    )

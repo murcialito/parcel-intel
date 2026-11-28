@@ -1,0 +1,66 @@
+{
+ "type": "FeatureCollection",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "urn:ogc:def:crs:EPSG::25830"
+  }
+ },
+ "properties": {
+  "fuente": "catastro_vt",
+  "municipio": "28043",
+  "nombre_municipio": "Colmenar de Oreja",
+  "procedencia": {
+   "fuente": "catastro_vt (sintético)",
+   "url": "https://example.invalid/capas",
+   "fecha_descarga": "2026-11-26",
+   "licencia": "licencia sintética",
+   "redistribucion": "solo_uso_interno"
+  },
+  "aviso": "Capa SINTÉTICA de la fixture de #315."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "99999A00109102",
+   "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+     [
+      [
+       [
+        459995.0,
+        4437495.0
+       ],
+       [
+        460155.0,
+        4437495.0
+       ],
+       [
+        460155.0,
+        4437505.0
+       ],
+       [
+        459995.0,
+        4437505.0
+       ],
+       [
+        459995.0,
+        4437495.0
+       ]
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "papel": "via",
+    "tipo": "camino de Catastro (VT)",
+    "fecha_dato": "2026-11-01",
+    "area_m2": 1600.0,
+    "clases": [
+     "VT"
+    ]
+   }
+  }
+ ]
+}

@@ -410,3 +410,49 @@ def test_publicar_discrepancias_ambito_sin_repetidos_y_rutas_por_defecto(
     assert fake.calls == [list(main.AMBITO_HITO_INE)]
     assert args.entrada == Path("data/derived/discrepancias/publicable")
     assert args.salida == Path("site/datos")
+
+
+# --- publicar-candidatos (#315) -----------------------------------------------------------
+
+
+def test_publicar_candidatos_opciones_nuevas_y_sus_valores_por_defecto() -> None:
+    args = main._build_parser().parse_args(["publicar-candidatos", "--municipio", "28043"])
+    assert args.capas == Path("data/derived")
+    assert args.curated_historico == Path("curated/historico")
+    assert args.cache_historico == Path("data/raw/ign_planimetrias")
+    assert args.umbral_aparece == 0.5
+
+
+@pytest.mark.parametrize("value", ["0", "-0.1", "1.5", "nan", "inf"])
+def test_publicar_candidatos_umbral_fuera_de_rango_sale_con_1_sin_leer(
+    value: str, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    def no_debe_llamarse(*args: object, **kwargs: object) -> object:
+        raise AssertionError("no debe leer nada")
+
+    monkeypatch.setattr(main, "build_historic_coverage_source", no_debe_llamarse)
+    monkeypatch.setattr(main, "build_publish_candidates_use_case", no_debe_llamarse)
+    args = main._build_parser().parse_args(
+        ["publicar-candidatos", "--municipio", "28043", "--umbral-aparece", value]
+    )
+    assert args.func(args) == 1
+    assert capsys.readouterr().err == "ERROR --umbral-aparece: debe estar en (0, 1]\n"
+
+
+def test_la_cobertura_historica_de_publicar_no_usa_red(tmp_path: Path) -> None:
+    with pytest.raises(RuntimeError, match="no usa red"):
+        main._offline_http_get("https://example.invalid", {})
+    source = main.build_historic_coverage_source(tmp_path / "curated", tmp_path / "cache")
+    coverage = source.get_coverage("planimetria")
+    assert coverage.units == () and coverage.trails == ()
+    assert source.skipped_units() == ()
+
+
+def test_discrepancias_y_convergencia_leen_las_mismas_capas(tmp_path: Path) -> None:
+    reader = main._trail_layer_reader(tmp_path)
+    assert reader._paths == {
+        "via_pecuaria_oficial": tmp_path / "vias_pecuarias",
+        "ign_red_transporte": tmp_path / "camino_actual",
+        "catastro_vt": tmp_path / "catastro_caminos",
+    }
+    assert reader._complements == {"ign_red_transporte": tmp_path / "camino_asfaltado"}

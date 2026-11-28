@@ -26,6 +26,7 @@ from parcel_intel.domain.candidate_review import (
     check_candidate_approvals_current,
 )
 from parcel_intel.domain.comparison_image import ComparisonManifest
+from parcel_intel.domain.convergence import ConvergenceTable
 from parcel_intel.domain.cut_candidate import CutCandidate
 from parcel_intel.domain.discrepancy_criterion import CriterionRef
 from parcel_intel.domain.discrepancy_policy import REDISTRIBUTABLE_SOURCES
@@ -39,6 +40,12 @@ from parcel_intel.domain.published_comparison import (
     PublishedComparison,
     build_published_comparison,
     check_comparison_manifest,
+)
+from parcel_intel.domain.published_convergence import (
+    ConvergenceNotes,
+    PublishedConvergence,
+    convergence_notes,
+    publish_convergence,
 )
 
 CANDIDATE_LAYER_ID: Final = "candidatos"
@@ -228,6 +235,7 @@ class PublishedCandidate:
     card: PublicCandidateCard  # build_candidate_card(candidate) tal cual
     provenance: Provenance  # la del trazado A (cumple HasProvenance para la puerta)
     comparison: PublishedComparison  # imágenes de comparación (#172, ADR 0049)
+    convergence: PublishedConvergence  # tabla de convergencia (#315, ADR 0057), sin id interno
 
 
 @dataclass(frozen=True)
@@ -238,6 +246,7 @@ class CandidateLayerPublication:
     measurement: MeasurementSummary
     content: PublishableLayer[PublishedCandidate]  # name = "candidatos/<ine>"
     comparison_notes: ComparisonNotes  # bloque `comparacion` de la colección (#172)
+    convergence_notes: ConvergenceNotes  # bloque `convergencia` del .procedencia.json (#315)
 
 
 @dataclass(frozen=True)
@@ -246,6 +255,20 @@ class CandidateLayerBuild:
     approved: int
     proposed: int  # propuestos sin publicar
     rejected: int
+
+
+NO_CONVERGENCE_TABLE = "sin tabla de convergencia"
+
+
+class CandidateConvergenceMissingError(ValueError):
+    """Un aprobado no tiene tabla de convergencia (historia #315). `reason` es un texto fijo
+    (el motivo de `BuildConvergenceTablesUseCase`), nunca un mensaje ajeno."""
+
+    def __init__(self, municipality_code: str, candidate_id: str, reason: str) -> None:
+        super().__init__(f"{municipality_code}: el candidato {candidate_id}: {reason}")
+        self.code = municipality_code
+        self.candidate_id = candidate_id
+        self.reason = reason
 
 
 class CandidatesNotPublishableError(ValueError):
@@ -279,11 +302,56 @@ def public_candidate_id(candidate: CutCandidate) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 
+def check_approved_publishable(state: CandidateReviewState, manifest: ComparisonManifest) -> None:
+    """Las comprobaciones de #170 y #172 sobre los aprobados, sin la tabla de convergencia:
+    revisiones vigentes, manifiesto utilizable, al menos un aprobado y, por aprobado,
+    fuente redistribuible, licencia de la ficha e imágenes publicables. Lanza los mismos
+    errores que `build_candidate_layer`; el caso de uso la llama antes de leer ninguna
+    capa (CA12 de #315)."""
+    code = state.municipality_code
+    check_candidate_approvals_current(state)
+    check_comparison_manifest(manifest, code)
+    approved = state.approved()
+    if not approved:
+        raise CandidatesNotPublishableError(code, "ningún candidato aprobado")
+    for candidate in approved:
+        _card_and_comparison(code, candidate, manifest)
+
+
+def _card_and_comparison(
+    code: str, candidate: CutCandidate, manifest: ComparisonManifest
+) -> tuple[PublicCandidateCard, PublishedComparison]:
+    if candidate.subject.source.kind not in REDISTRIBUTABLE_SOURCES:
+        raise CandidatesNotPublishableError(
+            code,
+            f"el candidato {candidate.candidate_id} tiene un trazado de una fuente "
+            "no redistribuible",
+        )
+    card = build_candidate_card(candidate)
+    if card.omission_notice is not None:
+        raise CandidatesNotPublishableError(
+            code,
+            f"el candidato {candidate.candidate_id} tiene un trazado sin licencia "
+            "declarada; la ficha no puede citar su fuente",
+        )
+    try:
+        comparison = build_published_comparison(
+            candidate.stretch, manifest.stretch(candidate.candidate_id)
+        )
+    except ComparisonNotPublishableError as error:
+        raise CandidatesNotPublishableError(
+            code, f"el candidato {candidate.candidate_id}: {error.reason}"
+        ) from error
+    return card, comparison
+
+
 def build_candidate_layer(
     state: CandidateReviewState,
     measurement: MeasurementSummary,
     municipality_name: str,
     manifest: ComparisonManifest,
+    tables: Mapping[str, ConvergenceTable],
+    table_failures: Mapping[str, str],
 ) -> CandidateLayerBuild:
     """Capa publicable con los candidatos aprobados vigentes de `state`, en orden de
     `candidate_id`.
@@ -297,7 +365,12 @@ def build_candidate_layer(
 
     Las imágenes salen de `manifest` (#172, ADR 0049): `ComparisonManifestNotUsableError`
     si el manifiesto entero no sirve; `CandidatesNotPublishableError` con el
-    `candidate_id` si las de un aprobado faltan o no casan con su tramo."""
+    `candidate_id` si las de un aprobado faltan o no casan con su tramo.
+
+    La tabla de convergencia (#315, ADR 0057) sale de `tables`, por `candidate_id`, y se
+    mira DESPUÉS de lo anterior, así que sus mensajes no cambian. Un aprobado sin tabla
+    lanza `CandidateConvergenceMissingError` con el motivo de `table_failures`;
+    `ConvergenceNotPublishableError` si una tabla no pasa la barrera."""
     code = state.municipality_code
     check_candidate_approvals_current(state)
     notes = check_comparison_manifest(manifest, code)
@@ -305,29 +378,19 @@ def build_candidate_layer(
     if not approved:
         raise CandidatesNotPublishableError(code, "ningún candidato aprobado")
     items: list[PublishedCandidate] = []
+    used: list[ConvergenceTable] = []
     seen: dict[str, int] = {}
     for candidate in approved:
-        if candidate.subject.source.kind not in REDISTRIBUTABLE_SOURCES:
-            raise CandidatesNotPublishableError(
+        card, comparison = _card_and_comparison(code, candidate, manifest)
+        table = tables.get(candidate.candidate_id)
+        if table is None:
+            raise CandidateConvergenceMissingError(
                 code,
-                f"el candidato {candidate.candidate_id} tiene un trazado de una fuente "
-                "no redistribuible",
+                candidate.candidate_id,
+                table_failures.get(candidate.candidate_id, NO_CONVERGENCE_TABLE),
             )
-        card = build_candidate_card(candidate)
-        if card.omission_notice is not None:
-            raise CandidatesNotPublishableError(
-                code,
-                f"el candidato {candidate.candidate_id} tiene un trazado sin licencia "
-                "declarada; la ficha no puede citar su fuente",
-            )
-        try:
-            comparison = build_published_comparison(
-                candidate.stretch, manifest.stretch(candidate.candidate_id)
-            )
-        except ComparisonNotPublishableError as error:
-            raise CandidatesNotPublishableError(
-                code, f"el candidato {candidate.candidate_id}: {error.reason}"
-            ) from error
+        convergence = publish_convergence(table)
+        used.append(table)
         base = public_candidate_id(candidate)
         seen[base] = seen.get(base, 0) + 1
         public_id = base if seen[base] == 1 else f"{base}-{seen[base]}"
@@ -338,6 +401,7 @@ def build_candidate_layer(
                 card=card,
                 provenance=candidate.subject.source.provenance,
                 comparison=comparison,
+                convergence=convergence,
             )
         )
     content = PublishableLayer[PublishedCandidate](
@@ -351,6 +415,7 @@ def build_candidate_layer(
             measurement=measurement,
             content=content,
             comparison_notes=notes,
+            convergence_notes=convergence_notes(used),
         ),
         approved=len(items),
         proposed=sum(1 for c in state.candidates if c.status == "proposed"),

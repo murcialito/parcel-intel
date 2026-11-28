@@ -23,7 +23,17 @@ from parcel_intel.domain.comparison_image import (
     comparison_windows,
     stretch_pixels,
 )
-from parcel_intel.domain.convergence import ConvergenceStretch
+from parcel_intel.domain.convergence import (
+    APPEARS_MIN_FRACTION,
+    CONVERGENCE_ROW_SOURCES,
+    ConvergenceStretch,
+    ConvergenceTable,
+    PreparedLayer,
+    StretchNotComputableError,
+    build_convergence_table,
+    stretch_from_candidate,
+)
+from parcel_intel.domain.cut_candidate import CutCandidate
 from parcel_intel.domain.discrepancy import SourceRef
 from parcel_intel.domain.discrepancy_report import TrailLayer
 from parcel_intel.domain.geometry import Geometry, LineGeometry, MultiLineGeometry, Point
@@ -242,6 +252,32 @@ def manifest(*comparisons: StretchComparison, municipality_code: str = INE) -> C
         gaps=DECLARED_GAPS,
         stretches=tuple(sorted(comparisons, key=lambda c: c.stretch_id)),
     )
+
+
+def candidate_tables(
+    candidates: Sequence[CutCandidate],
+    comparisons: ComparisonManifest,
+    layers: Mapping[SourceKind, PreparedLayer] | None = None,
+    appears_min_fraction: float = APPEARS_MIN_FRACTION,
+) -> tuple[dict[str, ConvergenceTable], dict[str, str]]:
+    """Tablas de convergencia (historia #315) de `candidates` por `candidate_id`, como las
+    calcula `BuildConvergenceTablesUseCase`: sin capas (salvo `layers`), sin cobertura
+    histórica y con las imágenes de `comparisons`. Un tramo sin tabla va a los motivos."""
+    tables: dict[str, ConvergenceTable] = {}
+    failures: dict[str, str] = {}
+    for candidate in candidates:
+        try:
+            tables[candidate.candidate_id] = build_convergence_table(
+                stretch_from_candidate(candidate),
+                CONVERGENCE_ROW_SOURCES,
+                layers or {},
+                empty_coverages(),
+                comparisons.stretch(candidate.candidate_id),
+                appears_min_fraction,
+            )
+        except StretchNotComputableError as error:
+            failures[candidate.candidate_id] = error.reason
+    return tables, failures
 
 
 # --- Dobles de los ports. ---------------------------------------------------------------
