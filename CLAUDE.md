@@ -185,6 +185,9 @@ uv run python -m parcel_intel.cli.main imagenes-comparacion-indicios --ambito
 # válido); un municipio sin fichero de candidatos sale «sin candidatos» y no es fallo. Sin --municipio ni --ambito sale con 1.
 uv run python -m parcel_intel.cli.main revision-candidatos --municipio 28043 [--municipio ...] [--curated curated/candidatos] [--entrada data/derived/candidatos/interno] [--comparacion data/derived/comparacion]
 uv run python -m parcel_intel.cli.main revision-candidatos --ambito
+# Código de inventario (historia #288, nota del ADR 0047): `revision-candidatos` también lee curated/candidatos/<ine>/inventario.json (código `COL-001` o
+# `COL-001-<nombre>` por candidate_id, asignado a mano; prefijo por municipio en `MUNICIPALITY_PREFIXES`) e imprime por tramo aprobado su código o «sin código»
+# y un resumen (asignados, sin_código, sobre_no_aprobados, huérfanos). Sale con 1 con códigos sobre tramos no aprobados, huérfanos o un fichero no válido; «sin código» no falla.
 
 # Medir los candidatos a corte (historia #111): ejecuta el arnés de #110 con MATCH_CRITERION_V1 sobre el conjunto de validación (casos.json,
 # con sus CONGELADO*.md en el mismo directorio) y los ficheros internos de candidatos (#128). Escribe el informe agregado en JSON (cobertura y

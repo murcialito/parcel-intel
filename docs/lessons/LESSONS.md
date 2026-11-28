@@ -978,3 +978,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en un clon superficial (el CI de `main` clona con profundidad 1) el último commit es la raíz del clon, y `git log --name-only` sobre una raíz lista **el árbol entero**. Un test que busca los commits «Historia #N: …» con `git log --grep … --name-only` pasa en la PR (la cabeza es un merge que no casa y se salta) y falla en `main` justo después de fusionar, cuando la cabeza es el propio commit de la historia. Se sacan los ficheros con `git diff-tree --no-commit-id --name-only -r <commit>` commit a commit: sin `--root` no lista nada en una raíz y el test se salta.
   - **Causa**: el CA10 de #294 dejó en rojo el CI de `main` tras fusionar la PR #312 (2026-11-28); el CA8 de #287 tenía el mismo patrón.
   - **Aplica a**: implementación y revisión (tests que inspeccionan el historial de git).
+## [2026-11-28] Historia #288 — Código de inventario de los tramos
+
+- **Lección**: un filtro de texto libre (`note_problem`, `name_problem`) solo detecta referencias catastrales, localizadores y palabras vetadas: **no puede detectar un nombre de persona**. Para que ninguno entre, el formato del nombre es una lista cerrada de caracteres (sin `_`, `@`, `?`…) y, sobre todo, el mensaje de error nunca repite el valor. El test de «sin nombres de personas» usa una entrada hostil y comprueba que el nombre no aparece en la salida ni en el error, no que el sistema lo reconozca.
+  - **Aplica a**: implementación y revisión (campos de texto libre en `curated/`).
+- **Lección**: el prefijo de un municipio es una constante de dominio (`MUNICIPALITY_PREFIXES`) fijada por el fundador; el código se normaliza al formatear (`:03d`), así que se rechazan los ceros de más (`COL-0001`) para que lo que se lee sea lo que se imprime.
+  - **Aplica a**: implementación (identificadores humanos que se muestran tal cual).
