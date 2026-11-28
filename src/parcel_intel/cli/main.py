@@ -102,6 +102,7 @@ from parcel_intel.adapters.validation_cases.congelacion import (
     cargar_casos,
     versiones,
 )
+from parcel_intel.adapters.width_signal_files import GeoJsonWidthSignalWriter
 from parcel_intel.application.author_rule_proposal import AuthorRuleProposalUseCase
 from parcel_intel.application.build_cadastral_road_layer import BuildCadastralRoadLayerUseCase
 from parcel_intel.application.build_comparison_images import BuildComparisonImagesUseCase
@@ -121,6 +122,7 @@ from parcel_intel.application.build_trail_evidence import BuildTrailEvidenceUseC
 from parcel_intel.application.cut_signals import CadastralParcelSignalProvider
 from parcel_intel.application.detect_cut_candidates import DetectCutCandidatesUseCase
 from parcel_intel.application.detect_discrepancies import DetectDiscrepanciesUseCase
+from parcel_intel.application.detect_width_narrowing import DetectWidthNarrowingUseCase
 from parcel_intel.application.evaluate_candidates import EvaluateCandidatesUseCase
 from parcel_intel.application.kit_campo import PublishFieldKitUseCase, PublishFieldProjectUseCase
 from parcel_intel.application.list_candidate_reviews import (
@@ -170,6 +172,7 @@ from parcel_intel.domain.published_discrepancy import OmittedByLicense
 from parcel_intel.domain.published_layers import PUBLISHED_LAYERS, PublishedLayerId
 from parcel_intel.domain.road_segment import ROAD_SURFACES, RoadSurface
 from parcel_intel.domain.rule import Rule, WithinDistanceCondition
+from parcel_intel.domain.width_signal import MunicipalWidthReport
 from parcel_intel.ports.errors import (
     AreaQueryLimitExceededError,
     CadastralServiceError,
@@ -882,6 +885,79 @@ def _candidatos_corte(args: argparse.Namespace) -> int:
             f"{code}: {len(report.candidates)} candidatos; "
             f"señales sin_datos: {', '.join(no_data) or 'ninguna'} -> {args.salida}"
         )
+    return 1 if failed else 0
+
+
+class _LivestockLayers:
+    """`MunicipalLivestockTrailLayerPort` sobre el caso de uso de #83 (IDEM + límites del IGN)."""
+
+    def __init__(self, use_case: BuildMunicipalLivestockTrailLayersUseCase) -> None:
+        self._use_case = use_case
+
+    def get_layer(self, municipality_code: str) -> MunicipalLivestockTrailLayer:
+        [layer] = self._use_case.execute([municipality_code])
+        return layer
+
+
+def build_width_narrowing_use_case(
+    output_dir: Path,
+    cache_dir: Path,
+    offline: bool,
+    catastro_http_get: HttpGet = catastro_client.default_http_getter,
+    ign_http_get: HttpGet = ign_client.default_http_getter,
+    idem_http_get: HttpGet = livestock_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> DetectWidthNarrowingUseCase:
+    """Composition root de `estrechamiento-via-pecuaria` (historia #243). Mismas cachés
+    crudas que #83 y #128; con `offline=True` nada llama a la red. Sin LLM."""
+    ign_fetcher = CachedRawFetcher(ign_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    idem_fetcher = CachedRawFetcher(idem_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    catastro_fetcher = CachedRawFetcher(
+        catastro_http_get, cache_dir / "catastro", today, sleep=sleep, offline=offline
+    )
+    layers = BuildMunicipalLivestockTrailLayersUseCase(
+        boundaries=IgnAdministrativeUnitsAdapter(
+            AMBITO_HITO_BBOX_ETRS89, fetcher=ign_fetcher, today=today
+        ),
+        trails=LivestockTrailAdapter(fetcher=idem_fetcher, today=today),
+        clipper=ShapelyPolygonClipper(),
+    )
+    return DetectWidthNarrowingUseCase(
+        layers=_LivestockLayers(layers),
+        parcels_for=lambda code: _CachedParcels(
+            CatastroAreaAdapter(CUT_CANDIDATES_PROVINCE, code, catastro_fetcher)
+        ),
+        clipper=ShapelyPolygonClipper(),
+        sink=GeoJsonWidthSignalWriter(output_dir),
+        tile_side_m=CATASTRO_WFS_TILE_SIDE_M,
+    )
+
+
+def _format_width_report(code: str, report: MunicipalWidthReport, output_dir: Path) -> str:
+    if not report.pieces:
+        return f"{code}: sin vías pecuarias; no se escribe fichero"
+    counts = Counter(piece.assessment.outcome for piece in report.pieces)
+    summary = ", ".join(f"{outcome}={counts[outcome]}" for outcome in sorted(counts))
+    return f"{code}: {len(report.pieces)} piezas ({summary}) -> {output_dir}"
+
+
+def _estrechamiento_via_pecuaria(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        print("Indica --municipio <INE> (repetible) o --ambito.", file=sys.stderr)
+        return 1
+    use_case = build_width_narrowing_use_case(args.salida, args.cache, args.sin_red)
+    failed = False
+    for code in codes:
+        try:
+            report = use_case.execute(code)
+        except Exception as error:  # un municipio roto no frena el lote
+            print(f"FALLO {code}: {type(error).__name__}: {error}", file=sys.stderr)
+            failed = True
+            continue
+        print(_format_width_report(code, report, args.salida))
     return 1 if failed else 0
 
 
@@ -1940,6 +2016,37 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio de salida de los ficheros internos <codigo_ine>.geojson",
     )
     candidatos_parser.set_defaults(func=_candidatos_corte)
+
+    estrechamiento_parser = subparsers.add_parser(
+        "estrechamiento-via-pecuaria",
+        help="Vías pecuarias donde la parcela de camino de Catastro es mucho más estrecha que la "
+        "franja oficial, en un fichero interno (no se publica)",
+    )
+    estrechamiento_parser.add_argument(
+        "--municipio",
+        type=_municipality_code,
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible)",
+    )
+    estrechamiento_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito"
+    )
+    estrechamiento_parser.add_argument(
+        "--sin-red",
+        action="store_true",
+        help="Solo la caché cruda; una tesela que falta deja las piezas afectadas sin_datos",
+    )
+    estrechamiento_parser.add_argument(
+        "--cache", type=Path, default=Path("data/raw"), help="Directorio de la caché cruda"
+    )
+    estrechamiento_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("data/derived/estrechamiento/interno"),
+        help="Directorio de salida de los ficheros internos <codigo_ine>.geojson",
+    )
+    estrechamiento_parser.set_defaults(func=_estrechamiento_via_pecuaria)
 
     revision_parser = subparsers.add_parser(
         "revision-candidatos",

@@ -751,16 +751,16 @@ Verificado el 2026-11-25 para la [historia #26](https://github.com/murcialito/pa
 
 ### Clasificación por municipio — orden, fecha y URL BOCM
 
-Estado de las filas de Chinchón, Villaconejos y Villarejo de Salvanés: `bloqueado`. Motivo: el archivo del BOCM no se ha escaneado por fecha y no hay buscador accesible. "No encontrada" significa aquí "no localizada por los canales de arriba", no "no existe". Las de Colmenar de Oreja, Aranjuez, Belmonte de Tajo y Valdelaguna se consultaron en la historia #282: ver «Canales consultados — historia #282» más abajo.
+En #26 las siete filas quedaron `bloqueado`: solo se había buscado en el BOCM, y las clasificaciones anteriores a 1984 se publicaron en el BOE. Chinchón, Villaconejos y Villarejo de Salvanés se resolvieron en la historia #281 (2026-11-27): ver «Órdenes de clasificación leídas en el BOE — historia #281» más abajo. Colmenar de Oreja, Aranjuez, Belmonte de Tajo y Valdelaguna se consultaron en la historia #282: ver «Canales consultados — historia #282». «No localizada» significa «no localizada por los canales consultados», no «no existe».
 
 | Municipio | INE | Orden de clasificación | Estado |
 | --- | --- | --- | --- |
 | Colmenar de Oreja | 28043 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
 | Aranjuez | 28013 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
-| Chinchón | 28052 | no encontrada | `bloqueado` |
+| Chinchón | 28052 | Orden de 20/05/1974, BOE-A-1974-44784 (sección #281) | `confirmado` |
 | Belmonte de Tajo | 28019 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
-| Villaconejos | 28170 | no encontrada | `bloqueado` |
-| Villarejo de Salvanés | 28180 | no encontrada | `bloqueado` |
+| Villaconejos | 28170 | Orden de 13/07/1972, BOE-A-1972-46448 (sección #281) | `confirmado` |
+| Villarejo de Salvanés | 28180 | Orden de 08/10/1969, BOE-A-1969-49149, y primera modificación de 20/05/1974, BOE-A-1974-44786 (sección #281) | `confirmado` |
 | Valdelaguna | 28157 | no localizada en BOE ni BOCM (canales en #282) | no localizada |
 
 `asumido`: la clasificación de vías pecuarias en la Comunidad de Madrid se aprueba por orden de la Consejería competente en medio ambiente (Ley 8/1998, citada en el `Abstract` del WMS `Zonas`, `wms_zonas_getcapabilities.xml`). Por eso el sitio donde buscarla es el BOCM. La cita exacta de la norma de cada municipio no se ha comprobado.
@@ -804,6 +804,85 @@ Conclusión (`confirmado` para los canales; la conclusión sobre el municipio es
 - Siguiente paso: solicitud al Fondo Documental, borrador en #284. Desde aquí no se envía nada.
 - Orden localizada (la fila con referencia, URL y fixture) y propuesta de historia hija en #280: no aplican, porque en esta pasada no se localizó ninguna orden legible.
 - Esta sección no clasifica ningún tramo ni cambia el mapa.
+
+### Órdenes de clasificación leídas en el BOE — historia #281
+
+Descargadas y leídas el **2026-11-27** (historia [#281](https://github.com/murcialito/paso-comun/issues/281), hija de #280). Cada PDF se descargó con `curl` desde el enlace «PDF» de la ficha `doc.php?id=…` y se leyó con la herramienta de lectura de PDF (imagen y texto de la página). Las cifras de las tablas se transcriben de la **imagen**; el texto extraído tiene errores de reconocimiento (en Chinchón, «6,E9» y «6 69» por 6,69). Fixtures en `tests/fixtures/caminos/` (el PDF es la página de la disposición en el BOE, que comparte página con otras disposiciones sin relación).
+
+| Municipio | Disposición | Fecha de la orden | Ficha | PDF | Fixture (bytes) | Estado |
+| --- | --- | --- | --- | --- | --- | --- |
+| Chinchón (28052) | BOE-A-1974-44784, clasificación | 1974-05-20 (BOE 177, 25-07-1974, pp. 15414-15415) | https://www.boe.es/buscar/doc.php?id=BOE-A-1974-44784 | https://www.boe.es/boe/dias/1974/07/25/pdfs/A15414-15415.pdf | `boe_BOE-A-1974-44784.pdf` (164 669) | `confirmado` |
+| Villarejo de Salvanés (28180) | BOE-A-1969-49149, clasificación | 1969-10-08 (BOE 248, 16-10-1969, p. 16179) | https://www.boe.es/buscar/doc.php?id=BOE-A-1969-49149 | https://www.boe.es/boe/dias/1969/10/16/pdfs/A16179-16179.pdf | `boe_BOE-A-1969-49149.pdf` (86 526) | `confirmado` |
+| Villarejo de Salvanés (28180) | BOE-A-1974-44786, primera modificación | 1974-05-20 (BOE 177, 25-07-1974, p. 15415) | https://www.boe.es/buscar/doc.php?id=BOE-A-1974-44786 | https://www.boe.es/boe/dias/1974/07/25/pdfs/A15415-15415.pdf | `boe_BOE-A-1974-44786.pdf` (88 331) | `confirmado` |
+| Villaconejos (28170) | BOE-A-1972-46448, clasificación | 1972-07-13 (BOE 199, 19-08-1972, p. 15328) | https://www.boe.es/buscar/doc.php?id=BOE-A-1972-46448 | https://www.boe.es/boe/dias/1972/08/19/pdfs/A15328-15328.pdf | `boe_BOE-A-1972-46448.pdf` (87 682) | `confirmado` |
+
+Fecha de descarga de las cuatro: 2026-11-27. En la ficha del BOE la orden de Villaconejos lleva fecha de publicación 1972-08-19; la fecha de la orden es la que firma el texto (13 de julio de 1972).
+
+**Licencia — `confirmado`.** Condiciones de reutilización de la sede del BOE, leídas el 2026-11-27 en `https://www.boe.es/informacion/aviso_legal/index.php` (apartado «Condiciones de reutilización», conforme a la licencia tipo aprobada por Resolución de la Agencia de 27 de junio de 2024): permiten «la reutilización de los documentos sometidos a ellas para fines comerciales y no comerciales, siempre que dicho uso no constituya una actividad administrativa pública y que se realice una utilización diligente de los contenidos». Condiciones que se cumplen aquí: citar la fuente con enlace a `https://www.boe.es`; en una obra derivada, «Basado en datos de la Agencia Estatal Boletín Oficial del Estado»; no sugerir carácter oficial ni patrocinio de la Agencia. Las anchuras transcritas son una extracción de datos de la orden, no el texto oficial.
+
+**Regla común a las tres órdenes.** Cada una dice, con esta redacción en lo esencial, que «en aquellos tramos de las mismas afectados por situaciones topográficas, paso por zonas urbanas, alteraciones por el transcurso del tiempo en cauces fluviales o situaciones de derecho previstas en el artículo 2.º del Reglamento de Vías Pecuarias, su anchura quedará definitivamente fijada al practicarse el deslinde». Esa frase **afecta a todas las vías de la orden** y a los tramos que reúnan alguna de esas situaciones. Villarejo de Salvanés (1969) la escribe «en el artículo segundo». Las anchuras de abajo son dato de la orden, no prueba de ocupación ni de que el camino exista hoy con esa anchura.
+
+#### Chinchón — Orden de 20/05/1974 (BOE-A-1974-44784), 10 vías y 4 abrevaderos/descansaderos
+
+Proyecto de clasificación de fecha 13 de abril de 1967, «cuyo contenido se tendrá presente en todo cuanto les afecte».
+
+| N.º | Vía | Clase | Anchura según la orden | Tramo o descripción |
+| --- | --- | --- | --- | --- |
+| 1 | Cañada Galiana | cañada | tramo primero 37,61 m; tramo segundo 75,22 m | dos tramos; el recorrido está en el proyecto de 1967 |
+| 2 | Cordel llamado de La Julia | cordel | tramo primero 37,61 m | solo se cita el tramo primero |
+| 3 | Vereda de La Blanca | vereda | tramo primero 6,69 m; tramo segundo 20,89 m | dos tramos |
+| 4 | Vereda de La Carcabilla y Mojón Alto | vereda | 20,89 m | — |
+| 5 | Vereda de Molincaldo | vereda | 20,89 m | — |
+| 6 | Vereda del Rosario, Rostro de Valquegigoso y Valladares | vereda | 20,89 m | — |
+| 7 | Vereda de La Cuesta del Gramoso | vereda | 20,89 m | — |
+| 8 | Vereda de Valdelazarza | vereda | 20,89 m | — |
+| 9 | Colada del Puente de Tablas o del Quiñón | colada | 6,69 m | — |
+| 10 | Colada del Serranillo | colada | 12 m | — |
+
+Frase de deslinde: afecta a las 10 vías (ver «Regla común»).
+
+Abrevaderos y descansaderos: la orden da **superficie**, no anchura: A) La Fuente del Valle, 29 áreas y 11 centiáreas; B) Valquegigoso, 6 áreas y 82 centiáreas; C) Valdelaspozas, 29 áreas y 11 centiáreas; D) Valdelazarza, 46 áreas y 50 centiáreas. La orden no dice cuál es abrevadero y cuál descansadero; la encabeza «Abrevaderos y descansaderos». Las superficies de los tres primeros que aparecen en el texto con ruido («seis areas», «SO centiáreas») se comprobaron en la imagen.
+
+#### Villarejo de Salvanés — Orden de 08/10/1969 (BOE-A-1969-49149), 3 vías
+
+| Vía | Clase | Anchura según la orden | Tramo o descripción |
+| --- | --- | --- | --- |
+| Vereda del Cañuelo | vereda | 20,89 m | — |
+| Vereda de San José | vereda | 20,89 m | — |
+| Vereda de las Esperillas | vereda | 20,89 m | «Estas tres veredas con una anchura de 20,89 metros» |
+
+Frase de deslinde: afecta a las tres (ver «Regla común»). La orden no recoge descansaderos ni abrevaderos. La modificación de 1974 escribe «Asperillas» donde esta orden escribe «Esperillas»: se recoge tal como figura en cada una; no se identifican como la misma vía sin leer el proyecto.
+
+#### Villarejo de Salvanés — primera modificación, Orden de 20/05/1974 (BOE-A-1974-44786)
+
+Amplía la clasificación de 1969 con dos vías y rectifica el recorrido de otra (proyecto de modificación de 29 de septiembre de 1973). Declara firme lo no opuesto del proyecto de 1969. Esta disposición comparte página con otras dos órdenes (Tales, Castellón; Domeño, Navarra), sin relación con el ámbito.
+
+| N.º en la orden | Vía | Clase | Anchura según la orden | Tramo o descripción |
+| --- | --- | --- | --- | --- |
+| 3 a) | Vereda de las Asperillas, primer tramo | vereda | 33,43 m («anchura legal») | «queda comprendido entre los términos municipales de Villarrubia de Santiago y Villamanrique de Tajo» |
+| 4 | Colada Toledana | colada | variable, mínimo 6 m, «determinada con exactitud en el acto de su reglamentario deslinde» | «tiene como eje el antiguo camino viejo de Villamanrique a Fuentidueña de Tajo» |
+| 3 b) | Vereda de las Asperillas, segundo tramo | vereda | no se da anchura | «su itinerario queda fijado de conformidad con la descripción» del proyecto de modificación (recorrido rectificado) |
+
+Frase de deslinde: esta orden no la repite; la anchura de la Colada Toledana la fija el deslinde por su propio texto. La cifra 33,43 m (inusual frente a los 20,89 m de la orden de 1969) se comprobó en la imagen: «33,43 metros».
+
+#### Villaconejos — Orden de 13/07/1972 (BOE-A-1972-46448), 2 vías
+
+Proyecto de clasificación redactado por un perito agrícola del Estado (no se reproduce su nombre).
+
+| Vía | Clase | Anchura según la orden | Tramo o descripción |
+| --- | --- | --- | --- |
+| Vereda del Raso | vereda | 20,89 m | — |
+| Vereda del Rosario | vereda | 20,89 m | — |
+
+Frase de deslinde: afecta a las dos (ver «Regla común»). La orden no recoge descansaderos ni abrevaderos.
+
+#### Qué se verificó y qué no (#281)
+
+- **Verificado contra la imagen del PDF:** las cifras de anchura y superficie de las cuatro tablas, los nombres de las vías, las fechas de las órdenes y los números de página. Los nombres de vías se dan como en la imagen (el texto extraído tiene errores de OCR: «Cañweio» por «Cañuelo»).
+- **No verificado / fuera de la orden:** el recorrido, la dirección y la superficie de cada vía están en los proyectos de clasificación (1967, 1973 y los de 1969 y 1972), que **no** se han localizado ni leído. La anchura de la orden es la legal, no la que hoy tenga el camino. Aquí no hay geometría ni deslinde.
+- **Canal ilegible ≠ «no hay»:** no se leyó el texto completo del BOE (`campo[1]=TEXTO`), ni los sumarios de 1960–1990 (ver #282); en Chinchón no se buscó una modificación posterior ni deslindes. Para Villaconejos y Chinchón no se ha comprobado si existe modificación como la de Villarejo.
+- **Datos personales:** las cuatro páginas del BOE mencionan nombres de personas (periciales de los proyectos y, en la modificación de Villarejo, una reclamación desestimada). No se copian a este registro ni a ningún fichero de texto; el PDF es el documento oficial tal cual.
+- **Anchuras y ley vigente:** las órdenes citan el Reglamento de Vías Pecuarias de 1944; no dicen de dónde salen sus cifras. Su relación con las anchuras máximas de la Ley 3/1995, art. 4, no se ha estudiado aquí.
 
 ### Deslinde por municipio — `bloqueado`
 
@@ -1355,6 +1434,8 @@ Tres textos de la fuente, citados literalmente:
 
 Fuera de alcance de la historia 0001 (ver sección "Fuera de alcance" de `docs/stories/0001-registro-fuentes.md`): vías pecuarias, Red Natura 2000, concesiones de agua, inventario municipal de caminos. SNCZI/dominio público hidráulico, que figuraba aquí mismo hasta la historia 0012, quedó verificado en esa historia (ver sección "SNCZI / Dominio Público Hidráulico — MITECO" más arriba: cursos de agua y peligrosidad por inundación `confirmado`, deslinde legal de DPH y zonas de servidumbre/policía `bloqueado`). Vías pecuarias, que figuraba aquí mismo hasta la historia 0014, quedó verificada en esa historia (ver sección "Vías pecuarias — IDEM, Comunidad de Madrid" más arriba: `confirmado`, un único servicio real encontrado bajo el workspace `Zonas` del mismo GeoServer de IDEM). Red Natura 2000, que figuraba aquí mismo hasta la historia 0015, quedó verificada en esa historia (ver sección "Red Natura 2000 y espacios protegidos — IDEM, Comunidad de Madrid" más arriba: `confirmado` como fuente real de planes de gestión, con el alcance explícito de que modela zonificación de planes, no el límite oficial de cada sitio individual con código EU). Concesiones de agua e inventario municipal de caminos quedan para una iteración posterior del registro, cuando las historias de reglas/afecciones las necesiten.
 
+- **Mosaico de ortofotos históricas catastrales (Sede Electrónica, años 80-90)**: fuente **no verificada**; acceso y licencia sin comprobar. Podría cubrir el hueco de 1957 a 1997 de la sección PNOA histórico, sin afirmar nada más (historia #287, fuente: comentario del fundador en #268).
+
 ### Publicar los tramos a verificar (historia #170)
 
 - **CA15 (flujo real), pendiente de la primera publicación real.** Por decisión del fundador en #170 (2026-11-27), no bloquea el merge: necesita candidatos aprobados a mano en `curated/candidatos/28043/revision.json`, y ningún agente puede aprobarlos (ADR 0047). Sin aprobados, `publicar-candidatos` no publica nada. La primera vez que se publique de verdad, ejecuta `uv run pytest -m "acceptance and integration" tests/acceptance/test_historia_170.py -k ca15` y anota aquí la fecha, cuántos tramos aprobados se publicaron y la línea `medición:` (solo números, sin referencias catastrales).
@@ -1384,6 +1465,62 @@ Verificado el **2026-11-27** para la [historia #219](https://github.com/murciali
 - **Canales no leídos**: la versión mínima de Android/iOS y de QGIS de QField (la ficha de Google Play y las docs no la dan en el texto recuperado); las páginas `get-started/tutorial`, `how-to/outside-layers` e `installation` de las docs (404); la lista de ficheros de la release; el texto del estándar GeoPackage más allá de los primeros 100.000 caracteres (las tablas obligatorias se tomaron del Anexo C y de la especificación conocida); la licencia de los ficheros de proyecto de QGIS como obra. Que no se leyeran no equivale a que no existan.
 - **Alternativa (punto 5)**: no hace falta de momento; si la reserva falla, GPX con puntos de interés y hoja de campo imprimible (el kit GPX/KML de #213 ya existe, coste cero).
 - **Generador real (historia #222)**: `publicar-kit-campo-qfield` escribe el proyecto por municipio con `sqlite3` y `xml.etree`. **Apertura en QField: PENDIENTE (`asumido`, no verificada).** Hasta que alguien con móvil abra el `.qgs` real de un municipio y anote aquí versión de QField, dispositivo y resultado (¿carga las capas? ¿aparece la advertencia y los desplegables de `tipo` y `estado`? ¿se guarda una incidencia con foto?), el ZIP no se enlaza ni se despliega en `site/` y `kit/indice.json` no se toca. El formulario usa elementos que la fixture de #219 no tenía (`DateTime`, `ExternalResource`, `attributeEditorHtmlElement` como cabecera): tampoco están comprobados en QField. Cuando se anote, ejecutar con `--incluir-en-indice`.
+
+## Catastro histórico de rústica (Sede Electrónica, historia #287)
+
+Historia #287, hija de #268 (épica #4). Solo documentación: no hay código ni datos en git. Los PDF y sus recortes están en `data/raw/catastro_historico/28043/` (fuera de git) y **no se publican nunca**. El agente no puede abrirlos, así que los datos de los productos se atribuyen al comentario del fundador en #268 (2026-11-27) y a su complemento en #287 (2.ª y 3.ª renovación). Uso **solo interno** (ADR 0040). Ver también «Catastro a una fecha (historia #209)» y «Catastrones (historia #211)».
+
+### Productos de rústica en la Sede, para Colmenar de Oreja
+
+- La Sede ofrece **5 productos de rústica** para Colmenar de Oreja (28043; código de Catastro 282043): Avance catastral, Topográfico Parcelario, 1.ª renovación, 2.ª renovación y 3.ª renovación (fundador, #268 y #287).
+- **No hay foto aérea retintada** para Colmenar. La página general de la ayuda menciona imágenes aéreas retintadas entre los productos del servicio, pero el fundador no encontró ninguna para este municipio (WebFetch de la ayuda del 2026-11-27 y comentario del fundador).
+- El inventario Excel de la provincia de Madrid **aún no está disponible**.
+
+### Lo descargado en Colmenar (2026-11-27)
+
+Cinco productos bajados por el fundador con su Cl@ve. Datos transcritos de su comentario; ninguno se ha abierto desde el agente.
+
+| Producto | Nº PDF | Polígonos | Escaneado | Época y escala | Nota |
+|---|---|---|---|---|---|
+| Avance catastral (AC) | 79 | 49 (numeración propia, «Sección A») | ~254 ppp, A4 | 1902-1913 (manual); croquis sin escala | Caminos con nombre y doble trazo. A mano, en rojo, el número de polígono posterior |
+| Topográfico Parcelario (TP) | 105 | 79 | 10029×7677 px, ~250 ppp (~0,2 m/px a 1:2000) | Febrero de 1947 (muestra del pol. 3), 1:2000 | Cuadrícula sin coordenadas. Caminos y cañadas con nombre, numerados en romanos (I, II, III) |
+| 1.ª renovación (1R) | 83 | 79 | ~200 ppp | 1985-1988 (manual); hojas 1:5000 (pol. 5, 1:4000) | Trae el único distribuidor (1:25 000). Los límites de polígono siguen los caminos. Mismos 79 polígonos que el TP: sirve de índice del TP. Los caminos aparecen como parcelas de la serie 9000 |
+| 2.ª renovación (2R) | 85 (incluye distribuidor) | no indicado | ~200 ppp | 1994-2005 (manual); hojas 1:5000 | **Coordenadas UTM en el margen** (p. ej. 4.436.500 N / 467.000 E en el pol. 9). Por error de origen, el `.7z` trae una hoja de la 1.ª renovación |
+| 3.ª renovación (3R) | 34 (solo parte de los polígonos) | no indicado | ~200 ppp | 2005-2006 (manual), actualización sobre ortofotografía; hojas 1:5000 | **Coordenadas UTM en el margen** y cruces de cuadrícula. La hoja del pol. 5 está escaneada al revés y lleva «ACT-2000» a mano. Vienen `POL073` y `POL73` como hojas separadas |
+
+- El TP no trae el distribuidor georreferenciado (`jpg` + `jgw`) que anuncia el manual de la Sede.
+- Las coordenadas de 2R y 3R permiten georreferenciar a partir de la cuadrícula impresa. **Suposición sin verificar**: quizá estén en ED50 / UTM 30N, que habría que transformar a ETRS89 (EPSG:25830).
+
+### Acceso y formato
+
+- **Acceso**: exige certificado electrónico o Cl@ve personal (la ayuda de la Sede admite ambos; las condiciones técnicas de la resolución de 2011 hablan de certificado digital). La descarga la hace una persona; un agente no puede iniciar sesión.
+- **Formato**: cada producto es un `.7z` con solo cartografía: un PDF por polígono y hoja. Escaneado JPEG sin texto y **sin georreferenciar** (ninguno trae `jgw`); solo 2R y 3R tienen coordenadas impresas en el margen.
+- No vienen Hojas de Características, Relación de Propietarios ni Fichas parcelarias (ver Exclusiones).
+- **Renovaciones**: la historia proponía no bajar la 2.ª y la 3.ª por haber PNOA desde 1994. Ese criterio queda sin efecto: la 2.ª y la 3.ª **sí se bajaron**, y el fundador pidió incluirlas aquí (complemento de #287, 2026-11-27).
+
+### Licencia
+
+Documento primario: [Resolución de 23 de marzo de 2011 de la Dirección General del Catastro](https://www.catastro.hacienda.gob.es/ayuda/legislacion/ovc/resoluciondgc20110323_tfs.pdf), leída el **2026-11-27** (texto extraído del PDF con `pypdf`). Se citan las cláusulas generales del Anexo I por su número:
+
+- **Cláusula 5**: «No se autoriza el uso público ni la comercialización de la información catastral original.» Tampoco su difusión por procedimientos distintos a la interoperabilidad (cláusulas 9 y 10).
+- **Cláusula 6**: se autoriza el uso público, incluido el comercial, de la información **transformada**; la transformación no puede alterar el contenido ni desnaturalizar su sentido.
+- **Cláusula 7**: los productos derivados no suplantan a los de la DGC: no se identifican como «cartografía catastral», «información catastral» ni términos equivalentes que puedan inducir a confusión.
+- **Cláusula 8**: «En ningún caso se autoriza a que la información catastral original descargada y no trasformada pueda ser difundida a través de Internet.»
+- **Cláusula 12**: hay que citar la fuente (la Dirección General del Catastro, del Ministerio de Economía y Hacienda) y la fecha de acceso al producto.
+- Plazo (cláusula 13): 10 años desde la descarga. Séptimo: la información distribuida sin transformar «carecerá de fehaciencia».
+
+**Conclusión**: `publicable: no` para los originales (PDF y escaneados) y para sus recortes (cláusulas 5 y 8). Un trazado redibujado a partir de ellos, transformado, sería una decisión aparte. Cita del dossier, tal como la decidió el fundador: «Dirección General del Catastro, cartografía histórica, Sede Electrónica, municipio, producto y polígono, fecha de acceso». Aviso: la cláusula 12 pide además «Ministerio de Economía y Hacienda», que la cita decidida no incluye; queda para decidir con el fundador.
+
+### Exclusiones
+
+- **Nunca se bajan** las Hojas de Características, la Relación de Propietarios y las Fichas parcelarias: llevan nombres de propietarios.
+- Este registro no copia ninguna referencia catastral de finca ni ningún nombre de persona o sociedad. Los nombres de caminos y los números de polígono son topónimos y numeración de la cartografía pública.
+
+### Siguiente paso
+
+- La **ficha interna por trazado** en `curated/` (cita de la fuente, sin imagen publicada) queda como **decisión posterior**, a tomar con esta verificación (#268).
+- Para el TP se valorará si sirve la tubería de `curated/historico` (historia #139, ADR 0043: unidad, puntos de control y ajuste). La dificultad es que el TP **no está georreferenciado** y hoy esa tubería espera imágenes de `ign_planimetrias`. 2R y 3R sí traen coordenadas en el margen (ED50 probable, sin verificar).
+- Numeración: el Avance catastral y el TP tienen numeraciones distintas; la anotación roja del AC parece dar la equivalencia. **Sin verificar.**
 
 ## Catálogo de caminos públicos de Cáceres y Extremadura como conjunto de validación (historia #279)
 

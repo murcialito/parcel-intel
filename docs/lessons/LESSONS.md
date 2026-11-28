@@ -879,6 +879,17 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en OGC API Features el enlace `rel=next` trae la URL completa con su query; para cachearla con `CachedRawFetcher` (clave = URL canónica) hay que partirla en base + parámetros (`urlsplit`/`parse_qsl`) y comprobar que la base es la de la colección antes de seguirla. Y no comprobar «sin duplicados» por nombre o longitud: en datos reales dos tramos distintos comparten nombre y hasta longitud; el `id` de la feature es la única clave.
   - **Aplica a**: adapters que paginen colecciones OGC API Features (red de transporte, nuevas capas) | revisión.
 
+## [2026-11-27] Historia #287 — Catastro histórico de rústica en REGISTRY.md
+
+- **Lección**: una historia de documentación escrita antes de que el fundador termine la descarga puede afirmar como hecho algo que su propio comentario posterior desmiente. El CA3 decía que la 2.ª y la 3.ª renovación «no se bajaron»; el fundador las bajó después y lo pidió en el mismo issue. Antes de implementar, leer todos los comentarios del issue y contrastar cada afirmación de hecho de los criterios con el último comentario; si el fundador lo resuelve por escrito, seguir su decisión más reciente y dejar el cambio explícito en la PR, no reinterpretar el criterio en silencio.
+  - **Causa**: el refinamiento se escribió con los tres productos del primer comentario; la segunda tanda de descargas llegó como comentario posterior y no entró en el texto de la historia.
+  - **Aplica a**: refinador (al redactar criterios que describen el estado de una descarga o de un dato externo, citar el comentario que lo fija y su fecha) | implementación (leer los comentarios del issue completos, no solo el cuerpo, antes de dar por válido un CA de hecho).
+- **Lección**: una sección nueva de `REGISTRY.md` que se inserte antes de «## Resumen de fuentes no verificadas» cae dentro del rango de las guardas de otras historias (`index(...)` hasta el resumen). Se añade al final del fichero, para no tocar esos rangos, y la suite completa se ejecuta antes de abrir la PR.
+  - **Aplica a**: implementación (al añadir secciones a `REGISTRY.md`) | revisión (comprobar con qué encabezado acota cada guarda antes de aceptar la posición de una sección nueva).
+## [2026-11-27] Historia #243 — Estrechamiento de vías pecuarias
+
+- **Lección**: la capa derivada de vías pecuarias (#83) solo trae el área de la pieza recortada, no el `area_m2`/`length_m` del tramo completo de IDEM, y sin ellos no hay anchura oficial. Un cálculo que parta de la anchura oficial debe leer `MunicipalLivestockTrailLayer` (caché cruda de IDEM), no el GeoJSON derivado. Además, con la anchura catastral recortada a la franja, `A / W` es la fracción de la franja cubierta por parcelas VT: nunca supera 1, así que «A mayor que W» no existe como caso. Y `ruff format` sobre todo `src/` reformatea ficheros ajenos a la historia: formatear solo los ficheros propios.
+  - **Aplica a**: implementación (señales de anchura, ventanas a lo largo del eje) | revisión.
 ## [2026-11-27] Historia #282 — Clasificación de vías pecuarias en BOE y BOCM
 
 - **Lección**: la búsqueda de texto libre del BOCM no exige todas las palabras: pone en la página 1 documentos de otros municipios con «Colmenar» o «vías pecuarias» (Colmenar del Arroyo, Chapinería), y el control con Villaconejos no lo deja arriba aunque el BOE tenga su orden. Un «no hay» en el BOCM solo vale con la frase exacta del título de la orden y con un control positivo que salga en primer lugar (Chapinería, orden 3/2011).
@@ -893,4 +904,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: la URL de descarga que cita una ficha de datos.gob.es puede estar muerta o devolver la portada HTML con `200`; el recurso real está en el registro del propio portal (`package_show` de CKAN). Antes de dar un fichero por descargado, comprobar que es JSON (`head -c`), y si no lo es, no guardarlo con la extensión del dato.
   - **Causa**: el endpoint `GetData?...format=geojson` de la ficha devolvió la portada de `opendata.caceres.es` (6.619 bytes, `text/html`) con código 200 tras una redirección a HTTPS con cadena de certificados incompleta. Los datos reales están en `ide.caceres.es` (WFS), que no respondió desde GitHub Actions: el contenido quedó `pendiente-local`.
   - **Aplica a**: refinador (no citar una licencia o un formato de una ficha sin abrir el recurso) | implementación (un `200` no prueba que haya dato).
+
+## [2026-11-27] Historia #281 — Órdenes de clasificación en el BOE
+
+- **Lección**: el PDF de una disposición del BOE se saca del enlace «PDF» de la ficha `doc.php?id=<BOE-A-…>` (patrón `/boe/dias/AAAA/MM/DD/pdfs/A<página inicial>-<final>.pdf`) y es la página entera del boletín, con otras disposiciones sin relación. El texto extraído confunde cifras («6,E9» por 6,69): una cifra se da por buena solo contra la imagen que devuelve `Read`. Si `Read` con `pages` falla por falta de `pdftoppm`, leerlo sin `pages`.
+  - **Aplica a**: implementación (fixtures de disposiciones: grabar el PDF íntegro, pero no copiar a texto los nombres de personas que cite la página).
 
