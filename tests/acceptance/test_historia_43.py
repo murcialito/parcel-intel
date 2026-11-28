@@ -52,6 +52,8 @@ FUENTES_PUBLICABLES = {
     "Primera edición del MTN50": "MTN50",
     "Red de transporte del IGN": "Red de transporte",
     "Vías pecuarias (IDEM)": "Vías pecuarias",
+    # Historia #187 (ADR 0060): texto literal de la legislación citada, del BOE.
+    "BOE": "Boletín Oficial del Estado",
 }
 
 

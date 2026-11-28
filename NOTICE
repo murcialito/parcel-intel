@@ -106,6 +106,24 @@ de memoria.
 - Atribución declarada por el servicio: `CC BY 4.0 Comunidad de Madrid`.
 - Aviso obligatorio: es cartografía de carácter informativo, no un deslinde.
 
+### Agencia Estatal Boletín Oficial del Estado — texto de la legislación citada (historia #187, ADR 0060)
+
+- Qué se publica: el texto literal de artículos del texto consolidado del Boletín Oficial del
+  Estado (`https://www.boe.es/buscar/act.php?id=<identificador>`), copiado tal cual en
+  `curated/normativa/catalogo.json`.
+- Licencia: condiciones de reutilización de la Agencia Estatal Boletín Oficial del Estado
+  (licencia tipo de 27 de junio de 2024), que permiten la reutilización para fines comerciales
+  y no comerciales.
+- URL del aviso legal: https://www.boe.es/informacion/aviso_legal/index.php (leído el 2026-11-27).
+- Atribución: `Fuente de los datos: Agencia Estatal Boletín Oficial del Estado`, con enlace a
+  https://www.boe.es y a la cita; en una obra derivada, `Basado en datos de la Agencia Estatal
+  Boletín Oficial del Estado`.
+- Se menciona siempre la fecha de la última actualización del texto consolidado y la fecha
+  de consulta.
+- Aviso obligatorio: texto consolidado de carácter meramente informativo. Únicamente tienen la
+  consideración de oficiales y auténticos los textos publicados en la edición electrónica del
+  Boletín Oficial del Estado. La Agencia no participa, patrocina ni apoya este uso.
+
 ## Información derivada de fuentes que no se publican
 
 ### Dirección General del Catastro — indicios derivados (ADR 0041)
