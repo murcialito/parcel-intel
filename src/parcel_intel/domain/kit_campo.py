@@ -39,8 +39,10 @@ ALLOWED_PROPERTIES: Mapping[KitLayerId, frozenset[str]] = MappingProxyType(
     {
         "vias_pecuarias": frozenset({"nombre", "tipo", "fecha_dato", "procedencia"}),
         "camino_actual": frozenset({"nombre", "tipo", "fecha_dato", "procedencia"}),
-        "discrepancias": _CARD_PROPERTIES | {"criterio", "descripcion_criterio", "tipo"},
-        "candidatos": _CARD_PROPERTIES | {"imagenes_comparacion"},
+        # `convergencia` (#315, ADR 0057 §8) se admite y no se exporta.
+        "discrepancias": _CARD_PROPERTIES
+        | {"criterio", "descripcion_criterio", "tipo", "convergencia"},
+        "candidatos": _CARD_PROPERTIES | {"imagenes_comparacion", "convergencia"},
     }
 )
 DEFAULT_NAME: Mapping[KitLayerId, str] = MappingProxyType(

@@ -8,6 +8,10 @@ Adaptación anotada en la PR: por decisión del fundador en la issue (comentario
 diseño, «documenta ese 50 % y que sea configurable»), el umbral `APPEARS_MIN_FRACTION` es el
 valor por defecto de un parámetro `appears_min_fraction` del cálculo y del caso de uso, y
 cada `ConvergenceTable` anota el que usó (campo añadido a la lista blanca de CA4).
+
+Actualizado por #315 (ADR 0057 §4, CA10): `ConvergenceTable` gana el último campo
+`images_unavailable` (un `bool`, que entra en la lista blanca de tipos) y el método pasa a
+`("convergencia_fuentes", 2)`.
 """
 
 import dataclasses
@@ -252,6 +256,7 @@ def test_ca3_filas_de_las_cinco_fuentes_e_historicas_sin_cobertura() -> None:
 
 
 _ALLOWED_TYPES = {
+    bool,  # images_unavailable (#315)
     str,
     int,
     float,
@@ -331,6 +336,7 @@ def test_ca4_catastro_solo_resultado_atribucion_y_aviso() -> None:
         "method",
         "criterion",
         "appears_min_fraction",
+        "images_unavailable",  # #315
     ]
     # (b) Ningún tipo de campo, ni anidado, es geometría, procedencia o referencia.
     _walk_types(ConvergenceTable, set())
@@ -774,7 +780,7 @@ def test_ca14_huella_del_texto_validado() -> None:
         "administración competente. Cada fuente tiene su propia precisión y puede estar "
         "desactualizada."
     )
-    assert CONVERGENCE_METHOD == CriterionRef("convergencia_fuentes", 1)
+    assert CONVERGENCE_METHOD == CriterionRef("convergencia_fuentes", 2)  # v2 desde #315
     assert _full_table().criterion == CRITERION
 
 

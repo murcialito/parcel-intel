@@ -1,4 +1,4 @@
-"""Tests unitarios de `domain/convergence.py` (historia #240). Fixtures SINTÉTICAS."""
+"""Tests unitarios de `domain/convergence.py` (historias #240 y #315). Fixtures SINTÉTICAS."""
 
 import dataclasses
 from datetime import date
@@ -38,7 +38,7 @@ from parcel_intel.domain.discrepancy import Measurement, TrailRef
 from parcel_intel.domain.discrepancy_criterion import CRITERION, CriterionRef
 from parcel_intel.domain.geometry import Geometry, MultiLineGeometry
 from parcel_intel.domain.public_card import CATASTRO_ATTRIBUTION, SOURCE_POLICY
-from parcel_intel.domain.published_comparison import NOT_IN_MANIFEST
+from parcel_intel.domain.published_comparison import NOT_IN_MANIFEST, TOO_LONG
 from tests.convergence_support import (
     INE,
     NO_IMAGES_SLOT_VINTAGES,
@@ -187,13 +187,33 @@ def test_fila_de_catastro() -> None:
         ({"municipality_code": "2804"}, "municipality_code"),
         ({"title": "Otro título"}, "title"),
         ({"warning": "Otro aviso"}, "warning"),
-        ({"method": CriterionRef("convergencia_fuentes", 2)}, "method"),
+        # #315: el método vigente es v2; la versión anterior ya no vale.
+        ({"method": CriterionRef("convergencia_fuentes", 1)}, "method"),
         ({"criterion": CriterionRef("discrepancia_trazados", 2)}, "criterion"),
         ({"appears_min_fraction": 0.0}, "appears_min_fraction"),
         ({"appears_min_fraction": 1.5}, "appears_min_fraction"),
         ({"appears_min_fraction": float("nan")}, "appears_min_fraction"),
         ({"rows": [_row()]}, "tupla"),
         ({"rows": (_row(), _row())}, "repetidos"),
+        ({"images_unavailable": 1}, "images_unavailable"),
+        (
+            {
+                "images_unavailable": True,
+                "rows": (
+                    ConvergenceRow(
+                        "ortofoto:1975",
+                        "Ortofoto 1975",
+                        "imagen",
+                        "sin_cobertura",
+                        None,
+                        None,
+                        (),
+                        (),
+                    ),
+                ),
+            },
+            "filas de imagen",
+        ),
     ],
 )
 def test_tabla_invalida(changes: dict[str, object], fragment: str) -> None:
@@ -408,3 +428,48 @@ def test_tabla_sin_fuentes_de_imagen_no_mira_la_comparacion() -> None:
         stretch(TRAMO), (LayerRowSource("catastro_vt"),), {}, empty_coverages(), None
     )
     assert [row.value for row in table.rows] == ["sin_cobertura"]
+
+
+# --- Tramo demasiado largo (#315). ------------------------------------------------------
+def test_metodo_v2() -> None:
+    assert CONVERGENCE_METHOD == CriterionRef("convergencia_fuentes", 2)
+    assert _table().images_unavailable is False
+
+
+def test_tramo_demasiado_largo_sin_imagenes_solo_con_la_opcion() -> None:
+    too_long = dataclasses.replace(
+        comparison_for(TRAMO), status="tramo_demasiado_largo", windows=()
+    )
+    tramo = stretch(TRAMO)
+    with pytest.raises(StretchNotComputableError) as error:
+        build_convergence_table(tramo, CONVERGENCE_ROW_SOURCES, {}, empty_coverages(), too_long)
+    assert error.value.reason == TOO_LONG
+    table = build_convergence_table(
+        tramo,
+        CONVERGENCE_ROW_SOURCES,
+        {},
+        empty_coverages(),
+        too_long,
+        without_images_if_too_long=True,
+    )
+    assert table.images_unavailable is True
+    assert [row.source_key for row in table.rows] == [
+        "via_pecuaria_oficial",
+        "ign_red_transporte",
+        "catastro_vt",
+        "planimetria_historica",
+        "mtn50_historico",
+    ]
+
+
+def test_otro_motivo_se_propaga_con_la_opcion() -> None:
+    with pytest.raises(StretchNotComputableError) as error:
+        build_convergence_table(
+            stretch(TRAMO),
+            CONVERGENCE_ROW_SOURCES,
+            {},
+            empty_coverages(),
+            None,
+            without_images_if_too_long=True,
+        )
+    assert error.value.reason == NOT_IN_MANIFEST

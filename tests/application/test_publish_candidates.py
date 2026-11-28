@@ -1,23 +1,31 @@
-"""Caso de uso `PublishCandidatesUseCase` (historias #170 y #172) con dobles. Datos
+"""Caso de uso `PublishCandidatesUseCase` (historias #170, #172 y #315) con dobles. Datos
 sintéticos."""
 
 import dataclasses
 from collections.abc import Sequence
 from datetime import date, datetime
 
+from parcel_intel.application.build_convergence_tables import BuildConvergenceTablesUseCase
 from parcel_intel.application.publish_candidates import PublishCandidatesUseCase
 from parcel_intel.domain.candidate_review import CandidateReview, candidate_fingerprint
 from parcel_intel.domain.comparison_image import ComparisonManifest
 from parcel_intel.domain.cut_candidate import MunicipalCutCandidateReport
 from parcel_intel.domain.discrepancy_criterion import CriterionRef
+from parcel_intel.domain.discrepancy_report import TrailLayer
+from parcel_intel.domain.historic_coverage import HistoricCoverage
+from parcel_intel.domain.historic_trail import HistoricDocumentKind
 from parcel_intel.domain.published_candidate import CandidateLayerPublication, MeasurementReport
 from parcel_intel.domain.published_layers import PublishedFile
+from parcel_intel.domain.trail import SourceKind
 from parcel_intel.ports.errors import (
     CandidateReviewFileError,
     ComparisonManifestFileError,
     CutCandidateFileError,
+    HistoricCoverageError,
     MeasurementReportUnavailableError,
+    TrailLayerFileError,
 )
+from tests.convergence_support import FakeHistoric, FakeLayers
 from tests.fixtures.candidatos_publicar import generar as publicar
 from tests.fixtures.candidatos_revision import generar
 
@@ -124,11 +132,17 @@ def _use_case(
     reports: dict[str, MunicipalCutCandidateReport | Exception] | None = None,
     reviews: tuple[CandidateReview, ...] | Exception = (),
     manifest: ComparisonManifest | None | Exception = MANIFEST,
+    layers: FakeLayers | None = None,
+    historic: FakeHistoric | None = None,
 ) -> tuple[PublishCandidatesUseCase, _Candidates, _Sink]:
     candidates = _Candidates({INE: generar.report()} if reports is None else reports)
     sink = _Sink()
+    comparisons = _Comparisons(manifest)
+    convergence = BuildConvergenceTablesUseCase(
+        layers or FakeLayers(), historic or FakeHistoric(), comparisons
+    )
     use_case = PublishCandidatesUseCase(
-        _Measurement(measurement), candidates, _Reviews(reviews), _Comparisons(manifest), sink
+        _Measurement(measurement), candidates, _Reviews(reviews), comparisons, sink, convergence
     )
     return use_case, candidates, sink
 
@@ -269,8 +283,105 @@ def test_aprobado_fuera_del_manifiesto_nombra_su_id() -> None:
 
 def test_sin_fichero_de_candidatos_no_mira_el_manifiesto() -> None:
     comparisons = _Comparisons(MANIFEST)
+    convergence = BuildConvergenceTablesUseCase(FakeLayers(), FakeHistoric(), comparisons)
     use_case = PublishCandidatesUseCase(
-        _Measurement(MEASUREMENT), _Candidates({}), _Reviews(()), comparisons, _Sink()
+        _Measurement(MEASUREMENT), _Candidates({}), _Reviews(()), comparisons, _Sink(), convergence
     )
     assert "sin fichero de candidatos" in use_case.execute([INE]).failures[0].reason
     assert comparisons.calls == []
+
+
+# --- tabla de convergencia (#315) --------------------------------------------------------
+
+
+class _BrokenLayers(FakeLayers):
+    def __init__(self, error: Exception) -> None:
+        super().__init__()
+        self.error = error
+
+    def get_layer(self, source: SourceKind, municipality_code: str) -> TrailLayer:
+        self.calls.append((source, municipality_code))
+        raise self.error
+
+
+class _LayerFileError(TrailLayerFileError):
+    def __init__(self, source: str) -> None:
+        super().__init__("/ruta/secreta/28043.geojson: input_value='valor-secreto'")
+        self.source = source
+
+
+class _BrokenHistoric(FakeHistoric):
+    def __init__(self, error: Exception) -> None:
+        super().__init__()
+        self.error = error
+
+    def get_coverage(self, document_kind: HistoricDocumentKind) -> HistoricCoverage:
+        self.calls.append(document_kind)
+        raise self.error
+
+
+def test_publica_la_tabla_de_cada_aprobado() -> None:
+    layers = FakeLayers()
+    use_case, _, sink = _use_case(reviews=(_approval("aprobado"),), layers=layers)
+    result = use_case.execute([INE])
+    assert result.failures == ()
+    ((publication,),) = sink.received
+    (item,) = publication.content.items
+    assert item.convergence.method == "convergencia_fuentes v2"
+    assert publication.convergence_notes.appears_min_fraction == 0.5
+    assert {source for source, _ in layers.calls} == {
+        "via_pecuaria_oficial",
+        "ign_red_transporte",
+        "catastro_vt",
+    }
+
+
+def test_capa_no_valida_es_motivo_fijo_sin_ruta() -> None:
+    use_case, _, sink = _use_case(
+        reviews=(_approval("aprobado"),), layers=_BrokenLayers(_LayerFileError("catastro_vt"))
+    )
+    (failure,) = use_case.execute([INE]).failures
+    assert failure.reason == (
+        "tabla de convergencia: capa catastro_vt no válida; regenera las capas derivadas"
+    )
+    assert sink.received == []
+
+
+def test_cobertura_historica_no_utilizable() -> None:
+    error = HistoricCoverageError("280075-w1", "aprobaciones caducadas: T001; vuelve a revisar")
+    use_case, _, sink = _use_case(reviews=(_approval("aprobado"),), historic=_BrokenHistoric(error))
+    (failure,) = use_case.execute([INE]).failures
+    assert failure.reason == (
+        "tabla de convergencia: cobertura histórica: la unidad 280075-w1 no es utilizable: "
+        "aprobaciones caducadas: T001; vuelve a revisar"
+    )
+    assert sink.received == []
+
+
+def test_fallos_previos_no_leen_capas_ni_historico() -> None:
+    layers = _BrokenLayers(AssertionError("no se debe leer"))
+    historic = _BrokenHistoric(AssertionError("no se debe leer"))
+    for reviews in ((), (_approval("rechazado"),), (_approval("aprobado", "0" * 64),)):
+        use_case, _, _ = _use_case(reviews=reviews, layers=layers, historic=historic)
+        assert use_case.execute([INE]).failures
+    assert layers.calls == [] and historic.calls == []
+
+
+def test_aprobado_sin_tabla_nombra_su_id() -> None:
+    """Un aprobado sin tabla por un motivo que #172 no filtra antes: aquí, la tabla no
+    encuentra manifiesto (su fuente devuelve `None`) aunque la publicación sí lo tenga."""
+    aprobado = generar.candidates()["aprobado"]
+    convergence = BuildConvergenceTablesUseCase(FakeLayers(), FakeHistoric(), _Comparisons(None))
+    use_case = PublishCandidatesUseCase(
+        _Measurement(MEASUREMENT),
+        _Candidates({INE: generar.report()}),
+        _Reviews((_approval("aprobado"),)),
+        _Comparisons(MANIFEST),
+        _Sink(),
+        convergence,
+    )
+    (failure,) = use_case.execute([INE]).failures
+    assert failure.reason == (
+        f"el candidato {aprobado.candidate_id}: tabla de convergencia: sin manifiesto de "
+        "imágenes de comparación; ejecuta imagenes-comparacion"
+    )

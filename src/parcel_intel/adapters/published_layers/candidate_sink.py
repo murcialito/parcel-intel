@@ -5,18 +5,24 @@ Copia estructural del sink de indicios (#94, ADR 0044): GeoJSON RFC 7946 en EPSG
 compacto y determinista, con su `.procedencia.json`, e índice regenerado entero. Lista
 blanca cerrada: de cada tramo solo salen su geometría (la del trazado A), la ficha de
 #169 y sus imágenes de comparación (enlaces al WMS del IGN o de la IDEM con el trazo en
-píxeles, #172 y #208).
+píxeles, #172 y #208) y su tabla de convergencia de fuentes (`convergencia`, #315, ADR
+0057), sin el id interno.
 La colección lleva el resumen de la medición ya redactado, «revisado a mano» y el bloque
 `comparacion`. Sin simplificación. Todo o nada, y nunca borra lo publicado. Un fichero
 por encima del umbral de peso no se escribe (ADR 0049 §7). Última barrera: si algún
 texto (URL incluidas) casa con la forma de una referencia catastral o de un localizador
-de parcela, o lleva una palabra vetada, no se escribe nada.
+de parcela, o lleva una palabra vetada, no se escribe nada; antes, cada tabla pasa
+`check_published_convergence`.
 """
 
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from parcel_intel.adapters.published_layers.convergence import (
+    convergence_document,
+    convergence_sidecar,
+)
 from parcel_intel.adapters.published_layers.discrepancy_sink import (
     check_no_parcel_identifiers,
     evidence_document,
@@ -56,6 +62,10 @@ from parcel_intel.domain.published_comparison import (
     ComparisonNotes,
     PublishedComparison,
     PublishedImage,
+)
+from parcel_intel.domain.published_convergence import (
+    ConvergenceNotPublishableError,
+    check_published_convergence,
 )
 from parcel_intel.domain.published_layers import PublishedFile
 
@@ -114,6 +124,7 @@ def _feature(item: PublishedCandidate) -> dict[str, object]:
             "evidencia": [evidence_document(source) for source in card.sources],
             "aviso_omision": card.omission_notice,
             "imagenes_comparacion": _images(item.comparison),
+            "convergencia": convergence_document(item.convergence),
         },
     }
 
@@ -260,6 +271,7 @@ def sidecar_document(
         ]
         + _image_sources(publication),
         "imagenes_comparacion": _image_block(publication),
+        "convergencia": convergence_sidecar(publication.convergence_notes),
         "transformacion": {
             "crs_origen": SOURCE_CRS,
             "crs_destino": TARGET_CRS,
@@ -329,6 +341,13 @@ class GeoJsonPublishedCandidateSink:
     def _serialize(self, publication: CandidateLayerPublication) -> _Serialized:
         code = publication.municipality_code
         label = f"{CANDIDATE_LAYER_ID}/{code}"
+        for item in publication.content.items:
+            try:
+                check_published_convergence(item.convergence)
+            except ConvergenceNotPublishableError as error:
+                raise PublishedLayerError(
+                    f"{label}: tabla de convergencia: {error.reason}"
+                ) from error
         provenance = layer_provenance(publication, self._repository_url)
         document = layer_document(publication, provenance)
         text = dump_compact(document)

@@ -238,6 +238,16 @@ class TrailLayerUnavailableError(Exception):
         self.reason = reason
 
 
+class TrailLayerFileError(Exception):
+    """El fichero de una capa derivada existe pero no es válido (historia #315). `source` es
+    el `SourceKind`. Vive aquí porque `publicar-candidatos` lo captura en `application/`,
+    que no puede importar el error concreto del adapter (`TrailLayerFormatError`, que
+    hereda de este). Su mensaje puede citar rutas y detalles de pydantic: quien lo capture
+    para un mensaje público usa solo `source`."""
+
+    source: str
+
+
 class DiscrepancyReportUnavailableError(Exception):
     """No hay informe de discrepancias escrito para ese municipio -- historia
     #94. Significa solo "no hay fichero"; un fichero corrupto es otro error."""
