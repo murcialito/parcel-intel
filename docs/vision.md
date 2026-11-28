@@ -58,7 +58,7 @@ c) **Visor web sencillo** para enseñarlo: mapa estático (capas pregeneradas, s
 
 **Después del primer hito** (no diseñado todavía):
 
-- **Avisos ciudadanos con foto**: alguien sobre el terreno confirma o desmiente un candidato. Es lo primero que obliga a almacenar datos de terceros (fotos, posible geolocalización EXIF, contacto), así que necesita su propio análisis de privacidad y de coste antes de diseñarse.
+- **Avisos ciudadanos con foto**: alguien sobre el terreno confirma o desmiente un candidato. Es lo primero que obliga a almacenar datos de terceros (fotos, posible geolocalización EXIF, contacto), así que necesita su propio análisis de privacidad y de coste antes de diseñarse. Hay una política de privacidad y moderación propuesta, pendiente de validación del fundador: [ADR 0058](adr/0058-privacidad-y-moderacion-de-avisos-con-foto.md).
 - **Dossier para el ayuntamiento**: documento generado para un tramo concreto, listo para presentar, con trazado, fuentes, serie de imágenes, normativa aplicable y lenguaje de indicio.
 
 ## Validación
@@ -144,7 +144,7 @@ El mayor riesgo sigue siendo de confianza, ahora con otro destinatario: un falso
 - [ ] Si el mapa muestra la referencia catastral de la finca donde queda un candidato, o solo el tramo.
 - [x] Método de detección de "candidato a corte" (ver hito, punto b): discrepancia con el camino actual más señales por muestra combinadas en «O», empezando por la señal de Catastro `parcela_no_camino` (2026-11-26; ver ADR 0039 e historia #109).
 - [ ] Dónde se aloja el mapa estático.
-- [ ] Cómo se reciben y moderan los avisos ciudadanos con foto (después del hito).
+- [ ] Cómo se reciben y moderan los avisos ciudadanos con foto (después del hito). Hay una política de privacidad y moderación propuesta, pendiente de validación del fundador: [ADR 0058](adr/0058-privacidad-y-moderacion-de-avisos-con-foto.md); la recepción y el coste, en #104.
 
 ## Convenciones (sin cambios)
 
