@@ -48,7 +48,7 @@ Las fuentes que no se pueden publicar se copian, solo para copia de seguridad y 
 - **Catastro histórico** de rústica (historias #268 y #287): los originales descargados de la Sede Electrónica.
 - **Fondo Documental de Vías Pecuarias**: los proyectos de clasificación, cuando lleguen (#280, #284).
 
-Estado a 2026-11-28: **todavía no se ha subido nada**; el repo privado lo crea #296 y la sincronización la implementa #295. Ningún dato de titularidad se copia.
+Estado a 2026-11-28: **todavía no se ha subido nada**. La guía para crear el repo privado y subir la copia está en [`docs/guias/repo-privado-datos.md`](../../../docs/guias/repo-privado-datos.md) (historia #296); la sincronización la implementa #295. Cuando el fundador confirme la subida, esta línea pasa a «copia hecha el <fecha>». Ningún dato de titularidad se copia.
 
 ---
 
@@ -1564,6 +1564,10 @@ Documento primario: [Resolución de 23 de marzo de 2011 de la Dirección General
 - La **ficha interna por trazado** en `curated/` (cita de la fuente, sin imagen publicada) queda como **decisión posterior**, a tomar con esta verificación (#268).
 - Para el TP se valorará si sirve la tubería de `curated/historico` (historia #139, ADR 0043: unidad, puntos de control y ajuste). La dificultad es que el TP **no está georreferenciado** y hoy esa tubería espera imágenes de `ign_planimetrias`. 2R y 3R sí traen coordenadas en el margen (ED50 probable, sin verificar).
 - Numeración: el Avance catastral y el TP tienen numeraciones distintas; la anotación roja del AC parece dar la equivalencia. **Sin verificar.**
+
+### Copia de seguridad en el repo privado
+
+La copia de estos originales en el repo privado (ADR 0055) se hace con la guía [`docs/guias/repo-privado-datos.md`](../../../docs/guias/repo-privado-datos.md) (historia #296). Esta sección no repite sus pasos.
 
 ## Catálogo de caminos públicos de Cáceres y Extremadura como conjunto de validación (historia #279)
 
