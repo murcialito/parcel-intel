@@ -1,6 +1,6 @@
 # Paso Común
 
-Nombre público del proyecto desde el 2026-11-26 (antes «Parcel Intel»). Repo `murcialito/paso-comun`; sitio en `https://murcialito.github.io/paso-comun/`. El paquete Python sigue llamándose `parcel_intel` y no se renombra.
+Nombre público del proyecto desde el 2026-11-26 (antes «Parcel Intel»). Repo `murcialito/paso-comun`; sitio en `https://pasocomun.org/` (dominio propio desde el 2026-11-27, ADR 0053; la URL antigua de Pages redirige). El paquete Python sigue llamándose `parcel_intel` y no se renombra.
 
 Herramienta abierta y sin ánimo de lucro para la defensa de caminos públicos: reconstruye qué trazados deberían ser públicos (vías pecuarias oficiales, Catastro, cartografía histórica) y señala los tramos donde hoy parecen desaparecer o quedar dentro de una finca cerrada. Principios innegociables: el sistema señala **indicios a verificar**, con confianza y evidencia — nunca ilegalidades ni dictámenes; **nunca se nombra a propietarios**; las reglas propuestas por IA requieren aprobación humana antes de usarse.
 

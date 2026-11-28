@@ -3,8 +3,9 @@
 Un test por criterio. Todo se lee con la stdlib, sin red.
 
 Desviación de CA3 (escalada al fundador en la issue): la historia fija las URLs de Open Graph con
-``murcialito.github.io/parcel-intel/``, pero el repositorio ya se llama ``paso-comun`` y el sitio
-está en ``https://murcialito.github.io/paso-comun/`` (CLAUDE.md). Los tests usan esta última.
+``murcialito.github.io/parcel-intel/``, pero el repositorio ya se llama ``paso-comun``. Desde la
+historia #227 (ADR 0053) el sitio se sirve en el dominio propio ``https://pasocomun.org/`` y los
+tests usan esa URL.
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ SITE = ROOT / "site"
 DISENO = ROOT / "docs" / "design-system" / "site"
 BUILD_SCRIPT = ROOT / "scripts" / "construir_sitio.py"
 
-URL_PAGES = "https://murcialito.github.io/paso-comun/"
+URL_PAGES = "https://pasocomun.org/"
 
 FICHEROS_MARCA = (
     "favicon.svg",
@@ -138,7 +139,7 @@ def test_ca3_open_graph_y_description() -> None:
     texto actual adaptado a la marca y `<meta property="og:*">` con `og:title`,
     `og:description`, `og:type=website`, `og:locale=es_ES`, `og:url` y `og:image` absolutas del
     sitio publicado (más `twitter:card=summary_large_image`); `og-image.png` existe en `site/`.
-    (URL: la de Pages del repositorio actual, ver docstring del módulo.)"""
+    (URL: la del dominio propio desde #227, ver docstring del módulo.)"""
     html = _html()
     descripcion = _meta(html, "name", "description")
     assert descripcion and "Paso Común" in descripcion
