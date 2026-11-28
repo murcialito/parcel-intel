@@ -100,3 +100,31 @@ No bloquean; cambiarlos solo exige tocar este ADR y sus tests.
   intencionado: con otro método, lo revisado ya no es lo mismo.
 - Si la ficha de #169 empieza a usar un campo del candidato que no está en la huella, ese campo debe
   entrar en la huella, y eso invalida las aprobaciones existentes.
+
+## Código de inventario (historia #288)
+
+El `candidate_id` es un hash y cambia con el trazado. El **código de inventario** (`COL-001`) es el
+nombre público estable de un tramo aprobado y solo puede ser un dato humano en git. Lo asigna una
+persona; ningún agente asigna ni aprueba (guardia de `curated/**`).
+
+- **Fichero propio**, `curated/candidatos/<ine>/inventario.json`, junto a `revision.json` y no dentro
+  de él: un código no caduca con la huella y un cambio de huella no obliga a tocarlo.
+  `{"municipio": "28043", "prefijo": "COL", "codigos": [{"candidate_id": "<16 hex>", "codigo": "COL-001"}]}`.
+  Lectura estricta con stdlib `json`, como `revision.json`: cualquier fallo rechaza el fichero entero y los
+  mensajes nunca repiten el valor rechazado (las claves desconocidas se cuentan).
+- **Formato**: `^<prefijo>-[0-9]{3,}(-<nombre>)?$`, con el número sin ceros de más (`COL-0001` se rechaza).
+  El nombre, solo si el tramo lo tiene en las fuentes, mide 1–60 caracteres (letras, dígitos, espacio,
+  guion, apóstrofo; sin dobles espacios ni espacios en los bordes) y pasa los filtros de `note_problem`
+  (sin referencia catastral, localizador de parcela ni `BANNED_WORDS`). Es el nombre público: sin titularidad.
+- **Unicidad**: un `candidate_id` tiene un solo código y un número se usa una sola vez en el municipio
+  (aunque cambie el nombre). Nunca se reasigna un código a otro `candidate_id`.
+- **Prefijos** (`MUNICIPALITY_PREFIXES`, dominio): `28043 → COL`. Los fija el fundador, en una PR aparte;
+  un municipio sin prefijo no puede tener `inventario.json`.
+- **Cruce** con la revisión (`reconcile_inventory`): *asignados* (aprobados vigentes con código, por
+  número), *sin código* (aprobados sin código: se informan, no hacen fallar), *sobre tramo no aprobado*
+  (propuesto, rechazado o caducado) y *huérfanos* (el `candidate_id` ya no existe). Los dos últimos hacen
+  salir con 1 a `revision-candidatos`.
+- **Estabilidad**: si el trazado cambia y con él el `candidate_id`, la persona actualiza el `candidate_id`
+  del código a mano; hasta entonces el código queda huérfano y el tramo nuevo «sin código». El sistema
+  nunca lo reasigna solo.
+- El dossier (#289) exigirá código; esta historia no publica nada.

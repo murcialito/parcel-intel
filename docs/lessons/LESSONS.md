@@ -988,3 +988,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: `dump_compact` ordena las claves, así que una lista blanca publicada se compara como conjunto (`set(tabla) == set(CLAVES)`); el orden del ADR solo se puede afirmar sobre el diccionario antes de serializar.
   - **Aplica a**: implementación (tests de listas blancas sobre ficheros publicados).
 
+## [2026-11-28] Historia #288 — Código de inventario de los tramos
+
+- **Lección**: un filtro de texto libre (`note_problem`, `name_problem`) solo detecta referencias catastrales, localizadores y palabras vetadas: **no puede detectar un nombre de persona**. Para que ninguno entre, el formato del nombre es una lista cerrada de caracteres (sin `_`, `@`, `?`…) y, sobre todo, el mensaje de error nunca repite el valor. El test de «sin nombres de personas» usa una entrada hostil y comprueba que el nombre no aparece en la salida ni en el error, no que el sistema lo reconozca.
+  - **Aplica a**: implementación y revisión (campos de texto libre en `curated/`).
+- **Lección**: el prefijo de un municipio es una constante de dominio (`MUNICIPALITY_PREFIXES`) fijada por el fundador; el código se normaliza al formatear (`:03d`), así que se rechazan los ceros de más (`COL-0001`) para que lo que se lee sea lo que se imprime.
+  - **Aplica a**: implementación (identificadores humanos que se muestran tal cual).

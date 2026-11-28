@@ -26,7 +26,10 @@ from parcel_intel.adapters.comparison_files import (
     read_stretches,
 )
 from parcel_intel.adapters.comparison_windows.router import FlightRoutedWindowAdapter
-from parcel_intel.adapters.curated_candidates import CuratedCandidateReviewFiles
+from parcel_intel.adapters.curated_candidates import (
+    CuratedCandidateInventoryFiles,
+    CuratedCandidateReviewFiles,
+)
 from parcel_intel.adapters.curated_historic import CuratedHistoricFiles
 from parcel_intel.adapters.cut_candidate_files import (
     GeoJsonCutCandidateReader,
@@ -167,6 +170,7 @@ from parcel_intel.domain.candidate_evaluation import (
     EvaluableCandidate,
     EvaluationResult,
 )
+from parcel_intel.domain.candidate_inventory import CandidateInventoryState
 from parcel_intel.domain.comparison_image import DegenerateStretchError, StretchComparison
 from parcel_intel.domain.convergence import (
     APPEARS_MIN_FRACTION,
@@ -1097,6 +1101,7 @@ def build_candidate_review_use_case(
         candidates=GeoJsonCutCandidateReader(candidates_dir),
         reviews=CuratedCandidateReviewFiles(curated_dir),
         images=JsonComparisonAvailabilityReader(comparison_dir),
+        inventory=CuratedCandidateInventoryFiles(curated_dir),
     )
 
 
@@ -1118,7 +1123,10 @@ def _print_review_listing(listing: MunicipalReviewListing) -> None:
         return
     if listing.outcome == "sin_candidatos":
         unchecked = listing.unchecked_reviews
-        print(f"municipio {code}: sin candidatos ({unchecked} revisiones sin comprobar)")
+        codes = (
+            f", {listing.unchecked_codes} códigos sin comprobar" if listing.unchecked_codes else ""
+        )
+        print(f"municipio {code}: sin candidatos ({unchecked} revisiones sin comprobar{codes})")
         return
     state = listing.state
     assert state is not None  # garantizado con "listado"
@@ -1150,6 +1158,28 @@ def _print_review_listing(listing: MunicipalReviewListing) -> None:
     )
     if without_images:
         print(f"aviso {code}: {without_images} candidatos sin imágenes de comparación")
+    _print_inventory(code, listing.inventory)
+
+
+def _print_inventory(code: str, inventory: CandidateInventoryState | None) -> None:
+    """Códigos de inventario por tramo aprobado y resumen (historia #288). El código es
+    público por diseño; el nombre ya pasó los filtros de `name_problem`."""
+    if inventory is None:
+        return
+    for item in inventory.assigned:
+        print(f"codigo {item.candidate_id} {item.code} numero={item.number}")
+    for candidate_id in inventory.without_code:
+        print(f"codigo {candidate_id} sin código")
+    for item in inventory.on_unapproved:
+        print(f"código sobre tramo no aprobado {item.candidate_id} {item.code}")
+    for item in inventory.orphans:
+        print(f"código huérfano {item.candidate_id} {item.code}")
+    print(
+        f"resumen códigos {code}: asignados={len(inventory.assigned)} "
+        f"sin_código={len(inventory.without_code)} "
+        f"sobre_no_aprobados={len(inventory.on_unapproved)} "
+        f"huérfanos={len(inventory.orphans)}"
+    )
 
 
 def _revision_candidatos(args: argparse.Namespace) -> int:
@@ -2336,7 +2366,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--curated",
         type=Path,
         default=Path("curated/candidatos"),
-        help="Entrada humana versionada: <ine>/revision.json",
+        help="Entrada humana versionada: <ine>/revision.json e <ine>/inventario.json",
     )
     revision_parser.add_argument(
         "--entrada",

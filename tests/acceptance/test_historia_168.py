@@ -365,6 +365,9 @@ def _expected_fixture_output() -> list[str]:
         f"resumen {INE}: propuestos=2 aprobados=1 rechazados=1 caducados=1 huérfanas=1 "
         "sin_imagenes=3",
         f"aviso {INE}: 3 candidatos sin imágenes de comparación",
+        # Historia #288: sin inventario.json, el aprobado sale «sin código».
+        f"codigo {CANDIDATES['aprobado'].candidate_id} sin código",
+        f"resumen códigos {INE}: asignados=0 sin_código=1 sobre_no_aprobados=0 huérfanos=0",
     ]
 
 
