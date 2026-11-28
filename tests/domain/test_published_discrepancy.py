@@ -236,3 +236,18 @@ def test_colision_de_id_lleva_sufijo_en_orden_canonico() -> None:
     ids = [item.public_id for item in build.publication.content.items]
     base = public_indicio_id(first.discrepancy)
     assert ids == [base, f"{base}-2", f"{base}-3"]
+
+
+def test_is_publishable_indicio_fuente_a_y_contraparte() -> None:
+    """#314: la regla de publicación de un indicio es una función propia."""
+    from parcel_intel.domain.published_discrepancy import is_publishable_indicio
+    from tests.indicio_comparison_support import line, record
+
+    zone = line(0.0, 0.0)
+    assert is_publishable_indicio(record("0" * 16, zone).discrepancy)
+    assert is_publishable_indicio(
+        record("1" * 16, zone, counterpart_kind="catastro_vt").discrepancy
+    )
+    assert not is_publishable_indicio(
+        record("2" * 16, zone, subject_kind="catastro_vt").discrepancy
+    )

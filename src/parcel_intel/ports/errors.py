@@ -250,6 +250,18 @@ class DiscrepancyReportUnavailableError(Exception):
         self.reason = reason
 
 
+class InternalReportRequiredError(Exception):
+    """Se pidió el informe INTERNO de discrepancias y se leyó el publicable (redactado,
+    sin las zonas de Catastro) -- historia #314. No hay trazo del que sacar imágenes."""
+
+    def __init__(self, municipality_code: str) -> None:
+        super().__init__(
+            f"{municipality_code}: el informe es la variante publicable (redactada); "
+            "hace falta el interno (data/derived/discrepancias/interno)"
+        )
+        self.municipality_code = municipality_code
+
+
 class CutCandidateFileError(Exception):
     """El fichero de candidatos a corte existe pero no se puede leer o no cumple
     el formato -- historia #128. No equivale a «sin capas» (`None`)."""

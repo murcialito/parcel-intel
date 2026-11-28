@@ -948,3 +948,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: arquitecto (al marcar un umbral «a revisar con el fundador», prever dónde se anota si se hace configurable) | implementación.
 - **Lección**: para probar que una entidad publicable no puede llevar geometría ni procedencia «ni anidada», no basta con listar `dataclasses.fields`: se recorren las anotaciones con `typing.get_type_hints`, `get_origin` y `get_args` hasta los tipos hoja, se compara cada uno con una lista blanca y se falla con los tipos prohibidos (`Geometry`, `Provenance`, `TrailRef`…). Así, un campo `tuple[X, ...]` o `X | None` con un tipo nuevo hace fallar el test aunque el nombre del campo no cambie.
   - **Aplica a**: implementación y revisión (entidades con «lista blanca de campos»).
+
+## [2026-11-28] Historia #314 — Manifiesto de imágenes de los indicios
+
+- **Lección**: hoy todas las fuentes de `SourceKind` son contraparte publicable (las cuatro redistribuibles más `catastro_vt`), así que la rama «contraparte fuera de `PUBLISHABLE_COUNTERPART_SOURCES`» de `is_publishable_indicio` no se alcanza con datos reales. Para probarla, un test recorta la constante con `monkeypatch.setattr(published_discrepancy, ...)`: vale porque la función lee la global del módulo en cada llamada, no una copia importada.
+  - **Aplica a**: implementación (reglas de licencia con ramas que ningún dato actual dispara) | revisión (exigir el test aunque la rama parezca muerta).
+- **Lección**: `uv run ruff format src` reformatea el árbol entero y toca ficheros ajenos a la historia. Formatear solo los ficheros propios (`ruff format <ruta>`) y mirar `git status` antes de commitear.
+  - **Aplica a**: implementación.
