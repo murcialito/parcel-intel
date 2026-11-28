@@ -2,6 +2,7 @@
 Almacén falso sobre la fixture sintética y zona local real sobre `tmp_path`."""
 
 import json
+from collections.abc import Sequence
 from contextlib import AbstractContextManager
 from pathlib import Path
 
@@ -16,6 +17,7 @@ from parcel_intel.application.sync_private_data import (
     SyncPrivateDataUseCase,
 )
 from parcel_intel.domain.private_catalog import (
+    ExtractedMember,
     LocalFileState,
     PrivateCatalogError,
     SyncOutcome,
@@ -68,6 +70,12 @@ class SpyArea:
 
     def write_record(self, entry_id: str, content: bytes) -> None:
         raise self._fail("write_record")
+
+    def extract_tar(self, staged: Path, destination: str) -> tuple[ExtractedMember, ...]:
+        raise self._fail("extract_tar")
+
+    def assemble(self, parts: Sequence[Path], target: Path) -> None:
+        raise self._fail("assemble")
 
 
 def _outcomes(store: FakePrivateDataStore, root: Path) -> dict[str, tuple[SyncOutcome, str | None]]:

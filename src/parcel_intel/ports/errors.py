@@ -468,3 +468,13 @@ class PrivateDataConflictError(Exception):
     def __init__(self, reason: str) -> None:
         super().__init__(f"conflicto con lo local: {reason}")
         self.reason = reason
+
+
+class PrivateDataArchiveError(Exception):
+    """El `tar` de una entrada de datos privados no es utilizable: ilegible, con un miembro
+    que sale de su destino, un enlace, un dispositivo o rutas repetidas -- historia #320.
+    El motivo es un texto fijo: nunca nombres de miembros del archivo."""
+
+    def __init__(self, reason: str) -> None:
+        super().__init__(f"archivo tar no válido: {reason}")
+        self.reason = reason

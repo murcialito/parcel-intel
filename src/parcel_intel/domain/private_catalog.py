@@ -185,6 +185,33 @@ class SyncSummary:
         return self._count(SyncOutcome.FAILED)
 
 
+@dataclass(frozen=True)
+class ExtractedMember:
+    """Un fichero sacado de un `tar` (historia #320): ruta relativa al `destino` de la
+    entrada, sha256 y tamaño."""
+
+    path: str
+    sha256: str
+    size_bytes: int
+
+
+def safe_member_path(name: str) -> str:
+    """Ruta de un miembro de `tar`, relativa al `destino`, ya normalizada (sin `./` inicial
+    ni `/` final). Lanza `ValueError` con un motivo que no repite el nombre."""
+    if any(ord(ch) < 32 for ch in name) or "\\" in name or ":" in name:
+        raise ValueError("miembro con caracteres no admitidos")
+    if name.startswith("/"):
+        raise ValueError("miembro con ruta absoluta")
+    parts = name.split("/")
+    while parts and parts[0] == ".":
+        parts.pop(0)
+    while parts and parts[-1] == "":
+        parts.pop()
+    if not parts or any(part in ("", ".", "..") for part in parts):
+        raise ValueError("miembro con componentes vacíos, '.' o '..'")
+    return "/".join(parts)
+
+
 def entry_state(entry: PrivateCatalogEntry) -> LocalFileState:
     """El (sha256, tamaño) que el catálogo declara para el fichero entero."""
     return LocalFileState(sha256=entry.sha256, size_bytes=entry.size_bytes)
@@ -558,11 +585,25 @@ def catalog_record(entry: PrivateCatalogEntry) -> dict[str, object]:
     return record
 
 
-def local_record(entry: PrivateCatalogEntry, provenance: Mapping[str, object]) -> bytes:
+def local_record(
+    entry: PrivateCatalogEntry,
+    provenance: Mapping[str, object],
+    members: Sequence[ExtractedMember] | None = None,
+) -> bytes:
     """`data/privados/<id>.json`: la entrada y su procedencia en JSON canónico, sin fecha
-    de sincronización, para que repetir dé los mismos bytes."""
+    de sincronización, para que repetir dé los mismos bytes. Una entrada `tar` lleva además
+    `miembros` (ruta, sha256 y tamaño de cada uno, ordenados por ruta; historia #320)."""
+    document: dict[str, object] = {
+        "entrada": catalog_record(entry),
+        "procedencia": dict(provenance),
+    }
+    if members is not None:
+        document["miembros"] = [
+            {"ruta": m.path, "sha256": m.sha256, "tamano_bytes": m.size_bytes}
+            for m in sorted(members, key=lambda m: m.path)
+        ]
     text = json.dumps(
-        {"entrada": catalog_record(entry), "procedencia": dict(provenance)},
+        document,
         sort_keys=True,
         ensure_ascii=False,
         indent=2,
@@ -577,3 +618,31 @@ def record_matches(entry: PrivateCatalogEntry, record: bytes) -> bool:
     except (UnicodeDecodeError, json.JSONDecodeError, RecursionError):
         return False
     return isinstance(data, dict) and data.get("entrada") == catalog_record(entry)
+
+
+def record_members(record: bytes) -> tuple[ExtractedMember, ...] | None:
+    """Los `miembros` de un registro local de una entrada `tar`, ordenados por ruta, o
+    `None` si el registro no los lleva o no son válidos (historia #320)."""
+    try:
+        data = json.loads(record.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError, RecursionError):
+        return None
+    raw = data.get("miembros") if isinstance(data, dict) else None
+    if not isinstance(raw, list):
+        return None
+    members: list[ExtractedMember] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            return None
+        path, digest, size = item.get("ruta"), item.get("sha256"), item.get("tamano_bytes")
+        if not isinstance(path, str) or not isinstance(digest, str) or type(size) is not int:
+            return None
+        if not SHA256_RE.fullmatch(digest) or size < 0:
+            return None
+        try:
+            if safe_member_path(path) != path:
+                return None
+        except ValueError:
+            return None
+        members.append(ExtractedMember(path=path, sha256=digest, size_bytes=size))
+    return tuple(sorted(members, key=lambda m: m.path))

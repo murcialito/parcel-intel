@@ -239,7 +239,11 @@ uv run python -m parcel_intel.cli.main historico evidencia <unit_id> [--curated 
 # una zona de preparación (data/privados/.preparacion, se borra siempre) antes de colocarlo. Nunca sobrescribe: no sobrescribe un fichero ni un registro
 # distintos del catálogo (fallo de esa entrada); uno idéntico que ya estaba cuenta «ya estaba» y solo se baja su procedencia. La procedencia y la entrada
 # quedan en data/privados/<id>.json (sin fecha: repetir da los mismos bytes). Una línea `<id>: descargado|ya estaba|saltado|fallo (motivo)` por entrada y
-# `resumen: ...`; un fallo no frena las demás y sale con 1. Saltadas: sustituidas, fuentes no pedidas con --fuente, `formato: tar` y `partes` (pendientes de #320).
+# `resumen: ...`; un fallo no frena las demás y sale con 1. Saltadas: sustituidas y fuentes no pedidas con --fuente.
+# Historia #320: `formato: tar` se baja a la zona de preparación, se comprueba su sha256, se rechaza todo miembro que salga de `destino` (`..`, absoluto), sea un enlace simbólico o físico, un
+# dispositivo o esté repetido (fallo de la entrada, sin escribir nada), y cada fichero queda bajo data/<destino>/ (todo o nada: un miembro local con otros bytes falla la entrada sin
+# escribir ninguno; uno con los mismos bytes no es conflicto); el registro lista los `miembros` (ruta, sha256, tamaño, por ruta) y repetir comprueba cada uno sin descargar. Una entrada con
+# `partes` baja y comprueba cada trozo, los concatena en orden y comprueba el fichero entero antes de colocarlo; si falla uno, no queda nada en data/.
 # Sin acceso (sin gh, sin sesión, sin permisos): imprime solo «sin acceso al repo de datos privados; nada que hacer» y sale con 0. Si `CI`, `GITHUB_ACTIONS` o
 # `CLAUDECODE` están definidas (aunque vacías), se niega y sale con 1 sin llamar a gh. El test real (tests/adapters/private_data/test_gh_store_integration.py,
 # `integration` + `fuera_de_ci`) solo lo pasa el fundador con PASO_COMUN_DATOS_PRIVADOS=1.

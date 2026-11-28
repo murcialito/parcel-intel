@@ -598,7 +598,6 @@ def test_ca9_claude_md_documenta_el_comando() -> None:
         "ningún agente",
         "ningún workflow",
         "2.28",
-        "#320",
     ):
         assert fragment in commands, fragment
 
@@ -747,34 +746,6 @@ def test_ca14_ficheros_que_ya_tiene_el_fundador(
 # --- CA15 --------------------------------------------------------------------------------
 
 
-TAR_ID = "catastro-historico-28043-tar-20990101"
-PARTS_ID = "catastro-historico-28043-partes-20990101"
-
-
-def _with_tar_and_parts(catalogs: dict[str, dict[str, Any]]) -> None:
-    base = _entry(catalogs, AC_ID)
-    tar = copy.deepcopy(base)
-    tar.update(
-        id=TAR_ID,
-        formato="tar",
-        destino="raw/catastro_historico/28043/teselas",
-        procedencia=f"procedencia/{HISTORICO}/{TAR_ID}.procedencia.json",
-    )
-    tar["almacen"]["adjunto"] = f"{TAR_ID}.tar.gz"
-    parts = copy.deepcopy(base)
-    parts.update(
-        id=PARTS_ID,
-        destino="raw/catastro_historico/28043/grande.7z",
-        procedencia=f"procedencia/{HISTORICO}/{PARTS_ID}.procedencia.json",
-        partes=[
-            {"adjunto": f"{PARTS_ID}.7z.001", "sha256": "0" * 64, "tamano_bytes": 10},
-            {"adjunto": f"{PARTS_ID}.7z.002", "sha256": "1" * 64, "tamano_bytes": 5},
-        ],
-    )
-    parts["almacen"]["adjunto"] = f"{PARTS_ID}.7z"
-    catalogs[HISTORICO_FILE]["entradas"].extend([tar, parts])
-
-
 def test_ca15_saltadas_con_su_motivo(
     tmp_path: Path,
     builds: list[Path],
@@ -782,26 +753,21 @@ def test_ca15_saltadas_con_su_motivo(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     """CA15. Dada una entrada con `sustituido_por` relleno, una de una fuente no pedida con
-    `--fuente`, una con `formato: tar` y una con `partes`, cuando se ejecuta, entonces las
-    cuatro salen `saltado` con su motivo («sustituida por <id>», «fuente no pedida», «formato
-    tar: pendiente de #320», «en partes: pendiente de #320») y ninguna se descarga."""
-    catalogs = _catalogs()
-    _with_tar_and_parts(catalogs)
-    _override(store, catalogs)
+    `--fuente`, cuando se ejecuta, entonces salen `saltado` con su motivo («sustituida por
+    <id>», «fuente no pedida») y ninguna se descarga. (Desde #320 `tar` y `partes` ya no se
+    saltan: se sincronizan, ver `test_historia_320.py`.)"""
     datos = tmp_path / "data"
     assert _run(datos, "--fuente", HISTORICO) == 0
     lines = _lines(capsys.readouterr().out)
     assert lines[OLD_AC_ID] == f"saltado (sustituida por {AC_ID})"
     assert lines[CACHE_ID] == "saltado (fuente no pedida)"
     assert lines[SNAPSHOT_ID] == "saltado (fuente no pedida)"
-    assert lines[TAR_ID] == "saltado (formato tar: pendiente de #320)"
-    assert lines[PARTS_ID] == "saltado (en partes: pendiente de #320)"
     for key in store.downloads:
-        for skipped in (OLD_AC_ID, CACHE_ID, SNAPSHOT_ID, TAR_ID, PARTS_ID):
+        for skipped in (OLD_AC_ID, CACHE_ID, SNAPSHOT_ID):
             assert skipped not in key
     assert lines[AC_ID] == "descargado"
     assert lines[TP_ID] == "descargado"
-    assert lines["resumen"] == "2 descargados, 0 ya estaban, 5 saltados, 0 fallidos"
+    assert lines["resumen"] == "2 descargados, 0 ya estaban, 3 saltados, 0 fallidos"
 
 
 # --- CA16 --------------------------------------------------------------------------------

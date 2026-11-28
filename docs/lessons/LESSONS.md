@@ -1002,3 +1002,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: implementación y revisión (campos de texto libre en `curated/`).
 - **Lección**: el prefijo de un municipio es una constante de dominio (`MUNICIPALITY_PREFIXES`) fijada por el fundador; el código se normaliza al formatear (`:03d`), así que se rechazan los ceros de más (`COL-0001`) para que lo que se lee sea lo que se imprime.
   - **Aplica a**: implementación (identificadores humanos que se muestran tal cual).
+
+## [2026-11-28] Historia #320 — `tar` y `partes` en la sincronización de datos privados
+
+- **Lección**: `tarfile` con `filter="data"` **no rechaza** una ruta absoluta: la vuelve relativa y extrae. Por eso un `tar` con `/tmp/x` no falla solo; hay que validar antes todos los miembros (tipo, ruta, repetidos, fichero que a la vez es directorio) y extraer solo si todos valen. Los casos hostiles (`..`, absoluto, enlace simbólico y físico, dispositivo, tubería, repetido) van parametrizados con un test cada uno, comprobando que no hay nada fuera ni dentro de `destino`.
+  - **Aplica a**: implementación (cualquier desempaquetado de datos ajenos).
+- **Lección**: antes de ejecutar `ruff format` sobre `src`, comprobar `git status`: formatear en bloque reescribió 12 ficheros ajenos a la historia. Formatear solo los ficheros tocados.
+  - **Aplica a**: implementación.
