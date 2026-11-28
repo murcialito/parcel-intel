@@ -27,6 +27,9 @@ Reutiliza los candidatos de `tests/fixtures/candidatos_revision/generar.py` (#16
   Desde #208 (política v2) el mismo `http_get` responde a la IDEM con su PNG blanco real
   (`tests/fixtures/idem_vuelos/tesela_1956_fuera_cobertura_z18.png`): las franjas `1975` y
   `1991` quedan omitidas y los literales del IGN no cambian.
+- `capas/{vias_pecuarias,camino_actual,camino_asfaltado,catastro_caminos}/28043.geojson`
+  (historia #315): capas derivadas SINTÉTICAS para la tabla de convergencia (ver
+  `capas_documents`).
 """
 
 import json
@@ -277,6 +280,120 @@ def _json(document: object) -> str:
     return json.dumps(document, ensure_ascii=False, indent=1, sort_keys=False) + "\n"
 
 
+# --- Capas derivadas de la tabla de convergencia (historia #315). ------------------------
+LAYER_DATE = "2026-11-26"
+CATASTRO_LAYER_TRAIL_ID = "99999A00109102"  # forma de referencia catastral, sintética (99999)
+CAPAS_DIRECTORIES = ("vias_pecuarias", "camino_actual", "camino_asfaltado", "catastro_caminos")
+_CRS = {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::25830"}}
+
+
+def _provenance(source: str, redistribution: str) -> dict[str, object]:
+    return {
+        "fuente": f"{source} (sintético)",
+        "url": "https://example.invalid/capas",
+        "fecha_descarga": LAYER_DATE,
+        "licencia": "licencia sintética",
+        "redistribucion": redistribution,
+    }
+
+
+def _layer(
+    source: str,
+    features: list[dict[str, object]],
+    redistribution: str = "publicable",
+    surface: str | None = None,
+) -> dict[str, object]:
+    properties: dict[str, object] = {
+        "fuente": source,
+        "municipio": INE,
+        "nombre_municipio": "Colmenar de Oreja",
+        "procedencia": _provenance(source, redistribution),
+        "aviso": "Capa SINTÉTICA de la fixture de #315.",
+    }
+    if surface is not None:
+        properties["superficie"] = surface
+    return {
+        "type": "FeatureCollection",
+        "crs": _CRS,
+        "properties": properties,
+        "features": features,
+    }
+
+
+def _line_feature(
+    identifier: str, coordinates: list[list[float]], **properties: object
+) -> dict[str, object]:
+    return {
+        "type": "Feature",
+        "id": identifier,
+        "geometry": {"type": "LineString", "coordinates": coordinates},
+        "properties": {"papel": "via", **properties},
+    }
+
+
+def _xy(x: float, y: float) -> list[float]:
+    return [revision.X0 + x, revision.Y0 + y]
+
+
+def capas_documents() -> dict[str, dict[str, object]]:
+    """Capas derivadas SINTÉTICAS de 28043 en el formato común (ADR 0030), por directorio.
+
+    - `vias_pecuarias`: los trazados de las tres vías aprobadas (`aprobado`, `propuesto` y
+      `caducado`), tal cual: su fila sale «Aparece».
+    - `camino_actual`: un camino sin asfaltar que solapa el 60 % del tramo de `aprobado`
+      (x de 0 a 120 de 200 m): «Aparece» con el umbral 0,5 y «No aparece» con 0,8 (CA5).
+    - `camino_asfaltado`: una carretera lejos de los tramos (la capa complementaria exige
+      que exista).
+    - `catastro_caminos`: un polígono VT alrededor del tramo de `caducado`, con
+      identificador con forma de referencia catastral (prefijo 99999) y atributos, para
+      comprobar que nada suyo se publica (CA2).
+    """
+    vias = [
+        _line_feature("VP-SINT-1", [_xy(0, 0), _xy(200, 0)], nombre="Vía sintética 1"),
+        _line_feature("VP-SINT-2", [_xy(0, 1000), _xy(190, 1000)], nombre="Vía sintética 2"),
+        _line_feature("VP-SINT-3", [_xy(0, 1500), _xy(150, 1500)], nombre="Vía sintética 3"),
+    ]
+    camino = [
+        _line_feature(
+            "IGN-SINT-1",
+            [_xy(0, 0), _xy(120, 0)],
+            tipo="camino",
+            fecha_dato="2024-05-01",
+            superficie="unpaved",
+        )
+    ]
+    asfaltado = [
+        _line_feature(
+            "IGN-SINT-ASF-1",
+            [_xy(3000, 3000), _xy(3500, 3000)],
+            tipo="carretera",
+            fecha_dato="2024-05-01",
+            superficie="paved",
+        )
+    ]
+    ring = [_xy(-5, 1495), _xy(155, 1495), _xy(155, 1505), _xy(-5, 1505), _xy(-5, 1495)]
+    catastro: list[dict[str, object]] = [
+        {
+            "type": "Feature",
+            "id": CATASTRO_LAYER_TRAIL_ID,
+            "geometry": {"type": "MultiPolygon", "coordinates": [[ring]]},
+            "properties": {
+                "papel": "via",
+                "tipo": "camino de Catastro (VT)",
+                "fecha_dato": "2026-11-01",
+                "area_m2": 1600.0,
+                "clases": ["VT"],
+            },
+        }
+    ]
+    return {
+        "vias_pecuarias": _layer("via_pecuaria_oficial", vias),
+        "camino_actual": _layer("ign_red_transporte", camino, surface="unpaved"),
+        "camino_asfaltado": _layer("ign_red_transporte", asfaltado, surface="paved"),
+        "catastro_caminos": _layer("catastro_vt", catastro, redistribution="solo_uso_interno"),
+    }
+
+
 def texts() -> dict[Path, str]:
     """Texto de cada fichero de la fixture, por ruta relativa a este directorio."""
     candidates_text = report_to_geojson_text(revision.report())
@@ -284,7 +401,12 @@ def texts() -> dict[Path, str]:
         candidates_file = Path(tmp) / f"{INE}.geojson"
         candidates_file.write_text(candidates_text, encoding="utf-8")
         manifest = manifest_text_for(candidates_file)
+    capas = {
+        Path("capas") / directory / f"{INE}.geojson": _json(document)
+        for directory, document in capas_documents().items()
+    }
     return {
+        **capas,
         Path("candidatos") / f"{INE}.geojson": candidates_text,
         Path("curated") / INE / "revision.json": _json(revision_document()),
         Path("medicion.json"): _json(measurement_document(not_computable_result())),

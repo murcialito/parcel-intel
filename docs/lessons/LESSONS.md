@@ -987,3 +987,18 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: implementación y revisión (adapters sobre CLIs con sesión del usuario).
 - **Lección**: las fixtures con sha256 «calculados en el test, no copiados a mano» se generan con un `generar.py` que escribe los bytes y el catálogo a la vez, y un test compara lo versionado con lo que da el generador. Así el hash nunca se copia y un cambio de bytes sin regenerar falla en CI.
   - **Aplica a**: implementación (fixtures que declaran la huella de otros ficheros).
+## [2026-11-28] Historia #315 — Tabla de convergencia en los tramos a verificar
+
+- **Lección**: cuando un comando gana opciones con valor por defecto bajo `data/` o `curated/` (aquí `--capas data/derived`, `--curated-historico curated/historico`), los tests que lo invocan por la CLI siguen en verde sin tocarlos si esos directorios no existen en el clon: pasan por accidente, y en el portátil de alguien con datos reales leerían otra cosa. Se buscan con `grep` todos los ayudantes que llaman al comando (aquí `_publicar` de #170 y #172 y `generar_idem.py` de #208) y se les pasan directorios de la fixture o inexistentes en `tmp_path`, de forma explícita.
+  - **Aplica a**: implementación (comandos con lectores nuevos) | revisión (un test de otra historia que «no hubo que tocar» puede depender del estado del disco).
+- **Lección**: «no se lee ninguna capa si falla una comprobación previa» no se cumple con solo ordenar los `except`: si el cálculo caro (la tabla) va antes de la función de dominio que hace las comprobaciones por elemento, ya ha leído. Se separan las comprobaciones en su propia función (`check_approved_publishable`), se llaman primero y la construcción las repite (son baratas y deterministas); un test con un lector que falla si se llama lo fija.
+  - **Aplica a**: arquitecto e implementación (criterios de orden de fallos con lecturas caras).
+- **Lección**: `dump_compact` ordena las claves, así que una lista blanca publicada se compara como conjunto (`set(tabla) == set(CLAVES)`); el orden del ADR solo se puede afirmar sobre el diccionario antes de serializar.
+  - **Aplica a**: implementación (tests de listas blancas sobre ficheros publicados).
+
+## [2026-11-28] Historia #288 — Código de inventario de los tramos
+
+- **Lección**: un filtro de texto libre (`note_problem`, `name_problem`) solo detecta referencias catastrales, localizadores y palabras vetadas: **no puede detectar un nombre de persona**. Para que ninguno entre, el formato del nombre es una lista cerrada de caracteres (sin `_`, `@`, `?`…) y, sobre todo, el mensaje de error nunca repite el valor. El test de «sin nombres de personas» usa una entrada hostil y comprueba que el nombre no aparece en la salida ni en el error, no que el sistema lo reconozca.
+  - **Aplica a**: implementación y revisión (campos de texto libre en `curated/`).
+- **Lección**: el prefijo de un municipio es una constante de dominio (`MUNICIPALITY_PREFIXES`) fijada por el fundador; el código se normaliza al formatear (`:03d`), así que se rechazan los ceros de más (`COL-0001`) para que lo que se lee sea lo que se imprime.
+  - **Aplica a**: implementación (identificadores humanos que se muestran tal cual).

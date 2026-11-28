@@ -20,6 +20,13 @@ Actualizado por #172 (CA15, ADR 0049): la feature gana `imagenes_comparacion` y 
 colección `comparacion`; `_publicar` pasa `--comparacion` con el manifiesto de la fixture
 (generado con el productor real), `_write_inputs` escribe el manifiesto de sus candidatos
 con el mismo productor y CA15 se salta también si falta `data/derived/comparacion/28043.json`.
+
+Actualizado por #315 (CA10, ADR 0057): la feature gana `convergencia`, con su propia lista
+blanca (`TABLE_KEYS`/`ROW_KEYS`); la búsqueda de fugas de CA7 se acota al resto de la feature,
+que es lo que este criterio protegía (lección de #172). `_publicar` pasa `--capas` con las
+capas sintéticas de la fixture y un `--curated-historico`/`--cache-historico` inexistentes
+(sin cobertura histórica), para no leer `data/` ni `curated/` del repositorio; CA9 construye
+la publicación con las tablas de convergencia de los aprobados.
 """
 
 import dataclasses
@@ -37,6 +44,7 @@ from parcel_intel.adapters.published_layers import (
     GeoJsonPublishedCandidateSink,
     PublishedLayerError,
 )
+from parcel_intel.adapters.published_layers.convergence import ROW_KEYS, TABLE_KEYS
 from parcel_intel.adapters.published_layers.projection import to_lonlat
 from parcel_intel.adapters.validation_cases.congelacion import congelar
 from parcel_intel.cli import main
@@ -58,6 +66,7 @@ from parcel_intel.domain.published_candidate import (
     summarize_measurement,
 )
 from parcel_intel.domain.published_discrepancy import CADASTRAL_REFERENCE_RE, PARCEL_LOCATOR_RE
+from tests.convergence_support import candidate_tables
 from tests.fixtures.candidatos_publicar import generar
 from tests.fixtures.candidatos_revision import generar as revision
 from tests.medir_candidatos_support import caso
@@ -71,6 +80,7 @@ CURATED_DIR = FIXTURE / "curated"
 COMPARISON_DIR = FIXTURE / "comparacion"
 MEASUREMENT = FIXTURE / "medicion.json"
 MEASUREMENT_COMPUTABLE = FIXTURE / "medicion_calculable.json"
+CAPAS_DIR = FIXTURE / "capas"  # capas derivadas sintéticas de la tabla de convergencia (#315)
 DISCREPANCY_FIXTURES = ROOT / "tests" / "fixtures" / "discrepancias_publicar" / "entrada"
 NOTICE = ROOT / "NOTICE"
 INE = "28043"
@@ -89,6 +99,7 @@ FEATURE_KEYS = {
     "evidencia",
     "aviso_omision",
     "imagenes_comparacion",
+    "convergencia",  # #315
 }
 COLLECTION_KEYS = {
     "capa",
@@ -128,6 +139,7 @@ def _publicar(
     entrada: Path = CANDIDATES_DIR,
     curated: Path = CURATED_DIR,
     comparacion: Path = COMPARISON_DIR,
+    capas: Path = CAPAS_DIR,
 ) -> int:
     municipalities = [arg for code in codes for arg in ("--municipio", code)]
     return _run(
@@ -144,6 +156,13 @@ def _publicar(
             str(comparacion),
             "--salida",
             str(salida),
+            # #315: capas de la fixture y sin cobertura histórica (directorios que no existen).
+            "--capas",
+            str(capas),
+            "--curated-historico",
+            str(salida.parent / "sin_curated_historico"),
+            "--cache-historico",
+            str(salida.parent / "sin_cache_historico"),
         ]
     )
 
@@ -416,7 +435,8 @@ def test_ca7_geometria_del_tramo_ficha_y_lista_blanca_cerrada(published: dict[st
         assert CADASTRAL_REFERENCE_RE.search(public_id) is None
     # #172: `resolucion_m` (0.5, 0.25) es dato del vuelo, no la confianza ni el apoyo; las
     # imágenes tienen su propia lista blanca cerrada (#172 CA1). Se buscan las fugas en el
-    # resto del fichero, que es lo que este criterio cubre.
+    # resto del fichero, que es lo que este criterio cubre. Lo mismo con la tabla de
+    # convergencia de #315: su propia lista blanca (ADR 0057 §8) y fuera de la búsqueda.
     for feature in document["features"]:
         images = feature["properties"].pop("imagenes_comparacion")
         assert {key for window in images for key in window} <= {
@@ -426,6 +446,9 @@ def test_ca7_geometria_del_tramo_ficha_y_lista_blanca_cerrada(published: dict[st
             "imagenes",
             "omitidas",
         }
+        table = feature["properties"].pop("convergencia")
+        assert set(table) == set(TABLE_KEYS)
+        assert all(set(row) == set(ROW_KEYS) for row in table["filas"])
     text = json.dumps(document, ensure_ascii=False)
     for leaked in (
         revision.REVIEWER,
@@ -515,7 +538,10 @@ def test_ca9_sin_referencias_ni_parcelas_ni_palabras_vetadas_y_barrera_del_sink(
     summary = summarize_measurement(_not_computable_report(), revision.report().method)
     manifest = JsonComparisonManifestReader(COMPARISON_DIR).get_manifest(INE)
     assert manifest is not None
-    publication = build_candidate_layer(state, summary, "Colmenar de Oreja", manifest).publication
+    tables, failures = candidate_tables(state.approved(), manifest)
+    publication = build_candidate_layer(
+        state, summary, "Colmenar de Oreja", manifest, tables, failures
+    ).publication
     site = tmp_path / "barrera"
     GeoJsonPublishedCandidateSink(site, main.REPOSITORY_URL).publish([publication])
     before = _snapshot(site)
@@ -708,7 +734,13 @@ def test_ca15_flujo_real_en_local(tmp_path: Path) -> None:
         pytest.skip("falta curated/candidatos/28043/revision.json")
     site = tmp_path / "site"
     code = _publicar(
-        site, INE, medicion=medicion, entrada=entrada, curated=curated, comparacion=comparacion
+        site,
+        INE,
+        medicion=medicion,
+        entrada=entrada,
+        curated=curated,
+        comparacion=comparacion,
+        capas=ROOT / "data" / "derived",  # #315: las capas derivadas reales
     )
     assert code == 0
     for path in _written_files(site):

@@ -148,3 +148,23 @@ def test_port_historico_incoherente() -> None:
 def test_resultado_con_tabla_o_motivo() -> None:
     with pytest.raises(ValueError, match="exactamente"):
         StretchConvergence("aaaaaaaaaaaaaaaa", None, None)
+
+
+def test_sin_imagenes_si_es_demasiado_largo() -> None:
+    """#315 (ADR 0057 §4): con la opción, el tramo largo sale sin filas de ortofoto."""
+    _, layers, historic, comparisons = _use_case()
+    assert comparisons.manifest is not None
+    too_long = dataclasses.replace(
+        comparisons.manifest.stretches[0], status="tramo_demasiado_largo", windows=()
+    )
+    comparisons.manifest = dataclasses.replace(
+        comparisons.manifest, stretches=(too_long, comparisons.manifest.stretches[1])
+    )
+    use_case = BuildConvergenceTablesUseCase(
+        layers, historic, comparisons, without_images_if_too_long=True
+    )
+    first, second = use_case.execute(INE, [A, B]).results
+    assert first.table is not None and first.table.images_unavailable
+    assert all(row.evidence_kind == "trazado" for row in first.table.rows)
+    assert len(first.table.rows) == 5
+    assert second.table is not None and not second.table.images_unavailable

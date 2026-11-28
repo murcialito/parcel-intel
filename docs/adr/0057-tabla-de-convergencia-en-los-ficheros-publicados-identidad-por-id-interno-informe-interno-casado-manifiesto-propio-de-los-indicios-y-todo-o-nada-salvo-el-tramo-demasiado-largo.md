@@ -171,3 +171,17 @@ Datos que pesan en la decisión (ficheros publicados el 2026-11-28):
   cuando la fuente de verdad es git (ADR 0045).
 - **Usar solo la red sin asfaltar en la fila del IGN**: la tabla contradiría la ficha del
   mismo indicio (ADR 0050).
+
+## Nota de implementación (#315)
+
+- El error de fichero de capa que captura `publicar-candidatos` se declara en `ports/errors.py`
+  (`TrailLayerFileError`), y `TrailLayerFormatError` hereda de él: `application/` no puede importar
+  un adapter.
+- Orden de las comprobaciones en `publicar-candidatos`: revisiones vigentes, manifiesto utilizable y,
+  por aprobado, las de #170 y #172 van antes que la tabla. Así, sus mensajes no cambian, y un aprobado
+  demasiado largo o con una franja `fallo` sigue fallando con el motivo de #172. Si un aprobado no
+  tiene tabla por otro motivo, el error es `el candidato <id>: tabla de convergencia: <motivo>`.
+- La barrera del sink exceptúa el aviso fijo al buscar «es público» (ADR 0054 §9): el aviso está
+  protegido por su huella.
+- Los rótulos de fila (`LAYER_ROW_LABEL`, `ORTHOPHOTO_ROW_LABEL`) los aprobó el fundador el
+  2026-11-27 en #240 (https://github.com/murcialito/paso-comun/issues/240#issuecomment-7224620545).

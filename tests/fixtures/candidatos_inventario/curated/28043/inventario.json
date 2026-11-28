@@ -1,0 +1,14 @@
+{
+ "municipio": "28043",
+ "prefijo": "COL",
+ "codigos": [
+  {
+   "candidate_id": "cb30d538bb5ea601",
+   "codigo": "COL-001"
+  },
+  {
+   "candidate_id": "910f248ab773fae8",
+   "codigo": "COL-002-Camino de Uceda"
+  }
+ ]
+}

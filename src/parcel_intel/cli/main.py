@@ -4,7 +4,7 @@ import os
 import sys
 import time
 from collections import Counter
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -27,7 +27,10 @@ from parcel_intel.adapters.comparison_files import (
     read_stretches,
 )
 from parcel_intel.adapters.comparison_windows.router import FlightRoutedWindowAdapter
-from parcel_intel.adapters.curated_candidates import CuratedCandidateReviewFiles
+from parcel_intel.adapters.curated_candidates import (
+    CuratedCandidateInventoryFiles,
+    CuratedCandidateReviewFiles,
+)
 from parcel_intel.adapters.curated_historic import CuratedHistoricFiles
 from parcel_intel.adapters.cut_candidate_files import (
     GeoJsonCutCandidateReader,
@@ -123,6 +126,7 @@ from parcel_intel.adapters.width_signal_files import GeoJsonWidthSignalWriter
 from parcel_intel.application.author_rule_proposal import AuthorRuleProposalUseCase
 from parcel_intel.application.build_cadastral_road_layer import BuildCadastralRoadLayerUseCase
 from parcel_intel.application.build_comparison_images import BuildComparisonImagesUseCase
+from parcel_intel.application.build_convergence_tables import BuildConvergenceTablesUseCase
 from parcel_intel.application.build_indicio_comparisons import BuildIndicioComparisonsUseCase
 from parcel_intel.application.build_municipal_comparisons import (
     BuildMunicipalComparisonsUseCase,
@@ -145,6 +149,7 @@ from parcel_intel.application.detect_cut_candidates import DetectCutCandidatesUs
 from parcel_intel.application.detect_discrepancies import DetectDiscrepanciesUseCase
 from parcel_intel.application.detect_width_narrowing import DetectWidthNarrowingUseCase
 from parcel_intel.application.evaluate_candidates import EvaluateCandidatesUseCase
+from parcel_intel.application.historic_coverage import CuratedHistoricCoverageSource
 from parcel_intel.application.kit_campo import PublishFieldKitUseCase, PublishFieldProjectUseCase
 from parcel_intel.application.list_candidate_reviews import (
     ListCandidateReviewsUseCase,
@@ -168,8 +173,13 @@ from parcel_intel.domain.candidate_evaluation import (
     EvaluableCandidate,
     EvaluationResult,
 )
+from parcel_intel.domain.candidate_inventory import CandidateInventoryState
 from parcel_intel.domain.comparison_image import DegenerateStretchError, StretchComparison
-from parcel_intel.domain.convergence import InvalidConvergenceStretchError
+from parcel_intel.domain.convergence import (
+    APPEARS_MIN_FRACTION,
+    InvalidConvergenceStretchError,
+    check_appears_min_fraction,
+)
 from parcel_intel.domain.digitization import StaleApprovalError
 from parcel_intel.domain.discrepancy import DiscrepancyKind
 from parcel_intel.domain.discrepancy_report import LayerStatus
@@ -222,6 +232,7 @@ from parcel_intel.ports.errors import (
     WorkingImageUnavailableError,
 )
 from parcel_intel.ports.georeference_repository import GeoreferenceRepositoryPort
+from parcel_intel.ports.historic_coverage import HistoricCoverageSource
 from parcel_intel.ports.kit_campo import KitSinkError
 from parcel_intel.ports.municipal_boundary import MunicipalBoundaryPort
 
@@ -876,6 +887,20 @@ def _catastro_poligonos(args: argparse.Namespace) -> int:
     return 0
 
 
+def _trail_layer_reader(derived_dir: Path) -> GeoJsonTrailLayerReader:
+    """Las capas derivadas de trazados de `discrepancias` y de la tabla de convergencia
+    (#315): vía pecuaria, camino actual (∪ asfaltado) y Catastro, en `derived_dir`."""
+    return GeoJsonTrailLayerReader(
+        {
+            "via_pecuaria_oficial": derived_dir / "vias_pecuarias",
+            "ign_red_transporte": derived_dir / "camino_actual",
+            "catastro_vt": derived_dir / "catastro_caminos",
+        },
+        # La red asfaltada cuenta como contraparte del IGN, nunca como sujeto (#183).
+        complements={"ign_red_transporte": derived_dir / "camino_asfaltado"},
+    )
+
+
 def build_discrepancy_use_case(derived_dir: Path, output_dir: Path) -> DetectDiscrepanciesUseCase:
     """Composition root de la detección de discrepancias (historia #32).
 
@@ -883,15 +908,7 @@ def build_discrepancy_use_case(derived_dir: Path, output_dir: Path) -> DetectDis
     bajo `output_dir`. Sin red ni LLM. El histórico no tiene ruta todavía: cuenta
     como fuente ausente."""
     return DetectDiscrepanciesUseCase(
-        layers=GeoJsonTrailLayerReader(
-            {
-                "via_pecuaria_oficial": derived_dir / "vias_pecuarias",
-                "ign_red_transporte": derived_dir / "camino_actual",
-                "catastro_vt": derived_dir / "catastro_caminos",
-            },
-            # La red asfaltada cuenta como contraparte del IGN, nunca como sujeto (#183).
-            complements={"ign_red_transporte": derived_dir / "camino_asfaltado"},
-        ),
+        layers=_trail_layer_reader(derived_dir),
         internal_sink=GeoJsonDiscrepancyWriter(output_dir / "interno", publishable=False),
         public_sink=GeoJsonDiscrepancyWriter(output_dir / "publicable", publishable=True),
     )
@@ -1101,6 +1118,7 @@ def build_candidate_review_use_case(
         candidates=GeoJsonCutCandidateReader(candidates_dir),
         reviews=CuratedCandidateReviewFiles(curated_dir),
         images=JsonComparisonAvailabilityReader(comparison_dir),
+        inventory=CuratedCandidateInventoryFiles(curated_dir),
     )
 
 
@@ -1122,7 +1140,10 @@ def _print_review_listing(listing: MunicipalReviewListing) -> None:
         return
     if listing.outcome == "sin_candidatos":
         unchecked = listing.unchecked_reviews
-        print(f"municipio {code}: sin candidatos ({unchecked} revisiones sin comprobar)")
+        codes = (
+            f", {listing.unchecked_codes} códigos sin comprobar" if listing.unchecked_codes else ""
+        )
+        print(f"municipio {code}: sin candidatos ({unchecked} revisiones sin comprobar{codes})")
         return
     state = listing.state
     assert state is not None  # garantizado con "listado"
@@ -1154,6 +1175,28 @@ def _print_review_listing(listing: MunicipalReviewListing) -> None:
     )
     if without_images:
         print(f"aviso {code}: {without_images} candidatos sin imágenes de comparación")
+    _print_inventory(code, listing.inventory)
+
+
+def _print_inventory(code: str, inventory: CandidateInventoryState | None) -> None:
+    """Códigos de inventario por tramo aprobado y resumen (historia #288). El código es
+    público por diseño; el nombre ya pasó los filtros de `name_problem`."""
+    if inventory is None:
+        return
+    for item in inventory.assigned:
+        print(f"codigo {item.candidate_id} {item.code} numero={item.number}")
+    for candidate_id in inventory.without_code:
+        print(f"codigo {candidate_id} sin código")
+    for item in inventory.on_unapproved:
+        print(f"código sobre tramo no aprobado {item.candidate_id} {item.code}")
+    for item in inventory.orphans:
+        print(f"código huérfano {item.candidate_id} {item.code}")
+    print(
+        f"resumen códigos {code}: asignados={len(inventory.assigned)} "
+        f"sin_código={len(inventory.without_code)} "
+        f"sobre_no_aprobados={len(inventory.on_unapproved)} "
+        f"huérfanos={len(inventory.orphans)}"
+    )
 
 
 def _revision_candidatos(args: argparse.Namespace) -> int:
@@ -1516,36 +1559,79 @@ def _publicar_discrepancias(args: argparse.Namespace) -> int:
     return 0
 
 
+def _offline_http_get(url: str, headers: Mapping[str, str]) -> bytes:
+    raise RuntimeError("publicar no usa red")
+
+
+def build_historic_coverage_source(
+    curated: Path, cache: Path, today: Callable[[], date] = _today
+) -> CuratedHistoricCoverageSource:
+    """Cobertura histórica de la tabla de convergencia desde `curated/historico/` y la caché
+    de imágenes de trabajo, sin red ni PostGIS (historia #313, ADR 0057 §7). La comparten
+    `publicar-candidatos` (#315) y `publicar-discrepancias` (#316)."""
+    files = CuratedHistoricFiles(curated)
+    return CuratedHistoricCoverageSource(
+        files,
+        files,
+        IgnHistoricImageAdapter(cache, http_get=_offline_http_get, clock=today, offline=True),
+        today,
+    )
+
+
 def build_publish_candidates_use_case(
     measurement_path: Path,
     candidates_dir: Path,
     curated_dir: Path,
     comparison_dir: Path,
     output_dir: Path,
+    derived_dir: Path,
+    historic: HistoricCoverageSource,
+    appears_min_fraction: float = APPEARS_MIN_FRACTION,
     size_threshold_bytes: int = PUBLISH_SIZE_THRESHOLD_BYTES,
 ) -> PublishCandidatesUseCase:
-    """Composition root de `publicar-candidatos` (historias #170 y #172, ADR 0048 y 0049).
-    Solo ficheros: nada con red, base de datos ni LLM."""
+    """Composition root de `publicar-candidatos` (historias #170, #172 y #315, ADR 0048,
+    0049 y 0057). Solo ficheros: nada con red, base de datos ni LLM. La tabla de
+    convergencia lee las capas derivadas de `derived_dir` y la cobertura de `historic`."""
+    comparisons = JsonComparisonManifestReader(comparison_dir)
     return PublishCandidatesUseCase(
         measurement=JsonMeasurementReportReader(measurement_path),
         candidates=GeoJsonCutCandidateReader(candidates_dir),
         reviews=CuratedCandidateReviewFiles(curated_dir),
-        comparisons=JsonComparisonManifestReader(comparison_dir),
+        comparisons=comparisons,
         sink=GeoJsonPublishedCandidateSink(
             output_dir, REPOSITORY_URL, size_threshold_bytes=size_threshold_bytes
+        ),
+        convergence=BuildConvergenceTablesUseCase(
+            layers=_trail_layer_reader(derived_dir),
+            historic=historic,
+            comparisons=comparisons,
+            appears_min_fraction=appears_min_fraction,
         ),
     )
 
 
 def _publicar_candidatos(args: argparse.Namespace) -> int:
+    try:
+        threshold = check_appears_min_fraction(args.umbral_aparece)
+    except ValueError:
+        print("ERROR --umbral-aparece: debe estar en (0, 1]", file=sys.stderr)
+        return 1
     codes: list[str] = []
     codes.extend(code for code in args.municipio if code not in codes)
     if not codes:
         print("Indica --municipio <INE> (repetible).", file=sys.stderr)
         return 1
     nothing_written = f"No se ha escrito nada en {args.salida}."
+    historic = build_historic_coverage_source(args.curated_historico, args.cache_historico)
     use_case = build_publish_candidates_use_case(
-        args.medicion, args.entrada, args.curated, args.comparacion, args.salida
+        args.medicion,
+        args.entrada,
+        args.curated,
+        args.comparacion,
+        args.salida,
+        args.capas,
+        historic,
+        appears_min_fraction=threshold,
     )
     try:
         result = use_case.execute(codes)
@@ -1553,6 +1639,10 @@ def _publicar_candidatos(args: argparse.Namespace) -> int:
         print(f"ERROR al publicar: {error}", file=sys.stderr)
         print(nothing_written, file=sys.stderr)
         return 1
+    finally:
+        # Unidades históricas con veredicto negativo: trabajo en curso, no un fallo (CA14).
+        for unit_id, reasons in historic.skipped_units():
+            print(f"unidad histórica omitida {unit_id}: {'; '.join(reasons)}")
     if result.measurement_error is not None:
         print(f"ERROR informe de medición: {result.measurement_error}", file=sys.stderr)
         print(nothing_written, file=sys.stderr)
@@ -2343,7 +2433,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--curated",
         type=Path,
         default=Path("curated/candidatos"),
-        help="Entrada humana versionada: <ine>/revision.json",
+        help="Entrada humana versionada: <ine>/revision.json e <ine>/inventario.json",
     )
     revision_parser.add_argument(
         "--entrada",
@@ -2565,6 +2655,32 @@ def _build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("site/datos"),
         help="Directorio publicado del sitio",
+    )
+    tramos_parser.add_argument(
+        "--capas",
+        type=Path,
+        default=Path("data/derived"),
+        help="Capas derivadas de la tabla de convergencia (vias_pecuarias, camino_actual, "
+        "camino_asfaltado, catastro_caminos)",
+    )
+    tramos_parser.add_argument(
+        "--curated-historico",
+        type=Path,
+        default=Path("curated/historico"),
+        help="Unidades históricas georreferenciadas (entrada humana versionada)",
+    )
+    tramos_parser.add_argument(
+        "--cache-historico",
+        type=Path,
+        default=Path("data/raw/ign_planimetrias"),
+        help="Caché de las imágenes de trabajo de las unidades históricas (sin red)",
+    )
+    tramos_parser.add_argument(
+        "--umbral-aparece",
+        # Sin validar aquí: argparse saldría con 2 y el criterio pide 1 (#315).
+        type=float,
+        default=APPEARS_MIN_FRACTION,
+        help="Fracción mínima del tramo para «Aparece», en (0, 1] (por defecto 0,5)",
     )
     tramos_parser.set_defaults(func=_publicar_candidatos)
 
