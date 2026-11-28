@@ -22,7 +22,7 @@ from parcel_intel.adapters.road_layer_files import (
     GeoJsonRoadLayerWriter,
 )
 from tests.municipal_layer_fixtures import prepare_cache
-from tests.road_layer_fixtures import prepare_road_cache
+from tests.road_layer_fixtures import prepare_road_batches
 
 RETRIEVED = date(2026, 11, 26)
 
@@ -38,11 +38,16 @@ ORIGIN = (455_000.0, 4_436_000.0)
 
 
 def write_real_derived_layers(derived: Path, cache: Path) -> None:
-    """Escribe `derived/{vias_pecuarias,camino_actual}/<ine>.geojson` de los 7 municipios."""
+    """Escribe `derived/{vias_pecuarias,camino_actual,camino_asfaltado}/<ine>.geojson` de
+    los 7 municipios. `camino_asfaltado` (historia #183) sale de los recortes reales
+    `paved` y no se publica: solo lo lee `discrepancias`."""
     for layer in prepare_cache(cache, RETRIEVED):
         GeoJsonLivestockTrailLayerWriter(derived / "vias_pecuarias").write(layer)
-    for road in prepare_road_cache(cache, RETRIEVED).layers:
+    batches = prepare_road_batches(cache, RETRIEVED)
+    for road in batches["unpaved"].layers:
         GeoJsonRoadLayerWriter(derived / "camino_actual").write(road)
+    for road in batches["paved"].layers:
+        GeoJsonRoadLayerWriter(derived / "camino_asfaltado").write(road)
 
 
 def provenance(

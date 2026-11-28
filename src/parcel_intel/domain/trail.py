@@ -59,6 +59,9 @@ class Trail:
     provenance: Provenance  # licencia obligatoria
     data_date: date | None  # fecha del DATO, no de descarga
     character: str  # carácter del dato, p. ej. "cartografía informativa, no deslinde"
+    counterpart_only: bool = False
+    """Solo contraparte: cuenta como equivalente de trazados de otras fuentes, pero
+    nunca es sujeto de una discrepancia (tramos asfaltados del IGN, ADR 0050)."""
 
     def __post_init__(self) -> None:
         _require_text(self.identifier, "identifier")
@@ -89,6 +92,10 @@ class Trail:
         ):
             raise InvalidTrailError(f"data_date debe ser una fecha o None: {self.data_date!r}")
         _require_text(self.character, "character")
+        if not isinstance(self.counterpart_only, bool):
+            raise InvalidTrailError(
+                f"counterpart_only debe ser un booleano: {self.counterpart_only!r}"
+            )
 
 
 def _require_text(value: object, field: str) -> None:

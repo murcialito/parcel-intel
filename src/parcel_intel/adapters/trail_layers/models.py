@@ -61,6 +61,7 @@ class FeaturePropertiesModel(_Model):
     papel: Literal["via", "anejo"] = "via"
     nombre: str | None = None
     tipo: str | None = None
+    superficie: Literal["unpaved", "paved"] | None = None  # red del IGN (#183)
 
 
 class FeatureModel(_Model):
@@ -86,6 +87,8 @@ class CollectionPropertiesModel(_Model):
     aviso: str | None = None
     nombre_municipio: str | None = None
     procedencia_limite: ProvenanceModel | None = None
+    # Red del IGN (historia #183): ausente en las capas que no son de `roadlink`.
+    superficie: Literal["unpaved", "paved"] | None = None
 
 
 class LayerFileModel(_Model):

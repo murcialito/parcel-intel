@@ -1,0 +1,12 @@
+{
+ "type": "FeatureCollection",
+ "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::25830"}},
+ "properties": {
+  "fuente": "ign_red_transporte",
+  "municipio": "28043",
+  "superficie": "paved",
+  "procedencia": {"fuente": "SINTÉTICO capa de red asfaltada", "url": "https://example.invalid/camino_asfaltado", "fecha_descarga": "2026-11-27", "licencia": "SINTÉTICA, solo para pruebas"},
+  "aviso": "SINTÉTICO: capa vacía inventada para pruebas (historia #183), no es cartografía real."
+ },
+ "features": []
+}

@@ -1,0 +1,23 @@
+{
+ "type": "FeatureCollection",
+ "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::25830"}},
+ "properties": {
+  "fuente": "via_pecuaria_oficial",
+  "municipio": "28997",
+  "nombre_municipio": "Municipio sintético 28997",
+  "procedencia": {"fuente": "SINTÉTICO capa de vías pecuarias", "url": "https://example.invalid/vias_pecuarias", "fecha_descarga": "2026-11-27", "licencia": "SINTÉTICA CC BY 4.0, solo para pruebas", "redistribucion": "publicable"},
+  "aviso": "SINTÉTICO: capa inventada para pruebas (historia #183), no es cartografía real."
+ },
+ "features": [
+  {"type": "Feature", "id": "VP-A", "properties": {"nombre": "Vereda sintética A", "tipo": "Vereda", "fecha_dato": "2014-01-01"},
+   "geometry": {"type": "Polygon", "coordinates": [[[450000.0, 4434995.0], [451000.0, 4434995.0], [451000.0, 4435005.0], [450000.0, 4435005.0], [450000.0, 4434995.0]]]}},
+  {"type": "Feature", "id": "VP-B", "properties": {"nombre": "Vereda sintética B", "tipo": "Vereda", "fecha_dato": "2014-01-01"},
+   "geometry": {"type": "Polygon", "coordinates": [[[450000.0, 4435995.0], [451000.0, 4435995.0], [451000.0, 4436005.0], [450000.0, 4436005.0], [450000.0, 4435995.0]]]}},
+  {"type": "Feature", "id": "VP-C", "properties": {"nombre": "Vereda sintética C", "tipo": "Vereda", "fecha_dato": "2014-01-01"},
+   "geometry": {"type": "Polygon", "coordinates": [[[450000.0, 4436995.0], [451000.0, 4436995.0], [451000.0, 4437005.0], [450000.0, 4437005.0], [450000.0, 4436995.0]]]}},
+  {"type": "Feature", "id": "VP-D", "properties": {"nombre": "Vereda sintética D", "tipo": "Vereda", "fecha_dato": "2014-01-01"},
+   "geometry": {"type": "Polygon", "coordinates": [[[450000.0, 4437995.0], [451000.0, 4437995.0], [451000.0, 4438005.0], [450000.0, 4438005.0], [450000.0, 4437995.0]]]}},
+  {"type": "Feature", "id": "VP-E", "properties": {"nombre": "Vereda sintética E", "tipo": "Vereda", "fecha_dato": "2014-01-01"},
+   "geometry": {"type": "Polygon", "coordinates": [[[450000.0, 4438995.0], [451000.0, 4438995.0], [451000.0, 4439005.0], [450000.0, 4439005.0], [450000.0, 4438995.0]]]}}
+ ]
+}

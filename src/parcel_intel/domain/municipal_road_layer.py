@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from parcel_intel.domain.geometry import MultiLineGeometry
 from parcel_intel.domain.municipality import MunicipalBoundary
 from parcel_intel.domain.provenance import Provenance
-from parcel_intel.domain.road_segment import RoadSegment
+from parcel_intel.domain.road_segment import RoadSegment, RoadSurface
 
 ROAD_LAYER_ATTRIBUTION = "Obra derivada de red de transporte IGN CC-BY 4.0 ign.es"
 """Texto fijado por el criterio CA4 de la historia #27; la variante de
@@ -28,13 +28,16 @@ class ClippedRoadSegment:
 
 @dataclass(frozen=True)
 class MunicipalRoadLayer:
-    """Camino actual (tramos sin asfaltar del IGN) recortado al término de un
-    municipio. `segments` vacía si no cae ninguno; orden por `segment_id`.
-    `provenance` es la de la consulta, también cuando no hay tramos."""
+    """Tramos del IGN con esta superficie recortados al término de un municipio
+    (`unpaved`: el camino actual de #27; `paved`: la red asfaltada de #183, que
+    solo sirve de contraparte y no se publica). `segments` vacía si no cae
+    ninguno; orden por `segment_id`. `provenance` es la de la consulta, también
+    cuando no hay tramos."""
 
     municipality: MunicipalBoundary
     segments: tuple[ClippedRoadSegment, ...]
     provenance: Provenance
+    surface: RoadSurface = "unpaved"
     attribution: str = ROAD_LAYER_ATTRIBUTION
     notice: str = ROAD_LAYER_NOTICE
 

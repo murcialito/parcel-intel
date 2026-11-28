@@ -764,6 +764,14 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el documento falso de los tests del visor solo conoce lo que ya se usaba; un widget con eventos o SVG exige ampliarlo (`createElementNS`, `addEventListener`, `getAttribute`) en el mismo cambio, y la fixture con el campo nuevo se genera a partir de la anterior para no divergir de su forma.
   - **Aplica a**: implementación (tests de `tests/site/`).
 
+## [2026-11-27] Historia #183 — Red asfaltada del IGN como contraparte
+
+- **Lección**: un oráculo «estos indicios van por asfalto» medido como «% de la zona a ≤ 15 m de una carretera» mezcla dos cosas: una vía que va **bajo** la carretera y un camino sin asfaltar que corre **junto** a ella. Antes de fijar qué ids «dejan de publicarse» al cambiar una contraparte, mirar de cada registro quién es el sujeto y contra qué fuente se compara: un `DESPLAZAMIENTO` con sujeto IGN se compara con la vía, así que añadir tramos a la capa del IGN no lo toca.
+  - **Causa**: CA8 fijaba 3 ids (82 %, 65 %, 57 %). Dos se reducen; el de 65 % es un camino sin asfaltar a 13–25 m de una carretera cuya vía no va por asfalto, y sigue igual. Se dejó el test literal y se escaló al fundador.
+  - **Aplica a**: arquitecto y refinador (oráculos de «deja de salir» tras cambiar una capa) | implementación.
+
+- **Lección**: cuando un comando pasa a escribir un fichero más con un directorio por defecto bajo `data/`, todo test que lo invoca por la CLI debe pasar también la opción nueva a `tmp_path`; si no, el test escribe en el `data/` del repo. Y los ayudantes compartidos que imitan al productor (`write_real_derived_layers`, `prepare_road_cache`) se actualizan para escribir también el fichero nuevo, aunque no estén en la línea `Toca:`: si no, cada consumidor (#94 CA7) falla con «falta la capa complementaria».
+  - **Aplica a**: implementación (`grep` del nombre del comando y de los ayudantes de `tests/` antes de cambiar lo que escribe).
 ## [2026-11-27] Historia #185 — Rediseño del visor
 
 - **Lección**: un nombre de capa que viene de un texto validado (aquí «Tramos a verificar (no son un dictamen)», `CANDIDATE_LAYER_NAME` de #169) no se acorta en la interfaz aunque el diseño lo pida: el test de #171 exige el literal en `index.html`. Se acortan solo los rótulos que no son texto validado (vías pecuarias, camino actual) y la salvedad se mantiene. Antes de cambiar un rótulo, `grep` del literal en `src/parcel_intel/domain/` y en `tests/acceptance/`.

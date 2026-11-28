@@ -12,7 +12,7 @@ from parcel_intel.application.build_municipal_road_layers import (
 from parcel_intel.domain.geometry import Geometry, LineGeometry, MultiLineGeometry
 from parcel_intel.domain.municipality import MunicipalBoundary
 from parcel_intel.domain.provenance import Provenance
-from parcel_intel.domain.road_segment import RoadQueryResult, RoadSegment
+from parcel_intel.domain.road_segment import RoadQueryResult, RoadSegment, RoadSurface
 from parcel_intel.ports.errors import RoadNetworkError
 
 _PROV = Provenance(
@@ -28,8 +28,10 @@ def _boundary(ine: str, geometry: Geometry) -> MunicipalBoundary:
     return MunicipalBoundary(ine, f"M{ine}", geometry, _PROV)
 
 
-def _road(segment_id: int, *points: tuple[float, float], srid: int = 25830) -> RoadSegment:
-    return RoadSegment(segment_id, None, "unpaved", True, LineGeometry(points, srid), _PROV)
+def _road(
+    segment_id: int, *points: tuple[float, float], srid: int = 25830, surface: str = "unpaved"
+) -> RoadSegment:
+    return RoadSegment(segment_id, None, surface, True, LineGeometry(points, srid), _PROV)
 
 
 class _Boundaries:
@@ -44,12 +46,19 @@ class _Roads:
     def __init__(self, by_ine: dict[str, list[RoadSegment] | Exception]) -> None:
         self._by_ine = by_ine
         self.margins: list[float] = []
+        self.surfaces: list[RoadSurface] = []
 
     def get_nearby_unpaved_roads(self, geometry: Geometry, margin_m: float) -> list[RoadSegment]:
         return list(self.query_unpaved_roads(geometry, margin_m).segments)
 
     def query_unpaved_roads(self, geometry: Geometry, margin_m: float) -> RoadQueryResult:
+        return self.query_roads(geometry, margin_m, "unpaved")
+
+    def query_roads(
+        self, geometry: Geometry, margin_m: float, surface: RoadSurface
+    ) -> RoadQueryResult:
         self.margins.append(margin_m)
+        self.surfaces.append(surface)
         # Se identifica el municipio por la x mínima de su límite (cada uno en un x distinto).
         key = str(int(geometry.rings[0][0][0]))
         result = self._by_ine[key]
@@ -75,10 +84,58 @@ class _Clipper:
 
 
 def _use_case(
-    boundaries: list[MunicipalBoundary], by_ine: dict[str, list[RoadSegment] | Exception]
+    boundaries: list[MunicipalBoundary],
+    by_ine: dict[str, list[RoadSegment] | Exception],
+    surface: RoadSurface = "unpaved",
 ) -> tuple[BuildMunicipalRoadLayersUseCase, _Roads]:
     roads = _Roads(by_ine)
-    return BuildMunicipalRoadLayersUseCase(_Boundaries(boundaries), roads, _Clipper()), roads
+    use_case = BuildMunicipalRoadLayersUseCase(
+        _Boundaries(boundaries), roads, _Clipper(), surface=surface
+    )
+    return use_case, roads
+
+
+def test_por_defecto_pide_sin_asfaltar_y_la_capa_lo_declara() -> None:
+    use_case, roads = _use_case([_boundary("A", _rect(0, 0, 10, 10))], {"0": []})
+
+    layer = use_case.execute(("A",)).layers[0]
+
+    assert roads.surfaces == ["unpaved"]
+    assert layer.surface == "unpaved"
+
+
+def test_la_superficie_pasa_al_port_y_a_la_capa() -> None:
+    paved = _road(1, (1.0, 1.0), (2.0, 2.0), surface="paved")
+    use_case, roads = _use_case(
+        [_boundary("A", _rect(0, 0, 10, 10))], {"0": [paved]}, surface="paved"
+    )
+
+    batch = use_case.execute(("A",))
+
+    assert roads.surfaces == ["paved"]
+    assert batch.failures == ()
+    assert batch.layers[0].surface == "paved"
+    assert batch.layers[0].segments[0].source is paved
+
+
+def test_un_tramo_de_otra_superficie_es_un_fallo_del_municipio() -> None:
+    """SINTÉTICO: el port devuelve un tramo `unpaved` en una consulta `paved`."""
+    boundaries = [_boundary("A", _rect(0, 0, 10, 10)), _boundary("B", _rect(10, 0, 20, 10))]
+    use_case, _ = _use_case(
+        boundaries,
+        {
+            "0": [_road(1, (1.0, 1.0), (2.0, 2.0), surface="unpaved")],
+            "10": [_road(2, (11.0, 1.0), (12.0, 2.0), surface="paved")],
+        },
+        surface="paved",
+    )
+
+    batch = use_case.execute(("A", "B"))
+
+    assert [layer.municipality.ine_code for layer in batch.layers] == ["B"]
+    assert [f.ine_code for f in batch.failures] == ["A"]
+    assert "'unpaved'" in batch.failures[0].reason
+    assert "'paved'" in batch.failures[0].reason
 
 
 def test_el_tramo_que_cruza_aparece_en_las_dos_capas_con_su_parte() -> None:
