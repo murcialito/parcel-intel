@@ -1310,7 +1310,10 @@ Documento primario: `https://www.catastro.hacienda.gob.es/webinspire/documentos/
 - La transformación no puede alterar ni desnaturalizar el contenido; el producto no se identifica como «cartografía catastral» ni «información catastral».
 - La información distribuida a terceros «carecerá de fehaciencia».
 
-**Conclusión con cautela (no es un permiso):** una **fecha** o un intervalo de fechas, sin geometría ni referencia de parcela, no reproduce la información original y parece encajar en lo derivado que ya se publica (indicios, señales y candidatos, ADR 0041). Pero el texto no habla de fechas sueltas, y una fecha de alta/baja procede del dato original. **Pregunta abierta para el fundador:** ¿basta con que la fecha sea un intervalo con fuente y aviso para publicarlo? Hasta que responda, no se publica ninguna fecha derivada de Catastro.
+**Conclusión con cautela (no es un permiso):** una **fecha** o un intervalo de fechas, sin geometría ni referencia de parcela, no reproduce la información original y parece encajar en lo derivado que ya se publica (indicios, señales y candidatos, ADR 0041). Pero el texto no habla de fechas sueltas, y una fecha de alta/baja procede del dato original. **Decisión del fundador (2026-11-28, comentario en #201):** sí, se puede publicar una fecha derivada de Catastro. Las condiciones son las de esta sección y las de los indicios con Catastro (ADR 0041 y 0044):
+- como intervalo «entre A y B», con la fuente y la evidencia de cada extremo;
+- sin geometría, sin referencias catastrales y sin datos de parcela;
+- con la atribución a la Dirección General del Catastro, la fecha de consulta y el aviso de no fehaciencia.
 
 ### Cómo expresar la fecha: intervalo con evidencia
 
@@ -1355,7 +1358,7 @@ Hechas desde la red del fundador: `ovc.catastro.meh.es` rechaza a los runners de
 **Qué cambia para #201.**
 - La única forma de ver el parcelario de una fecha pasada es el WMS con `TIME`, y solo como imagen.
 - `beginLifespanVersion` y `FECHAALTA` solo dicen desde cuándo existe la versión vigente de una parcela, no cuándo desapareció otra.
-- Sigue abierta la pregunta de licencia de arriba: si se puede publicar una fecha derivada de Catastro.
+- La fecha derivada de Catastro se puede publicar con las condiciones de arriba (decisión del fundador, 2026-11-28).
 
 ### Fixtures sintéticas
 
