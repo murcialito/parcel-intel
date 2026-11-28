@@ -141,12 +141,12 @@ class NormativeCitation:
                 "debe ser el texto consolidado del BOE de su identificador "
                 f"({BOE_CONSOLIDATED_URL_PREFIX}<identificador>, con ancla #[a-z0-9]+ opcional)",
             )
-        for field, value in (
+        for field, when in (
             ("fecha_norma", self.norm_date),
             ("ultima_actualizacion", self.last_updated),
             ("consultado", self.retrieved_at),
         ):
-            if not _is_date(value):
+            if not _is_date(when):
                 raise fail(field, "debe ser una fecha")
         if self.last_updated < self.norm_date:
             raise fail("ultima_actualizacion", "anterior a fecha_norma")

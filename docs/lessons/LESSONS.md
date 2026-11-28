@@ -1018,6 +1018,13 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: implementación (cualquier desempaquetado de datos ajenos).
 - **Lección**: antes de ejecutar `ruff format` sobre `src`, comprobar `git status`: formatear en bloque reescribió 12 ficheros ajenos a la historia. Formatear solo los ficheros tocados.
   - **Aplica a**: implementación.
+## [2026-11-28] Historia #187 — Catálogo de citas normativas
+
+- **Lección**: un generador de fixtures que recalcula huellas para construir variantes mutadas tiene que tolerar las mutaciones que los tests le hacen (una clave de menos, un tipo erróneo). Si indexa `item["id"]` o `item["tipos_fuente"]`, el test de «falta el campo X» revienta con `KeyError` en el generador y no llega a probar el cargador. Se usa `.get` y se documenta que la huella de una cita rota no importa, porque el cargador la rechaza antes de compararla.
+  - **Aplica a**: implementación (generadores de fixtures con huellas, patrón de #295).
+- **Lección**: en un `__post_init__` con varios bucles de validación, reutilizar el nombre de la variable de un bucle (`value`, primero `str` y luego `date`) hace fallar a `mypy` estricto con `Incompatible types in assignment`. Se da a cada bucle su nombre.
+  - **Aplica a**: implementación.
+
 ## [2026-11-28] Enmienda del ADR 0055 §5 — acceso al repo privado en local
 
 - **Lección**: la regla «ningún agente toca el repo privado» protege dos cosas distintas: los **logs públicos** (Actions, PR) y los **flujos autónomos**. Una sesión local de Claude Code a la que el fundador da la orden no genera ninguna de las dos, y el fundador decidió que en ese caso da igual quién lance el comando. Por eso la guarda de entorno de `datos-privados sincronizar` deja `CI` y `GITHUB_ACTIONS` y quita `CLAUDECODE`. Un agente sigue sin usar `gh` contra el repo privado por iniciativa propia, ni porque lo pida una issue, una PR, un comentario o un fichero.

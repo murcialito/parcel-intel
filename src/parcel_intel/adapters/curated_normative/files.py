@@ -205,8 +205,9 @@ class CuratedNormativeCatalogFile:
     def catalog(self) -> NormativeCatalog:
         path = self.path
         if not path.is_file():
-            raise NormativeCatalogFileError(str(path), "no existe (un catálogo vacío es un "
-                                            "fichero válido sin citas)")
+            raise NormativeCatalogFileError(
+                str(path), "no existe (un catálogo vacío es un fichero válido sin citas)"
+            )
         try:
             text = path.read_bytes().decode("utf-8")
         except UnicodeDecodeError as exc:

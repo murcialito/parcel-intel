@@ -257,6 +257,12 @@ uv run python -m parcel_intel.cli.main historico evidencia <unit_id> [--curated 
 # Claude Code; ningún agente lo lanza por iniciativa propia. El test real (tests/adapters/private_data/test_gh_store_integration.py, `integration` + `fuera_de_ci`)
 # se pasa a mano en local con PASO_COMUN_DATOS_PRIVADOS=1.
 uv run python -m parcel_intel.cli.main datos-privados sincronizar [--datos data] [--fuente catastro_historico ...]
+
+# Catálogo de citas normativas (historia #187, ADR 0060): curated/normativa/catalogo.json se edita a mano en una PR (guardia de curated/**), sin comando.
+# Solo texto literal del texto consolidado del BOE (https://www.boe.es/buscar/act.php?id=BOE-A-…[#ancla]), con su procedencia y huellas. Lo valida el test
+# de CA8 de #187; si una huella no coincide, el mensaje da la calculada (texto_sha256 o huella_catalogo) para copiarla tras comprobar el texto. Cualquier
+# cambio de una cita sube `version` (y `version_catalogo` de todas).
+uv run pytest tests/acceptance/test_historia_187.py -m acceptance -k ca8
 ```
 
 ## Contexto de negocio (resumen)

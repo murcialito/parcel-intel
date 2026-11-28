@@ -410,13 +410,9 @@ def test_ca12_ningun_mensaje_repite_el_valor_rechazado(
     "doc",
     [
         pytest.param(lambda: f'{{"version": 1, "citas": ["{SENTINEL}"', id="ca6-json"),
-        pytest.param(
-            lambda: generar.document() | {"huella_catalogo": SENTINEL}, id="ca11-huella"
-        ),
+        pytest.param(lambda: generar.document() | {"huella_catalogo": SENTINEL}, id="ca11-huella"),
         pytest.param(lambda: generar.document() | {SENTINEL: 1}, id="ca4-clave-documento"),
-        pytest.param(
-            lambda: _mutated(_set(1, "id", "sintetica-art-10")), id="ca6-repetido"
-        ),
+        pytest.param(lambda: _mutated(_set(1, "id", "sintetica-art-10")), id="ca6-repetido"),
     ],
 )
 def test_ca12_documento_sin_valor_rechazado(doc: Callable[[], Doc | str], tmp_path: Path) -> None:
