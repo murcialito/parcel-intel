@@ -978,3 +978,12 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en un clon superficial (el CI de `main` clona con profundidad 1) el último commit es la raíz del clon, y `git log --name-only` sobre una raíz lista **el árbol entero**. Un test que busca los commits «Historia #N: …» con `git log --grep … --name-only` pasa en la PR (la cabeza es un merge que no casa y se salta) y falla en `main` justo después de fusionar, cuando la cabeza es el propio commit de la historia. Se sacan los ficheros con `git diff-tree --no-commit-id --name-only -r <commit>` commit a commit: sin `--root` no lista nada en una raíz y el test se salta.
   - **Causa**: el CA10 de #294 dejó en rojo el CI de `main` tras fusionar la PR #312 (2026-11-28); el CA8 de #287 tenía el mismo patrón.
   - **Aplica a**: implementación y revisión (tests que inspeccionan el historial de git).
+
+## [2026-11-28] Historia #295 — Sincronización de los datos privados
+
+- **Lección**: un comando que se niega si hay `CI`, `GITHUB_ACTIONS` o `CLAUDECODE` en el entorno hace que **todos** sus tests salgan por la guarda en CI y en la sesión del propio agente (las dos variables están definidas). Una fixture `autouse` del módulo de tests borra las tres con `monkeypatch.delenv`, y solo los tests de la guarda las vuelven a poner. Sin eso, los tests pasan en el portátil y fallan en CI, o al revés.
+  - **Aplica a**: implementación (comandos con guarda de entorno).
+- **Lección**: para que el `stderr` de un CLI externo (aquí `gh`, que puede nombrar el repo privado) nunca llegue a un log, el adapter lo captura siempre y lanza errores de port con **textos fijos**. El test lo prueba con un ejecutor falso cuyo `stderr` lleva el nombre del repo y un centinela, y busca los dos en stdout y stderr del comando. Un test estático sobre el fichero del adapter (`token`, `shell=True`, `env=`) obliga además a no escribir esas palabras ni en los comentarios.
+  - **Aplica a**: implementación y revisión (adapters sobre CLIs con sesión del usuario).
+- **Lección**: las fixtures con sha256 «calculados en el test, no copiados a mano» se generan con un `generar.py` que escribe los bytes y el catálogo a la vez, y un test compara lo versionado con lo que da el generador. Así el hash nunca se copia y un cambio de bytes sin regenerar falla en CI.
+  - **Aplica a**: implementación (fixtures que declaran la huella de otros ficheros).

@@ -851,7 +851,7 @@ def _gh(runner: FakeGhRunner, which: bool = True) -> GhCliPrivateDataStore:
 def test_ca17_argumentos_exactos_de_gh(runner: FakeGhRunner, tmp_path: Path) -> None:
     """CA17. Dado el adapter de `gh` con un ejecutor falso, cuando se leen los catálogos y se
     descarga un adjunto y un fichero de git, entonces los argumentos son exactamente los del
-    ADR 0058 §3, ninguno contiene `token` (sin distinguir mayúsculas), el ejecutor no recibe
+    ADR 0057 §3, ninguno contiene `token` (sin distinguir mayúsculas), el ejecutor no recibe
     `env`, y: `gh` no encontrado, `HTTP 401`, `HTTP 403`, `HTTP 404` o «gh auth login» en
     `stderr` al leer los catálogos dan `PrivateDataUnavailable`; `HTTP 500` o un tiempo
     agotado dan `PrivateDataStoreError`. Un nombre de catálogo que no case con
@@ -886,6 +886,13 @@ def test_ca17_argumentos_exactos_de_gh(runner: FakeGhRunner, tmp_path: Path) -> 
         ("gh", "api", "--method", "GET", "-H", RAW_ACCEPT, f"{contents}/{TP_GIT_PATH}"),
     ]
     assert RAW_ACCEPT == "Accept: application/vnd.github.raw+json"
+    adr = next((ROOT / "docs/adr").glob("0058-*.md")).read_text("utf-8")
+    for form in (
+        "`gh api --method GET repos/<repo>/contents/catalogo`",
+        '`-H "Accept: application/vnd.github.raw+json"`',
+        "`gh release download <etiqueta> --repo <repo> --pattern <adjunto> --output <ruta>`",
+    ):
+        assert form in adr, form
     for call in runner.calls:
         assert not any("token" in arg.lower() for arg in call.args)
     assert [c.timeout for c in runner.calls] == [120.0, 120.0, 120.0, None, 120.0]
