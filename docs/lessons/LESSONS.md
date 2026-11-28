@@ -948,3 +948,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: arquitecto (al marcar un umbral «a revisar con el fundador», prever dónde se anota si se hace configurable) | implementación.
 - **Lección**: para probar que una entidad publicable no puede llevar geometría ni procedencia «ni anidada», no basta con listar `dataclasses.fields`: se recorren las anotaciones con `typing.get_type_hints`, `get_origin` y `get_args` hasta los tipos hoja, se compara cada uno con una lista blanca y se falla con los tipos prohibidos (`Geometry`, `Provenance`, `TrailRef`…). Así, un campo `tuple[X, ...]` o `X | None` con un tipo nuevo hace fallar el test aunque el nombre del campo no cambie.
   - **Aplica a**: implementación y revisión (entidades con «lista blanca de campos»).
+
+## [2026-11-28] Historia #294 — ADR del repositorio privado de datos
+
+- **Lección**: cuando el fundador comenta en la issue que una condición que el criterio pide «hacer» ya está hecha, el ADR y la documentación la recogen como **hecha, con fecha y evidencia** (enlace al run que lo comprueba), y el test de aceptación busca esa forma, no la del criterio original. La PR lo dice como ajuste del criterio.
+  - **Aplica a**: implementación y revisión (criterios con condiciones previas que cambian mientras la historia espera en la cola).
+- **Lección**: si un hecho que corrige una historia de documentación también aparece en comentarios de workflows o scripts que su `Toca:` (o un CA de «solo documentación») no deja tocar, no se editan: se listan en las Consecuencias del ADR con fichero y línea, para que los corrija el fundador o una historia de tubería.
+  - **Aplica a**: implementación (historias de solo documentación).

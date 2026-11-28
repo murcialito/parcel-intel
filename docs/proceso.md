@@ -166,7 +166,22 @@ Además:
   - Una pasada diaria refresca el "hoy".
 - No hay iteraciones: el flujo es continuo (una historia tras otra), así que no hay sprints que planificar.
 
-La app de Claude no puede escribir en proyectos de usuario, así que el workflow necesita el secret `PROJECT_TOKEN`: un token clásico con los permisos `repo` y `project` (mientras el repo sea privado, sin `repo` el proyecto no puede resolver las issues). Sin él, el workflow no hace nada y las etiquetas siguen mandando.
+La app de Claude no puede escribir en proyectos de usuario, así que el workflow necesita el secret `PROJECT_TOKEN`: un token clásico con solo los permisos `public_repo` y `project`, sin `repo` (reemitido el 2026-11-27, ADR 0055: con `repo` llegaría a cualquier repo privado del fundador). Sin él, el workflow no hace nada y las etiquetas siguen mandando. No lleva `workflow`: en GitHub, marcarlo marca también `repo` completo. Por eso, si `main` ha cambiado ficheros de `.github/workflows/`, el `update-branch` de Fusionar puede fallar; la PR pasa entonces a Actualizar rama.
+
+## Datos privados
+
+Los datos internos que no se pueden publicar (Catastro INSPIRE, Catastro histórico, Fondo Documental de Vías Pecuarias cuando llegue) se copian al repo privado `murcialito/paso-comun-datos`, como adjuntos de release con un catálogo por fuente ([ADR 0055](adr/0055-repositorio-privado-de-datos-internos-adjuntos-de-release-catalogo-y-reglas-de-acceso.md)). Reglas:
+
+- **Ningún agente del repo público tiene acceso al repo privado**, ni en Actions ni en local: sus logs y sus PR son públicos. Ningún agente ejecuta la sincronización ni `gh` contra el repo privado.
+- El procesado interno es local o en workflows del propio repo privado, nunca en los de este.
+- El acceso es solo del fundador mientras no se aclare la licencia. La sincronización la lanza el fundador desde su terminal, con su `gh auth`; no usa ningún secreto de este repo.
+- Ningún dato de titularidad entra tampoco en el repo privado.
+- Lo subido es inmutable: una entrada del catálogo no se edita ni se borra; una versión nueva es un fichero nuevo con su procedencia.
+
+Condiciones previas a crear el repo privado, ambas **hechas el 2026-11-27**:
+
+1. `PROJECT_TOKEN` reemitido como token clásico con solo `public_repo` y `project`, sin `repo` (caduca hacia el 2027-11-27). El antiguo con `repo` está borrado.
+2. App de Claude instalada con «Only select repositories», solo con `murcialito/paso-comun` y sin `paso-comun-datos`.
 
 ## Coste
 
