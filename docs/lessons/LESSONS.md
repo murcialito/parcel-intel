@@ -966,3 +966,31 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: implementación (reglas de licencia con ramas que ningún dato actual dispara) | revisión (exigir el test aunque la rama parezca muerta).
 - **Lección**: `uv run ruff format src` reformatea el árbol entero y toca ficheros ajenos a la historia. Formatear solo los ficheros propios (`ruff format <ruta>`) y mirar `git status` antes de commitear.
   - **Aplica a**: implementación.
+
+## [2026-11-28] Historia #313 — Cobertura histórica desde curated/historico
+
+- **Lección**: un ADR que el diseño fija como «el siguiente número libre» puede estar ocupado cuando lo crea la historia (aquí, el 0055 y el 0056 se fusionaron entre el diseño y el desarrollo). Mirar `ls docs/adr` antes de crear el fichero, usar el siguiente libre y anotar en el propio ADR la correspondencia («ADR 0055 §n» de las issues = este ADR), para que las hijas no citen el equivocado.
+  - **Aplica a**: arquitecto (en las issues, escribir «el número libre al crearlo», sin cifra) | implementación.
+- **Lección**: un `unit_id` sintético derivado de la fixture tiene que empezar por el `document_id` de su `unidad.json` (`UnitSpec` lo exige): para fabricar una segunda unidad en `tmp_path` se cambia el sufijo (`280075-w2`), no el prefijo.
+  - **Aplica a**: implementación (tests con varias unidades históricas).
+## [2026-11-28] Tests que miran los ficheros de los commits de una historia
+
+- **Lección**: en un clon superficial (el CI de `main` clona con profundidad 1) el último commit es la raíz del clon, y `git log --name-only` sobre una raíz lista **el árbol entero**. Un test que busca los commits «Historia #N: …» con `git log --grep … --name-only` pasa en la PR (la cabeza es un merge que no casa y se salta) y falla en `main` justo después de fusionar, cuando la cabeza es el propio commit de la historia. Se sacan los ficheros con `git diff-tree --no-commit-id --name-only -r <commit>` commit a commit: sin `--root` no lista nada en una raíz y el test se salta.
+  - **Causa**: el CA10 de #294 dejó en rojo el CI de `main` tras fusionar la PR #312 (2026-11-28); el CA8 de #287 tenía el mismo patrón.
+  - **Aplica a**: implementación y revisión (tests que inspeccionan el historial de git).
+
+## [2026-11-28] Historia #315 — Tabla de convergencia en los tramos a verificar
+
+- **Lección**: cuando un comando gana opciones con valor por defecto bajo `data/` o `curated/` (aquí `--capas data/derived`, `--curated-historico curated/historico`), los tests que lo invocan por la CLI siguen en verde sin tocarlos si esos directorios no existen en el clon: pasan por accidente, y en el portátil de alguien con datos reales leerían otra cosa. Se buscan con `grep` todos los ayudantes que llaman al comando (aquí `_publicar` de #170 y #172 y `generar_idem.py` de #208) y se les pasan directorios de la fixture o inexistentes en `tmp_path`, de forma explícita.
+  - **Aplica a**: implementación (comandos con lectores nuevos) | revisión (un test de otra historia que «no hubo que tocar» puede depender del estado del disco).
+- **Lección**: «no se lee ninguna capa si falla una comprobación previa» no se cumple con solo ordenar los `except`: si el cálculo caro (la tabla) va antes de la función de dominio que hace las comprobaciones por elemento, ya ha leído. Se separan las comprobaciones en su propia función (`check_approved_publishable`), se llaman primero y la construcción las repite (son baratas y deterministas); un test con un lector que falla si se llama lo fija.
+  - **Aplica a**: arquitecto e implementación (criterios de orden de fallos con lecturas caras).
+- **Lección**: `dump_compact` ordena las claves, así que una lista blanca publicada se compara como conjunto (`set(tabla) == set(CLAVES)`); el orden del ADR solo se puede afirmar sobre el diccionario antes de serializar.
+  - **Aplica a**: implementación (tests de listas blancas sobre ficheros publicados).
+
+## [2026-11-28] Historia #288 — Código de inventario de los tramos
+
+- **Lección**: un filtro de texto libre (`note_problem`, `name_problem`) solo detecta referencias catastrales, localizadores y palabras vetadas: **no puede detectar un nombre de persona**. Para que ninguno entre, el formato del nombre es una lista cerrada de caracteres (sin `_`, `@`, `?`…) y, sobre todo, el mensaje de error nunca repite el valor. El test de «sin nombres de personas» usa una entrada hostil y comprueba que el nombre no aparece en la salida ni en el error, no que el sistema lo reconozca.
+  - **Aplica a**: implementación y revisión (campos de texto libre en `curated/`).
+- **Lección**: el prefijo de un municipio es una constante de dominio (`MUNICIPALITY_PREFIXES`) fijada por el fundador; el código se normaliza al formatear (`:03d`), así que se rechazan los ceros de más (`COL-0001`) para que lo que se lee sea lo que se imprime.
+  - **Aplica a**: implementación (identificadores humanos que se muestran tal cual).

@@ -1,0 +1,87 @@
+{
+ "type": "FeatureCollection",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "urn:ogc:def:crs:EPSG::25830"
+  }
+ },
+ "properties": {
+  "fuente": "via_pecuaria_oficial",
+  "municipio": "28043",
+  "nombre_municipio": "Colmenar de Oreja",
+  "procedencia": {
+   "fuente": "via_pecuaria_oficial (sintético)",
+   "url": "https://example.invalid/capas",
+   "fecha_descarga": "2026-11-26",
+   "licencia": "licencia sintética",
+   "redistribucion": "publicable"
+  },
+  "aviso": "Capa SINTÉTICA de la fixture de #315."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "VP-SINT-1",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      460000.0,
+      4436000.0
+     ],
+     [
+      460200.0,
+      4436000.0
+     ]
+    ]
+   },
+   "properties": {
+    "papel": "via",
+    "nombre": "Vía sintética 1"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "VP-SINT-2",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      460000.0,
+      4437000.0
+     ],
+     [
+      460190.0,
+      4437000.0
+     ]
+    ]
+   },
+   "properties": {
+    "papel": "via",
+    "nombre": "Vía sintética 2"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "VP-SINT-3",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      460000.0,
+      4437500.0
+     ],
+     [
+      460150.0,
+      4437500.0
+     ]
+    ]
+   },
+   "properties": {
+    "papel": "via",
+    "nombre": "Vía sintética 3"
+   }
+  }
+ ]
+}

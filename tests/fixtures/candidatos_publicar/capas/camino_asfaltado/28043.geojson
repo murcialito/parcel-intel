@@ -1,0 +1,48 @@
+{
+ "type": "FeatureCollection",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "urn:ogc:def:crs:EPSG::25830"
+  }
+ },
+ "properties": {
+  "fuente": "ign_red_transporte",
+  "municipio": "28043",
+  "nombre_municipio": "Colmenar de Oreja",
+  "procedencia": {
+   "fuente": "ign_red_transporte (sintético)",
+   "url": "https://example.invalid/capas",
+   "fecha_descarga": "2026-11-26",
+   "licencia": "licencia sintética",
+   "redistribucion": "publicable"
+  },
+  "aviso": "Capa SINTÉTICA de la fixture de #315.",
+  "superficie": "paved"
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "IGN-SINT-ASF-1",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      463000.0,
+      4439000.0
+     ],
+     [
+      463500.0,
+      4439000.0
+     ]
+    ]
+   },
+   "properties": {
+    "papel": "via",
+    "tipo": "carretera",
+    "fecha_dato": "2024-05-01",
+    "superficie": "paved"
+   }
+  }
+ ]
+}

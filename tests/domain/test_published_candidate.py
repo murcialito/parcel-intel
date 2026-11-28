@@ -9,6 +9,7 @@ import pytest
 
 from parcel_intel.domain.candidate_review import (
     CandidateReview,
+    CandidateReviewState,
     StaleCandidateApprovalError,
     candidate_fingerprint,
     reconcile,
@@ -28,17 +29,23 @@ from parcel_intel.domain.published_candidate import (
     MEASUREMENT_PRECISION,
     MEASUREMENT_SCOPE,
     MEASUREMENT_SCOPE_ONE,
+    NO_CONVERGENCE_TABLE,
     NOT_COMPUTABLE,
     REVIEWED_BY_HAND,
+    CandidateConvergenceMissingError,
     CandidateLayerBuild,
     CandidatesNotPublishableError,
     MeasurementNotUsableError,
     MeasurementReport,
+    MeasurementSummary,
     build_candidate_layer,
+    check_approved_publishable,
     public_candidate_id,
     summarize_measurement,
 )
 from parcel_intel.domain.published_comparison import ComparisonManifestNotUsableError
+from parcel_intel.domain.published_convergence import ConvergenceNotPublishableError
+from tests.convergence_support import candidate_tables
 from tests.fixtures.candidatos_publicar import generar as publicar
 from tests.fixtures.candidatos_revision import generar
 
@@ -85,7 +92,26 @@ def _layer(
     state = reconcile(report, [_approved(c) for c in (approve or candidates)])
     summary = summarize_measurement(_report(), CUT_METHOD)
     manifest = publicar.manifest_for(candidates)
-    return build_candidate_layer(state, summary, "Colmenar de Oreja", manifest)
+    return _build(state, manifest, "Colmenar de Oreja", summary)
+
+
+def _build(
+    state: CandidateReviewState,
+    manifest: ComparisonManifest,
+    name: str = "x",
+    summary: MeasurementSummary | None = None,
+) -> CandidateLayerBuild:
+    """`build_candidate_layer` con las tablas de convergencia (#315) de los aprobados,
+    calculadas como el caso de uso (sin capas ni cobertura histórica)."""
+    tables, failures = candidate_tables(state.approved(), manifest)
+    return build_candidate_layer(
+        state,
+        summary or summarize_measurement(_report(), CUT_METHOD),
+        name,
+        manifest,
+        tables,
+        failures,
+    )
 
 
 def _manifest() -> ComparisonManifest:
@@ -222,7 +248,7 @@ def test_sin_aprobados_falla() -> None:
     report = generar.report()
     state = reconcile(report, [])
     with pytest.raises(CandidatesNotPublishableError) as error:
-        build_candidate_layer(state, summarize_measurement(_report(), CUT_METHOD), "x", _manifest())
+        _build(state, _manifest())
     assert error.value.reason == "ningún candidato aprobado"
     assert found  # la fixture tiene candidatos: el fallo es por la revisión
 
@@ -232,7 +258,7 @@ def test_aprobacion_caducada_se_propaga() -> None:
     stale = dataclasses.replace(_approved(found["aprobado"]), candidate_sha256="0" * 64)
     state = reconcile(generar.report(), [stale])
     with pytest.raises(StaleCandidateApprovalError) as error:
-        build_candidate_layer(state, summarize_measurement(_report(), CUT_METHOD), "x", _manifest())
+        _build(state, _manifest())
     assert error.value.stale_ids == (found["aprobado"].candidate_id,)
 
 
@@ -279,9 +305,9 @@ def test_solo_colmenar_es_publicable() -> None:
 def test_los_textos_de_la_medicion_son_los_del_adr() -> None:
     """Las frases del resumen son literales del ADR 0048 §3: si cambian en un sitio y no en el
     otro, este test falla."""
-    adr = next(
-        (Path(__file__).resolve().parents[2] / "docs" / "adr").glob("0048-*.md")
-    ).read_text(encoding="utf-8")
+    adr = next((Path(__file__).resolve().parents[2] / "docs" / "adr").glob("0048-*.md")).read_text(
+        encoding="utf-8"
+    )
     for text in (
         MEASUREMENT_COVERAGE,
         MEASUREMENT_PRECISION,
@@ -312,7 +338,7 @@ def test_aprobado_sin_imagenes_falla_nombrando_su_id() -> None:
     state = reconcile(report, [_approved(aprobado)])
     manifest = publicar.manifest_for([found["propuesto"]])
     with pytest.raises(CandidatesNotPublishableError) as error:
-        build_candidate_layer(state, summarize_measurement(_report(), CUT_METHOD), "x", manifest)
+        _build(state, manifest)
     assert error.value.reason == (
         f"el candidato {aprobado.candidate_id}: no está en el manifiesto de imágenes de "
         "comparación; ejecuta imagenes-comparacion"
@@ -324,7 +350,7 @@ def test_manifiesto_de_otra_politica_se_propaga() -> None:
     state = reconcile(generar.report(), [_approved(found["aprobado"])])
     manifest = dataclasses.replace(_manifest(), policy=CriterionRef("imagenes_comparacion", 1))
     with pytest.raises(ComparisonManifestNotUsableError):
-        build_candidate_layer(state, summarize_measurement(_report(), CUT_METHOD), "x", manifest)
+        _build(state, manifest)
 
 
 def test_licencia_del_trazado_se_comprueba_antes_que_las_imagenes() -> None:
@@ -334,5 +360,81 @@ def test_licencia_del_trazado_se_comprueba_antes_que_las_imagenes() -> None:
     state = reconcile(report, [_approved(rejected)])
     empty = dataclasses.replace(_manifest(), stretches=())
     with pytest.raises(CandidatesNotPublishableError) as error:
-        build_candidate_layer(state, summarize_measurement(_report(), CUT_METHOD), "x", empty)
+        _build(state, empty)
     assert "no redistribuible" in error.value.reason
+
+
+# --- tabla de convergencia (#315) --------------------------------------------------------
+
+
+def test_cada_aprobado_lleva_su_tabla_sin_id_y_la_capa_sus_notas() -> None:
+    found = generar.candidates()
+    build = _layer(list(found.values()), approve=[found["aprobado"], found["propuesto"]])
+    for item in build.publication.content.items:
+        assert item.convergence.method == "convergencia_fuentes v2"
+        assert item.convergence.criterion == "discrepancia_trazados v1"
+        assert item.convergence.images_note is None
+        assert len(item.convergence.rows) == 12
+    notes = build.publication.convergence_notes
+    assert notes.appears_min_fraction == 0.5
+    assert [key for key, _, _ in notes.sources][:3] == [
+        "via_pecuaria_oficial",
+        "ign_red_transporte",
+        "catastro_vt",
+    ]
+
+
+def test_aprobado_sin_tabla_falla_con_su_motivo_despues_de_lo_de_172() -> None:
+    found = generar.candidates()
+    aprobado = found["aprobado"]
+    report = dataclasses.replace(generar.report(), candidates=(aprobado,))
+    state = reconcile(report, [_approved(aprobado)])
+    summary = summarize_measurement(_report(), CUT_METHOD)
+    with pytest.raises(CandidateConvergenceMissingError) as error:
+        build_candidate_layer(
+            state, summary, "x", _manifest(), {}, {aprobado.candidate_id: "motivo fijo"}
+        )
+    assert (error.value.code, error.value.candidate_id, error.value.reason) == (
+        "28043",
+        aprobado.candidate_id,
+        "motivo fijo",
+    )
+    with pytest.raises(CandidateConvergenceMissingError) as error:
+        build_candidate_layer(state, summary, "x", _manifest(), {}, {})
+    assert error.value.reason == NO_CONVERGENCE_TABLE
+    # Sin imágenes del aprobado, sale el mensaje de #172 aunque tampoco haya tabla.
+    with pytest.raises(CandidatesNotPublishableError):
+        build_candidate_layer(
+            state, summary, "x", publicar.manifest_for([found["propuesto"]]), {}, {}
+        )
+
+
+def test_tablas_con_umbrales_distintos_no_se_publican_juntas() -> None:
+    found = generar.candidates()
+    approved = [found["aprobado"], found["propuesto"]]
+    report = dataclasses.replace(
+        generar.report(), candidates=tuple(sorted(approved, key=lambda c: c.candidate_id))
+    )
+    state = reconcile(report, [_approved(c) for c in approved])
+    manifest = _manifest()
+    tables, _ = candidate_tables(approved, manifest)
+    other, _ = candidate_tables([found["propuesto"]], manifest, appears_min_fraction=0.8)
+    tables.update(other)
+    with pytest.raises(ConvergenceNotPublishableError):
+        build_candidate_layer(
+            state, summarize_measurement(_report(), CUT_METHOD), "x", manifest, tables, {}
+        )
+
+
+def test_comprobacion_previa_repite_los_errores_de_170_y_172() -> None:
+    found = generar.candidates()
+    with pytest.raises(CandidatesNotPublishableError) as error:
+        check_approved_publishable(reconcile(generar.report(), []), _manifest())
+    assert error.value.reason == "ningún candidato aprobado"
+    rejected = found["rechazado"]
+    report = dataclasses.replace(generar.report(), candidates=(rejected,))
+    with pytest.raises(CandidatesNotPublishableError) as error:
+        check_approved_publishable(reconcile(report, [_approved(rejected)]), _manifest())
+    assert "no redistribuible" in error.value.reason
+    state = reconcile(generar.report(), [_approved(found["aprobado"])])
+    check_approved_publishable(state, _manifest())  # sin error

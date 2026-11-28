@@ -67,6 +67,7 @@ from parcel_intel.domain.public_card import (
 )
 from parcel_intel.domain.published_comparison import (
     NO_IMAGES,
+    TOO_LONG,
     ComparisonNotPublishableError,
     PublishedImage,
     build_published_comparison,
@@ -77,8 +78,9 @@ from parcel_intel.domain.trail import SourceKind
 ConvergenceValue = Literal["aparece", "no_aparece", "sin_cobertura", "imagen_disponible"]
 EvidenceKind = Literal["trazado", "imagen"]  # el «papel» de la fila
 
-CONVERGENCE_METHOD = CriterionRef("convergencia_fuentes", 1)
-"""Sube con cualquier cambio de regla, constante u orden de filas."""
+CONVERGENCE_METHOD = CriterionRef("convergencia_fuentes", 2)
+"""Sube con cualquier cambio de regla, constante u orden de filas. v2 (#315, ADR 0057 §4):
+la tabla sin filas de ortofoto de un tramo demasiado largo (`images_unavailable`)."""
 
 APPEARS_MIN_FRACTION = 0.5
 """Umbral de producto (a revisar con el fundador, ADR 0054): un tramo que coincide en
@@ -124,7 +126,12 @@ def compute_convergence_text_hash() -> str:
     return hashlib.sha256(convergence_text_fingerprint().encode("utf-8")).hexdigest()
 
 
-# --- Rótulos propuestos por el arquitecto, NO validados (a revisar antes de #246). ----
+# --- Rótulos de fila: los propuso el arquitecto y los aprobó el fundador en #240 -------
+# («vamos con tus recomendaciones en lo demás», 2026-11-27, respuesta al punto 3 del
+# comentario anterior). No entran en la huella de `CONVERGENCE_TEXT_VALIDATION`.
+ROW_LABELS_APPROVAL_URL = (
+    "https://github.com/murcialito/paso-comun/issues/240#issuecomment-7224620545"
+)
 LAYER_ROW_LABEL: Mapping[SourceKind, str] = MappingProxyType(
     {
         "via_pecuaria_oficial": "Vía pecuaria oficial",
@@ -328,6 +335,8 @@ class ConvergenceTable:
     method: CriterionRef  # == CONVERGENCE_METHOD
     criterion: CriterionRef  # == discrepancy_criterion.CRITERION (trazabilidad hasta la regla)
     appears_min_fraction: float  # umbral de «Aparece» que se usó (configurable, ADR 0054)
+    # Tramo demasiado largo para las imágenes: la tabla va sin filas de ortofoto (ADR 0057 §4).
+    images_unavailable: bool = False
 
     def __post_init__(self) -> None:
         if not isinstance(self.stretch_id, str) or not _STRETCH_ID_RE.fullmatch(self.stretch_id):
@@ -352,6 +361,12 @@ class ConvergenceTable:
         keys = [row.source_key for row in self.rows]
         if len(set(keys)) != len(keys):
             raise InvalidConvergenceTableError("rows tiene source_key repetidos")
+        if not isinstance(self.images_unavailable, bool):
+            raise InvalidConvergenceTableError("images_unavailable debe ser un bool")
+        if self.images_unavailable and any(row.evidence_kind == "imagen" for row in self.rows):
+            raise InvalidConvergenceTableError(
+                "una tabla con images_unavailable no lleva filas de imagen"
+            )
         terms = vetoed_terms_in(self.title)
         if terms:
             raise InvalidConvergenceTableError(f"title contiene términos vetados: {terms}")
@@ -672,18 +687,28 @@ def build_convergence_table(
     historic: Mapping[HistoricDocumentKind, HistoricCoverage],
     comparison: StretchComparison | None,
     appears_min_fraction: float = APPEARS_MIN_FRACTION,
+    without_images_if_too_long: bool = False,
 ) -> ConvergenceTable:
     """Una fila por fuente, en el orden de `sources`. Una capa ausente de `layers` es una
     capa no cargada («Sin cobertura»); una fuente histórica sin cobertura en `historic` es
     un error de composición (el port nunca devuelve nada vacío). `StretchNotComputableError`
-    si las imágenes del tramo no se pueden usar."""
+    si las imágenes del tramo no se pueden usar.
+
+    Con `without_images_if_too_long`, un tramo demasiado largo para las imágenes
+    (`published_comparison.TOO_LONG`) no es un fallo: la tabla sale con las demás fuentes,
+    en el mismo orden, sin filas de ortofoto y con `images_unavailable=True` (ADR 0057 §4).
+    Cualquier otro motivo se propaga."""
     threshold = check_appears_min_fraction(appears_min_fraction)
     slots = [source.slot for source in sources if isinstance(source, OrthophotoRowSource)]
-    images = (
-        {row.source_key: row for row in orthophoto_rows(stretch, comparison, slots)}
-        if (slots)
-        else {}
-    )
+    images: dict[str, ConvergenceRow] = {}
+    images_unavailable = False
+    if slots:
+        try:
+            images = {row.source_key: row for row in orthophoto_rows(stretch, comparison, slots)}
+        except StretchNotComputableError as error:
+            if not (without_images_if_too_long and error.reason == TOO_LONG):
+                raise
+            images_unavailable = True
     rows: list[ConvergenceRow] = []
     for source in sources:
         if isinstance(source, LayerRowSource):
@@ -692,7 +717,7 @@ def build_convergence_table(
             if source.document_kind not in historic:
                 raise ValueError(f"falta la cobertura histórica de {source.document_kind}")
             rows.append(historic_row(stretch, historic[source.document_kind], threshold))
-        else:
+        elif not images_unavailable:
             rows.append(images[orthophoto_source_key(source.slot)])
     return ConvergenceTable(
         stretch_id=stretch.stretch_id,
@@ -703,4 +728,5 @@ def build_convergence_table(
         method=CONVERGENCE_METHOD,
         criterion=CRITERION,
         appears_min_fraction=threshold,
+        images_unavailable=images_unavailable,
     )

@@ -7,10 +7,12 @@ from pathlib import Path
 import pytest
 
 from parcel_intel.adapters.trail_layers import GeoJsonTrailLayerReader, TrailLayerFormatError
+from parcel_intel.adapters.trail_layers.geojson_reader import IncompleteTrailLayerError
 from parcel_intel.domain.discrepancy_report import TrailLayer
 from parcel_intel.domain.geometry import Geometry, MultiLineGeometry
 from parcel_intel.domain.provenance import Redistribution
 from parcel_intel.domain.trail import SourceKind
+from parcel_intel.ports.errors import TrailLayerFileError
 
 VIA: SourceKind = "via_pecuaria_oficial"
 _PROVENANCE = {
@@ -168,3 +170,17 @@ def test_marca_desconocida_es_error_de_formato(tmp_path: Path) -> None:
 
     with pytest.raises(TrailLayerFormatError, match="redistribucion"):
         GeoJsonTrailLayerReader({VIA: tmp_path}).get_layer(VIA, "28043")
+
+
+def test_el_error_de_formato_es_el_error_de_fichero_del_port(tmp_path: Path) -> None:
+    """#315: `application/` captura `TrailLayerFileError` (port); el error del adapter, y el de
+    capa incompleta, heredan de él sin cambiar su `source`."""
+    assert issubclass(TrailLayerFormatError, TrailLayerFileError)
+    assert issubclass(IncompleteTrailLayerError, TrailLayerFileError)
+    directory = tmp_path / "vias"
+    directory.mkdir()
+    (directory / "28043.geojson").write_text("{no", encoding="utf-8")
+    reader = GeoJsonTrailLayerReader({"via_pecuaria_oficial": directory})
+    with pytest.raises(TrailLayerFileError) as caught:
+        reader.get_layer("via_pecuaria_oficial", "28043")
+    assert caught.value.source == "via_pecuaria_oficial"

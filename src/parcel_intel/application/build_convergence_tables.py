@@ -65,6 +65,7 @@ class BuildConvergenceTablesUseCase:
         comparisons: ComparisonManifestSource,
         sources: tuple[RowSource, ...] = CONVERGENCE_ROW_SOURCES,
         appears_min_fraction: float = APPEARS_MIN_FRACTION,
+        without_images_if_too_long: bool = False,
     ) -> None:
         keys = [_source_key(source) for source in sources]
         if len(set(keys)) != len(keys):
@@ -74,6 +75,8 @@ class BuildConvergenceTablesUseCase:
         self._comparisons = comparisons
         self._sources = sources
         self._appears_min_fraction = check_appears_min_fraction(appears_min_fraction)
+        # Un tramo demasiado largo sale sin filas de ortofoto en vez de fallar (ADR 0057 §4).
+        self._without_images_if_too_long = without_images_if_too_long
 
     def execute(
         self, municipality_code: str, stretches: Sequence[ConvergenceStretch]
@@ -106,6 +109,7 @@ class BuildConvergenceTablesUseCase:
                     historic,
                     comparison,
                     self._appears_min_fraction,
+                    self._without_images_if_too_long,
                 )
             except StretchNotComputableError as error:
                 results.append(StretchConvergence(stretch.stretch_id, None, error.reason))

@@ -238,6 +238,16 @@ class TrailLayerUnavailableError(Exception):
         self.reason = reason
 
 
+class TrailLayerFileError(Exception):
+    """El fichero de una capa derivada existe pero no es válido (historia #315). `source` es
+    el `SourceKind`. Vive aquí porque `publicar-candidatos` lo captura en `application/`,
+    que no puede importar el error concreto del adapter (`TrailLayerFormatError`, que
+    hereda de este). Su mensaje puede citar rutas y detalles de pydantic: quien lo capture
+    para un mensaje público usa solo `source`."""
+
+    source: str
+
+
 class DiscrepancyReportUnavailableError(Exception):
     """No hay informe de discrepancias escrito para ese municipio -- historia
     #94. Significa solo "no hay fichero"; un fichero corrupto es otro error."""
@@ -279,6 +289,17 @@ class CandidateReviewFileError(Exception):
 
     def __init__(self, path: str, detail: str) -> None:
         super().__init__(f"Fichero de revisión de candidatos no válido {path}: {detail}")
+        self.path = path
+        self.detail = detail
+
+
+class CandidateInventoryFileError(Exception):
+    """El fichero de códigos de inventario (`curated/candidatos/<ine>/inventario.json`)
+    no cumple el formato -- historia #288, ADR 0047. Se rechaza entero. El detalle
+    nombra campos y `candidate_id` ya validados; nunca el valor rechazado."""
+
+    def __init__(self, path: str, detail: str) -> None:
+        super().__init__(f"Fichero de inventario de candidatos no válido {path}: {detail}")
         self.path = path
         self.detail = detail
 
@@ -410,3 +431,14 @@ class WatercourseLicenseMissingError(Exception):
 
     def __init__(self) -> None:
         super().__init__("Los cauces no traen licencia en su procedencia; no se deriva la capa")
+
+
+class HistoricCoverageError(Exception):
+    """Una unidad histórica no se puede usar en la cobertura de la tabla de convergencia
+    (aprobación caducada, imagen ausente o distinta, fichero no válido) -- historia #313,
+    ADR 0057. El motivo es siempre un texto fijo, sin mensajes ajenos."""
+
+    def __init__(self, unit_id: str, reason: str) -> None:
+        super().__init__(f"Cobertura histórica: la unidad {unit_id} no es utilizable: {reason}")
+        self.unit_id = unit_id
+        self.reason = reason

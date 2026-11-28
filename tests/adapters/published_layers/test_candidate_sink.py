@@ -1,4 +1,4 @@
-"""Sink de tramos a verificar (historias #170 y #172). Publicaciones sintéticas de la
+"""Sink de tramos a verificar (historias #170, #172 y #315). Publicaciones sintéticas de la
 fixture."""
 
 import dataclasses
@@ -15,11 +15,14 @@ from parcel_intel.adapters.published_layers import (
     PublishedLayerError,
 )
 from parcel_intel.domain.candidate_review import reconcile
+from parcel_intel.domain.convergence import ConvergenceRow
 from parcel_intel.domain.published_candidate import (
     CandidateLayerPublication,
     build_candidate_layer,
     summarize_measurement,
 )
+from parcel_intel.domain.published_convergence import PublishedConvergence
+from tests.convergence_support import candidate_tables
 from tests.fixtures.candidatos_publicar import generar
 from tests.fixtures.candidatos_revision import generar as revision
 
@@ -35,7 +38,10 @@ def _publication() -> CandidateLayerPublication:
         generar.INE
     )
     assert manifest is not None
-    return build_candidate_layer(state, summary, "Colmenar de Oreja", manifest).publication
+    tables, failures = candidate_tables(state.approved(), manifest)
+    return build_candidate_layer(
+        state, summary, "Colmenar de Oreja", manifest, tables, failures
+    ).publication
 
 
 def _snapshot(directory: Path) -> dict[str, bytes]:
@@ -138,3 +144,62 @@ def test_nombre_distinto_del_de_otras_capas_falla_sin_escribir(tmp_path: Path) -
     after = _snapshot(tmp_path)
     after.pop("discrepancias/28043.geojson")
     assert after == before
+
+
+def _with_convergence(
+    publication: CandidateLayerPublication, **changes: object
+) -> CandidateLayerPublication:
+    first, *rest = publication.content.items
+    convergence: PublishedConvergence = dataclasses.replace(first.convergence, **changes)  # type: ignore[arg-type]
+    item = dataclasses.replace(first, convergence=convergence)
+    content = dataclasses.replace(publication.content, items=(item, *rest))
+    return dataclasses.replace(publication, content=content)
+
+
+def test_cada_tramo_lleva_su_tabla_y_la_procedencia_su_bloque(tmp_path: Path) -> None:
+    """#315: `convergencia` en cada feature y en el .procedencia.json, sin ids."""
+    GeoJsonPublishedCandidateSink(tmp_path, URL).publish([_publication()])
+    document = json.loads((tmp_path / "candidatos" / "28043.geojson").read_text(encoding="utf-8"))
+    for feature in document["features"]:
+        table = feature["properties"]["convergencia"]
+        assert set(table) == {"titulo", "filas", "imagenes", "aviso", "metodo", "criterio"}
+        assert table["metodo"] == "convergencia_fuentes v2"
+        assert table["imagenes"] is None
+    sidecar = json.loads(
+        (tmp_path / "candidatos" / "28043.geojson.procedencia.json").read_text(encoding="utf-8")
+    )
+    assert sidecar["convergencia"]["umbral_aparece"] == 0.5
+    assert sidecar["convergencia"]["red_ign"] == "sin asfaltar y asfaltada (ADR 0050)"
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"title": "Otro título"},
+        {"warning": "Otro aviso"},
+        {"images_note": "Otra nota"},
+        {"method": "convergencia_fuentes v2 refcat 99999A00109101"},
+    ],
+)
+def test_barrera_de_la_tabla_no_escribe_nada(tmp_path: Path, changes: dict[str, object]) -> None:
+    with pytest.raises(PublishedLayerError, match="tabla de convergencia"):
+        GeoJsonPublishedCandidateSink(tmp_path, URL).publish(
+            [_with_convergence(_publication(), **changes)]
+        )
+    assert _snapshot(tmp_path) == {}
+
+
+def test_barrera_de_la_tabla_rechaza_rotulos_y_atribuciones_ajenos(tmp_path: Path) -> None:
+    publication = _publication()
+    *others, last_row = publication.content.items[0].convergence.rows
+    assert last_row.value == "imagen_disponible"
+    for row in (
+        dataclasses.replace(last_row, label="Rótulo no aprobado"),
+        dataclasses.replace(last_row, attributions=("Atribución inventada",)),
+    ):
+        rows: tuple[ConvergenceRow, ...] = (*others, row)
+        with pytest.raises(PublishedLayerError, match="tabla de convergencia"):
+            GeoJsonPublishedCandidateSink(tmp_path, URL).publish(
+                [_with_convergence(publication, rows=rows)]
+            )
+        assert _snapshot(tmp_path) == {}

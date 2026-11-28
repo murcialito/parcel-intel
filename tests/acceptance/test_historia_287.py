@@ -184,14 +184,7 @@ def test_ca8_solo_documentacion_en_el_diff() -> None:
     los commits de esta historia («Historia #287: …», en su rama o ya fusionados en `main`), no el
     diff de la rama actual contra `origin/main`: eso fallaba en cualquier otra rama con cambios de
     código. Si el clon no tiene esos commits (CI con historia corta), el test se salta."""
-    salida = subprocess.run(
-        ["git", "log", "--format=", "--name-only", "--grep=^Historia #287:", "HEAD"],
-        cwd=REPO,
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout
-    cambios = {linea for linea in salida.splitlines() if linea.strip()}
+    cambios = _ficheros_de_los_commits("^Historia #287:")
     if not cambios:
         pytest.skip("no hay commits de la historia #287 en este clon")
     permitidos = {
@@ -200,3 +193,30 @@ def test_ca8_solo_documentacion_en_el_diff() -> None:
         "docs/lessons/LESSONS.md",
     }
     assert cambios <= permitidos, sorted(cambios - permitidos)
+
+
+def _ficheros_de_los_commits(patron: str) -> set[str]:
+    """Ficheros que tocan los commits cuyo mensaje casa con `patron`.
+
+    Se usa `git diff-tree` commit a commit y no `git log --name-only`: en un clon superficial (el CI
+    de `main` clona con profundidad 1) el commit de la historia es la raíz del clon y `git log
+    --name-only` listaría el árbol entero; `diff-tree` sin `--root` no lista nada en un commit raíz,
+    y entonces el test se salta."""
+    commits = subprocess.run(
+        ["git", "log", "--format=%H", f"--grep={patron}", "HEAD"],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.split()
+    cambios: set[str] = set()
+    for commit in commits:
+        salida = subprocess.run(
+            ["git", "diff-tree", "--no-commit-id", "--name-only", "-r", commit],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout
+        cambios |= {linea for linea in salida.splitlines() if linea.strip()}
+    return cambios

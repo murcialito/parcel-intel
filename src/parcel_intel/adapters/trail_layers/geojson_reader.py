@@ -27,14 +27,15 @@ from parcel_intel.domain.discrepancy_report import TrailLayer
 from parcel_intel.domain.geometry import Geometry, Line, MultiLineGeometry, Ring, TrailShape
 from parcel_intel.domain.provenance import Provenance, Redistribution
 from parcel_intel.domain.trail import METRIC_SRID, InvalidTrailError, SourceKind, Trail
-from parcel_intel.ports.errors import TrailLayerUnavailableError
+from parcel_intel.ports.errors import TrailLayerFileError, TrailLayerUnavailableError
 
 _MUNICIPALITY_RE = re.compile(r"\d{5}")
 _DEFAULT_CHARACTER = "capa derivada sin carácter declarado"
 
 
-class TrailLayerFormatError(Exception):
-    """El fichero de una capa existe pero no cumple el formato común."""
+class TrailLayerFormatError(TrailLayerFileError):
+    """El fichero de una capa existe pero no cumple el formato común. Hereda del error del
+    port (`TrailLayerFileError`, historia #315) para que `application/` lo pueda capturar."""
 
     def __init__(self, source: str, path: Path, detail: str) -> None:
         super().__init__(f"Capa {source!r} no válida en {path}: {detail}")
@@ -260,8 +261,7 @@ def _check_surface(source: str, path: Path, model: LayerFileModel, expected: str
             raise TrailLayerFormatError(
                 source,
                 path,
-                f"feature {feature.id!r}: superficie {feature_surface!r}, "
-                f"se esperaba {expected!r}",
+                f"feature {feature.id!r}: superficie {feature_surface!r}, se esperaba {expected!r}",
             )
 
 

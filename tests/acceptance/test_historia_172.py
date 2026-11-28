@@ -30,6 +30,12 @@ Adaptación anotada (CA11): `12b804770c6c38bd` es el candidato `sin_revision` de
 fixture, que no está aprobado y por tanto no se publica. El test pide la URL de su
 imagen `reciente` tal como la deja el manifiesto (es exactamente la que se publicaría,
 `window_url`) y, además, la URL `reciente` realmente publicada del `aprobado`.
+
+Actualizado por #315 (CA10, ADR 0057): la feature gana `convergencia`, cuyas filas sin
+cobertura llevan el valor cerrado `sin_cobertura`. La búsqueda de fugas de CA2 (que protege
+las omisiones de las imágenes) se acota al fichero sin ese bloque, que tiene su propia lista
+blanca (lección de #172). `_publicar` pasa las capas sintéticas de la fixture y una cobertura
+histórica vacía; CA9 compone el caso de uso con las mismas entradas.
 """
 
 import copy
@@ -56,6 +62,7 @@ from parcel_intel.adapters.published_layers import (
 from parcel_intel.cli import main
 from parcel_intel.domain.candidate_review import candidate_fingerprint, reconcile
 from parcel_intel.domain.comparison_image import FLIGHTS, attribution_for
+from parcel_intel.domain.convergence import prepare_layer
 from parcel_intel.domain.cut_candidate import CutCandidate
 from parcel_intel.domain.orthophoto import OrthophotoWindow
 from parcel_intel.domain.public_card import banned_words_in
@@ -66,6 +73,8 @@ from parcel_intel.domain.published_candidate import (
 )
 from parcel_intel.domain.published_comparison import SERVED_BY_TEXT
 from parcel_intel.domain.published_discrepancy import CADASTRAL_REFERENCE_RE, PARCEL_LOCATOR_RE
+from parcel_intel.domain.trail import SourceKind
+from tests.convergence_support import candidate_tables
 from tests.fixtures.candidatos_publicar import generar
 from tests.fixtures.candidatos_revision import generar as revision
 
@@ -78,6 +87,7 @@ CURATED_DIR = FIXTURE / "curated"
 COMPARISON_DIR = FIXTURE / "comparacion"
 MEASUREMENT = FIXTURE / "medicion.json"
 MANIFEST = COMPARISON_DIR / "28043.json"
+CAPAS_DIR = FIXTURE / "capas"  # capas derivadas sintéticas de la tabla de convergencia (#315)
 NOTICE = ROOT / "NOTICE"
 INE = "28043"
 RERUN = "vuelve a ejecutar imagenes-comparacion"
@@ -140,6 +150,13 @@ def _publicar(
             str(comparacion),
             "--salida",
             str(salida),
+            # #315: capas de la fixture y sin cobertura histórica (directorios que no existen).
+            "--capas",
+            str(CAPAS_DIR),
+            "--curated-historico",
+            str(salida.parent / "sin_curated_historico"),
+            "--cache-historico",
+            str(salida.parent / "sin_cache_historico"),
         ]
     )
 
@@ -245,7 +262,14 @@ def _publication() -> CandidateLayerPublication:
     summary = summarize_measurement(measurement, revision.report().method)
     manifest = JsonComparisonManifestReader(COMPARISON_DIR).get_manifest(INE)
     assert manifest is not None
-    return build_candidate_layer(state, summary, "Colmenar de Oreja", manifest).publication
+    # #315: las mismas tablas que con `publicar-candidatos` (capas de la fixture).
+    reader = main._trail_layer_reader(CAPAS_DIR)
+    kinds: tuple[SourceKind, ...] = ("via_pecuaria_oficial", "ign_red_transporte", "catastro_vt")
+    layers = {kind: prepare_layer(reader.get_layer(kind, INE)) for kind in kinds}
+    tables, failures = candidate_tables(state.approved(), manifest, layers)
+    return build_candidate_layer(
+        state, summary, "Colmenar de Oreja", manifest, tables, failures
+    ).publication
 
 
 @pytest.fixture
@@ -340,7 +364,13 @@ def test_ca2_bloque_comparacion_y_omitidas_en_lenguaje_llano(published: dict[str
             assert window["omitidas"] == [
                 {"franja": slot, "texto": "sin cobertura de ese vuelo"} for slot in OMITTED_SLOTS
             ]
-    text = (published["site"] / "candidatos" / f"{INE}.geojson").read_text(encoding="utf-8")
+    # #315: sin el bloque `convergencia` (su `valor` cerrado `sin_cobertura` es legítimo y
+    # tiene su propia lista blanca); lo que este criterio protege es el resto del fichero.
+    document = _load(published["site"] / "candidatos" / f"{INE}.geojson")
+    for feature in document["features"]:
+        assert "convergencia" in feature["properties"]
+        del feature["properties"]["convergencia"]
+    text = json.dumps(document, ensure_ascii=False)
     for leaked in (
         "tipo_error",
         "probados",
@@ -690,6 +720,8 @@ def test_ca9_por_encima_del_umbral_falla_sin_escribir(
         CURATED_DIR,
         COMPARISON_DIR,
         site,
+        CAPAS_DIR,
+        main.build_historic_coverage_source(tmp_path / "sin_historico", tmp_path / "sin_cache"),
         size_threshold_bytes=size - 1,
     )
     with pytest.raises(PublishedLayerError) as error:

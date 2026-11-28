@@ -12,6 +12,9 @@ fixture de #170. El `http_get` falso responde:
 
 Así la primera ventana publica siete imágenes y la segunda seis, con `1991` omitida.
 
+Desde #315 la publicación lee las capas sintéticas de `capas/` y una cobertura histórica
+vacía, y la feature lleva su tabla de convergencia (`convergencia`).
+
 Regenera la fixture del visor `tests/fixtures/site/candidatos_comparacion_idem_28043.geojson`
 (el fichero publicado tal cual, lección de #178):
 
@@ -114,6 +117,13 @@ def publish_args(base: Path, site: Path) -> list[str]:
         str(base / "comparacion"),
         "--salida",
         str(site),
+        # #315: capas sintéticas de la fixture de #170 y sin cobertura histórica.
+        "--capas",
+        str(generar.DIRECTORY / "capas"),
+        "--curated-historico",
+        str(base / "sin_curated_historico"),
+        "--cache-historico",
+        str(base / "sin_cache_historico"),
     ]
 
 

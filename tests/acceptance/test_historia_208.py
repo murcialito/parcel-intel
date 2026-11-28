@@ -12,6 +12,12 @@ las URL de `ORACLE_URL_1975`/`ORACLE_URL_1991`.
 
 El caso de dos ventanas de CA13 (`tests/fixtures/candidatos_publicar/generar_idem.py`)
 encadena los productores reales: `imagenes-comparacion` → `publicar-candidatos`.
+
+Actualizado por #315 (CA10, ADR 0057): `publicar-candidatos` lee también las capas
+derivadas y `curated/historico/`; `generar_idem.py` le pasa las capas sintéticas de la
+fixture y una cobertura histórica vacía, y la fixture del visor
+(`tests/fixtures/site/candidatos_comparacion_idem_28043.geojson`) se regeneró con la
+propiedad `convergencia`. Las comprobaciones de CA13 sobre las imágenes no cambian.
 """
 
 import copy
