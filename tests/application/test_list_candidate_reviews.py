@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 import pytest
 
 from parcel_intel.application.list_candidate_reviews import ListCandidateReviewsUseCase
+from parcel_intel.domain.candidate_inventory import InventoryCode
 from parcel_intel.domain.candidate_review import (
     CandidateReview,
     ManifestImageState,
@@ -13,6 +14,7 @@ from parcel_intel.domain.candidate_review import (
 )
 from parcel_intel.domain.cut_candidate import MunicipalCutCandidateReport
 from parcel_intel.ports.errors import (
+    CandidateInventoryFileError,
     CandidateReviewFileError,
     ComparisonManifestFileError,
     CutCandidateFileError,
@@ -147,3 +149,69 @@ def test_un_fichero_de_revision_invalido_falla_aunque_no_haya_candidatos() -> No
 def test_otros_errores_se_propagan() -> None:
     with pytest.raises(RuntimeError):
         _use_case({INE: RuntimeError("inesperado")}).execute([INE])
+
+
+class Inventory:
+    def __init__(self, codes: Mapping[str, tuple[InventoryCode, ...] | Exception]) -> None:
+        self._codes = codes
+
+    def codes(self, municipality_code: str) -> tuple[InventoryCode, ...]:
+        found = self._codes.get(municipality_code, ())
+        if isinstance(found, Exception):
+            raise found
+        return found
+
+
+def _with_inventory(
+    codes: Mapping[str, tuple[InventoryCode, ...] | Exception],
+    reports: Mapping[str, MunicipalCutCandidateReport | Exception] | None = None,
+) -> ListCandidateReviewsUseCase:
+    return ListCandidateReviewsUseCase(
+        Candidates(generar_reports if reports is None else reports),
+        Reviews({INE: (_approval(),)}),
+        Images({}),
+        Inventory(codes),
+    )
+
+
+generar_reports: Mapping[str, MunicipalCutCandidateReport | Exception] = {INE: generar.report()}
+
+
+def test_inventario_sin_codigo_se_informa_y_no_falla() -> None:
+    (listing,) = _with_inventory({}).execute([INE])
+    assert listing.inventory is not None
+    assert listing.inventory.without_code == (APPROVED.candidate_id,)
+    assert not listing.failed
+
+
+def test_inventario_asignado() -> None:
+    code = InventoryCode(APPROVED.candidate_id, "COL", 1)
+    (listing,) = _with_inventory({INE: (code,)}).execute([INE])
+    assert listing.inventory is not None and listing.inventory.assigned == (code,)
+    assert not listing.failed
+
+
+def test_codigo_sobre_no_aprobado_o_huerfano_hace_fallar() -> None:
+    on_proposed = InventoryCode(CANDIDATES["propuesto"].candidate_id, "COL", 1)
+    orphan = InventoryCode("f" * 16, "COL", 2)
+    (a,) = _with_inventory({INE: (on_proposed,)}).execute([INE])
+    (b,) = _with_inventory({INE: (orphan,)}).execute([INE])
+    assert a.failed and a.inventory is not None and a.inventory.on_unapproved == (on_proposed,)
+    assert b.failed and b.inventory is not None and b.inventory.orphans == (orphan,)
+
+
+def test_error_de_inventario_es_fallo_del_municipio() -> None:
+    error = CandidateInventoryFileError("x", "motivo")
+    (listing,) = _with_inventory({INE: error}).execute([INE])
+    assert listing.outcome == "fallo" and listing.failed
+
+
+def test_sin_candidatos_cuenta_codigos_sin_comprobar() -> None:
+    code = InventoryCode("f" * 16, "COL", 1)
+    (listing,) = _with_inventory({INE: (code,)}, {}).execute([INE])
+    assert listing.outcome == "sin_candidatos" and listing.unchecked_codes == 1
+
+
+def test_sin_port_de_inventario_no_hay_estado_de_inventario() -> None:
+    (listing,) = _use_case({INE: generar.report()}).execute([INE])
+    assert listing.inventory is None

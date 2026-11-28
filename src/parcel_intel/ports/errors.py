@@ -283,6 +283,17 @@ class CandidateReviewFileError(Exception):
         self.detail = detail
 
 
+class CandidateInventoryFileError(Exception):
+    """El fichero de códigos de inventario (`curated/candidatos/<ine>/inventario.json`)
+    no cumple el formato -- historia #288, ADR 0047. Se rechaza entero. El detalle
+    nombra campos y `candidate_id` ya validados; nunca el valor rechazado."""
+
+    def __init__(self, path: str, detail: str) -> None:
+        super().__init__(f"Fichero de inventario de candidatos no válido {path}: {detail}")
+        self.path = path
+        self.detail = detail
+
+
 class ComparisonManifestFileError(Exception):
     """El manifiesto de imágenes de comparación de un municipio existe pero no se
     puede leer, no cumple el formato o es de otro municipio -- historia #168. No
