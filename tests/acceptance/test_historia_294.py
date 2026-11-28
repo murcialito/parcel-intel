@@ -14,7 +14,9 @@ import pytest
 pytestmark = pytest.mark.acceptance
 
 REPO = Path(__file__).resolve().parents[2]
-SUFIJO_ADR = "-repositorio-privado-de-datos-internos-adjuntos-de-release-catalogo-y-reglas-de-acceso.md"
+SUFIJO_ADR = (
+    "-repositorio-privado-de-datos-internos-adjuntos-de-release-catalogo-y-reglas-de-acceso.md"
+)
 CLAUDE_MD = REPO / "CLAUDE.md"
 PROCESO = REPO / "docs" / "proceso.md"
 REGISTRY = REPO / "src" / "parcel_intel" / "sources" / "REGISTRY.md"
@@ -37,7 +39,7 @@ def _numero_adr() -> str:
 
 def _seccion(texto: str, titulo: str) -> str:
     inicio = texto.index(titulo)
-    # Un título de Markdown acaba en el siguiente de su nivel; un párrafo en negrita, en el siguiente título.
+    # Un título acaba en el siguiente de su nivel; un párrafo en negrita, en el siguiente título.
     marca = titulo.split(" ", 1)[0] + " " if titulo.startswith("#") else "#"
     fin = texto.find(f"\n{marca}", inicio + len(titulo))
     return texto[inicio : fin if fin != -1 else len(texto)]
@@ -56,9 +58,16 @@ def test_ca1_compara_opciones_con_coste_y_justifica() -> None:
     adr = _adr()
     assert "«Each file included in a release must be under 2 GiB»" in adr
     assert "«There is no limit on the total size of a release, nor bandwidth usage»" in adr
-    assert "https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases" in adr
+    assert (
+        "https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases" in adr
+    )
     tabla = _seccion(adr, "### 1. Dónde")
-    for opcion in ("Repo privado + adjuntos de release", "Disco externo o NAS", "Cloudflare R2", "Backblaze B2"):
+    for opcion in (
+        "Repo privado + adjuntos de release",
+        "Disco externo o NAS",
+        "Cloudflare R2",
+        "Backblaze B2",
+    ):
         assert opcion in tabla, opcion
     assert "0 €" in tabla
     assert "0,015 USD/GB-mes" in tabla and "https://developers.cloudflare.com/r2/pricing/" in tabla
@@ -73,7 +82,15 @@ def test_ca2_formato_del_catalogo_y_que_va_en_git_o_adjunto() -> None:
     fecha de descarga, sha256, licencia, `publicable`, restricciones de uso), qué va en git y qué
     como adjunto de release."""
     seccion = _seccion(_adr(), "### 3. Qué va en git")
-    for clave in ('"fuente"', '"url"', '"fecha_descarga"', '"sha256"', '"licencia"', '"publicable"', '"restricciones_uso"'):
+    for clave in (
+        '"fuente"',
+        '"url"',
+        '"fecha_descarga"',
+        '"sha256"',
+        '"licencia"',
+        '"publicable"',
+        '"restricciones_uso"',
+    ):
         assert clave in seccion, clave
     assert "catalogo/<fuente>.json" in seccion
     assert "- **En git:**" in seccion
