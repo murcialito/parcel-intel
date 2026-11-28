@@ -728,7 +728,8 @@ def test_ca13_franja_usa_el_pseudo_eje_y_registro_redactado_no_vale() -> None:
     assert converted.shape == zone and converted.stretch_id == record.record_id
 
     axis = image_axis(zone)
-    assert isinstance(axis, MultiLineGeometry) and axis != zone
+    assert isinstance(axis, MultiLineGeometry)
+    assert axis.lines and axis.lines != zone.rings
     sources = tuple(s for s in CONVERGENCE_ROW_SOURCES if isinstance(s, OrthophotoRowSource))
 
     def failure_for(comp: StretchComparison) -> str | None:

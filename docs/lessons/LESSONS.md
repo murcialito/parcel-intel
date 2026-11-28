@@ -941,3 +941,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 
 - **Lección**: al cambiar la URL absoluta del sitio, buscar con Grep también los tests de otras historias que fijan una lista blanca de dominios en `index.html` (el de #166 CA8 admitía `murcialito` pero no el dominio nuevo). Se actualizan añadiendo el dominio nuevo, sin relajar el resto de la regla. Y un test `red` que comprueba el sitio en vivo falla hasta que se despliega la PR (el dominio sirve aún la versión anterior): se anota en la PR, no es un fallo.
   - **Aplica a**: implementación (cambios de dominio o de URL base).
+
+## [2026-11-28] Historia #240 — Tabla de convergencia de fuentes
+
+- **Lección**: cuando el fundador pide que un umbral de producto sea «configurable», un parámetro con valor por defecto no basta: el resultado debe anotar el valor que usó (aquí `ConvergenceTable.appears_min_fraction`). Si no, dos tablas con el mismo `CONVERGENCE_METHOD` pueden salir de umbrales distintos sin que nada lo delate, y se pierde «cada hallazgo rastreable hasta su regla». El campo nuevo entra en la lista blanca de la entidad y en el ADR, y la PR lo dice como desviación del diseño.
+  - **Aplica a**: arquitecto (al marcar un umbral «a revisar con el fundador», prever dónde se anota si se hace configurable) | implementación.
+- **Lección**: para probar que una entidad publicable no puede llevar geometría ni procedencia «ni anidada», no basta con listar `dataclasses.fields`: se recorren las anotaciones con `typing.get_type_hints`, `get_origin` y `get_args` hasta los tipos hoja, se compara cada uno con una lista blanca y se falla con los tipos prohibidos (`Geometry`, `Provenance`, `TrailRef`…). Así, un campo `tuple[X, ...]` o `X | None` con un tipo nuevo hace fallar el test aunque el nombre del campo no cambie.
+  - **Aplica a**: implementación y revisión (entidades con «lista blanca de campos»).

@@ -24,6 +24,7 @@ from parcel_intel.domain.georeferencing import (
     pixel_hull_contains,
     round_mm,
     thresholds_m,
+    unit_footprint,
 )
 from parcel_intel.domain.provenance import Provenance, Redistribution
 
@@ -394,3 +395,33 @@ def test_working_image_valida() -> None:
         WorkingImage("wms_render", "b" * 63, 10, 10, "image/png", provenance)
     with pytest.raises(ValueError, match="format"):
         WorkingImage("wms_render", "b" * 64, 10, 10, "image/gif", provenance)  # type: ignore[arg-type]
+
+
+# --- unit_footprint (historia #240). ---------------------------------------------------
+_IDENTITY_FLIP = AffineTransform(a=450000, b=1, c=0, d=4436000, e=0, f=-1)
+
+
+def _set(points: Sequence[ControlPoint]) -> ControlPointSet:
+    return ControlPointSet(points=tuple(points), sha256="c" * 64)
+
+
+def test_unit_footprint_oraculo_del_diseno_sin_el_descartado() -> None:
+    pixels = [(0, 0), (1000, 0), (1000, 1000), (0, 1000), (500, 500), (250, 750)]
+    points = [point(i + 1, c, r) for i, (c, r) in enumerate(pixels)]
+    points.append(point(7, 2000, 2000, retained=False))
+    footprint = unit_footprint(_set(points), _IDENTITY_FLIP)
+    assert footprint.srid == 25830
+    assert footprint.rings == (
+        ((450000, 4436000), (451000, 4436000), (451000, 4435000), (450000, 4435000)),
+    )
+    # Con el punto lejano retenido, la envolvente sí crece.
+    points[-1] = point(7, 2000, 2000)
+    assert (452000, 4434000) in unit_footprint(_set(points), _IDENTITY_FLIP).rings[0]
+
+
+def test_unit_footprint_con_menos_de_tres_vertices() -> None:
+    collinear = [point(i + 1, 100 * i, 100 * i) for i in range(6)]
+    with pytest.raises(ValueError, match="3"):
+        unit_footprint(_set(collinear), _IDENTITY_FLIP)
+    with pytest.raises(ValueError, match="3"):
+        unit_footprint(_set([]), _IDENTITY_FLIP)
