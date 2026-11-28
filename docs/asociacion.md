@@ -12,8 +12,8 @@ No sirve para presentar denuncias en nombre de Paso Común: las acciones de defe
 
 ## Pasos
 
-1. **Reunir a los socios fundadores.** Hacen falta al menos tres personas, físicas o jurídicas (LO 1/2002, art. 5). Conviene invitar a alguna asociación de caminos que ya exista: suma apoyos y evita que se vea como competencia.
-2. **Comprobar el nombre.** Que no esté ya inscrito ni se confunda con otra entidad. El registro lo comprueba al inscribir.
+1. **Reunir a los socios fundadores.** Hacen falta al menos tres personas, físicas o jurídicas (LO 1/2002, art. 5). Decidido: el fundador y dos personas de su confianza, cuyos nombres no se recogen en el repositorio. Después de constituirse, se invita a las asociaciones de caminos existentes a colaborar o hacerse socias: suma apoyos y evita que se vea como competencia.
+2. **Comprobar el nombre.** Decidido: «Asociación Paso Común». Hay que comprobar que no esté ya inscrito ni se confunda con otra entidad; el registro lo comprueba al inscribir. Si no lo admite, el fundador elige otro y se actualiza el ADR 0056.
 3. **Redactar los estatutos** con las cláusulas de la lista de abajo.
 4. **Firmar el acta fundacional.** Recoge la voluntad de constituir la asociación, los datos de los fundadores, los estatutos aprobados y la primera junta directiva. Firman todos los fundadores.
 5. **Inscribir la asociación** en el Registro de Asociaciones de la Comunidad de Madrid, con la solicitud, el acta y los estatutos firmados. Comprobar si hay tasa y si se puede hacer por vía electrónica.
@@ -31,6 +31,7 @@ Son las que convierten en norma las decisiones del ADR 0056:
 - **Sin ánimo de lucro**: los beneficios, si los hay, solo se destinan a los fines de la asociación y nunca se reparten.
 - **Cargos gratuitos**: los miembros de la junta directiva no cobran por su cargo ni por servicios prestados a la asociación.
 - **Ni un euro a particulares**: no se paga a socios ni a colaboradores por colaborar, ni con dinero ni con algo equivalente (vales, tarjetas regalo, saldo, bienes revendibles). El reconocimiento es no monetario: encuentro anual y premio honorífico.
+- **Reembolsos**: solo se devuelve el importe exacto de un gasto adelantado para una actividad de la asociación, contra ticket o factura, aprobado por otro miembro de la junta, por transferencia y publicado en las cuentas. Nunca cantidades a tanto alzado (dietas fijas, kilometraje estimado) ni en efectivo (ADR 0056, §2).
 - **Conflicto de interés**: no se contrata a empresas ni a profesionales vinculados a la junta, a los socios, a colaboradores o a sus familiares.
 - **Independencia**: no se aceptan fondos de quien tenga interés directo en un tramo señalado, y ningún financiador puede influir en el método ni en los resultados.
 - **Transparencia**: las cuentas anuales se publican con cada ingreso y gasto. No se aceptan ingresos que no se puedan publicar.
@@ -51,6 +52,6 @@ Hay que confirmarlas con una gestoría o con la Agencia Tributaria, porque depen
 
 Tras dos años de actividad se puede pedir la declaración de utilidad pública (LO 1/2002, art. 32). Con ella, la asociación puede acogerse a la Ley 49/2002 de mecenazgo y las donaciones desgravan, lo que ayuda mucho a conseguirlas. La ley exige, entre otras cosas, cargos gratuitos y cuentas presentadas, que ya están en los estatutos de arriba.
 
-## Pendiente del fundador
+## Mientras no esté constituida
 
-Ver la sección «Pendiente del fundador» del ADR 0056: reembolso de gastos, puente hasta que exista la asociación, socios fundadores y nombre.
+No se recauda dinero, ni directamente ni a través de un anfitrión fiscal. El fundador sigue pagando el dominio. Si alguien quiere aportar, se le pide que espere a que la asociación tenga NIF y cuenta (ADR 0056, «Decisiones del fundador»).

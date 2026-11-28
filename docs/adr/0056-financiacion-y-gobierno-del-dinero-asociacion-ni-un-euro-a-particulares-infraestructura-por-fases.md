@@ -1,6 +1,6 @@
 # ADR 0056 — Financiación y gobierno del dinero: asociación sin ánimo de lucro, ni un euro a particulares e infraestructura por fases
 
-- Estado: propuesta (pendiente del fundador; ver «Pendiente del fundador»)
+- Estado: aceptada (el fundador respondió a los cuatro puntos abiertos el 2026-11-28; ver «Decisiones del fundador»)
 - Fecha: 2026-11-28
 - Historia: ninguna; nace de una conversación con el fundador (2026-11-28). Amplía el ADR 0021 (coste casi cero) y el ADR 0053 (dominio, primer coste recurrente). No sustituye a #104 (coste y alojamiento de avisos con foto), que sigue decidiendo esa pieza.
 - Guía práctica: [`docs/asociacion.md`](../asociacion.md)
@@ -25,9 +25,9 @@ Además, casi todas las subvenciones y muchas donaciones exigen una entidad con 
 
 ### 1. El dinero entra y sale por una asociación, nunca por cuentas personales
 
-- El vehículo es una **asociación sin ánimo de lucro** (Ley Orgánica 1/2002, del Derecho de Asociación), inscrita en el registro de la Comunidad de Madrid. Los pasos están en [`docs/asociacion.md`](../asociacion.md).
+- El vehículo es una **asociación sin ánimo de lucro** (Ley Orgánica 1/2002, del Derecho de Asociación), inscrita en el registro de la Comunidad de Madrid con el nombre **«Asociación Paso Común»**, si el registro lo admite. La fundan el fundador y otras dos personas. Los pasos están en [`docs/asociacion.md`](../asociacion.md).
 - **Fundación, descartada**: exige una dotación inicial de 30.000 € (Ley 50/2002, art. 12) y un patronato con más obligaciones.
-- **Hasta que la asociación exista, no se recauda dinero.** El fundador sigue pagando el dominio como hasta ahora. Usar un anfitrión fiscal (tipo Open Collective) como puente queda pendiente del fundador.
+- **Hasta que la asociación exista, no se recauda dinero**, ni directamente ni a través de un anfitrión fiscal. El fundador sigue pagando el dominio como hasta ahora. Si alguien quiere aportar antes, se le pide que espere a que la asociación tenga NIF y cuenta.
 - Lo que ya tienen las asociaciones de caminos existentes se suma, no se duplica: se las invita a ser socias o a colaborar mediante convenio. La herramienta sigue siendo técnica y neutral. **La asociación no presenta denuncias en nombre de Paso Común.** Las acciones de defensa las llevan las asociaciones que usan la herramienta, para que el principio de «indicios a verificar, nunca acusaciones» no quede comprometido.
 
 ### 2. Ni un euro a manos particulares
@@ -45,6 +45,14 @@ Es la regla central de este ADR, y se escribe también en los estatutos.
 - servicios profesionales de terceros sin vínculo con el proyecto (gestoría, seguro, asesoría jurídica puntual);
 - promoción: impresión, materiales, inscripción en jornadas;
 - **reconocimiento no monetario**: un encuentro o cena anual de colaboradores y un premio de reconocimiento (diploma, placa o trofeo sin valor de reventa). También la mención pública en el sitio, solo con el consentimiento de la persona.
+
+**Reembolso de gastos justificados: sí, con condiciones.** Devolver a alguien un gasto que adelantó para una actividad de la asociación (por ejemplo, la gasolina de un trabajo de campo) no es pagarle: es devolverle su dinero, y nunca puede dejarle más de lo que puso. Se permite solo si se cumplen todas estas condiciones:
+- el gasto es para una actividad de la asociación, descrita por escrito (qué, cuándo, dónde) y aprobada por la junta, antes del gasto siempre que se pueda;
+- se devuelve el **importe exacto del ticket o factura**, nunca una cantidad a tanto alzado: ni dietas fijas, ni kilometraje estimado, ni redondeos;
+- quien recibe el reembolso no lo aprueba; hace falta la firma de otro miembro de la junta;
+- el reembolso se paga por transferencia desde la cuenta de la asociación, nunca en efectivo;
+- figura en las cuentas públicas con su concepto, su importe y la indicación de que es un reembolso. El nombre de la persona solo aparece si lo consiente, aunque la junta lo conoce y lo guarda con el justificante;
+- un gasto sin justificante no se reembolsa.
 
 ### 3. Transparencia e independencia
 
@@ -72,16 +80,16 @@ Orden de magnitud de la fase 2, **no verificado**. Son cifras de memoria del 202
 
 Siguen en vigor las reglas de CLAUDE.md: cada componente con coste recurrente tiene su propio ADR con estimación verificada; ningún LLM en consultas de usuario; ningún dato de titularidad. La fase 2 no se diseña por adelantado: entra cuando una historia la necesite.
 
-## Pendiente del fundador
+## Decisiones del fundador (2026-11-28)
 
-1. **Reembolso de gastos justificados** (por ejemplo, el desplazamiento de un trabajo de campo, contra ticket o factura). No es lucro, pero es dinero que pasa por manos de una persona. Opciones: (a) prohibido: la asociación paga directamente al proveedor o no se hace; (b) permitido solo contra justificante, con aprobación de la junta y publicado. Mientras no se decida, se aplica (a).
-2. **Puente hasta que exista la asociación**: no recaudar nada (por defecto) o usar un anfitrión fiscal tipo Open Collective, comprobando antes cuál sigue activo en Europa.
-3. **Quiénes son los socios fundadores** (mínimo tres) y si se invita a las asociaciones existentes a formar parte de la junta.
-4. **Nombre de la asociación**, sujeto a que el registro lo admita (por ejemplo, «Asociación Paso Común»).
+1. **Reembolso de gastos justificados: permitido solo contra justificante**, con las condiciones de §2. Se descartó la alternativa de prohibirlo y que la asociación pagara siempre directamente al proveedor.
+2. **Puente hasta que exista la asociación: no se recauda nada.** Se descartó el anfitrión fiscal tipo Open Collective.
+3. **Socios fundadores: el fundador y dos personas de su confianza.** Sus nombres no se recogen en el repositorio. Las asociaciones de caminos existentes se invitan a colaborar o a hacerse socias después de constituirse.
+4. **Nombre: «Asociación Paso Común»**, sujeto a que el registro lo admita. Si no lo admite, el fundador elige otro y se actualiza este ADR.
 
 ## Consecuencias
 
-- La regla «ni un euro a particulares» y la de independencia se copian en los estatutos (ver la lista de cláusulas en `docs/asociacion.md`). Si los estatutos no las recogen, este ADR no se da por aplicado.
+- La regla «ni un euro a particulares», la de reembolsos y la de independencia se copian en los estatutos (ver la lista de cláusulas en `docs/asociacion.md`). Si los estatutos no las recogen, este ADR no se da por aplicado.
 - Las cuentas se publican en el repositorio. Su formato se decide cuando haya un primer movimiento.
 - La declaración de utilidad pública (LO 1/2002, art. 32) se podrá pedir tras dos años de actividad. Es la que permite que las donaciones desgraven (Ley 49/2002), y esa ley exige cargos gratuitos, que es lo que ya decide este ADR.
 - Ningún agente da de alta cuentas, firma, paga ni presenta nada ante el registro o Hacienda. Todo eso lo hacen el fundador y la junta.
