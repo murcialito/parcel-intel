@@ -942,6 +942,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: al cambiar la URL absoluta del sitio, buscar con Grep también los tests de otras historias que fijan una lista blanca de dominios en `index.html` (el de #166 CA8 admitía `murcialito` pero no el dominio nuevo). Se actualizan añadiendo el dominio nuevo, sin relajar el resto de la regla. Y un test `red` que comprueba el sitio en vivo falla hasta que se despliega la PR (el dominio sirve aún la versión anterior): se anota en la PR, no es un fallo.
   - **Aplica a**: implementación (cambios de dominio o de URL base).
 
+## [2026-11-28] Tubería — límite de turnos del revisor
+
+- **Lección**: `claude-code-action` marca el paso como fallido si el agente termina con más turnos que `--max-turns`, aunque acabe bien y haya publicado su veredicto. Entonces no se ejecuta «Aplicar veredicto», el check `revision` queda en `failure` y Fusionar no fusiona. El barrido de `revisiones_pendientes.sh` solo relanza revisiones en `skipped` o `cancelled`, así que la PR se queda parada. El límite del revisor sube de 40 a 60, como el de Actualizar rama. Si vuelve a pasar, se relanza la revisión a mano (`gh run rerun <id>`).
+  - **Causa**: la revisión de la PR #310 (#240, `talla:l`) publicó «APROBADO» en 41 turnos y el check quedó en `failure` (2026-11-28).
+  - **Aplica a**: tubería (límites de turnos de los workflows de agente).
 ## [2026-11-28] Historia #240 — Tabla de convergencia de fuentes
 
 - **Lección**: cuando el fundador pide que un umbral de producto sea «configurable», un parámetro con valor por defecto no basta: el resultado debe anotar el valor que usó (aquí `ConvergenceTable.appears_min_fraction`). Si no, dos tablas con el mismo `CONVERGENCE_METHOD` pueden salir de umbrales distintos sin que nada lo delate, y se pierde «cada hallazgo rastreable hasta su regla». El campo nuevo entra en la lista blanca de la entidad y en el ADR, y la PR lo dice como desviación del diseño.
