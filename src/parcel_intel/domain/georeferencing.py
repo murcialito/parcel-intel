@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Literal, get_args
 
-from parcel_intel.domain.geometry import Point
+from parcel_intel.domain.geometry import Geometry, Point
 from parcel_intel.domain.historic_trail import DatePrecision, HistoricDocumentKind
 from parcel_intel.domain.human_review import is_github_user
 from parcel_intel.domain.provenance import Provenance
@@ -45,6 +45,7 @@ _MUNICIPALITY_CODE_RE = re.compile(r"[0-9]{5}")
 _POINT_ID_RE = re.compile(r"P[0-9]{2,3}")
 _SHA256_RE = re.compile(r"[0-9a-f]{64}")
 
+_METRIC_SRID = 25830
 _X_RANGE = (0.0, 1_000_000.0)
 _Y_RANGE = (3_000_000.0, 5_000_000.0)
 
@@ -496,6 +497,20 @@ def pixel_hull_contains(points: Sequence[ControlPoint], col: float, row: float) 
         if _cross(start, end, candidate) / length < -1e-9:
             return False
     return True
+
+
+def unit_footprint(control_points: ControlPointSet, transform: AffineTransform) -> Geometry:
+    """Zona que cubre una unidad (historia #240): envolvente convexa (`_convex_hull`) de los
+    píxeles de los puntos RETENIDOS, con cada vértice transformado por `transform.apply`.
+    Un anillo abierto en EPSG:25830, en el orden de `_convex_hull`. Un punto descartado no
+    la agranda. `ValueError` si la envolvente tiene menos de 3 vértices."""
+    hull = _convex_hull([(p.col, p.row) for p in control_points.points if p.retained])
+    if len(hull) < 3:
+        raise ValueError(
+            f"la envolvente de los puntos retenidos tiene {len(hull)} vértices; hacen falta 3"
+        )
+    ring = tuple(transform.apply(col, row) for col, row in hull)
+    return Geometry(rings=(ring,), srid=_METRIC_SRID)
 
 
 def round_mm(point: Point) -> Point:
