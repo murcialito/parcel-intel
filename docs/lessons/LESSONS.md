@@ -966,3 +966,10 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: implementación (reglas de licencia con ramas que ningún dato actual dispara) | revisión (exigir el test aunque la rama parezca muerta).
 - **Lección**: `uv run ruff format src` reformatea el árbol entero y toca ficheros ajenos a la historia. Formatear solo los ficheros propios (`ruff format <ruta>`) y mirar `git status` antes de commitear.
   - **Aplica a**: implementación.
+
+## [2026-11-28] Historia #313 — Cobertura histórica desde curated/historico
+
+- **Lección**: un ADR que el diseño fija como «el siguiente número libre» puede estar ocupado cuando lo crea la historia (aquí, el 0055 y el 0056 se fusionaron entre el diseño y el desarrollo). Mirar `ls docs/adr` antes de crear el fichero, usar el siguiente libre y anotar en el propio ADR la correspondencia («ADR 0055 §n» de las issues = este ADR), para que las hijas no citen el equivocado.
+  - **Aplica a**: arquitecto (en las issues, escribir «el número libre al crearlo», sin cifra) | implementación.
+- **Lección**: un `unit_id` sintético derivado de la fixture tiene que empezar por el `document_id` de su `unidad.json` (`UnitSpec` lo exige): para fabricar una segunda unidad en `tmp_path` se cambia el sufijo (`280075-w2`), no el prefijo.
+  - **Aplica a**: implementación (tests con varias unidades históricas).

@@ -100,7 +100,7 @@ class HistoricUnitUseCase:
         for trail in trails:
             if trail.status != "approved":
                 continue
-            if _is_extrapolated(unit, trail):
+            if is_extrapolated(unit, trail):
                 extrapolated.append((trail.trail_id, EXTRAPOLATION_REASON))
             else:
                 approved.append(to_historic_trail(unit, trail))
@@ -117,6 +117,8 @@ class HistoricUnitUseCase:
         )
 
 
-def _is_extrapolated(unit: GeoreferenceUnit, trail: DigitizedTrail) -> bool:
+def is_extrapolated(unit: GeoreferenceUnit, trail: DigitizedTrail) -> bool:
+    """¿Algún vértice cae fuera de la envolvente de los puntos retenidos? (ADR 0043).
+    La única regla de extrapolación: la usan `load` y la cobertura histórica (#313)."""
     points = unit.control_points.points
     return any(not pixel_hull_contains(points, col, row) for col, row in trail.pixels)

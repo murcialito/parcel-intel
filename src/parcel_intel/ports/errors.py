@@ -410,3 +410,14 @@ class WatercourseLicenseMissingError(Exception):
 
     def __init__(self) -> None:
         super().__init__("Los cauces no traen licencia en su procedencia; no se deriva la capa")
+
+
+class HistoricCoverageError(Exception):
+    """Una unidad histórica no se puede usar en la cobertura de la tabla de convergencia
+    (aprobación caducada, imagen ausente o distinta, fichero no válido) -- historia #313,
+    ADR 0057. El motivo es siempre un texto fijo, sin mensajes ajenos."""
+
+    def __init__(self, unit_id: str, reason: str) -> None:
+        super().__init__(f"Cobertura histórica: la unidad {unit_id} no es utilizable: {reason}")
+        self.unit_id = unit_id
+        self.reason = reason

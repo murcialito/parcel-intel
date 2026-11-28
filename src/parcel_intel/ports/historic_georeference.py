@@ -32,3 +32,11 @@ class CuratedHistoricInputPort(Protocol):
     def read_control_points(self, unit_id: str) -> ControlPointSet: ...
 
     def read_trails(self, unit_id: str) -> tuple[DigitizedTrail, ...]: ...
+
+
+class CuratedHistoricCatalogPort(Protocol):
+    """Capacidad: listar las unidades de la entrada humana versionada (#313, ADR 0057)."""
+
+    def unit_ids(self) -> tuple[str, ...]:
+        """Ordenados; `()` si no existe el directorio raíz."""
+        ...
