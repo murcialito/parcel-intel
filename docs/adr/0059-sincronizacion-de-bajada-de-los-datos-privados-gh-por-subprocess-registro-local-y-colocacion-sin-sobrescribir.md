@@ -37,3 +37,12 @@ El ADR 0055 fija dónde están los datos internos (repo privado `murcialito/paso
 - El test de integración contra el repo real solo lo corre el fundador (`integration`, `fuera_de_ci`, opt-in con `PASO_COMUN_DATOS_PRIVADOS=1`). Necesita en el repo privado una entrada pequeña `prueba-sincronizacion`.
 - La clasificación de errores depende del texto de `stderr` de `gh` (`HTTP 404`…). Si `gh` cambia sus mensajes, «sin acceso» pasaría a salir con 1: falla de forma visible, no filtra nada.
 - `tar` y `partes` quedan para #320 sobre estos mismos ports.
+
+## Ampliación de #320: `tar` y `partes`
+
+Sin decisión nueva de arquitectura; se amplían los mismos ports.
+
+- `PrivateDataArea` gana `extract_tar(staged, destino)` y `assemble(partes, destino_local)`. `extract_tar` valida **todos** los miembros antes de extraer (solo ficheros y directorios; rutas con `safe_member_path`, sin `..`, absolutas, repetidas ni fichero que sea también directorio; no se fía solo de `filter="data"`, que vuelve relativas las rutas absolutas), extrae a la zona de preparación, comprueba los conflictos de todos los ficheros con lo local y solo entonces coloca los que faltan con `place`. Uno ya presente con los mismos bytes no es conflicto. Errores: `PrivateDataArchiveError` (archivo no válido) y `PrivateDataConflictError`.
+- El registro local de una entrada `tar` añade `miembros` (ruta relativa, sha256 y tamaño, por ruta). Repetir comprueba cada miembro sin descargar; uno que falta vuelve a bajar el archivo; uno con otros bytes falla la entrada.
+- Una entrada con `partes` descarga cada trozo (misma etiqueta, adjunto de la parte), comprueba su tamaño y sha256, los concatena en orden en la zona de preparación (`assemble` borra cada trozo ya copiado para no duplicar el espacio) y comprueba el fichero entero. Las partes exigen almacén `release`. Vale tanto para un fichero como para un `tar`.
+- Ya no hay entradas saltadas por formato: solo las sustituidas y las de fuentes no pedidas.
