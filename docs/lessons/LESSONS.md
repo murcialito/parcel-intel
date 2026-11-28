@@ -915,3 +915,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: `Watercourse` no conserva el `id` de la feature de IDEE, así que la capa derivada no tiene identificador estable de origen: los `id` de salida son `<ine>-<k>` tras ordenar por (nombre, geometría, anchura), deterministas pero cambian si entra un cauce nuevo. Y el buffer de una línea puede traer huecos que `Geometry` no modela: el adapter conserva solo el contorno exterior (la franja solo se amplía) porque el recorte posterior lanza `ClippedGeometryHasHolesError` ante huecos.
   - **Aplica a**: implementación (#251 al publicar: no prometer ids estables) | revisión.
 
+
+## [2026-11-28] Historia #287 — Test de «solo documentación»
+
+- **Lección**: un test que comprueba qué ficheros toca una historia no debe comparar la rama actual con `origin/main` (`git diff origin/main...HEAD`). Una vez fusionado, ese test se ejecuta en todas las ramas y falla en cualquiera que cambie código. Hay que mirar los ficheros de los commits de la propia historia (`git log --format= --name-only --grep="^Historia #<n>:" HEAD`) y saltarse si no hay ninguno, como pasa en CI con historia corta.
+  - **Causa**: `test_historia_287.py::test_ca8_solo_documentacion_en_el_diff` fallaba en local en la rama de #183.
+  - **Aplica a**: implementación (tests de alcance de una historia de documentación).

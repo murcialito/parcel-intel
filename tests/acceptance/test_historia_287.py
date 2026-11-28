@@ -180,26 +180,23 @@ def test_ca8_solo_documentacion_en_el_diff() -> None:
     `pytest` siguen en verde y el diff solo toca documentación (ningún fichero de `src/` salvo
     `REGISTRY.md`).
 
-    La parte de la suite la comprueban los cinco comandos de la PR. Aquí se mira el diff contra
-    `origin/main`; si esa referencia no existe en el clon (CI sin historia), el test se salta."""
-    existe = subprocess.run(
-        ["git", "rev-parse", "--verify", "--quiet", "origin/main"],
-        cwd=REPO,
-        capture_output=True,
-        check=False,
-    )
-    if existe.returncode != 0:
-        pytest.skip("no hay origin/main en este clon")
-    cambios = subprocess.run(
-        ["git", "diff", "--name-only", "origin/main...HEAD"],
+    La parte de la suite la comprueban los cinco comandos de la PR. Aquí se miran los ficheros de
+    los commits de esta historia («Historia #287: …», en su rama o ya fusionados en `main`), no el
+    diff de la rama actual contra `origin/main`: eso fallaba en cualquier otra rama con cambios de
+    código. Si el clon no tiene esos commits (CI con historia corta), el test se salta."""
+    salida = subprocess.run(
+        ["git", "log", "--format=", "--name-only", "--grep=^Historia #287:", "HEAD"],
         cwd=REPO,
         capture_output=True,
         text=True,
         check=True,
-    ).stdout.split()
+    ).stdout
+    cambios = {linea for linea in salida.splitlines() if linea.strip()}
+    if not cambios:
+        pytest.skip("no hay commits de la historia #287 en este clon")
     permitidos = {
         "src/parcel_intel/sources/REGISTRY.md",
         "tests/acceptance/test_historia_287.py",
         "docs/lessons/LESSONS.md",
     }
-    assert set(cambios) <= permitidos, sorted(set(cambios) - permitidos)
+    assert cambios <= permitidos, sorted(cambios - permitidos)
