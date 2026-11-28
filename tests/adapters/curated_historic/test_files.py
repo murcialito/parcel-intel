@@ -27,6 +27,19 @@ def test_falta_un_fichero_de_la_unidad(tmp_path: Path) -> None:
         CuratedHistoricFiles(root).read_trails(UNIT)
 
 
+def test_unit_ids_ordena_e_ignora_lo_que_no_es_una_unidad(tmp_path: Path) -> None:
+    shutil.copytree(HISTORICO / UNIT, tmp_path / "280075-w2")
+    shutil.copytree(HISTORICO / UNIT, tmp_path / UNIT)
+    shutil.copytree(HISTORICO / UNIT, tmp_path / "no-es-unidad")
+    (tmp_path / "280075-w3").mkdir()  # nombre válido pero sin unidad.json
+    (tmp_path / "LEEME.md").write_text("texto", encoding="utf-8")
+    assert CuratedHistoricFiles(tmp_path).unit_ids() == (UNIT, "280075-w2")
+
+
+def test_unit_ids_sin_directorio_raiz_es_vacio(tmp_path: Path) -> None:
+    assert CuratedHistoricFiles(tmp_path / "no_existe").unit_ids() == ()
+
+
 def test_unit_id_malformado_no_toca_el_sistema_de_ficheros(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="unit_id"):
         CuratedHistoricFiles(tmp_path).read_unit("../../etc")

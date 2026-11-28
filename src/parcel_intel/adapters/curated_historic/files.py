@@ -151,10 +151,26 @@ def _iso_datetime(raw: str, what: str) -> datetime:
 
 
 class CuratedHistoricFiles:
-    """Implementa `CuratedHistoricInputPort` sobre `root` (= `curated/historico/`)."""
+    """Implementa `CuratedHistoricInputPort` y `CuratedHistoricCatalogPort` sobre `root`
+    (= `curated/historico/`)."""
 
     def __init__(self, root: Path) -> None:
         self._root = root
+
+    def unit_ids(self) -> tuple[str, ...]:
+        """Unidades de la raíz (`CuratedHistoricCatalogPort`): subdirectorios con nombre de
+        `unit_id` y `unidad.json`, ordenados. Ignora el resto; `()` sin directorio raíz."""
+        if not self._root.is_dir():
+            return ()
+        return tuple(
+            sorted(
+                child.name
+                for child in self._root.iterdir()
+                if child.is_dir()
+                and _UNIT_ID_RE.fullmatch(child.name)
+                and (child / "unidad.json").is_file()
+            )
+        )
 
     # -- unidad.json -----------------------------------------------------------
 
