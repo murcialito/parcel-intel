@@ -973,3 +973,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: arquitecto (en las issues, escribir «el número libre al crearlo», sin cifra) | implementación.
 - **Lección**: un `unit_id` sintético derivado de la fixture tiene que empezar por el `document_id` de su `unidad.json` (`UnitSpec` lo exige): para fabricar una segunda unidad en `tmp_path` se cambia el sufijo (`280075-w2`), no el prefijo.
   - **Aplica a**: implementación (tests con varias unidades históricas).
+## [2026-11-28] Tests que miran los ficheros de los commits de una historia
+
+- **Lección**: en un clon superficial (el CI de `main` clona con profundidad 1) el último commit es la raíz del clon, y `git log --name-only` sobre una raíz lista **el árbol entero**. Un test que busca los commits «Historia #N: …» con `git log --grep … --name-only` pasa en la PR (la cabeza es un merge que no casa y se salta) y falla en `main` justo después de fusionar, cuando la cabeza es el propio commit de la historia. Se sacan los ficheros con `git diff-tree --no-commit-id --name-only -r <commit>` commit a commit: sin `--root` no lista nada en una raíz y el test se salta.
+  - **Causa**: el CA10 de #294 dejó en rojo el CI de `main` tras fusionar la PR #312 (2026-11-28); el CA8 de #287 tenía el mismo patrón.
+  - **Aplica a**: implementación y revisión (tests que inspeccionan el historial de git).
