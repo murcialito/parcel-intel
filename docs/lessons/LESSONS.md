@@ -910,6 +910,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el PDF de una disposición del BOE se saca del enlace «PDF» de la ficha `doc.php?id=<BOE-A-…>` (patrón `/boe/dias/AAAA/MM/DD/pdfs/A<página inicial>-<final>.pdf`) y es la página entera del boletín, con otras disposiciones sin relación. El texto extraído confunde cifras («6,E9» por 6,69): una cifra se da por buena solo contra la imagen que devuelve `Read`. Si `Read` con `pages` falla por falta de `pdftoppm`, leerlo sin `pages`.
   - **Aplica a**: implementación (fixtures de disposiciones: grabar el PDF íntegro, pero no copiar a texto los nombres de personas que cite la página).
 
+## [2026-11-28] Historia #250 — Servidumbre aproximada de cauces
+
+- **Lección**: `Watercourse` no conserva el `id` de la feature de IDEE, así que la capa derivada no tiene identificador estable de origen: los `id` de salida son `<ine>-<k>` tras ordenar por (nombre, geometría, anchura), deterministas pero cambian si entra un cauce nuevo. Y el buffer de una línea puede traer huecos que `Geometry` no modela: el adapter conserva solo el contorno exterior (la franja solo se amplía) porque el recorte posterior lanza `ClippedGeometryHasHolesError` ante huecos.
+  - **Aplica a**: implementación (#251 al publicar: no prometer ids estables) | revisión.
+
 
 ## [2026-11-28] Historia #287 — Test de «solo documentación»
 
@@ -926,3 +931,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: implementación y revisión (tests de aceptación que lanzan casos de Node).
 - **Lección**: al cambiar la serie de una política versionada (franjas, huecos), los tests de otras historias que «rompen» el manifiesto subiendo la versión (`version=2`) dejan de probar nada en cuanto la versión vigente es esa. Se cambian a la versión anterior (`version=1`), no se borran: siguen probando el mismo motivo.
   - **Aplica a**: implementación (CA de «actualizar los tests de #N sin relajarlos»).
+## [2026-11-28] Historia #236 — Catastro a una fecha, peticiones reales
+
+- **Lección**: el WMS de Catastro (`ServidorWMS.aspx`) es 1.1.1: se pide con `SRS`, no con `CRS`. Con `VERSION=1.3.0` responde `200` con una `ServiceException` en XML. Acepta `TIME=AAAA-MM-DD` aunque su `GetCapabilities` no declare ninguna dimensión. Con una fecha sin datos devuelve **`200` y un PNG que solo tiene el rótulo «FECHA: …»**, y con una fecha incompleta (`TIME=2005`) ignora el parámetro y devuelve el mapa actual. Para dar por buena una imagen hay que comprobar que trae líneas (píxeles dibujados) y el rótulo de fecha, no el código HTTP ni el tipo de contenido.
+  - **Causa**: la primera tanda de `GetMap` se pidió con `CRS` y las cinco «imágenes» eran el mismo XML de error de 432 bytes guardado como `.png`.
+  - **Aplica a**: implementación (cualquier adapter del WMS de Catastro; comprobar el tipo real del cuerpo antes de guardarlo con extensión de imagen).

@@ -391,3 +391,10 @@ class EvidenceImageFormatError(Exception):
     def __init__(self, detail: str) -> None:
         super().__init__(f"Imagen de evidencia no legible: {detail}")
         self.detail = detail
+
+
+class WatercourseLicenseMissingError(Exception):
+    """Los cauces llegan sin licencia en su procedencia: no se deriva nada (historia #250)."""
+
+    def __init__(self) -> None:
+        super().__init__("Los cauces no traen licencia en su procedencia; no se deriva la capa")

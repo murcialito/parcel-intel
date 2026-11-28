@@ -45,7 +45,8 @@ def test_ca2_licencia_citada_y_pregunta_abierta() -> None:
     s = _seccion()
     assert "https://www.catastro.hacienda.gob.es/webinspire/documentos/Licencia.pdf" in s
     assert "por Internet ni por ningún otro medio sin su previa transformación" in s
-    assert "Pregunta abierta para el fundador" in s
+    # La pregunta quedó resuelta el 2026-11-28 (decisión del fundador en #201, anotada por #236).
+    assert "Pregunta abierta para el fundador" in s or "Decisión del fundador" in s
     assert "no es un permiso" in s
 
 
@@ -86,9 +87,9 @@ def test_ca5_leccion_anotada() -> None:
 
 def test_ca6_filas_pendientes_enlazadas_a_la_hija() -> None:
     """REGISTRY.md deja una sección «Catastro a una fecha» con las filas TIME y
-    FECHAALTA/FECHABAJA en estado pendiente, enlazadas a la hija de peticiones reales."""
+    FECHAALTA/FECHABAJA, enlazadas a la hija de peticiones reales. (Las dejó en `pendiente`;
+    #236 las resolvió en local el 2026-11-28 y pasaron a `confirmado`/`descartado`.)"""
     s = _seccion()
-    filas = [ln for ln in s.splitlines() if ln.startswith("| ") and "pendiente" in ln]
+    filas = [ln for ln in s.splitlines() if ln.startswith("| ") and "issues/236" in ln]
     assert any("TIME" in f for f in filas)
     assert any("FECHAALTA" in f and "FECHABAJA" in f for f in filas)
-    assert all("issues/236" in f for f in filas)

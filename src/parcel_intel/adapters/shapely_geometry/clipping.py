@@ -58,6 +58,22 @@ class ShapelyLineClipper:
         return MultiLineGeometry(lines=lines, srid=subject.srid)
 
 
+class ShapelyLineBuffer:
+    """Implementa `LineBufferingPort` con `shapely` (historia #250).
+
+    `Geometry` no modela huecos: se conserva solo el contorno exterior de cada parte
+    (un cauce que se cierra sobre sí mismo rellena el hueco, lo que solo amplía la franja)."""
+
+    def buffer(self, line: LineGeometry, distance_m: float) -> Geometry:
+        if distance_m <= 0:
+            raise ValueError("la distancia debe ser positiva")
+        if len(line.points) < 2:
+            return Geometry(rings=(), srid=line.srid)
+        shape = LineString(line.points).buffer(distance_m, quad_segs=8)
+        rings = tuple(tuple((x, y) for x, y in p.exterior.coords) for p in _polygons(shape))
+        return Geometry(rings=rings, srid=line.srid)
+
+
 class ShapelyPolygonClipper:
     """Implementa `PolygonClippingPort` con `shapely` (única librería de
     geometría computacional del proyecto; ADR 0032). Ningún otro módulo la
