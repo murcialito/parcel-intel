@@ -293,6 +293,18 @@ class CandidateReviewFileError(Exception):
         self.detail = detail
 
 
+class NormativeCatalogFileError(Exception):
+    """El catálogo de citas normativas (`curated/normativa/catalogo.json`) falta o no
+    cumple el formato -- historia #187, ADR 0060. Se rechaza entero (todo o nada). El
+    detalle nombra el campo, la posición («cita 3») o el id ya validado; nunca el valor
+    rechazado."""
+
+    def __init__(self, path: str, detail: str) -> None:
+        super().__init__(f"Catálogo de citas normativas no válido {path}: {detail}")
+        self.path = path
+        self.detail = detail
+
+
 class CandidateInventoryFileError(Exception):
     """El fichero de códigos de inventario (`curated/candidatos/<ine>/inventario.json`)
     no cumple el formato -- historia #288, ADR 0047. Se rechaza entero. El detalle

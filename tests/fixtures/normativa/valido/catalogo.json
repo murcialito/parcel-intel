@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "huella_catalogo": "7a3d8576bf81561092216d403bf68e1b5488b53f46d32bfb7ac3125a8cde58fd",
+  "citas": [
+    {
+      "id": "sintetica-art-10",
+      "norma": "Ley sintética 9/2090, de 23 de marzo, de prueba",
+      "identificador": "BOE-A-9999-1",
+      "articulo": "Artículo 10",
+      "fecha_norma": "2090-03-23",
+      "ultima_actualizacion": "2095-12-23",
+      "texto": "Texto sintético de prueba (historia #187), no es texto legal.",
+      "texto_sha256": "4e39adda6ee2abce7fa204f6c5bb3cbf2b2e58dee9142c2f8261fceb3149c88c",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-9999-1#a10",
+      "consultado": "2099-01-01",
+      "licencia": "Condiciones de reutilización de la Agencia Estatal Boletín Oficial del Estado (https://www.boe.es/informacion/aviso_legal/index.php)",
+      "version_catalogo": 1,
+      "tipos_fuente": [
+        "catastro_vt"
+      ],
+      "nota": "Nota sintética de prueba."
+    },
+    {
+      "id": "sintetica-art-01",
+      "norma": "Ley sintética 9/2090, de 23 de marzo, de prueba",
+      "identificador": "BOE-A-9999-1",
+      "articulo": "Artículo 1",
+      "fecha_norma": "2090-03-23",
+      "ultima_actualizacion": "2095-12-23",
+      "texto": "Texto sintético de prueba (historia #187), no es texto legal.\n1. La persona titular de la vía sintética conserva el paso común.",
+      "texto_sha256": "2e145c181b67737f847e7453005e48c25942a3956c58906dd31a4427436df843",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-9999-1#a1",
+      "consultado": "2099-01-01",
+      "licencia": "Condiciones de reutilización de la Agencia Estatal Boletín Oficial del Estado (https://www.boe.es/informacion/aviso_legal/index.php)",
+      "version_catalogo": 1,
+      "tipos_fuente": [
+        "via_pecuaria_oficial"
+      ]
+    },
+    {
+      "id": "sintetica-art-02",
+      "norma": "Ley sintética 9/2090, de 23 de marzo, de prueba",
+      "identificador": "BOE-A-9999-1",
+      "articulo": "Artículo 2",
+      "fecha_norma": "2090-03-23",
+      "ultima_actualizacion": "2095-12-23",
+      "texto": "Texto sintético de prueba (historia #187), no es texto legal.\n2. Los caminos sintéticos de ejemplo se describen aquí con tildes: camión, ñandú.",
+      "texto_sha256": "73dced7dd26eb1da30d88e3e9be7c8aa7d11281a3ee329cca46c767451bbf1db",
+      "url": "https://www.boe.es/buscar/act.php?id=BOE-A-9999-1#a2",
+      "consultado": "2099-01-01",
+      "licencia": "Condiciones de reutilización de la Agencia Estatal Boletín Oficial del Estado (https://www.boe.es/informacion/aviso_legal/index.php)",
+      "version_catalogo": 1,
+      "tipos_fuente": [
+        "catastro_vt",
+        "via_pecuaria_oficial"
+      ]
+    }
+  ]
+}
