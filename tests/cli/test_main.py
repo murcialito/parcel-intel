@@ -165,9 +165,7 @@ def test_author_fichero_inexistente_sale_con_error_claro(
 ) -> None:
     fichero_inexistente = tmp_path / "no-existe.txt"
     parser = main._build_parser()
-    args = parser.parse_args(
-        ["author", "--layer", "dph_cauce", "--text", str(fichero_inexistente)]
-    )
+    args = parser.parse_args(["author", "--layer", "dph_cauce", "--text", str(fichero_inexistente)])
 
     exit_code = args.func(args)
 
@@ -273,6 +271,33 @@ def test_imagenes_comparacion_exige_municipio_y_tramos() -> None:
         parser.parse_args(["imagenes-comparacion", "--municipio", "28", "--tramos", "t"])
 
 
+def test_imagenes_comparacion_indicios_sin_municipio_ni_ambito_sale_con_2(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    args = main._build_parser().parse_args(["imagenes-comparacion-indicios"])
+    assert args.func(args) == 2
+    assert "--municipio" in capsys.readouterr().err
+
+
+def test_imagenes_comparacion_indicios_sin_informe_sale_con_1(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    args = main._build_parser().parse_args(
+        [
+            "imagenes-comparacion-indicios",
+            "--municipio",
+            "28043",
+            "--entrada",
+            str(tmp_path),
+            "--salida",
+            str(tmp_path / "salida"),
+        ]
+    )
+    assert args.func(args) == 1
+    assert "28043" in capsys.readouterr().err
+    assert not (tmp_path / "salida").exists()
+
+
 def test_imagenes_comparacion_fichero_de_tramos_ilegible_sale_con_1(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -282,7 +307,6 @@ def test_imagenes_comparacion_fichero_de_tramos_ilegible_sale_con_1(
     )
     assert args.func(args) == 1
     assert "Fichero de tramos no válido" in capsys.readouterr().err
-
 
 
 class _FakePublishUseCase:

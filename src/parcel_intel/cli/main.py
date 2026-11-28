@@ -121,6 +121,7 @@ from parcel_intel.adapters.width_signal_files import GeoJsonWidthSignalWriter
 from parcel_intel.application.author_rule_proposal import AuthorRuleProposalUseCase
 from parcel_intel.application.build_cadastral_road_layer import BuildCadastralRoadLayerUseCase
 from parcel_intel.application.build_comparison_images import BuildComparisonImagesUseCase
+from parcel_intel.application.build_indicio_comparisons import BuildIndicioComparisonsUseCase
 from parcel_intel.application.build_municipal_comparisons import (
     BuildMunicipalComparisonsUseCase,
     ComparisonFailuresError,
@@ -164,7 +165,8 @@ from parcel_intel.domain.candidate_evaluation import (
     EvaluableCandidate,
     EvaluationResult,
 )
-from parcel_intel.domain.comparison_image import DegenerateStretchError
+from parcel_intel.domain.comparison_image import DegenerateStretchError, StretchComparison
+from parcel_intel.domain.convergence import InvalidConvergenceStretchError
 from parcel_intel.domain.digitization import StaleApprovalError
 from parcel_intel.domain.discrepancy import DiscrepancyKind
 from parcel_intel.domain.discrepancy_report import LayerStatus
@@ -198,8 +200,10 @@ from parcel_intel.ports.errors import (
     ClippedGeometryHasHolesError,
     CuratedUnitNotFoundError,
     CutCandidateFileError,
+    DiscrepancyReportUnavailableError,
     EvidenceImageFormatError,
     IncompleteWfsResponseError,
+    InternalReportRequiredError,
     InvalidLlmProposalError,
     InvalidRuleLayerError,
     MunicipalBoundaryNotFoundError,
@@ -1683,6 +1687,12 @@ def _imagenes_comparacion(args: argparse.Namespace) -> int:
     except (ManifestTooLargeError, OSError) as error:
         print(f"ERROR {code}: {error}; no se ha escrito el manifiesto", file=sys.stderr)
         return 1
+    _print_comparisons(results)
+    print(f"{code}: {len(results)} tramos -> {args.salida / (code + '.json')}")
+    return 0
+
+
+def _print_comparisons(results: Sequence[StretchComparison]) -> None:
     for comparison in results:
         images = sum(len(window.images) for window in comparison.windows)
         omitted = [o for window in comparison.windows for o in window.omitted]
@@ -1692,8 +1702,66 @@ def _imagenes_comparacion(args: argparse.Namespace) -> int:
             f"{images} imágenes, {len(omitted)} omisiones "
             f"(sin_cobertura={reasons['sin_cobertura']})"
         )
-    print(f"{code}: {len(results)} tramos -> {args.salida / (code + '.json')}")
-    return 0
+
+
+def build_indicio_comparison_use_case(
+    input_dir: Path,
+    cache_dir: Path,
+    output_dir: Path,
+    offline: bool,
+    http_get: HttpGet = pnoa_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> BuildIndicioComparisonsUseCase:
+    """Composition root de `imagenes-comparacion-indicios` (historia #314, ADR 0055).
+
+    Lee el informe INTERNO de `input_dir`; reutiliza el enrutado, la caché y la pausa de
+    `imagenes-comparacion`. El manifiesto interno va a `output_dir`; nada va a `site/`."""
+    return BuildIndicioComparisonsUseCase(
+        reports=GeoJsonDiscrepancyReportReader(input_dir),
+        comparisons=build_comparison_use_case(
+            cache_dir, output_dir, offline, http_get, today, sleep
+        ),
+    )
+
+
+def _imagenes_comparacion_indicios(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        print("Indica --municipio <INE> (repetible) o --ambito.", file=sys.stderr)
+        return 2
+    use_case = build_indicio_comparison_use_case(
+        args.entrada, args.cache, args.salida, args.sin_red
+    )
+    failed = False
+    for code in codes:
+        try:
+            results = use_case.execute(code)
+        except MunicipalWindowLimitError as error:
+            print(f"ERROR {code}: {error}; no se ha pedido ni escrito nada", file=sys.stderr)
+            failed = True
+        except (InternalReportRequiredError, DiscrepancyReportUnavailableError) as error:
+            print(f"ERROR {error}; no se ha escrito nada", file=sys.stderr)
+            failed = True
+        except DiscrepancyFileFormatError as error:
+            print(f"ERROR {code}: fichero corrupto {error.path}: {error.detail}", file=sys.stderr)
+            failed = True
+        except (DegenerateStretchError, InvalidConvergenceStretchError) as error:
+            print(f"ERROR {code}: indicio sin trazo medible: {error}", file=sys.stderr)
+            failed = True
+        except ComparisonFailuresError as error:
+            for stretch_id, slot, error_type in error.failures:
+                print(f"FALLO {stretch_id} franja {slot}: {error_type}", file=sys.stderr)
+            print(f"No se ha escrito el manifiesto de {code}.", file=sys.stderr)
+            failed = True
+        except (ManifestTooLargeError, OSError) as error:
+            print(f"ERROR {code}: {error}; no se ha escrito el manifiesto", file=sys.stderr)
+            failed = True
+        else:
+            _print_comparisons(results)
+            print(f"{code}: {len(results)} indicios -> {args.salida / (code + '.json')}")
+    return 1 if failed else 0
 
 
 def build_historic_unit_use_case(
@@ -2456,6 +2524,40 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio de los manifiestos <codigo_ine>.json",
     )
     comparacion_parser.set_defaults(func=_imagenes_comparacion)
+
+    indicios_parser = subparsers.add_parser(
+        "imagenes-comparacion-indicios",
+        help="Imágenes de comparación de los indicios publicables y su manifiesto interno",
+    )
+    indicios_parser.add_argument(
+        "--municipio",
+        type=_municipality_code,
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible)",
+    )
+    indicios_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito"
+    )
+    indicios_parser.add_argument(
+        "--entrada",
+        type=Path,
+        default=Path("data/derived/discrepancias/interno"),
+        help="Directorio del informe INTERNO de discrepancias (<ine>.geojson)",
+    )
+    indicios_parser.add_argument(
+        "--sin-red", action="store_true", help="Solo la caché cruda; un hueco es un fallo"
+    )
+    indicios_parser.add_argument(
+        "--cache", type=Path, default=Path("data/raw"), help="Directorio de la caché cruda"
+    )
+    indicios_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("data/derived/comparacion_indicios"),
+        help="Directorio de los manifiestos <codigo_ine>.json (interno, no se publica)",
+    )
+    indicios_parser.set_defaults(func=_imagenes_comparacion_indicios)
 
     historico_parser = subparsers.add_parser(
         "historico", help="Trazados históricos georreferenciados de una unidad (ADR 0043)"

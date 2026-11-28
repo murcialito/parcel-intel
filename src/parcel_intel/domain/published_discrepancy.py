@@ -136,6 +136,17 @@ def _has_parts(shape: TrailShape) -> bool:
     return any(parts)
 
 
+def is_publishable_indicio(discrepancy: Discrepancy) -> bool:
+    """Fuente A redistribuible y contraparte en `PUBLISHABLE_COUNTERPART_SOURCES`.
+
+    Es la regla de publicación de un indicio (ADR 0044 §4, ADR 0041): la usan
+    `build_discrepancy_layer` y el manifiesto de imágenes de los indicios (#314)."""
+    return (
+        discrepancy.subject.source.kind in REDISTRIBUTABLE_SOURCES
+        and discrepancy.counterpart_source.kind in PUBLISHABLE_COUNTERPART_SOURCES
+    )
+
+
 def build_discrepancy_layer(report: MunicipalDiscrepancyReport) -> DiscrepancyLayerBuild:
     """Indicios publicables de `report`, en su orden canónico.
 
@@ -162,13 +173,13 @@ def build_discrepancy_layer(report: MunicipalDiscrepancyReport) -> DiscrepancyLa
         if record.zone_redacted:
             omitted_subject += 1
             continue
-        if discrepancy.subject.source.kind not in REDISTRIBUTABLE_SOURCES:
-            raise NotPublishableReportError(
-                code,
-                f"registro sin redactar con fuente A {discrepancy.subject.source.kind!r}, "
-                "que no es redistribuible",
-            )
-        if discrepancy.counterpart_source.kind not in PUBLISHABLE_COUNTERPART_SOURCES:
+        if not is_publishable_indicio(discrepancy):
+            if discrepancy.subject.source.kind not in REDISTRIBUTABLE_SOURCES:
+                raise NotPublishableReportError(
+                    code,
+                    f"registro sin redactar con fuente A {discrepancy.subject.source.kind!r}, "
+                    "que no es redistribuible",
+                )
             omitted_counterpart += 1
             continue
         if not _has_parts(discrepancy.zone):
