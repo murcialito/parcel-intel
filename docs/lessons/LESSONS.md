@@ -921,3 +921,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: un test que comprueba qué ficheros toca una historia no debe comparar la rama actual con `origin/main` (`git diff origin/main...HEAD`). Una vez fusionado, ese test se ejecuta en todas las ramas y falla en cualquiera que cambie código. Hay que mirar los ficheros de los commits de la propia historia (`git log --format= --name-only --grep="^Historia #<n>:" HEAD`) y saltarse si no hay ninguno, como pasa en CI con historia corta.
   - **Causa**: `test_historia_287.py::test_ca8_solo_documentacion_en_el_diff` fallaba en local en la rama de #183.
   - **Aplica a**: implementación (tests de alcance de una historia de documentación).
+
+## [2026-11-28] Historia #236 — Catastro a una fecha, peticiones reales
+
+- **Lección**: el WMS de Catastro (`ServidorWMS.aspx`) es 1.1.1: se pide con `SRS`, no con `CRS`. Con `VERSION=1.3.0` responde `200` con una `ServiceException` en XML. Acepta `TIME=AAAA-MM-DD` aunque su `GetCapabilities` no declare ninguna dimensión. Con una fecha sin datos devuelve **`200` y un PNG que solo tiene el rótulo «FECHA: …»**, y con una fecha incompleta (`TIME=2005`) ignora el parámetro y devuelve el mapa actual. Para dar por buena una imagen hay que comprobar que trae líneas (píxeles dibujados) y el rótulo de fecha, no el código HTTP ni el tipo de contenido.
+  - **Causa**: la primera tanda de `GetMap` se pidió con `CRS` y las cinco «imágenes» eran el mismo XML de error de 432 bytes guardado como `.png`.
+  - **Aplica a**: implementación (cualquier adapter del WMS de Catastro; comprobar el tipo real del cuerpo antes de guardarlo con extensión de imagen).

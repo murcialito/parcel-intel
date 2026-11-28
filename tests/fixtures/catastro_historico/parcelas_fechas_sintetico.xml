@@ -1,18 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- SINTÉTICO: datos inventados, formato supuesto. Ver README.md. -->
-<FeatureCollection>
-  <member>
-    <Parcela>
-      <referencia>99999A00000001</referencia>
-      <FECHAALTA>20050101</FECHAALTA>
-      <FECHABAJA>20120615</FECHABAJA>
-    </Parcela>
-  </member>
-  <member>
-    <Parcela>
-      <referencia>99999A00000002</referencia>
-      <FECHAALTA>20120615</FECHAALTA>
-      <FECHABAJA>99999999</FECHABAJA>
-    </Parcela>
-  </member>
-</FeatureCollection>
+<!-- SINTÉTICO: datos inventados con el formato observado en el WFS INSPIRE de parcelas (wfsCP.aspx) por la historia #236. Ver README.md. -->
+<wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs/2.0" xmlns:cp="http://inspire.ec.europa.eu/schemas/cp/4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <wfs:member>
+    <cp:CadastralParcel>
+      <cp:nationalCadastralReference>99999A00000002</cp:nationalCadastralReference>
+      <cp:beginLifespanVersion>2012-06-15T00:00:00</cp:beginLifespanVersion>
+      <cp:endLifespanVersion xsi:nil="true" nilReason="http://inspire.ec.europa.eu/codelist/VoidReasonValue/Unpopulated"></cp:endLifespanVersion>
+    </cp:CadastralParcel>
+  </wfs:member>
+</wfs:FeatureCollection>
