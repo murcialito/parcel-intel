@@ -1,15 +1,20 @@
 {
  "huecos": [
   {
-   "desde": 1957,
-   "hasta": 1997,
-   "motivo": "sin ortofoto en el servicio sobre el ámbito (los vuelos Interministerial y Nacional no tienen imagen en él)"
+   "desde": 1958,
+   "hasta": 1974,
+   "motivo": "la serie no tiene ninguna ortofoto de esos años sobre el ámbito"
+  },
+  {
+   "desde": 1976,
+   "hasta": 1990,
+   "motivo": "la serie no tiene ninguna ortofoto de esos años sobre el ámbito (los vuelos Interministerial y Nacional del IGN no tienen imagen en él)"
   }
  ],
  "municipio": "28043",
  "politica": {
   "id": "imagenes_comparacion",
-  "version": 1
+  "version": 2
  },
  "tramos": [
   {
@@ -97,6 +102,22 @@
        "motivo": "sin_cobertura",
        "probados": [
         "AMS_1956-1957"
+       ],
+       "tipo_error": null
+      },
+      {
+       "franja": "1975",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "CM_1975"
+       ],
+       "tipo_error": null
+      },
+      {
+       "franja": "1991",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "CM_1991"
        ],
        "tipo_error": null
       }
@@ -204,6 +225,22 @@
         "AMS_1956-1957"
        ],
        "tipo_error": null
+      },
+      {
+       "franja": "1975",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "CM_1975"
+       ],
+       "tipo_error": null
+      },
+      {
+       "franja": "1991",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "CM_1991"
+       ],
+       "tipo_error": null
       }
      ],
      "srid": 25830,
@@ -309,6 +346,22 @@
         "AMS_1956-1957"
        ],
        "tipo_error": null
+      },
+      {
+       "franja": "1975",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "CM_1975"
+       ],
+       "tipo_error": null
+      },
+      {
+       "franja": "1991",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "CM_1991"
+       ],
+       "tipo_error": null
       }
      ],
      "srid": 25830,
@@ -412,6 +465,22 @@
        "motivo": "sin_cobertura",
        "probados": [
         "AMS_1956-1957"
+       ],
+       "tipo_error": null
+      },
+      {
+       "franja": "1975",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "CM_1975"
+       ],
+       "tipo_error": null
+      },
+      {
+       "franja": "1991",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "CM_1991"
        ],
        "tipo_error": null
       }
@@ -527,6 +596,22 @@
        "motivo": "sin_cobertura",
        "probados": [
         "AMS_1956-1957"
+       ],
+       "tipo_error": null
+      },
+      {
+       "franja": "1975",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "CM_1975"
+       ],
+       "tipo_error": null
+      },
+      {
+       "franja": "1991",
+       "motivo": "sin_cobertura",
+       "probados": [
+        "CM_1991"
        ],
        "tipo_error": null
       }

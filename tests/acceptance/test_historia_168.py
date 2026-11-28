@@ -585,6 +585,10 @@ def test_ca9_el_fichero_de_candidatos_entra_tal_cual_en_imagenes_comparacion(
         name: PNOA_FIXTURES / "window_224_pnoa2023.jpg"
         for name in ("AMS_1956-1957", "SIGPAC", "PNOA2009", "PNOA2017", "PNOA2023")
     }
+    # Política v2 (#208): las franjas 1975 y 1991 se piden a la IDEM (tesela real de #207).
+    idem_png = FIXTURE.parents[0] / "idem_vuelos" / "tesela_1975_colmenar_z18.png"
+    layers["fotosAereasHistoricas_1970-1979_orto-1975-ed50"] = idem_png
+    layers["fotosAereasHistoricas_1990-1999_orto-1991-ed50"] = idem_png
     use_case = main.build_comparison_use_case(
         tmp_path / "raw",
         tmp_path / "comparacion",

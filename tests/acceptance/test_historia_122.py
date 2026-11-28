@@ -3,6 +3,11 @@
 Las fixtures de ventana son las reales de #124 (448 px: AMS, SIGPAC y PNOA2023 y la blanca
 de PNOA2010). Donde un vuelo no tiene fixture propia (PNOA2009, PNOA2017) se sirve la de
 PNOA2023 como imagen sintética de relleno: los criterios miran el manifiesto, no los píxeles.
+
+Desde #208 (política v2, CA14) la serie tiene siete franjas: las de 1975 y 1991 se sirven con
+la tesela real de la IDEM de #207 (`tesela_1975_colmenar_z18.png`, imagen no blanca) y van a
+su servidor. Los literales se han actualizado a la v2 sin relajarlos: los docstrings conservan
+el criterio original.
 """
 
 from __future__ import annotations
@@ -34,6 +39,10 @@ from parcel_intel.domain.comparison_image import (
 from parcel_intel.domain.public_card import BANNED_WORDS, banned_words_in
 from tests.adapters.pnoa.helpers import FIXTURES_DIR, LayerFixtureHttpGet
 
+IDEM_FIXTURE = (
+    Path(__file__).parents[1] / "fixtures" / "idem_vuelos" / "tesela_1975_colmenar_z18.png"
+)
+
 pytestmark = pytest.mark.acceptance
 
 INE = "28043"
@@ -45,6 +54,8 @@ OK_LAYERS = {
     "PNOA2009": FIXTURES_DIR / "window_224_pnoa2023.jpg",
     "PNOA2017": FIXTURES_DIR / "window_224_pnoa2023.jpg",
     "PNOA2023": FIXTURES_DIR / "window_224_pnoa2023.jpg",
+    "fotosAereasHistoricas_1970-1979_orto-1975-ed50": IDEM_FIXTURE,
+    "fotosAereasHistoricas_1990-1999_orto-1991-ed50": IDEM_FIXTURE,
 }
 BLANK = FIXTURES_DIR / "window_224_pnoa2010_blanca.jpg"
 CADASTRAL_REFERENCE = re.compile(r"\b\d{7}[A-Z]{2}\d{4}[A-Z](?:\d{4}[A-Z]{2})?\b", re.IGNORECASE)
@@ -145,7 +156,7 @@ def test_ca2_el_manifiesto_trae_los_campos_del_adr(tmp_path: Path) -> None:
     }
     huecos = manifest["huecos"]
     assert isinstance(huecos, list)
-    assert [(h["desde"], h["hasta"]) for h in huecos] == [(1957, 1997)]
+    assert [(h["desde"], h["hasta"]) for h in huecos] == [(1958, 1974), (1976, 1990)]
     assert len(huecos) == len(DECLARED_GAPS)
     tramo = manifest["tramos"][0]
     assert tramo["id"] == "a" * 16
@@ -157,6 +168,8 @@ def test_ca2_el_manifiesto_trae_los_campos_del_adr(tmp_path: Path) -> None:
     imagenes = ventana["imagenes"]
     assert [i["franja"] for i in imagenes] == [
         "1956-1957",
+        "1975",
+        "1991",
         "1997-2003",
         "2006-2011",
         "2014-2020",
@@ -167,7 +180,10 @@ def test_ca2_el_manifiesto_trae_los_campos_del_adr(tmp_path: Path) -> None:
         assert imagen["sha256"] and imagen["bytes"] > 0
         assert {"vuelo", "periodo", "resolucion_m"} <= set(imagen)
         procedencia = imagen["procedencia"]
-        assert procedencia["fuente"] == "pnoa-historico"
+        de_madrid = imagen["vuelo"] in ("CM_1975", "CM_1991")
+        assert procedencia["fuente"] == (
+            "idem-vuelos-historicos" if de_madrid else "pnoa-historico"
+        )
         assert procedencia["fecha_descarga"] == "2026-11-26"
         assert procedencia["licencia"] == "CC BY 4.0"
         assert procedencia["redistribucion"] == "publicable"
@@ -176,9 +192,12 @@ def test_ca2_el_manifiesto_trae_los_campos_del_adr(tmp_path: Path) -> None:
     )
     # La URL del manifiesto es la canónica de la caché: una petición real la reproduciría.
     urls = {i["procedencia"]["url"] for i in imagenes}
-    assert len(urls) == 5
-    assert all(url.startswith("https://www.ign.es/wms/pnoa-historico?") for url in urls)
-    assert len(http.calls) == 5
+    assert len(urls) == 7
+    ign = "https://www.ign.es/wms/pnoa-historico?"
+    idem = "https://idem.comunidad.madrid/srvimagenes2/ogc/wms/visorcartografia2?"
+    assert sum(url.startswith(ign) for url in urls) == 5
+    assert sum(url.startswith(idem) for url in urls) == 2
+    assert len(http.calls) == 7
 
 
 def test_ca3_tope_de_ventanas_antes_de_pedir_nada(tmp_path: Path) -> None:
@@ -269,7 +288,7 @@ def test_ca4_la_salida_cuenta_omisiones(tmp_path: Path, capsys: pytest.CaptureFi
     capsys.readouterr()
     assert _run(mixto, tmp_path / "raw", tmp_path / "out", "--sin-red") == 0
     salida = capsys.readouterr().out
-    assert "a" * 16 + ": generada; 1 ventanas, 4 imágenes, 1 omisiones (sin_cobertura=1)" in salida
+    assert "a" * 16 + ": generada; 1 ventanas, 6 imágenes, 1 omisiones (sin_cobertura=1)" in salida
     assert "c" * 16 + ": tramo_demasiado_largo; 0 ventanas" in salida
 
 
@@ -349,7 +368,15 @@ def test_ca7_integracion_tramo_real_corto(tmp_path: Path) -> None:
     franjas = {i["franja"] for i in ventana["imagenes"]} | {
         o["franja"] for o in ventana["omitidas"] if o["motivo"] == "sin_cobertura"
     }
-    assert franjas == {"1956-1957", "1997-2003", "2006-2011", "2014-2020", "reciente"}
+    assert franjas == {
+        "1956-1957",
+        "1975",
+        "1991",
+        "1997-2003",
+        "2006-2011",
+        "2014-2020",
+        "reciente",
+    }
     for imagen in ventana["imagenes"]:
         respuesta = requests.get(
             imagen["procedencia"]["url"],

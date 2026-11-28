@@ -7,6 +7,13 @@ el manifiesto `comparacion/28043.json` escrito con el productor real de
 `imagenes-comparacion` (#122) y un WMS falso: por ventana, `1956-1957` omitida y
 `1997-2003` OLISTAT, `2006-2011` 2006, `2014-2020` 2017 y `reciente` 2023.
 
+Política v2 (#208, CA14): la serie gana las franjas `1975` y `1991` de la IDEM. La fixture
+se regeneró con `generar.py`, cuyo WMS falso responde a la IDEM con su PNG blanco real, así
+que esas dos franjas quedan omitidas y los literales del IGN no cambian. Se actualizan al
+literal nuevo, sin relajarlos: política `v2`, dos huecos (1958–1974 y 1976–1990), tres
+omisiones por ventana, `servidores` en lugar de `servidor`, `periodo` en cada fuente de
+imagen y el motivo «no es del servicio de su vuelo». Los docstrings conservan el criterio.
+
 Oráculos del Bloque 0 (código de producción, `comparison_windows` y `stretch_pixels`):
 - `aprobado` (`cb30d538bb5ea601`): ventana `(459940, 4435840, 460260, 4436160)` de 640 px,
   trazo `[[[120.0, 320.0], [520.0, 320.0]]]`.
@@ -95,10 +102,12 @@ SIN_REVISION_RECIENTE_URL = (
 IMAGE_KEYS = {"url", "franja", "periodo", "resolucion_m", "atribucion", "texto_alternativo"}
 WINDOW_KEYS = {"ancho_px", "alto_px", "trazo_px", "imagenes", "omitidas"}
 SLOTS_WITH_IMAGE = ["1997-2003", "2006-2011", "2014-2020", "reciente"]
-GAP_TEXT = (
-    "De 1957 a 1997: sin ortofoto en el servicio sobre el ámbito (los vuelos "
-    "Interministerial y Nacional no tienen imagen en él)."
+GAP_TEXTS = (
+    "De 1958 a 1974: la serie no tiene ninguna ortofoto de esos años sobre el ámbito.",
+    "De 1976 a 1990: la serie no tiene ninguna ortofoto de esos años sobre el ámbito (los "
+    "vuelos Interministerial y Nacional del IGN no tienen imagen en él).",
 )
+OMITTED_SLOTS = ["1956-1957", "1975", "1991"]
 
 
 # --- Utilidades -----------------------------------------------------------------------
@@ -317,8 +326,11 @@ def test_ca2_bloque_comparacion_y_omitidas_en_lenguaje_llano(published: dict[str
     con `franja` y un `texto` fijo en lenguaje llano («sin cobertura de ese vuelo»), sin
     tipo de error ni lista de vuelos probados."""
     assert published["document"]["properties"]["comparacion"] == {
-        "politica": "imagenes_comparacion v1",
-        "huecos": [{"desde": 1957, "hasta": 1997, "texto": GAP_TEXT}],
+        "politica": "imagenes_comparacion v2",
+        "huecos": [
+            {"desde": 1958, "hasta": 1974, "texto": GAP_TEXTS[0]},
+            {"desde": 1976, "hasta": 1990, "texto": GAP_TEXTS[1]},
+        ],
         "servidas_por": SERVED_BY_TEXT,
         "no_disponible": "Imagen no disponible",
     }
@@ -326,10 +338,18 @@ def test_ca2_bloque_comparacion_y_omitidas_en_lenguaje_llano(published: dict[str
     for feature in published["document"]["features"]:
         for window in feature["properties"]["imagenes_comparacion"]:
             assert window["omitidas"] == [
-                {"franja": "1956-1957", "texto": "sin cobertura de ese vuelo"}
+                {"franja": slot, "texto": "sin cobertura de ese vuelo"} for slot in OMITTED_SLOTS
             ]
     text = (published["site"] / "candidatos" / f"{INE}.geojson").read_text(encoding="utf-8")
-    for leaked in ("tipo_error", "probados", "sin_cobertura", "AMS_1956-1957", "motivo"):
+    for leaked in (
+        "tipo_error",
+        "probados",
+        "sin_cobertura",
+        "AMS_1956-1957",
+        "CM_1975",
+        "CM_1991",
+        "motivo",
+    ):
         assert leaked not in text, leaked
 
 
@@ -473,7 +493,7 @@ def _swap_slots(document: dict[str, Any]) -> None:
     [
         (_set_provenance("redistribucion", "solo_uso_interno"), "no está marcada como publicable"),
         (_set_provenance("licencia", "CC BY-SA 4.0"), "no lleva la licencia CC BY 4.0"),
-        (_set_provenance("fuente", "pnoa-ma"), "no es del WMS histórico del IGN"),
+        (_set_provenance("fuente", "pnoa-ma"), "no es del servicio de su vuelo"),
         (_replace_in_url("www.ign.es/wms/pnoa-historico", "example.org/wms"), "URL canónica"),
         (_replace_in_url("layers=PNOA2023", "layers=PNOA2020"), "URL canónica"),
         (_replace_in_url("bbox=459940", "bbox=459941"), "URL canónica"),
@@ -696,22 +716,25 @@ def test_ca10_procedencia_atribucion_notice_e_indice(published: dict[str, Any]) 
     ]
     sidecar = published["sidecar"]
     assert sidecar["imagenes_comparacion"] == {
-        "servidor": "https://www.ign.es/wms/pnoa-historico",
+        "servidores": ["https://www.ign.es/wms/pnoa-historico"],
         "alojadas_en_el_sitio": False,
-        "politica": "imagenes_comparacion v1",
+        "politica": "imagenes_comparacion v2",
         "atribucion": flights,
     }
     image_sources = [s for s in sidecar["fuentes"] if s["origen"] == "pnoa-historico"]
+    periods = ["1997-1999", "2006", "2017", "2023"]
     assert image_sources == [
         {
             "origen": "pnoa-historico",
             "url": "https://www.ign.es/wms/pnoa-historico",
+            "periodo": period,
             "fecha_descarga": "2026-11-27",
             "licencia": "CC BY 4.0",
             "atribucion": attribution,
         }
-        for attribution in flights
+        for period, attribution in zip(periods, flights, strict=True)
     ]
+    assert not [s for s in sidecar["fuentes"] if s["origen"] == "idem-vuelos-historicos"]
     for attribution in flights:
         assert attribution in published["document"]["properties"]["atribucion"]
         assert attribution in sidecar["atribucion"]
@@ -720,8 +743,9 @@ def test_ca10_procedencia_atribucion_notice_e_indice(published: dict[str, Any]) 
     notice = NOTICE.read_text(encoding="utf-8")
     section = notice.split("### IGN/CNIG — imágenes de comparación de los tramos a verificar")[1]
     section = section.split("\n### ")[0]
-    for vintage in FLIGHTS:
-        assert f"`{attribution_for(vintage)}`" in section, vintage
+    for vintage, flight in FLIGHTS.items():
+        if flight.source == "pnoa-historico":
+            assert f"`{attribution_for(vintage)}`" in section, vintage
     assert "se sirven desde el WMS histórico del" in section
     assert "nunca aloja las imágenes" in section.replace("\n  ", " ")
 
@@ -761,7 +785,7 @@ def test_ca11_el_wms_del_ign_sirve_la_imagen_reciente(published: dict[str, Any])
 @pytest.mark.parametrize(
     ("change", "fragment"),
     [
-        (lambda d: d["politica"].update(version=2), "otra versión de la política"),
+        (lambda d: d["politica"].update(version=1), "otra versión de la política"),
         (lambda d: d["huecos"][0].update(hasta=1998), "otros huecos"),
         (lambda d: d.update(huecos=[]), "otros huecos"),
         (
@@ -773,11 +797,11 @@ def test_ca11_el_wms_del_ign_sirve_la_imagen_reciente(published: dict[str, Any])
                     "tipo_error": None,
                 }
             ),
-            "no cubre exactamente las cinco franjas",
+            "no cubre exactamente las franjas de la política una vez",
         ),
         (
             lambda d: _stretch(d, APROBADO)["ventanas"][0].update(omitidas=[]),
-            "no cubre exactamente las cinco franjas",
+            "no cubre exactamente las franjas de la política una vez",
         ),
         (
             lambda d: _stretch(d, APROBADO)["ventanas"][0]["omitidas"][0].update(
@@ -787,7 +811,7 @@ def test_ca11_el_wms_del_ign_sirve_la_imagen_reciente(published: dict[str, Any])
         ),
     ],
     ids=[
-        "politica-v2",
+        "politica-v1",
         "huecos-cambiados",
         "sin-huecos",
         "franja-repetida",

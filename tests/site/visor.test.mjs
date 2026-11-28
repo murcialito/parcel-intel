@@ -1978,6 +1978,85 @@ test("H178 CA6: ningún texto nuevo del visor ni del fichero lleva palabras veta
   }
 });
 
+// --- Historia #208: vuelos de la Comunidad de Madrid en la ficha (nombres «H208 CA<n>:») -----
+
+const PUBLICADO_IDEM = JSON.parse(await readFile(process.env.VISOR_CANDIDATOS_IDEM, "utf8"));
+const CON_IDEM = PUBLICADO_IDEM.features[0].properties;
+const NOTAS_IDEM = PUBLICADO_IDEM.properties.comparacion;
+const AVISO_IDEM = "Cartografía de carácter informativo, sin valor vinculante en procedimientos administrativos.";
+const ES_IDEM = (imagen) => imagen.franja === "1975" || imagen.franja === "1991";
+
+test("H208 CA5: la ficha cuenta los dos huecos de la serie con el texto publicado", async () => {
+  const ficha = await fichaPulsada(PUBLICADO_IDEM, copia(CON_IDEM));
+  assert.equal(NOTAS_IDEM.huecos.length, 2);
+  for (const hueco of NOTAS_IDEM.huecos) assert.ok(ficha.textContent.includes(hueco.texto), hueco.texto);
+  assert.ok(ficha.textContent.includes("De 1958 a 1974:"));
+  assert.ok(ficha.textContent.includes("De 1976 a 1990:"));
+  assert.ok(!ficha.textContent.includes("1957 a 1997"));
+});
+
+test("H208 CA8: cada imagen de Madrid lleva su año, su atribución literal, el aviso de la IDEM y el trazo", async () => {
+  const ficha = await fichaPulsada(PUBLICADO_IDEM, copia(CON_IDEM));
+  const figuras = porClase(ficha, "pc-comparacion__imagen");
+  const imagenes = CON_IDEM.imagenes_comparacion.flatMap((v) => v.imagenes);
+  assert.equal(figuras.length, imagenes.length);
+  assert.equal(imagenes.filter(ES_IDEM).length, 3, "1975 y 1991 en la primera ventana, 1975 en la segunda");
+  for (const [i, imagen] of imagenes.entries()) {
+    const figura = figuras[i];
+    const [img] = porTag(figura, "img");
+    assert.equal(img.atributos.src, imagen.url);
+    const [pie] = porTag(figura, "figcaption");
+    const parrafos = porTag(pie, "p").map((n) => n.textContent);
+    assert.equal(parrafos[0], imagen.periodo);
+    assert.equal(parrafos[1], imagen.atribucion);
+    const trazos = porTag(figura, "svg").filter((n) => n.atributos?.class === "pc-comparacion__trazo");
+    assert.equal(trazos.length, 1, "trazo superpuesto");
+    if (ES_IDEM(imagen)) {
+      assert.equal(imagen.aviso_fuente, AVISO_IDEM);
+      assert.deepEqual(parrafos, [imagen.periodo, imagen.atribucion, AVISO_IDEM]);
+      assert.ok(imagen.atribucion.startsWith("Obra derivada de Información geográfica de la Comunidad de Madrid."));
+      assert.equal(porTag(pie, "p")[2].className, "ficha-nota");
+    } else {
+      assert.equal(parrafos.length, 2, "las del IGN no llevan aviso");
+    }
+  }
+  // Quién sirve las imágenes: el IGN y la Comunidad de Madrid, no este sitio.
+  assert.ok(ficha.textContent.includes(NOTAS_IDEM.servidas_por));
+  assert.ok(NOTAS_IDEM.servidas_por.includes("Comunidad de Madrid"));
+  assert.ok(NOTAS_IDEM.servidas_por.includes("este sitio no aloja ninguna"));
+  // La segunda ventana dice que 1991 no tiene cobertura.
+  assert.ok(ficha.textContent.includes("1991: sin cobertura de ese vuelo"));
+});
+
+test("H208 CA8: si el servidor de Madrid no responde, «Imagen no disponible» con atribución y aviso", async () => {
+  const ficha = await fichaPulsada(PUBLICADO_IDEM, copia(CON_IDEM));
+  const figuras = porClase(ficha, "pc-comparacion__imagen");
+  const indice = CON_IDEM.imagenes_comparacion[0].imagenes.findIndex((i) => i.franja === "1975");
+  const figura = figuras[indice];
+  porTag(figura, "img")[0].disparar("error");
+  const [lienzo] = porClase(figura, "pc-comparacion__lienzo");
+  assert.equal(lienzo.textContent, NOTAS_IDEM.no_disponible);
+  assert.equal(NOTAS_IDEM.no_disponible, "Imagen no disponible");
+  assert.ok(figura.textContent.includes(CON_IDEM.imagenes_comparacion[0].imagenes[indice].atribucion));
+  assert.ok(figura.textContent.includes(AVISO_IDEM));
+  assert.equal(porTag(figuras[indice + 1], "img").length, 1, "las demás siguen");
+});
+
+test("H208 CA8: el aviso de la fuente va como texto y uno roto no pinta nada", async () => {
+  const props = copia(CON_IDEM);
+  const [primera] = props.imagenes_comparacion;
+  const indice = primera.imagenes.findIndex((i) => i.franja === "1975");
+  primera.imagenes[indice].aviso_fuente = "<b>aviso</b> de prueba";
+  const otra = primera.imagenes.findIndex((i) => i.franja === "1991");
+  primera.imagenes[otra].aviso_fuente = { no: "es texto" };
+  const ficha = await fichaPulsada(PUBLICADO_IDEM, props);
+  const figuras = porClase(ficha, "pc-comparacion__imagen");
+  const pie = (i) => porTag(porTag(figuras[i], "figcaption")[0], "p");
+  assert.equal(pie(indice)[2].textContent, "<b>aviso</b> de prueba", "el marcado queda como texto");
+  assert.equal(porTag(figuras[indice], "b").length, 0);
+  assert.equal(pie(otra).length, 2, "un aviso que no es texto no se pinta");
+});
+
 // --- Historia #185: rediseño del visor ------------------------------------------------------
 
 const ID_A = "0123456789abcdef";

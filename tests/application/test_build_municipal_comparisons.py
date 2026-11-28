@@ -85,7 +85,7 @@ def test_un_fallo_no_llama_al_sink() -> None:
     sink = _Sink()
     with pytest.raises(ComparisonFailuresError) as error:
         _use_case(_Orthophotos(failing=True), sink).execute("28043", [_request("a" * 16)])
-    assert len(error.value.failures) == 5
+    assert len(error.value.failures) == 7  # siete franjas desde la política v2 (#208)
     assert error.value.failures[0] == ("a" * 16, "1956-1957", "ConnectionError")
     assert sink.written == []
 

@@ -301,8 +301,8 @@ def test_cada_aprobado_lleva_sus_imagenes_y_la_capa_sus_notas() -> None:
     build = _layer(list(found.values()), approve=[found["aprobado"], found["propuesto"]])
     for item in build.publication.content.items:
         assert len(item.comparison.windows) == 1
-        assert len(item.comparison.images()) == 4
-    assert build.publication.comparison_notes.policy == "imagenes_comparacion v1"
+        assert len(item.comparison.images()) == 4  # 1975 y 1991 omitidas en la fixture
+    assert build.publication.comparison_notes.policy == "imagenes_comparacion v2"
 
 
 def test_aprobado_sin_imagenes_falla_nombrando_su_id() -> None:
@@ -322,7 +322,7 @@ def test_aprobado_sin_imagenes_falla_nombrando_su_id() -> None:
 def test_manifiesto_de_otra_politica_se_propaga() -> None:
     found = generar.candidates()
     state = reconcile(generar.report(), [_approved(found["aprobado"])])
-    manifest = dataclasses.replace(_manifest(), policy=CriterionRef("imagenes_comparacion", 2))
+    manifest = dataclasses.replace(_manifest(), policy=CriterionRef("imagenes_comparacion", 1))
     with pytest.raises(ComparisonManifestNotUsableError):
         build_candidate_layer(state, summarize_measurement(_report(), CUT_METHOD), "x", manifest)
 

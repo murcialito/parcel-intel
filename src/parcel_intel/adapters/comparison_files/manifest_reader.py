@@ -6,9 +6,11 @@ Lee `<directorio>/<ine>.json`, el fichero que escribe `JsonComparisonManifestWri
 no lleva datos sensibles) y construye las entidades de `domain/comparison_image.py`. Es
 hermano del lector de disponibilidad de #168, que solo mira el estado.
 
-Lista blanca de URL: la de cada imagen debe ser exactamente `window_url(ventana, vuelo)`,
-la URL canónica que pidió la caché cruda. Así servidor, capa y parámetros quedan
-cerrados y la URL publicada es la que se descargó y comprobó.
+Lista blanca de URL: la de cada imagen debe ser exactamente
+`comparison_window_url(ventana, vuelo)`, la URL canónica que pidió la caché cruda en el
+servidor de su vuelo (IGN o IDEM, #208). Así servidor, capa y parámetros quedan cerrados y
+la URL publicada es la que se descargó y comprobó. `CM_1956` no es de la serie y se
+rechaza.
 """
 
 import json
@@ -19,7 +21,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, ValidationError
 
-from parcel_intel.adapters.pnoa.window import window_url
+from parcel_intel.adapters.comparison_windows.router import comparison_window_url
 from parcel_intel.domain.comparison_image import (
     FLIGHTS,
     ComparisonImage,
@@ -36,7 +38,7 @@ from parcel_intel.ports.errors import ComparisonManifestFileError
 
 _MUNICIPALITY_RE = re.compile(r"[0-9]{5}")
 
-_Vintage = StrictInt | Literal["AMS_1956-1957", "SIGPAC", "OLISTAT"]
+_Vintage = StrictInt | Literal["AMS_1956-1957", "SIGPAC", "OLISTAT", "CM_1975", "CM_1991"]
 
 
 class _Model(BaseModel):
@@ -122,10 +124,10 @@ def _window(model: _WindowModel, where: str) -> OrthophotoWindow:
 def _image(model: _ImageModel, window: OrthophotoWindow, where: str) -> ComparisonImage:
     vintage = _vintage(model.vuelo, f"{where}.vuelo")
     provenance = model.procedencia
-    if provenance.url != window_url(window, vintage):
+    if provenance.url != comparison_window_url(window, vintage):
         raise ValueError(
             f"{where}.procedencia.url: no es la URL canónica de su ventana y su vuelo en el "
-            "WMS histórico del IGN"
+            "servidor de ese vuelo"
         )
     return ComparisonImage(
         slot=model.franja,

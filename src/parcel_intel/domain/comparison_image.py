@@ -21,7 +21,17 @@ MAX_WINDOWS_PER_STRETCH = 4
 MAX_WINDOWS_PER_MUNICIPALITY = 400
 RECENT_FLIGHT_YEAR = 2023
 
-COMPARISON_POLICY = CriterionRef("imagenes_comparacion", 1)
+COMPARISON_POLICY = CriterionRef("imagenes_comparacion", 2)
+
+IGN_COMPARISON_SOURCE = "pnoa-historico"
+IDEM_COMPARISON_SOURCE = "idem-vuelos-historicos"
+IDEM_ATTRIBUTION = (
+    "Información geográfica de la Comunidad de Madrid. Acceso público y gratuito en "
+    "CC BY 4.0 Comunidad de Madrid ."
+)  # literal del aviso legal de la IDEM (NOTICE), con el espacio antes del punto
+IDEM_NOTICE = (
+    "Cartografía de carácter informativo, sin valor vinculante en procedimientos administrativos."
+)
 
 _STRETCH_ID = re.compile(r"[0-9a-f]{16}")
 _MUNICIPALITY = re.compile(r"[0-9]{5}")
@@ -35,24 +45,40 @@ class FlightInfo:
     vintage: HistoricalVintage
     period: str
     resolution_m: float
-    attribution: str  # cadena SCNE literal, tal como figura en REGISTRY.md
+    attribution: str  # cadena literal de la fuente (SCNE o aviso legal de la IDEM)
+    source: str  # la `Provenance.source` que pone el adapter del vuelo
+    notice: str | None  # aviso obligatorio de la fuente que acompaña a la imagen, o None
+
+
+def _ign(
+    vintage: HistoricalVintage, period: str, resolution_m: float, attribution: str
+) -> FlightInfo:
+    return FlightInfo(vintage, period, resolution_m, attribution, IGN_COMPARISON_SOURCE, None)
 
 
 def _pnoa(year: int, resolution_m: float) -> FlightInfo:
-    return FlightInfo(year, str(year), resolution_m, f"PNOA {year} CC-BY 4.0 scne.es")
+    return _ign(year, str(year), resolution_m, f"PNOA {year} CC-BY 4.0 scne.es")
 
 
+def _idem(vintage: HistoricalVintage, period: str) -> FlightInfo:
+    return FlightInfo(vintage, period, 0.5, IDEM_ATTRIBUTION, IDEM_COMPARISON_SOURCE, IDEM_NOTICE)
+
+
+# Los vuelos de la serie (ADR 0042 §3, ampliado en #208). `CM_1956` no entra: el adapter de
+# la IDEM lo sabe pedir, pero queda fuera hasta confirmar la licencia del CECAF.
 FLIGHTS: dict[HistoricalVintage, FlightInfo] = {
     f.vintage: f
     for f in (
-        FlightInfo(
+        _ign(
             "AMS_1956-1957",
             "1956-1957",
             0.5,
             "Orto-AMS 1956-1957 CC-BY 4.0 ejercito.defensa.gob.es",
         ),
-        FlightInfo("SIGPAC", "1997-2003", 0.5, "Orto-SIGPAC 1997-2003 CC-BY 4.0 scne.es"),
-        FlightInfo("OLISTAT", "1997-1999", 1.0, "Orto-OLISTAT 1997-1999 CC-BY 4.0 scne.es"),
+        _idem("CM_1975", "1975"),
+        _idem("CM_1991", "1991"),
+        _ign("SIGPAC", "1997-2003", 0.5, "Orto-SIGPAC 1997-2003 CC-BY 4.0 scne.es"),
+        _ign("OLISTAT", "1997-1999", 1.0, "Orto-OLISTAT 1997-1999 CC-BY 4.0 scne.es"),
         _pnoa(2006, 0.5),
         _pnoa(2009, 0.5),
         _pnoa(2011, 0.25),
@@ -74,6 +100,8 @@ class ComparisonSlot:
 
 COMPARISON_SLOTS: tuple[ComparisonSlot, ...] = (
     ComparisonSlot("1956-1957", ("AMS_1956-1957",)),
+    ComparisonSlot("1975", ("CM_1975",)),
+    ComparisonSlot("1991", ("CM_1991",)),
     ComparisonSlot("1997-2003", ("SIGPAC", "OLISTAT")),
     ComparisonSlot("2006-2011", (2009, 2006, 2011)),
     ComparisonSlot("2014-2020", (2017, 2014, 2020)),
@@ -88,12 +116,15 @@ class DeclaredGap:
     reason: str
 
 
+# Política v2 (#208): se declara todo intervalo de más de 10 años (inclusivos) sin ningún
+# vuelo de la serie. 1992-1996 (5 años) no se declara.
 DECLARED_GAPS: tuple[DeclaredGap, ...] = (
+    DeclaredGap(1958, 1974, "la serie no tiene ninguna ortofoto de esos años sobre el ámbito"),
     DeclaredGap(
-        1957,
-        1997,
-        "sin ortofoto en el servicio sobre el ámbito (los vuelos Interministerial y "
-        "Nacional no tienen imagen en él)",
+        1976,
+        1990,
+        "la serie no tiene ninguna ortofoto de esos años sobre el ámbito (los vuelos "
+        "Interministerial y Nacional del IGN no tienen imagen en él)",
     ),
 )
 

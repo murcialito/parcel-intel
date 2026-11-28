@@ -87,15 +87,26 @@ def test_ca1_cinco_imagenes_en_orden_con_procedencia_y_huecos() -> None:
     assert result.status == "generada"
     assert len(result.windows) == 1
     images = result.windows[0].images
+    # Política v2 (#208): siete franjas, con 1975 y 1991 de la IDEM, y dos huecos.
     assert [i.slot for i in images] == [
         "1956-1957",
+        "1975",
+        "1991",
         "1997-2003",
         "2006-2011",
         "2014-2020",
         "reciente",
     ]
     assert [s.name for s in COMPARISON_SLOTS] == [i.slot for i in images]
-    assert [i.vintage for i in images] == ["AMS_1956-1957", "SIGPAC", 2009, 2017, 2023]
+    assert [i.vintage for i in images] == [
+        "AMS_1956-1957",
+        "CM_1975",
+        "CM_1991",
+        "SIGPAC",
+        2009,
+        2017,
+        2023,
+    ]
     first, last = images[0], images[-1]
     assert first.period == "1956-1957"
     assert first.resolution_m == 0.5
@@ -109,7 +120,7 @@ def test_ca1_cinco_imagenes_en_orden_con_procedencia_y_huecos() -> None:
     assert first.provenance.url == "https://wms/AMS_1956-1957"
     assert first.provenance.redistribution is Redistribution.PUBLIC
     assert result.gaps == DECLARED_GAPS
-    assert (DECLARED_GAPS[0].from_year, DECLARED_GAPS[0].to_year) == (1957, 1997)
+    assert [(g.from_year, g.to_year) for g in DECLARED_GAPS] == [(1958, 1974), (1976, 1990)]
     assert result.policy == COMPARISON_POLICY
     assert result.windows[0].omitted == ()
 
@@ -146,7 +157,7 @@ def test_ca3_fallo_no_prueba_alternativas() -> None:
     assert window.omitted[0].error_type == "ConnectionError"
     assert window.omitted[0].tried == ("SIGPAC",)
     assert "OLISTAT" not in [v for _, v in port.calls]
-    assert len(window.images) == 4
+    assert len(window.images) == len(COMPARISON_SLOTS) - 1  # seis desde la v2 (#208)
 
 
 ORACLES = [
@@ -316,7 +327,7 @@ def test_ca10_atribuciones_literales_en_el_registro() -> None:
     """Dado `FLIGHTS`, cuando se compara con `REGISTRY.md`, entonces cada cadena de
     atribución del ADR §3 aparece literal en el registro (test de coherencia)."""
     text = REGISTRY.read_text(encoding="utf-8")
-    assert len(FLIGHTS) == 10
+    assert len(FLIGHTS) == 12  # con CM_1975 y CM_1991 desde la v2 (#208)
     for flight in FLIGHTS.values():
         assert flight.attribution in text, flight.attribution
 

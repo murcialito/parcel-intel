@@ -345,6 +345,8 @@ export function crearVista(documento, textos) {
     const pie = documento.createElement("figcaption");
     pie.appendChild(parrafo("pc-comparacion__periodo", imagen.periodo));
     pie.appendChild(parrafo("ficha-fuente", imagen.atribucion));
+    // Aviso de la fuente (IDEM, #208), como texto: nunca HTML.
+    if (imagen.aviso !== "") pie.appendChild(parrafo("ficha-nota", imagen.aviso));
     figura.appendChild(pie);
     return figura;
   }
