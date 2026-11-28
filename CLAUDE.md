@@ -28,6 +28,7 @@ Otras reglas:
 - Datos crudos cacheados e inmutables en `data/` (fuera de git); el procesamiento es reproducible desde la caché.
 - Los tests no llaman a red: fixtures grabadas en `tests/fixtures/`; tests de integración marcados aparte.
 - Cada hallazgo debe poder rastrearse hasta su evidencia y su regla.
+- Datos internos no publicables (ADR 0055): viven en el repo privado `murcialito/paso-comun-datos` (adjuntos de release y catálogo por fuente). **Ningún agente del repo público tiene acceso al repo privado** (los logs y las PR de aquí son públicos), ni en Actions ni en local: ningún agente ejecuta la sincronización ni `gh` contra él. El procesado interno es local o en workflows del propio repo privado. El acceso es solo del fundador mientras no se aclare la licencia. Ningún dato de titularidad entra tampoco en el repo privado. Lo subido es inmutable: una versión nueva es un fichero nuevo con su procedencia.
 
 ## Flujo de trabajo por feature (obligatorio)
 

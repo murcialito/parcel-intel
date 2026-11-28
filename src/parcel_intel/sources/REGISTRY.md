@@ -40,6 +40,16 @@ Municipios de referencia usados para verificar: Colmenar de Oreja (código Catas
   4. **Nota de rendimiento:** el servicio limita cada `GetFeature` a un área máxima de, aproximadamente, 1 km² por petición (bboxes de 1200m×1200m devuelven `"Area of extension out of limits"`; 1000m×1000m funciona) — irrelevante para este método porque el bbox final es pequeño por diseño (centrado en un centroide ya conocido), pero documentado porque descarta cualquier estrategia que dependa de bboxes grandes.
   5. **Conclusión operativa para el adapter (historia 0002, Bloque 3):** el cliente de Catastro debe implementarse como dos llamadas encadenadas — `Consulta_CPMRC` (centroide) seguido de `GetFeature` con bbox pequeño (match por referencia) — nunca como un único `GetFeature` filtrado, porque el filtrado por atributo no existe en este servicio.
 
+## Datos internos: copia en el repo privado (ADR 0055)
+
+Las fuentes que no se pueden publicar se copian, solo para copia de seguridad y reutilización interna, al repo privado del proyecto, como adjuntos de release con un catálogo por fuente (sha256, licencia, `publicable: false` y restricciones de uso). Las reglas de acceso, el formato del catálogo y qué parte de `data/derived/*/interno/` se copia están en el [ADR 0055](../../../docs/adr/0055-repositorio-privado-de-datos-internos-adjuntos-de-release-catalogo-y-reglas-de-acceso.md). Fuentes que se copian:
+
+- **Catastro INSPIRE**: la caché cruda de `data/raw/catastro/`, por municipio y fecha (no se puede volver a descargar igual).
+- **Catastro histórico** de rústica (historias #268 y #287): los originales descargados de la Sede Electrónica.
+- **Fondo Documental de Vías Pecuarias**: los proyectos de clasificación, cuando lleguen (#280, #284).
+
+Estado a 2026-11-28: **todavía no se ha subido nada**; el repo privado lo crea #296 y la sincronización la implementa #295. Ningún dato de titularidad se copia.
+
 ---
 
 ## IDEM — Comunidad de Madrid (planeamiento urbanístico)
