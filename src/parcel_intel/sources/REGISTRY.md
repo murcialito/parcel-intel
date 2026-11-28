@@ -1298,7 +1298,7 @@ Canal: `https://www.catastro.hacienda.gob.es/ayuda/ayuda_antecedentes.htm` (HTTP
 - Es un **WMS**: solo visualización. La página dice que «no permite descargar las geometrías históricas». Tampoco permite consultar datos no protegidos históricos de una parcela.
 - Uso responsable: servicio libre y gratuito; el abuso puede acarrear restricciones.
 - Para tener las geometrías, remite a la Difusión de Datos Catastrales (Shapefile) y a filtrar la tabla por los campos `FECHAALTA` y `FECHABAJA` para ver la geometría a una fecha.
-- **La página no nombra el parámetro WMS** (`TIME` u otro) ni la capa. Que el WMS acepte `TIME` es una suposición hasta #236.
+- **La página no nombra el parámetro WMS** (`TIME` u otro) ni la capa. #236 comprobó que el WMS acepta `TIME=AAAA-MM-DD` (ver «Peticiones reales» abajo).
 - Canales no consultados: el `GetCapabilities` del WMS (es `ovc.catastro.meh.es`, no legible desde Actions) y la descarga de Shapefile.
 
 ### Licencia: ¿puede una fecha derivada apoyar un indicio publicado?
@@ -1322,12 +1322,40 @@ Documento primario: `https://www.catastro.hacienda.gob.es/webinspire/documentos/
 - Un único extremo de Catastro no basta: el intervalo se estrecha con las demás fuentes (vuelos históricos, minutas).
 - El texto que se publique no dice «se cortó en…» ni da un año como hecho.
 
-### Pendiente de peticiones reales (#236)
+### Peticiones reales (#236, en local, 2026-11-28)
+
+Hechas desde la red del fundador: `ovc.catastro.meh.es` rechaza a los runners de Actions. `User-Agent: parcel-intel-verificacion/0.1`, unas 20 peticiones en total. Las respuestas están en `data/raw/catastro_fecha/` (fuera de git, ADR 0040).
 
 | Qué | Estado | Dónde se resuelve |
 |---|---|---|
-| WMS con `TIME` (nombre de capa, formato de fecha, qué devuelve para 2005 y para hoy) | `pendiente` | [#236](https://github.com/murcialito/paso-comun/issues/236), en local |
-| Campos `FECHAALTA`/`FECHABAJA` del WFS (¿existen, con qué formato?) | `pendiente` | [#236](https://github.com/murcialito/paso-comun/issues/236), en local |
+| WMS con `TIME` (nombre de capa, formato de fecha, qué devuelve para 2005 y para hoy) | `confirmado` (2026-11-28): acepta `TIME=AAAA-MM-DD` aunque no lo declara; las imágenes de 2005 y de hoy difieren; en la tesela probada hay datos desde diciembre de 2001 | [#236](https://github.com/murcialito/paso-comun/issues/236), en local |
+| Campos `FECHAALTA`/`FECHABAJA` del WFS (¿existen, con qué formato?) | `descartado` en el WFS INSPIRE (2026-11-28): no existen, trae `beginLifespanVersion` y `endLifespanVersion` vacío. Sí existen en el Shapefile (`AAAAMMDD`), pero solo con parcelas vigentes | [#236](https://github.com/murcialito/paso-comun/issues/236), en local |
+
+**WMS a una fecha (CA1).**
+- Servicio `https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx`, **WMS 1.1.1**, con el parámetro `SRS`. Con `VERSION=1.3.0` y `CRS` responde `200` con una `ServiceException` «SRS () Invalido».
+- Capa `PARCELA`; el servicio tiene también `CONSTRU`, `SUBPARCE`, `MASA` y sus rótulos. `SRS=EPSG:25830`, `image/png`.
+- El `GetCapabilities` no declara ninguna dimensión `TIME`, ni este WMS ni el INSPIRE (`spadgcwms.aspx`). Ninguno de los dos menciona fechas.
+- Aun así, con `TIME=AAAA-MM-DD` dibuja el parcelario a esa fecha y estampa en la imagen el rótulo rojo «FECHA: dd/mm/aaaa». Prueba en una tesela de 900 m de Colmenar de Oreja, una de la rejilla de #37 (`BBOX=467341,4441523,468241,4442423`, 900 × 900 píxeles):
+  - `TIME=2005-01-01` frente a `TIME=2026-11-28`: 28.436 píxeles distintos, con cambios de parcelario visibles.
+  - Entre 2002-01-01 y 2005-01-01: 2.580 píxeles distintos.
+  - Sin `TIME`: devuelve el parcelario actual sin rótulo. Solo difiere en el rótulo de la de hoy (1.932 píxeles).
+  - `TIME=2005`, solo el año: se ignora y devuelve el actual. La fecha tiene que ser completa.
+- **Fecha más antigua con datos en esa tesela**: entre el 2001-12-01, que solo trae el rótulo, y el 2001-12-31, que ya trae líneas. Con 1990, 1998, 2000, 2001-01, 2001-07, 2001-10 y 2001-12-01 responde **`200` con una imagen que solo tiene el rótulo** (≈1.900 píxeles dibujados frente a ≈20.000 con parcelario). Un `200` no prueba que haya datos: hay que comprobar que hay líneas. La ayuda habla de consulta estable desde 2005, y la fecha más antigua puede cambiar de una zona a otra.
+- Es **solo imagen**, sin geometría. Sirve para decir «consta» o «no consta» a fecha X comparando imágenes, que es el extremo del intervalo que pide #201.
+
+**Fechas en el WFS de parcelas (CA2).**
+- El WFS INSPIRE de #37 (`wfsCP.aspx`) **no trae `FECHAALTA` ni `FECHABAJA`**. Cada `cp:CadastralParcel` lleva:
+  - `cp:beginLifespanVersion`, fecha y hora ISO 8601 (por ejemplo `2012-06-08T00:00:00`): la fecha de alta de la versión vigente;
+  - `cp:endLifespanVersion`, vacío (`xsi:nil="true"`, `nilReason` «Unpopulated»).
+- En la caché de #37 (312 teselas y 38.888 elementos, contando repetidos entre teselas), `endLifespanVersion` va vacío en 38.887. El único con valor dice `3026-09-10T00:00:00`, un error del origen. `beginLifespanVersion` va del 2001-09-24 a 2026.
+- **Solo trae parcelas vigentes.** Las dadas de baja o fusionadas no están en la descarga.
+- El **Shapefile** de la Sede (descarga del fundador del 2026-11-27, foto del 14-08-2026; #298 y #299) sí tiene en `PARCELA.DBF` los campos `FECHAALTA` y `FECHABAJA`, numéricos de 8 cifras `AAAAMMDD`. Pero en las 13.100 parcelas rústicas de Colmenar `FECHABAJA` vale `99999999`: también trae solo las vigentes.
+- El filtro por `FECHAALTA`/`FECHABAJA` que propone la ayuda no recupera geometrías dadas de baja de una descarga actual. Para eso harían falta descargas antiguas guardadas, o comparar imágenes del WMS.
+
+**Qué cambia para #201.**
+- La única forma de ver el parcelario de una fecha pasada es el WMS con `TIME`, y solo como imagen.
+- `beginLifespanVersion` y `FECHAALTA` solo dicen desde cuándo existe la versión vigente de una parcela, no cuándo desapareció otra.
+- Sigue abierta la pregunta de licencia de arriba: si se puede publicar una fecha derivada de Catastro.
 
 ### Fixtures sintéticas
 
