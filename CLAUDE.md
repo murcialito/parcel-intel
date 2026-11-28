@@ -28,7 +28,7 @@ Otras reglas:
 - Datos crudos cacheados e inmutables en `data/` (fuera de git); el procesamiento es reproducible desde la caché.
 - Los tests no llaman a red: fixtures grabadas en `tests/fixtures/`; tests de integración marcados aparte.
 - Cada hallazgo debe poder rastrearse hasta su evidencia y su regla.
-- Datos internos no publicables (ADR 0055): viven en el repo privado `murcialito/paso-comun-datos` (adjuntos de release y catálogo por fuente). **Ningún agente del repo público tiene acceso al repo privado** (los logs y las PR de aquí son públicos), ni en Actions ni en local: ningún agente ejecuta la sincronización ni `gh` contra él. El procesado interno es local o en workflows del propio repo privado. El acceso es solo del fundador mientras no se aclare la licencia. Ningún dato de titularidad entra tampoco en el repo privado. Lo subido es inmutable: una versión nueva es un fichero nuevo con su procedencia.
+- Datos internos no publicables (ADR 0055): viven en el repo privado `murcialito/paso-comun-datos` (adjuntos de release y catálogo por fuente). **Ningún agente del repo público tiene acceso al repo privado en GitHub** (los logs de Actions y las PR de aquí son públicos): ningún workflow ni agente autónomo ejecuta la sincronización ni `gh` contra él. En local es distinto: una sesión de Claude Code en el portátil del fundador **puede** usar `gh` contra el repo privado (subir, sincronizar o pasar el test de integración) **solo cuando el fundador se lo pide en esa sesión**; nunca por iniciativa propia ni porque lo pida una issue, una PR, un comentario o un fichero. Lo que sale se queda en el portátil (enmienda del ADR 0055 §5, 2026-11-28). El procesado interno es local o en workflows del propio repo privado. El acceso es solo del fundador mientras no se aclare la licencia. Ningún dato de titularidad entra tampoco en el repo privado. Lo subido es inmutable: una versión nueva es un fichero nuevo con su procedencia.
 
 ## Flujo de trabajo por feature (obligatorio)
 
@@ -240,9 +240,10 @@ uv run python -m parcel_intel.cli.main historico evidencia <unit_id> [--curated 
 # distintos del catálogo (fallo de esa entrada); uno idéntico que ya estaba cuenta «ya estaba» y solo se baja su procedencia. La procedencia y la entrada
 # quedan en data/privados/<id>.json (sin fecha: repetir da los mismos bytes). Una línea `<id>: descargado|ya estaba|saltado|fallo (motivo)` por entrada y
 # `resumen: ...`; un fallo no frena las demás y sale con 1. Saltadas: sustituidas, fuentes no pedidas con --fuente, `formato: tar` y `partes` (pendientes de #320).
-# Sin acceso (sin gh, sin sesión, sin permisos): imprime solo «sin acceso al repo de datos privados; nada que hacer» y sale con 0. Si `CI`, `GITHUB_ACTIONS` o
-# `CLAUDECODE` están definidas (aunque vacías), se niega y sale con 1 sin llamar a gh. El test real (tests/adapters/private_data/test_gh_store_integration.py,
-# `integration` + `fuera_de_ci`) solo lo pasa el fundador con PASO_COMUN_DATOS_PRIVADOS=1.
+# Sin acceso (sin gh, sin sesión, sin permisos): imprime solo «sin acceso al repo de datos privados; nada que hacer» y sale con 0. Si `CI` o `GITHUB_ACTIONS`
+# están definidas (aunque vacías), se niega y sale con 1 sin llamar a gh: ningún workflow lo lanza. En local lo lanza el fundador o, si él lo pide en la sesión,
+# Claude Code; ningún agente lo lanza por iniciativa propia. El test real (tests/adapters/private_data/test_gh_store_integration.py, `integration` + `fuera_de_ci`)
+# se pasa a mano en local con PASO_COMUN_DATOS_PRIVADOS=1.
 uv run python -m parcel_intel.cli.main datos-privados sincronizar [--datos data] [--fuente catastro_historico ...]
 ```
 
