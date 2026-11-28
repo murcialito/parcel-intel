@@ -28,6 +28,8 @@ El ADR 0055 fija dónde están los datos internos (repo privado `murcialito/paso
 
 - `PrivateDataArea` lleva además `read_small(path)`: el caso de uso no lee ficheros por su cuenta, así que la procedencia descargada a la zona de preparación la lee el adapter, con un tope de 1 MiB.
 - El registro de una entrada solo lleva las claves opcionales que tienen valor (`sustituido_por: null` no aparece). Como las entradas sustituidas se saltan antes de mirar el registro, rellenar `sustituido_por` en el catálogo no invalida registros vigentes.
+- La defensa contra enlaces simbólicos alcanza también a los directorios intermedios bajo `data/`: si `data/raw` (o cualquier tramo de la ruta de `destino`) es un enlace simbólico, por ejemplo a un disco externo, todas sus entradas fallan como «conflicto con lo que ya hay en local». Es a propósito: un enlace podría sacar la escritura fuera de `data/`. Quien guarde los datos en otro disco debe montar o apuntar `--datos` a un directorio real, no enlazar subdirectorios.
+- Los catálogos se listan con `gh api` sin `--paginate`: vale mientras haya menos de 1000 ficheros en `catalogo/`. Revisarlo en #320 o si el repo privado se acerca a ese número.
 
 ## Consecuencias
 
