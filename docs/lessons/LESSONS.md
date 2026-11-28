@@ -966,3 +966,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: implementación (reglas de licencia con ramas que ningún dato actual dispara) | revisión (exigir el test aunque la rama parezca muerta).
 - **Lección**: `uv run ruff format src` reformatea el árbol entero y toca ficheros ajenos a la historia. Formatear solo los ficheros propios (`ruff format <ruta>`) y mirar `git status` antes de commitear.
   - **Aplica a**: implementación.
+
+## [2026-11-28] Tests que miran los ficheros de los commits de una historia
+
+- **Lección**: en un clon superficial (el CI de `main` clona con profundidad 1) el último commit es la raíz del clon, y `git log --name-only` sobre una raíz lista **el árbol entero**. Un test que busca los commits «Historia #N: …» con `git log --grep … --name-only` pasa en la PR (la cabeza es un merge que no casa y se salta) y falla en `main` justo después de fusionar, cuando la cabeza es el propio commit de la historia. Se sacan los ficheros con `git diff-tree --no-commit-id --name-only -r <commit>` commit a commit: sin `--root` no lista nada en una raíz y el test se salta.
+  - **Causa**: el CA10 de #294 dejó en rojo el CI de `main` tras fusionar la PR #312 (2026-11-28); el CA8 de #287 tenía el mismo patrón.
+  - **Aplica a**: implementación y revisión (tests que inspeccionan el historial de git).
