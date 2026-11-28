@@ -170,6 +170,7 @@ from parcel_intel.domain.provenance import Provenance, Redistribution
 from parcel_intel.domain.publication import NotRedistributableError
 from parcel_intel.domain.published_discrepancy import OmittedByLicense
 from parcel_intel.domain.published_layers import PUBLISHED_LAYERS, PublishedLayerId
+from parcel_intel.domain.road_segment import ROAD_SURFACES, RoadSurface
 from parcel_intel.domain.rule import Rule, WithinDistanceCondition
 from parcel_intel.domain.width_signal import MunicipalWidthReport
 from parcel_intel.ports.errors import (
@@ -496,8 +497,10 @@ def build_municipal_road_layers(
     roadlink_http_get: HttpGet = roadlink_client.default_http_getter,
     today: Callable[[], date] = _today,
     sleep: Callable[[float], None] = time.sleep,
+    surface: RoadSurface = "unpaved",
 ) -> MunicipalRoadLayerBatch:
-    """Composition root de la capa de camino actual por municipio (historia #27).
+    """Composition root de la capa de camino actual por municipio (historia #27) y,
+    con `surface="paved"`, de la red asfaltada que solo sirve de contraparte (#183).
 
     Misma caché cruda inmutable que las vías pecuarias (la clave es la URL
     completa). Con `offline=True` nada llama a la red."""
@@ -511,13 +514,19 @@ def build_municipal_road_layers(
         ),
         roads=RoadNetworkAdapter(fetcher=road_fetcher, today=today),
         clipper=ShapelyLineClipper(),
+        surface=surface,
     )
     return use_case.execute(AMBITO_HITO_INE)
 
 
 def _camino_actual_municipios(args: argparse.Namespace) -> int:
+    """Dos pasadas (sin asfaltar y asfaltada) con la misma caché. Todo o nada por
+    municipio (CA12 de #183): solo se escriben sus dos ficheros si sale en las dos."""
     try:
-        batch = build_municipal_road_layers(args.cache, args.sin_red)
+        batches = {
+            surface: build_municipal_road_layers(args.cache, args.sin_red, surface=surface)
+            for surface in ROAD_SURFACES
+        }
     except (
         MunicipalBoundaryNotFoundError,
         MunicipalBoundaryUnusableError,
@@ -530,19 +539,30 @@ def _camino_actual_municipios(args: argparse.Namespace) -> int:
     except requests.RequestException as error:
         print(f"Error de red: {error}", file=sys.stderr)
         return 1
+    unpaved, paved = batches["unpaved"], batches["paved"]
+    paved_by_ine = {layer.municipality.ine_code: layer for layer in paved.layers}
+    failed_ines = {f.ine_code for batch in batches.values() for f in batch.failures}
     writer = GeoJsonRoadLayerWriter(args.salida)
-    for layer in batch.layers:
+    paved_writer = GeoJsonRoadLayerWriter(args.salida_asfaltado)
+    for layer in unpaved.layers:
+        ine = layer.municipality.ine_code
+        paved_layer = paved_by_ine.get(ine)
+        if ine in failed_ines or paved_layer is None:
+            continue
         path = writer.write(layer)
+        paved_path = paved_writer.write(paved_layer)
+        print(f"{ine} {layer.municipality.name}: {len(layer.segments)} tramos -> {path}")
         print(
-            f"{layer.municipality.ine_code} {layer.municipality.name}: "
-            f"{len(layer.segments)} tramos -> {path}"
+            f"{ine} {layer.municipality.name}: "
+            f"{len(paved_layer.segments)} tramos asfaltados -> {paved_path}"
         )
-    for failure in batch.failures:
-        print(
-            f"FALLO {failure.ine_code} {failure.name}: {failure.reason}",
-            file=sys.stderr,
-        )
-    return 1 if batch.failures else 0
+    for surface, batch in batches.items():
+        for failure in batch.failures:
+            print(
+                f"FALLO {failure.ine_code} {failure.name}: {surface}: {failure.reason}",
+                file=sys.stderr,
+            )
+    return 1 if failed_ines else 0
 
 
 def build_cadastral_road_layer(
@@ -737,7 +757,9 @@ def build_discrepancy_use_case(derived_dir: Path, output_dir: Path) -> DetectDis
                 "via_pecuaria_oficial": derived_dir / "vias_pecuarias",
                 "ign_red_transporte": derived_dir / "camino_actual",
                 "catastro_vt": derived_dir / "catastro_caminos",
-            }
+            },
+            # La red asfaltada cuenta como contraparte del IGN, nunca como sujeto (#183).
+            complements={"ign_red_transporte": derived_dir / "camino_asfaltado"},
         ),
         internal_sink=GeoJsonDiscrepancyWriter(output_dir / "interno", publishable=False),
         public_sink=GeoJsonDiscrepancyWriter(output_dir / "publicable", publishable=True),
@@ -1834,7 +1856,10 @@ def _build_parser() -> argparse.ArgumentParser:
 
     camino_parser = subparsers.add_parser(
         "camino-actual-municipios",
-        help="Capa de camino actual (tramos sin asfaltar del IGN) por municipio, en GeoJSON",
+        help=(
+            "Capa de camino actual (tramos sin asfaltar del IGN) y red asfaltada "
+            "(solo contraparte) por municipio, en GeoJSON"
+        ),
     )
     camino_parser.add_argument(
         "--sin-red", action="store_true", help="Solo la caché cruda; falla si falta algo"
@@ -1847,6 +1872,12 @@ def _build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("data/derived/camino_actual"),
         help="Directorio de los ficheros <codigo_ine>.geojson",
+    )
+    camino_parser.add_argument(
+        "--salida-asfaltado",
+        type=Path,
+        default=Path("data/derived/camino_asfaltado"),
+        help="Directorio de los ficheros <codigo_ine>.geojson de la red asfaltada (no se publica)",
     )
     camino_parser.set_defaults(func=_camino_actual_municipios)
 

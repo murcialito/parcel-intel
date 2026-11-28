@@ -196,3 +196,64 @@ def test_el_informe_lleva_el_nombre_del_municipio_de_sus_capas() -> None:
     other = dataclasses.replace(unnamed, municipality_name="Chinchón")
     with pytest.raises(InconsistentLayersError, match="nombres de municipio distintos"):
         detect_municipal_discrepancies(MUNICIPALITY, [named, other], [])
+
+
+def test_un_trazado_solo_contraparte_nunca_es_sujeto() -> None:
+    """#183, ADR 0050: un tramo asfaltado paralelo a 20 m de una vía daría un
+    DESPLAZAMIENTO con el IGN de sujeto; marcado solo contraparte, no da ninguno."""
+    via = make_trail("V1", "via_pecuaria_oficial", line_shape((0, 0), (1000, 0)))
+    asfaltado = dataclasses.replace(
+        make_trail("P1", "ign_red_transporte", line_shape((0, 20), (1000, 20))),
+        counterpart_only=True,
+    )
+    catastro = make_trail("C1", "catastro_vt", line_shape((0, 5000), (1000, 5000)))
+
+    report = detect_municipal_discrepancies(
+        MUNICIPALITY,
+        [
+            make_layer("via_pecuaria_oficial", [via]),
+            make_layer("ign_red_transporte", [asfaltado]),
+            make_layer("catastro_vt", [catastro]),
+        ],
+        [],
+    )
+
+    assert all(r.discrepancy.subject.trail_id != "P1" for r in report.records)
+    ign = next(s for s in report.layers if s.source == "ign_red_transporte")
+    assert ign.trail_count == 1  # cuenta en el resumen aunque no sea sujeto
+
+    # Guardia: sin la marca, el mismo tramo sí sería sujeto (la prueba discrimina).
+    unmarked_road = dataclasses.replace(asfaltado, counterpart_only=False)
+    unmarked = detect_municipal_discrepancies(
+        MUNICIPALITY,
+        [
+            make_layer("via_pecuaria_oficial", [via]),
+            make_layer("ign_red_transporte", [unmarked_road]),
+            make_layer("catastro_vt", [catastro]),
+        ],
+        [],
+    )
+    assert any(r.discrepancy.subject.trail_id == "P1" for r in unmarked.records)
+
+
+def test_un_trazado_solo_contraparte_cuenta_como_equivalente() -> None:
+    via = make_trail("V1", "via_pecuaria_oficial", line_shape((0, 0), (1000, 0)))
+    asfaltado = make_trail("P1", "ign_red_transporte", line_shape((0, 2), (1000, 2)))
+
+    def records(counterpart_only: bool) -> list[str]:
+        road = dataclasses.replace(asfaltado, counterpart_only=counterpart_only)
+        report = detect_municipal_discrepancies(
+            MUNICIPALITY,
+            [make_layer("via_pecuaria_oficial", [via]), make_layer("ign_red_transporte", [road])],
+            [],
+        )
+        return [r.discrepancy.kind for r in report.records]
+
+    assert records(counterpart_only=True) == []
+    assert records(counterpart_only=False) == []
+    vacia = detect_municipal_discrepancies(
+        MUNICIPALITY,
+        [make_layer("via_pecuaria_oficial", [via]), make_layer("ign_red_transporte", [])],
+        [],
+    )
+    assert [r.discrepancy.kind for r in vacia.records] == ["AUSENTE_EN_FUENTE"]

@@ -1,0 +1,18 @@
+{
+ "type": "FeatureCollection",
+ "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::25830"}},
+ "properties": {
+  "fuente": "ign_red_transporte",
+  "municipio": "28997",
+  "nombre_municipio": "Municipio sintético 28997",
+  "superficie": "unpaved",
+  "procedencia": {"fuente": "SINTÉTICO capa de camino actual", "url": "https://example.invalid/roadlink?filter=surfacecategory%3D%27unpaved%27", "fecha_descarga": "2026-11-26", "licencia": "SINTÉTICA CC BY 4.0, solo para pruebas", "redistribucion": "publicable"},
+  "aviso": "SINTÉTICO: capa inventada para pruebas (historia #183), no es cartografía real."
+ },
+ "features": [
+  {"type": "Feature", "id": "900000000002", "properties": {"id_tramo": 900000000002, "superficie": "unpaved", "fecha_dato": "2025-03-15"},
+   "geometry": {"type": "LineString", "coordinates": [[450000.0, 4436002.0], [451000.0, 4436002.0]]}},
+  {"type": "Feature", "id": "900000000005", "properties": {"id_tramo": 900000000005, "superficie": "unpaved", "fecha_dato": "2025-03-15"},
+   "geometry": {"type": "LineString", "coordinates": [[450000.0, 4439020.0], [451000.0, 4439020.0]]}}
+ ]
+}

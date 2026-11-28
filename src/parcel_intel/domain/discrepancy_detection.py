@@ -174,6 +174,8 @@ def _compare_pair(a: _Prepared, b: _Prepared) -> list[DiscrepancyRecord]:
     records: list[DiscrepancyRecord] = []
     for bbox, subject in a.items:
         trail = a.by_id[subject.ref.trail_id]
+        if trail.counterpart_only:
+            continue  # solo contraparte (tramos asfaltados del IGN, ADR 0050): nunca sujeto
         kept = kinds_kept(kind_a, kind_b, subject_is_anejo=trail.role == "anejo")
         if not kept:
             continue
