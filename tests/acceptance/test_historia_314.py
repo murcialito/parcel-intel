@@ -100,6 +100,11 @@ def _snapshot(directory: Path) -> dict[str, bytes]:
     }
 
 
+def _requested_min_ys(http: generar_idem.FakeServers) -> list[float]:
+    """`min_y` de la ventana de cada petición WMS (el `bbox` empieza por `minx,miny`)."""
+    return [float(call[1]["bbox"].split(",")[1]) for call in http.calls]
+
+
 def _mixed_report() -> MunicipalDiscrepancyReport:
     return report(
         record(STRIP_ID, strip(X0, Y0)),
@@ -175,7 +180,14 @@ def test_ca3_indicio_no_publicable_no_entra_ni_genera_peticiones(
         )["tramos"]
     ]
     assert CATASTRO_ID not in ids
-    assert all(CATASTRO_ID not in str(call) for call in http.calls)
+    # Ninguna petición cae en la franja del indicio de Catastro (Y0 + 2000)...
+    assert http.calls
+    assert all(min_y < Y0 + 1500 for min_y in _requested_min_ys(http))
+    # ...y son exactamente las de un informe sin ese indicio (caché distinta, mismas peticiones).
+    first_run_calls = len(http.calls)
+    write_internal(tmp_path / "solo" / "interno", report(*_mixed_report().records[:2]))
+    assert _run(tmp_path / "solo") == 0
+    assert len(http.calls) - first_run_calls == first_run_calls
 
     # Contraparte fuera de la lista: con la lista recortada, el indicio de la franja sale.
     monkeypatch.setattr(
@@ -184,6 +196,7 @@ def test_ca3_indicio_no_publicable_no_entra_ni_genera_peticiones(
         frozenset({"via_pecuaria_oficial"}),
     )
     write_internal(tmp_path / "otro" / "interno", _mixed_report())
+    restricted_start = len(http.calls)
     assert _run(tmp_path / "otro") == 0
     ids = [
         t["id"]
@@ -192,6 +205,8 @@ def test_ca3_indicio_no_publicable_no_entra_ni_genera_peticiones(
         )["tramos"]
     ]
     assert ids == [MULTI_ID]  # la franja tenía como contraparte la red del IGN
+    # La franja excluida (en Y0) tampoco genera peticiones: solo las de Y0 + 1000.
+    assert min(_requested_min_ys(http)[restricted_start:]) >= Y0 + 500
     # La misma función decide en la capa publicada.
     layer = published_discrepancy.build_discrepancy_layer(redact_for_publication(_mixed_report()))
     assert layer.omitted.counterpart == 1 and layer.omitted.subject == 1
