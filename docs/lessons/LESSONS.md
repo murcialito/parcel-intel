@@ -910,3 +910,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el PDF de una disposición del BOE se saca del enlace «PDF» de la ficha `doc.php?id=<BOE-A-…>` (patrón `/boe/dias/AAAA/MM/DD/pdfs/A<página inicial>-<final>.pdf`) y es la página entera del boletín, con otras disposiciones sin relación. El texto extraído confunde cifras («6,E9» por 6,69): una cifra se da por buena solo contra la imagen que devuelve `Read`. Si `Read` con `pages` falla por falta de `pdftoppm`, leerlo sin `pages`.
   - **Aplica a**: implementación (fixtures de disposiciones: grabar el PDF íntegro, pero no copiar a texto los nombres de personas que cite la página).
 
+
+## [2026-11-28] Historia #287 — Test de «solo documentación»
+
+- **Lección**: un test que comprueba qué ficheros toca una historia no debe comparar la rama actual con `origin/main` (`git diff origin/main...HEAD`). Una vez fusionado, ese test se ejecuta en todas las ramas y falla en cualquiera que cambie código. Hay que mirar los ficheros de los commits de la propia historia (`git log --format= --name-only --grep="^Historia #<n>:" HEAD`) y saltarse si no hay ninguno, como pasa en CI con historia corta.
+  - **Causa**: `test_historia_287.py::test_ca8_solo_documentacion_en_el_diff` fallaba en local en la rama de #183.
+  - **Aplica a**: implementación (tests de alcance de una historia de documentación).
