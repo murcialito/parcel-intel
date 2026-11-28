@@ -29,6 +29,8 @@ Proyecto **sin ánimo de lucro y de código abierto**. Sin clientes, sin precios
 - **Nada llama a un modelo de IA en una consulta de usuario.** El LLM solo interviene fuera de línea: autoría de reglas con revisión humana y, si se usa, redacción de textos que se generan una vez y se publican ya revisados.
 - Sin backend que escale con las visitas mientras el mapa estático sea suficiente. Un backend solo entra cuando una funcionalidad lo exija de verdad (p. ej. recibir avisos ciudadanos con foto) y con un ADR que justifique su coste.
 
+Cuando haya costes reales (backoffice, VPS, almacenamiento), el dinero entra y sale por una asociación sin ánimo de lucro, nunca por cuentas personales, y **ni un euro acaba en manos de particulares**: no se paga a quien colabora, y el reconocimiento es no monetario (encuentro anual y premio honorífico). La infraestructura crece por fases, solo cuando una funcionalidad la pide. Ver el [ADR 0056](adr/0056-financiacion-y-gobierno-del-dinero-asociacion-ni-un-euro-a-particulares-infraestructura-por-fases.md) y la guía para [constituir la asociación](asociacion.md).
+
 ## Usuarios
 
 - Asociaciones de defensa de caminos públicos.
