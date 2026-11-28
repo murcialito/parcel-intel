@@ -249,7 +249,7 @@ def test_manifiesto_ilegible_es_fallo_del_municipio() -> None:
 
 
 def test_manifiesto_de_otra_politica_es_fallo_del_municipio() -> None:
-    other = dataclasses.replace(MANIFEST, policy=CriterionRef("imagenes_comparacion", 2))
+    other = dataclasses.replace(MANIFEST, policy=CriterionRef("imagenes_comparacion", 1))
     use_case, _, sink = _use_case(reviews=(_approval("aprobado"),), manifest=other)
     (failure,) = use_case.execute([INE]).failures
     assert failure.reason.startswith("manifiesto de imágenes no utilizable: el manifiesto es de")

@@ -238,12 +238,14 @@ function ventanaComparacion(v) {
       periodo: texto(i.periodo),
       atribucion: texto(i.atribucion),
       alt: texto(i.texto_alternativo),
+      // Aviso obligatorio de la fuente (IDEM, historia #208); cadena vacía si no lo lleva.
+      aviso: texto(i.aviso_fuente),
       inicio: Number.parseInt(texto(i.periodo), 10),
       orden,
     }))
     // Cronológico por el año con que empieza el periodo; a igualdad o sin año, el del fichero.
     .sort((a, b) => (a.inicio - b.inicio || 0) || a.orden - b.orden)
-    .map(({ url, periodo, atribucion, alt }) => ({ url, periodo, atribucion, alt }));
+    .map(({ url, periodo, atribucion, alt, aviso }) => ({ url, periodo, atribucion, alt, aviso }));
   const omitidas = (Array.isArray(v.omitidas) ? v.omitidas : [])
     .filter((o) => o !== null && typeof o === "object" && cadenaNoVacia(o.texto))
     .map((o) => ({ franja: texto(o.franja), texto: o.texto }));

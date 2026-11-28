@@ -85,6 +85,9 @@ def _first_image(document: dict[str, Any]) -> dict[str, Any]:
         (lambda d: _first_image(d).update(vuelo=1999), "vuelo no reconocido"),
         (lambda d: _first_image(d).update(vuelo="2023"), "vuelo"),
         (lambda d: _first_image(d).update(vuelo="Nacional_1981-1986"), "vuelo"),
+        (lambda d: _first_image(d).update(vuelo="CM_1956"), "vuelo"),
+        # Historia #208: una imagen del IGN rotulada como vuelo de Madrid no lleva su URL.
+        (lambda d: _first_image(d).update(vuelo="CM_1975"), "URL canónica"),
         (lambda d: _first_image(d).update(sha256="x"), "sha256"),
         (lambda d: _first_image(d).update(bytes=0), "bytes"),
         (lambda d: d["tramos"][0]["ventanas"][0].update(srid=4326), "srid"),

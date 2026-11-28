@@ -20,7 +20,15 @@ ficheros versionados son los que genera el módulo.
 | `curated/28043/revision.json` | Aprobados con su huella vigente `aprobado`, `propuesto` (dos piezas) y `caducado`; `rechazado` rechazado; `sin_revision` sin entrada (propuesto); sin huérfana. 3 aprobados, 1 propuesto y 1 rechazado. |
 | `medicion.json` | Informe de `medir-candidatos` con la forma real (`build_measurement_report`): 6 casos, 4 fuera del ámbito, ninguno evaluable; cocientes no calculables. |
 | `medicion_calculable.json` | La misma forma con cobertura 1 de 2 y precisión 1 de 3. |
-| `comparacion/28043.json` | Manifiesto de `imagenes-comparacion` (#172) escrito con el productor real (`read_stretches` + `build_comparison_use_case`) sobre `candidatos/28043.geojson` y un WMS falso (`fake_wms`): respuesta blanca para `AMS_1956-1957`, `SIGPAC` y `PNOA2009`, imagen «con contenido» para el resto. Por ventana: `1956-1957` omitida, `1997-2003` con OLISTAT, `2006-2011` con 2006, `2014-2020` con 2017 y `reciente` con 2023. Las imágenes falsas viven en un temporal; solo se versiona el manifiesto. Las URL son las reales del WMS histórico del IGN. |
+| `comparacion/28043.json` | Manifiesto de `imagenes-comparacion` (#172) escrito con el productor real (`read_stretches` + `build_comparison_use_case`) sobre `candidatos/28043.geojson` y un WMS falso (`fake_wms`): respuesta blanca para `AMS_1956-1957`, `SIGPAC` y `PNOA2009`, imagen «con contenido» para el resto. Por ventana: `1956-1957` omitida, `1997-2003` con OLISTAT, `2006-2011` con 2006, `2014-2020` con 2017 y `reciente` con 2023. Las imágenes falsas viven en un temporal; solo se versiona el manifiesto. Las URL son las reales del WMS histórico del IGN. Desde #208 (política v2) la IDEM responde siempre su PNG blanco real (`tests/fixtures/idem_vuelos/tesela_1956_fuera_cobertura_z18.png`): `1975` y `1991` quedan omitidas y los literales del IGN no cambian. |
+
+Caso de los vuelos de Madrid (#208, CA13): `generar_idem.py` encadena `imagenes-comparacion` y
+`publicar-candidatos` sobre un tramo de dos ventanas (1975 en las dos, 1991 solo en la primera) y
+regenera la fixture del visor `tests/fixtures/site/candidatos_comparacion_idem_28043.geojson`:
+
+```bash
+uv run python -m tests.fixtures.candidatos_publicar.generar_idem
+```
 
 Oráculos de id público (Bloque 0, `public_candidate_id`): `aprobado` → `980ea673dbc2917f`,
 `propuesto` → `fe4fe6c2754e854f`, `caducado` → `9cdd209df9143b26`.

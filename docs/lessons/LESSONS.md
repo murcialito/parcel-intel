@@ -922,6 +922,15 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Causa**: `test_historia_287.py::test_ca8_solo_documentacion_en_el_diff` fallaba en local en la rama de #183.
   - **Aplica a**: implementación (tests de alcance de una historia de documentación).
 
+## [2026-11-28] Historia #208 — Vuelos de Madrid en las imágenes de comparación
+
+- **Lección**: cuando un dominio fija «la fuente de cada imagen» y dos adapters la escriben en su procedencia, el dominio declara la cadena por vuelo (`FlightInfo.source`) y un test la compara con la que pone cada adapter real sobre una fixture. Sin ese test, una errata en cualquiera de los dos lados hace que la publicación rechace todas las imágenes de ese servidor con un motivo que parece de datos y no de código.
+  - **Aplica a**: implementación y arquitecto (todo valor que el dominio exige y otro adapter produce).
+- **Lección**: el contador de `tests/site/nodo.py` cuenta el propio fichero de Node como un test que pasa cuando el patrón no casa con ninguno (`passed == 1`). `assert_node_tests_pass(patrón, minimum=1)` pasa sin ejecutar nada si el test aún no existe o se renombra. Para un criterio con un único test de Node, comprobar además que su nombre está en `visor.test.mjs`, o pedir `minimum` igual al número real de casos.
+  - **Causa**: el CA5 de #208 pasó en verde antes de escribir el test `H208 CA5:`.
+  - **Aplica a**: implementación y revisión (tests de aceptación que lanzan casos de Node).
+- **Lección**: al cambiar la serie de una política versionada (franjas, huecos), los tests de otras historias que «rompen» el manifiesto subiendo la versión (`version=2`) dejan de probar nada en cuanto la versión vigente es esa. Se cambian a la versión anterior (`version=1`), no se borran: siguen probando el mismo motivo.
+  - **Aplica a**: implementación (CA de «actualizar los tests de #N sin relajarlos»).
 ## [2026-11-28] Historia #236 — Catastro a una fecha, peticiones reales
 
 - **Lección**: el WMS de Catastro (`ServidorWMS.aspx`) es 1.1.1: se pide con `SRS`, no con `CRS`. Con `VERSION=1.3.0` responde `200` con una `ServiceException` en XML. Acepta `TIME=AAAA-MM-DD` aunque su `GetCapabilities` no declare ninguna dimensión. Con una fecha sin datos devuelve **`200` y un PNG que solo tiene el rótulo «FECHA: …»**, y con una fecha incompleta (`TIME=2005`) ignora el parámetro y devuelve el mapa actual. Para dar por buena una imagen hay que comprobar que trae líneas (píxeles dibujados) y el rótulo de fecha, no el código HTTP ni el tipo de contenido.

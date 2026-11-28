@@ -24,6 +24,9 @@ Reutiliza los candidatos de `tests/fixtures/candidatos_revision/generar.py` (#16
   contenido» para el resto. Por ventana: `1956-1957` omitida, `1997-2003` con OLISTAT,
   `2006-2011` con 2006, `2014-2020` con 2017 y `reciente` con 2023. Las imágenes falsas
   viven en un temporal; solo se versiona el manifiesto.
+  Desde #208 (política v2) el mismo `http_get` responde a la IDEM con su PNG blanco real
+  (`tests/fixtures/idem_vuelos/tesela_1956_fuera_cobertura_z18.png`): las franjas `1975` y
+  `1991` quedan omitidas y los literales del IGN no cambian.
 """
 
 import json
@@ -33,8 +36,8 @@ from datetime import date
 from pathlib import Path
 
 from parcel_intel.adapters.comparison_files import read_stretches
+from parcel_intel.adapters.comparison_windows.router import comparison_window_url
 from parcel_intel.adapters.cut_candidate_files.geojson_writer import report_to_geojson_text
-from parcel_intel.adapters.pnoa.window import window_url
 from parcel_intel.cli.main import build_comparison_use_case, build_measurement_report
 from parcel_intel.domain.candidate_evaluation import (
     MATCH_CRITERION_V1,
@@ -70,11 +73,18 @@ APPROVED_ROLES = ("aprobado", "propuesto", "caducado")
 COMPARISON_DATE = date(2026, 11, 27)
 BLANK_LAYERS = frozenset({"AMS_1956-1957", "SIGPAC", "PNOA2009"})
 _JPEG = b"\xff\xd8"
+IDEM_WMS_URL = "https://idem.comunidad.madrid/srvimagenes2/ogc/wms/visorcartografia2"
+IDEM_BLANK_PNG = (
+    DIRECTORY.parent / "idem_vuelos" / "tesela_1956_fuera_cobertura_z18.png"
+).read_bytes()
 
 
 def fake_wms(url: str, params: dict[str, str]) -> bytes:
-    """`http_get` falso del WMS histórico: blanca (por debajo de 0,02 bytes/píxel) para
-    `BLANK_LAYERS` y «con contenido» (0,03 bytes/píxel) para el resto."""
+    """`http_get` falso: la IDEM responde siempre su PNG blanco real (fuera de cobertura);
+    el WMS histórico del IGN, blanca (por debajo de 0,02 bytes/píxel) para `BLANK_LAYERS` y
+    «con contenido» (0,03 bytes/píxel) para el resto."""
+    if url == IDEM_WMS_URL:
+        return IDEM_BLANK_PNG
     if params["layers"] in BLANK_LAYERS:
         return _JPEG + b"\x00" * 100
     pixels = int(params["width"]) * int(params["height"])
@@ -102,12 +112,18 @@ def manifest_text_for(candidates_file: Path, municipality_code: str = INE) -> st
 # Lo que da `fake_wms` por franja: el vuelo con imagen (None = franja omitida).
 FAKE_SLOT_VINTAGES: tuple[tuple[str, HistoricalVintage | None], ...] = (
     ("1956-1957", None),
+    ("1975", None),
+    ("1991", None),
     ("1997-2003", "OLISTAT"),
     ("2006-2011", 2006),
     ("2014-2020", 2017),
     ("reciente", 2023),
 )
-_TRIED: dict[str, tuple[HistoricalVintage, ...]] = {"1956-1957": ("AMS_1956-1957",)}
+_TRIED: dict[str, tuple[HistoricalVintage, ...]] = {
+    "1956-1957": ("AMS_1956-1957",),
+    "1975": ("CM_1975",),
+    "1991": ("CM_1991",),
+}
 
 
 def stretch_comparison(candidate: CutCandidate) -> StretchComparison:
@@ -134,8 +150,8 @@ def stretch_comparison(candidate: CutCandidate) -> StretchComparison:
                     sha256="3" * 64,
                     byte_size=1000,
                     provenance=Provenance(
-                        "pnoa-historico",
-                        window_url(window, vintage),
+                        flight.source,
+                        comparison_window_url(window, vintage),
                         COMPARISON_DATE,
                         "CC BY 4.0",
                         Redistribution.PUBLIC,

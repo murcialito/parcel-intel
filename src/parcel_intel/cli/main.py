@@ -25,6 +25,7 @@ from parcel_intel.adapters.comparison_files import (
     StretchFileFormatError,
     read_stretches,
 )
+from parcel_intel.adapters.comparison_windows.router import FlightRoutedWindowAdapter
 from parcel_intel.adapters.curated_candidates import CuratedCandidateReviewFiles
 from parcel_intel.adapters.curated_historic import CuratedHistoricFiles
 from parcel_intel.adapters.cut_candidate_files import (
@@ -46,6 +47,7 @@ from parcel_intel.adapters.evidence import (
 from parcel_intel.adapters.evidence.pnoa_png import NotPngResponseError
 from parcel_intel.adapters.hydrography import client as hydrography_client
 from parcel_intel.adapters.hydrography.adapter import HydrographyAdapter
+from parcel_intel.adapters.idem_vuelos.window import IdemVuelosWindowAdapter
 from parcel_intel.adapters.ign_admin_units import IgnAdministrativeUnitsAdapter
 from parcel_intel.adapters.ign_admin_units import client as ign_client
 from parcel_intel.adapters.ign_historic import HttpGet as HistoricHttpGet
@@ -1644,10 +1646,15 @@ def build_comparison_use_case(
     """Composition root de `imagenes-comparacion` (historia #122, ADR 0042 §5).
 
     Las imágenes entran en la caché cruda; el manifiesto interno va a `output_dir`.
-    Con `offline=True` nada llama a la red. Nada se escribe en `site/`."""
+    Los vuelos `CM_*` van a la IDEM y el resto al IGN (historia #208), con un único
+    fetcher (misma caché y pausa). Con `offline=True` nada llama a la red. Nada se escribe
+    en `site/`."""
     fetcher = CachedRawFetcher(http_get, cache_dir, today, sleep=sleep, offline=offline)
+    windows = FlightRoutedWindowAdapter(
+        ign=PnoaWindowAdapter(fetcher), idem=IdemVuelosWindowAdapter(fetcher)
+    )
     return BuildMunicipalComparisonsUseCase(
-        builder=BuildComparisonImagesUseCase(PnoaWindowAdapter(fetcher)),
+        builder=BuildComparisonImagesUseCase(windows),
         sink=JsonComparisonManifestWriter(output_dir),
     )
 

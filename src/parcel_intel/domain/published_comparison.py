@@ -9,8 +9,9 @@ Ni `sha256`, ni `bytes`, ni vuelo, ni `bbox`: la URL ya lleva el encuadre.
 Antes de dejar nada comprueba que el manifiesto corresponde al tramo actual
 (`comparison_windows` y `stretch_pixels` recalculados, igualdad exacta), que es de la
 política vigente y que cada imagen es de su franja, con la atribución, licencia y
-fuente del ADR 0042 §3. La URL la cierra el adapter (igual a la URL canónica de la
-ventana y el vuelo). Todo texto se redacta aquí (ADR 0044). Solo stdlib.
+fuente de su vuelo en `FLIGHTS` (ADR 0042 §3, ampliado en #208). La URL la cierra el
+adapter (igual a la URL canónica de la ventana y el vuelo en su servidor). Todo texto se
+redacta aquí (ADR 0044). Solo stdlib.
 """
 
 from dataclasses import dataclass
@@ -33,13 +34,12 @@ from parcel_intel.domain.geometry import MultiLineGeometry
 from parcel_intel.domain.provenance import Redistribution
 
 COMPARISON_LICENSE = "CC BY 4.0"
-COMPARISON_SOURCE = "pnoa-historico"
 OMISSION_TEXT = "sin cobertura de ese vuelo"
 IMAGE_ALT_TEXT = "Ortofoto de {periodo} con el tramo a verificar marcado"
 GAP_TEXT = "De {desde} a {hasta}: {motivo}."
 SERVED_BY_TEXT = (
-    "Las imágenes de comparación las sirve el Instituto Geográfico Nacional al abrir la "
-    "ficha; este sitio no aloja ninguna."
+    "Las imágenes de comparación las sirven el Instituto Geográfico Nacional y la "
+    "Comunidad de Madrid al abrir la ficha; este sitio no aloja ninguna."
 )
 NOT_AVAILABLE_TEXT = "Imagen no disponible"
 
@@ -64,6 +64,8 @@ class PublishedImage:
     attribution: str  # «Obra derivada de …» (ADR 0042 §5)
     alt_text: str
     retrieved_at: date  # solo para la procedencia; no sale en la feature
+    source: str  # la fuente del vuelo (`FLIGHTS`); solo para la procedencia
+    notice: str | None  # aviso obligatorio de la fuente; sale como `aviso_fuente` si no es None
 
 
 @dataclass(frozen=True)
@@ -100,7 +102,7 @@ class PublishedGap:
 class ComparisonNotes:
     """Bloque `comparacion` de la colección."""
 
-    policy: str  # "imagenes_comparacion v1"
+    policy: str  # "imagenes_comparacion v2"
     gaps: tuple[PublishedGap, ...]
     served_by: str
     not_available: str
@@ -170,7 +172,7 @@ def _check_slots(window: ComparisonWindow) -> None:
     slots = [image.slot for image in window.images] + [o.slot for o in window.omitted]
     if sorted(slots) != sorted(_SLOT_INDEX):
         raise ComparisonNotPublishableError(
-            f"una ventana no cubre exactamente las cinco franjas una vez; {RERUN}"
+            f"una ventana no cubre exactamente las franjas de la política una vez; {RERUN}"
         )
     if any(omitted.reason == "fallo" for omitted in window.omitted):
         raise ComparisonNotPublishableError(
@@ -191,8 +193,8 @@ def _published_image(window: ComparisonWindow, index: int) -> PublishedImage:
     if image.attribution != attribution_for(image.vintage):
         raise ComparisonNotPublishableError(f"{where} no lleva la atribución de su vuelo")
     provenance = image.provenance
-    if provenance.source != COMPARISON_SOURCE:
-        raise ComparisonNotPublishableError(f"{where} no es del WMS histórico del IGN")
+    if provenance.source != flight.source:
+        raise ComparisonNotPublishableError(f"{where} no es del servicio de su vuelo")
     if provenance.license != COMPARISON_LICENSE:
         raise ComparisonNotPublishableError(f"{where} no lleva la licencia {COMPARISON_LICENSE}")
     if provenance.redistribution is not Redistribution.PUBLIC:
@@ -205,6 +207,8 @@ def _published_image(window: ComparisonWindow, index: int) -> PublishedImage:
         attribution=image.attribution,
         alt_text=IMAGE_ALT_TEXT.format(periodo=image.period),
         retrieved_at=provenance.retrieved_at,
+        source=flight.source,
+        notice=flight.notice,
     )
 
 

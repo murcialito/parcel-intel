@@ -4,7 +4,8 @@
 Copia estructural del sink de indicios (#94, ADR 0044): GeoJSON RFC 7946 en EPSG:4326,
 compacto y determinista, con su `.procedencia.json`, e índice regenerado entero. Lista
 blanca cerrada: de cada tramo solo salen su geometría (la del trazado A), la ficha de
-#169 y sus imágenes de comparación (enlaces al WMS del IGN con el trazo en píxeles, #172).
+#169 y sus imágenes de comparación (enlaces al WMS del IGN o de la IDEM con el trazo en
+píxeles, #172 y #208).
 La colección lleva el resumen de la medición ya redactado, «revisado a mano» y el bloque
 `comparacion`. Sin simplificación. Todo o nada, y nunca borra lo publicado. Un fichero
 por encima del umbral de peso no se escribe (ADR 0049 §7). Última barrera: si algún
@@ -16,7 +17,6 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from parcel_intel.adapters.pnoa.client import WMS_HISTORICO_URL
 from parcel_intel.adapters.published_layers.discrepancy_sink import (
     check_no_parcel_identifiers,
     evidence_document,
@@ -53,12 +53,25 @@ from parcel_intel.domain.published_candidate import (
 )
 from parcel_intel.domain.published_comparison import (
     COMPARISON_LICENSE,
-    COMPARISON_SOURCE,
     ComparisonNotes,
     PublishedComparison,
     PublishedImage,
 )
 from parcel_intel.domain.published_layers import PublishedFile
+
+
+def _image(image: PublishedImage) -> dict[str, object]:
+    document: dict[str, object] = {
+        "url": image.url,
+        "franja": image.slot,
+        "periodo": image.period,
+        "resolucion_m": image.resolution_m,
+        "atribucion": image.attribution,
+        "texto_alternativo": image.alt_text,
+    }
+    if image.notice is not None:
+        document["aviso_fuente"] = image.notice
+    return document
 
 
 def _images(comparison: PublishedComparison) -> list[dict[str, object]]:
@@ -67,17 +80,7 @@ def _images(comparison: PublishedComparison) -> list[dict[str, object]]:
             "ancho_px": window.width_px,
             "alto_px": window.height_px,
             "trazo_px": [[[x, y] for x, y in part] for part in window.stretch_px],
-            "imagenes": [
-                {
-                    "url": image.url,
-                    "franja": image.slot,
-                    "periodo": image.period,
-                    "resolucion_m": image.resolution_m,
-                    "atribucion": image.attribution,
-                    "texto_alternativo": image.alt_text,
-                }
-                for image in window.images
-            ],
+            "imagenes": [_image(image) for image in window.images],
             "omitidas": [
                 {"franja": omitted.slot, "texto": omitted.text} for omitted in window.omitted
             ],
@@ -170,29 +173,32 @@ def _attributions(publication: CandidateLayerPublication) -> list[str]:
 
 
 def _image_sources(publication: CandidateLayerPublication) -> list[dict[str, object]]:
-    """Una fuente por vuelo publicado (su atribución lo identifica), con su fecha de
-    descarga más reciente."""
-    latest: dict[tuple[str, str], PublishedImage] = {}
+    """Una fuente por vuelo publicado, `(origen, servidor, periodo)`, con su fecha de
+    descarga más reciente. El periodo distingue 1975 y 1991, que comparten atribución
+    (#208). Orden: servidor, periodo y atribución."""
+    latest: dict[tuple[str, str, str], PublishedImage] = {}
     for image in _published_images(publication):
-        key = (_server(image.url), image.attribution)
+        key = (image.source, _server(image.url), image.period)
         if key not in latest or image.retrieved_at > latest[key].retrieved_at:
             latest[key] = image
+    ordered = sorted(latest.items(), key=lambda item: (item[0][1], item[0][2], item[1].attribution))
     return [
         {
-            "origen": COMPARISON_SOURCE,
+            "origen": origin,
             "url": server,
+            "periodo": period,
             "fecha_descarga": image.retrieved_at.isoformat(),
             "licencia": COMPARISON_LICENSE,
-            "atribucion": attribution,
+            "atribucion": image.attribution,
         }
-        for (server, attribution), image in sorted(latest.items())
+        for (origin, server, period), image in ordered
     ]
 
 
 def _image_block(publication: CandidateLayerPublication) -> dict[str, object]:
     images = _published_images(publication)
     return {
-        "servidor": WMS_HISTORICO_URL,
+        "servidores": sorted({_server(image.url) for image in images}),
         "alojadas_en_el_sitio": False,
         "politica": publication.comparison_notes.policy,
         "atribucion": sorted({image.attribution for image in images}),

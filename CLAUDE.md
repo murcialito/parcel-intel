@@ -159,6 +159,8 @@ uv run python -m parcel_intel.cli.main candidatos-corte --ambito
 # data/raw y escribe el manifiesto INTERNO data/derived/comparacion/<ine>.json (URL canónica, sha256, atribución, píxeles del trazo). Entrada:
 # GeoJSON de tramos en EPSG:25830 con properties.id de 16 hexadecimales. Nada va a site/. Todo o nada: sale con 1 y no escribe si una franja
 # falla, si hay más de 400 ventanas (antes de pedir nada) o si el manifiesto pasa de 3.000.000 bytes. --sin-red: solo desde la caché.
+# Serie v2 (historia #208, ADR 0052): siete franjas; las de 1975 y 1991 se piden al WMS de la IDEM (vuelos de la Comunidad de Madrid), con la
+# misma caché data/raw y la misma pausa que el IGN. Un manifiesto de la política v1 ya no se publica: volver a ejecutar este comando.
 uv run python -m parcel_intel.cli.main imagenes-comparacion --municipio 28043 --tramos ruta/tramos.geojson [--sin-red] [--cache data/raw]
 # El fichero interno de candidatos (#128) entra tal cual como --tramos (el id de la feature vale si falta properties.id; historia #168):
 # así los tramos[].id del manifiesto son los candidate_id.

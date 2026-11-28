@@ -1,4 +1,7 @@
-"""Imágenes de comparación publicables (historia #172, ADR 0049). Datos sintéticos."""
+"""Imágenes de comparación publicables (historia #172, ADR 0049). Datos sintéticos.
+
+Política v2 (#208): siete franjas (1975 y 1991 de la IDEM, omitidas en la fixture) y dos
+huecos; los literales se actualizan sin relajarlos."""
 
 import dataclasses
 from datetime import date
@@ -9,6 +12,7 @@ import pytest
 
 from parcel_intel.domain.comparison_image import (
     COMPARISON_POLICY,
+    COMPARISON_SLOTS,
     DECLARED_GAPS,
     ComparisonManifest,
     ComparisonWindow,
@@ -35,6 +39,7 @@ from tests.fixtures.candidatos_revision import generar
 
 INE = "28043"
 APROBADO = generar.candidates()["aprobado"]
+ALL_SLOTS = tuple(slot.name for slot in COMPARISON_SLOTS)
 
 
 def _comparison() -> StretchComparison:
@@ -62,30 +67,38 @@ def _manifest(**changes: Any) -> ComparisonManifest:
 
 def test_notas_redactadas() -> None:
     notes = check_comparison_manifest(_manifest(), INE)
-    assert notes.policy == "imagenes_comparacion v1"
+    assert notes.policy == "imagenes_comparacion v2"
     assert notes.served_by == SERVED_BY_TEXT
     assert notes.not_available == NOT_AVAILABLE_TEXT == "Imagen no disponible"
-    ((gap, expected),) = zip(notes.gaps, DECLARED_GAPS, strict=True)
-    assert (gap.from_year, gap.to_year) == (1957, 1997)
-    assert gap.text == GAP_TEXT.format(desde=1957, hasta=1997, motivo=expected.reason)
-    assert gap.text.startswith("De 1957 a 1997: sin ortofoto") and gap.text.endswith(".")
+    assert len(notes.gaps) == len(DECLARED_GAPS) == 2
+    for gap, expected in zip(notes.gaps, DECLARED_GAPS, strict=True):
+        assert (gap.from_year, gap.to_year) == (expected.from_year, expected.to_year)
+        assert gap.text == GAP_TEXT.format(
+            desde=expected.from_year, hasta=expected.to_year, motivo=expected.reason
+        )
+    assert [g.text for g in notes.gaps] == [
+        "De 1958 a 1974: la serie no tiene ninguna ortofoto de esos años sobre el ámbito.",
+        "De 1976 a 1990: la serie no tiene ninguna ortofoto de esos años sobre el ámbito (los "
+        "vuelos Interministerial y Nacional del IGN no tienen imagen en él).",
+    ]
 
 
 @pytest.mark.parametrize(
     ("changes", "fragment"),
     [
         ({"municipality_code": "28013"}, "es del municipio 28013"),
-        ({"policy": CriterionRef("imagenes_comparacion", 2)}, "otra versión de la política"),
+        ({"policy": CriterionRef("imagenes_comparacion", 1)}, "otra versión de la política"),
         ({"policy": CriterionRef("otra", 1)}, "otra versión de la política"),
         ({"gaps": ()}, "otros huecos"),
         ({"gaps": (DeclaredGap(1957, 1998, "x"),)}, "otros huecos"),
+        ({"gaps": DECLARED_GAPS[:1]}, "otros huecos"),
     ],
 )
 def test_manifiesto_no_utilizable(changes: dict[str, object], fragment: str) -> None:
     with pytest.raises(ComparisonManifestNotUsableError) as error:
         check_comparison_manifest(_manifest(**changes), INE)
     assert fragment in error.value.reason
-    assert COMPARISON_POLICY.version == 1
+    assert COMPARISON_POLICY.version == 2
 
 
 def test_manifiesto_con_ids_repetidos_no_se_construye() -> None:
@@ -113,7 +126,11 @@ def test_publica_imagenes_en_orden_cronologico_con_textos() -> None:
     assert recent.attribution == "Obra derivada de PNOA 2023 CC-BY 4.0 scne.es"
     assert recent.url == comparison.windows[0].images[-1].provenance.url
     assert recent.retrieved_at == date(2026, 11, 27)
-    assert [(o.slot, o.text) for o in window.omitted] == [("1956-1957", OMISSION_TEXT)]
+    assert [(o.slot, o.text) for o in window.omitted] == [
+        ("1956-1957", OMISSION_TEXT),
+        ("1975", OMISSION_TEXT),
+        ("1991", OMISSION_TEXT),
+    ]
     assert len(published.images()) == 4
 
 
@@ -155,24 +172,20 @@ def test_una_ventana_sin_imagenes_se_publica_si_otra_tiene() -> None:
     empty = dataclasses.replace(
         first,
         images=(),
-        omitted=tuple(
-            OmittedSlot(slot, "sin_cobertura", (), None)
-            for slot in ("1956-1957", "1997-2003", "2006-2011", "2014-2020", "reciente")
-        ),
+        omitted=tuple(OmittedSlot(slot, "sin_cobertura", (), None) for slot in ALL_SLOTS),
     )
     comparison = dataclasses.replace(comparison, windows=(empty, comparison.windows[1]))
     published = build_published_comparison(long_one.stretch, comparison)
     assert published.windows[0].images == ()
-    assert len(published.windows[0].omitted) == 5
+    assert len(published.windows[0].omitted) == 7
     assert len(published.windows[1].images) == 4
 
 
 def _all_omitted(comparison: StretchComparison) -> StretchComparison:
-    slots = ("1956-1957", "1997-2003", "2006-2011", "2014-2020", "reciente")
     return _with_window(
         comparison,
         images=(),
-        omitted=tuple(OmittedSlot(slot, "sin_cobertura", (), None) for slot in slots),
+        omitted=tuple(OmittedSlot(slot, "sin_cobertura", (), None) for slot in ALL_SLOTS),
     )
 
 
@@ -188,8 +201,10 @@ def _omitted_extra(comparison: StretchComparison) -> StretchComparison:
 
 
 def _failed(comparison: StretchComparison) -> StretchComparison:
+    window = comparison.windows[0]
     omitted = OmittedSlot("1956-1957", "fallo", ("AMS_1956-1957",), "TimeoutError")
-    return _with_window(comparison, omitted=(omitted,))
+    rest = tuple(o for o in window.omitted if o.slot != "1956-1957")
+    return _with_window(comparison, omitted=(omitted, *rest))
 
 
 def _too_long(comparison: StretchComparison) -> StretchComparison:
@@ -220,7 +235,7 @@ def _extra_window(comparison: StretchComparison) -> StretchComparison:
         (APROBADO.stretch, _wrong_pixels, "no corresponde al tramo actual"),
         (APROBADO.stretch, _extra_window, "no corresponde al tramo actual"),
         (MultiLineGeometry((), 25830), lambda c: c, "no corresponde al tramo actual"),
-        (APROBADO.stretch, _omitted_extra, "cinco franjas"),
+        (APROBADO.stretch, _omitted_extra, "franjas de la política una vez"),
         (APROBADO.stretch, _failed, "fallo de descarga"),
         (APROBADO.stretch, lambda c: _with_image(c, 3, vintage=2020), "otra franja"),
         (APROBADO.stretch, lambda c: _with_image(c, 3, period="2020"), "periodo"),
@@ -245,7 +260,8 @@ def test_ausente() -> None:
 @pytest.mark.parametrize(
     ("field", "value", "fragment"),
     [
-        ("source", "pnoa-ma", "WMS histórico"),
+        ("source", "pnoa-ma", "no es del servicio de su vuelo"),
+        ("source", "idem-vuelos-historicos", "no es del servicio de su vuelo"),
         ("license", "CC BY-SA 4.0", "licencia"),
         ("license", None, "licencia"),
         ("redistribution", Redistribution.INTERNAL_ONLY, "publicable"),
@@ -270,16 +286,20 @@ def test_las_ventanas_del_dominio_no_cambian() -> None:
     build_published_comparison(APROBADO.stretch, comparison)
 
 
+def _adr(number: str) -> str:
+    directory = Path(__file__).resolve().parents[2] / "docs" / "adr"
+    return next(directory.glob(f"{number}-*.md")).read_text(encoding="utf-8")
+
+
 def test_los_textos_son_los_del_adr_0049() -> None:
     """Los rótulos publicados son literales del ADR 0049 (sección «a revisar»): si cambian en
-    un sitio y no en el otro, este test falla."""
-    adr = next(
-        (Path(__file__).resolve().parents[2] / "docs" / "adr").glob("0049-*.md")
-    ).read_text(encoding="utf-8")
+    un sitio y no en el otro, este test falla. La nota de quién sirve las imágenes cambió en
+    #208 y es literal del ADR de esa historia."""
+    adr = _adr("0049")
     for text in (
         OMISSION_TEXT,
         NOT_AVAILABLE_TEXT,
-        SERVED_BY_TEXT,
         IMAGE_ALT_TEXT.replace("{periodo}", "<periodo>"),
     ):
         assert f"«{text}»" in adr, text
+    assert f"«{SERVED_BY_TEXT}»" in _adr("0052")

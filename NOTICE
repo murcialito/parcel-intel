@@ -57,8 +57,9 @@ de memoria.
 
 - Capas WMTS/WMS de la IDEM (`fotosAereasHistoricas_1950-1959_1956-CT-50cm-mosaico`,
   `fotosAereasHistoricas_1970-1979_orto-1975-ed50`, `fotosAereasHistoricas_1990-1999_orto-1991-ed50`).
-  Todavía no se publica ninguna imagen: este apartado fija la atribución para cuando #207 y #208
-  las usen en comparaciones.
+  Las imágenes de 1975 y 1991 se enlazan en las fichas de tramos a verificar (historia #208) con
+  la atribución de abajo precedida de «Obra derivada de»; la de 1956 no se usa hasta confirmar la
+  licencia del CECAF. Las sirve el WMS de la IDEM al abrir la ficha; este sitio no aloja ninguna.
 - Licencia: CC BY 4.0, según la ficha del catálogo de cada vuelo (`spacm_vuelo1956_50cm`,
   `spacm_vuelo1975_50cm`, `spacm_vuelo1991_50cm`) y el aviso legal de la IDEM, leídos el
   2026-11-27. URL de la licencia: https://creativecommons.org/licenses/by/4.0/deed.es

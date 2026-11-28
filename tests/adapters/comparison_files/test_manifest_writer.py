@@ -51,13 +51,14 @@ def test_serializa_las_claves_en_espanol_y_ordena_por_id() -> None:
     assert window["bbox"] == [0, 0, 224, 224]
     assert window["omitidas"][0]["probados"] == [2009, 2006]
     assert window["imagenes"][0]["procedencia"]["redistribucion"] == "publicable"
-    assert data["politica"] == {"id": "imagenes_comparacion", "version": 1}
+    assert data["politica"] == {"id": "imagenes_comparacion", "version": 2}
     assert text.endswith("\n") and "nombre" not in text
 
 
 def test_manifiesto_vacio_lleva_politica_y_huecos() -> None:
     data = json.loads(manifest_text("28043", []))
-    assert data["tramos"] == [] and data["huecos"][0]["desde"] == 1957
+    assert data["tramos"] == []
+    assert [(h["desde"], h["hasta"]) for h in data["huecos"]] == [(1958, 1974), (1976, 1990)]
 
 
 def test_escribe_de_forma_atomica_y_sobrescribe(tmp_path: Path) -> None:

@@ -25,6 +25,7 @@ TEST_FILE = Path(__file__).with_name("visor.test.mjs")
 FIXTURES = ROOT / "tests" / "fixtures" / "visor" / "datos"
 CANDIDATOS = ROOT / "tests" / "fixtures" / "site" / "candidatos_28043.geojson"
 CANDIDATOS_IMG = ROOT / "tests" / "fixtures" / "site" / "candidatos_comparacion_28043.geojson"
+CANDIDATOS_IDEM = ROOT / "tests" / "fixtures" / "site" / "candidatos_comparacion_idem_28043.geojson"
 DISENO = ROOT / "docs" / "design-system" / "site" / "js" / "estilos-capas.js"
 MODULOS = ("config.js", "controlador.js", "enlace.js", "estilos-capas.js", "mapa.js", "vista.js")
 
@@ -63,6 +64,8 @@ def run_node_tests(pattern: str, workdir: Path) -> NodeResult:
         "VISOR_CANDIDATOS": str(CANDIDATOS),
         # El mismo con `imagenes_comparacion` y el bloque `comparacion` de #172 (historia #178).
         "VISOR_CANDIDATOS_IMG": str(CANDIDATOS_IMG),
+        # Publicado con imágenes de la IDEM (1975 y 1991), caso de dos ventanas (historia #208).
+        "VISOR_CANDIDATOS_IDEM": str(CANDIDATOS_IDEM),
         # Original del sistema de diseño, contra el que se compara estilos-capas.js (#165 CA1).
         "VISOR_DISENO": str(DISENO),
         "VISOR_REFCAT_RE": CADASTRAL_REFERENCE_RE.pattern,
