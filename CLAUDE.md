@@ -203,8 +203,14 @@ uv run python -m parcel_intel.cli.main medir-candidatos [--casos docs/validacion
 # manifiesto de imagenes-comparacion (--comparacion; generado con el mismo fichero interno de candidatos como --tramos). Falla si falta el
 # manifiesto o no casa con los aprobados (ausente, demasiado largo, sin imágenes, otro trazado, URL o atribución fuera de la lista blanca), o si
 # el fichero pasa de 3.000.000 bytes. Ninguna imagen se aloja en site/.
+# Tabla de convergencia (historia #315, ADR 0057): cada tramo lleva `convergencia` (qué fuentes muestran el trazado, sin el candidate_id) y el
+# .procedencia.json su bloque `convergencia` (método, criterio, umbral_aparece, red del IGN y fuentes). Lee las capas derivadas de --capas
+# (vias_pecuarias, camino_actual ∪ camino_asfaltado, catastro_caminos; una ausente sale «Sin cobertura») y las unidades de --curated-historico
+# con sus imágenes de --cache-historico, sin red (una unidad con veredicto negativo se omite y se informa: `unidad histórica omitida <id>: …`).
+# Los fallos de #170/#172 se informan antes y sin leer capas; una capa no válida, una unidad no utilizable o un aprobado sin tabla salen con 1
+# (`ERROR <ine>: [el candidato <id>: ]tabla de convergencia: <motivo>`). --umbral-aparece (0,5 por defecto) fuera de (0, 1] sale con 1.
 # Solo municipios con código de Catastro verificado (hoy, 28043); sin --municipio sale con 1; no hay --ambito. Se ejecuta en local.
-uv run python -m parcel_intel.cli.main publicar-candidatos --municipio 28043 [--medicion data/derived/validacion/medicion.json] [--entrada data/derived/candidatos/interno] [--curated curated/candidatos] [--comparacion data/derived/comparacion] [--salida site/datos]
+uv run python -m parcel_intel.cli.main publicar-candidatos --municipio 28043 [--medicion data/derived/validacion/medicion.json] [--entrada data/derived/candidatos/interno] [--curated curated/candidatos] [--comparacion data/derived/comparacion] [--salida site/datos] [--capas data/derived] [--curated-historico curated/historico] [--cache-historico data/raw/ign_planimetrias] [--umbral-aparece 0.5]
 
 # Georreferenciación histórica por unidad (historia #139, ADR 0043/0044): entrada humana en curated/historico/<unit_id>/ (unidad.json,
 # puntos_control.csv, trazados.geojson) e imagen de trabajo en data/raw/ign_planimetrias/<unit_id>.png (+ .provenance.json). Opciones, con

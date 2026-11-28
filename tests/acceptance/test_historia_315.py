@@ -39,7 +39,11 @@ from parcel_intel.adapters.published_layers.convergence import (
     convergence_document,
 )
 from parcel_intel.adapters.published_layers.geojson_sink import dump_compact
-from parcel_intel.application.build_convergence_tables import NO_MANIFEST
+from parcel_intel.adapters.trail_layers import TrailLayerFormatError
+from parcel_intel.application.build_convergence_tables import (
+    NO_MANIFEST,
+    BuildConvergenceTablesUseCase,
+)
 from parcel_intel.cli import main
 from parcel_intel.domain.candidate_review import reconcile
 from parcel_intel.domain.comparison_image import COMPARISON_SLOTS
@@ -259,7 +263,7 @@ def test_ca1_cada_aprobado_lleva_su_tabla_y_la_lista_blanca_crece_solo_en_conver
     del ADR 0057 §8."""
     assert list(TABLE_KEYS) == ADR_TABLE_KEYS and list(ROW_KEYS) == ADR_ROW_KEYS
     reader = main._trail_layer_reader(CAPAS_DIR)
-    use_case = main.BuildConvergenceTablesUseCase(
+    use_case = BuildConvergenceTablesUseCase(
         layers=reader,
         historic=main.build_historic_coverage_source(
             published["site"] / "nada", published["site"] / "nada"
@@ -436,7 +440,7 @@ def test_ca3_todo_o_nada_por_cada_motivo(
         comparacion=historia_172._manifest_variant(tmp_path / "fallo", with_failure),
     )
     # Un aprobado sin tabla por un motivo que #172 no filtra: la tabla no ve el manifiesto.
-    real = main.BuildConvergenceTablesUseCase
+    real = BuildConvergenceTablesUseCase
 
     def blind(**kwargs: Any) -> Any:
         kwargs["comparisons"] = JsonComparisonManifestReader(tmp_path / "sin_manifiesto")
@@ -922,7 +926,7 @@ def test_ca13_capa_corrupta_o_incompleta_con_motivo_fijo(
         capas=incomplete,
     )
     assert "camino_asfaltado" not in err
-    assert issubclass(main.TrailLayerFormatError, TrailLayerFileError)
+    assert issubclass(TrailLayerFormatError, TrailLayerFileError)
 
     absent = _copy_capas(tmp_path / "ausente", "camino_actual", "camino_asfaltado")
     site = tmp_path / "s4"

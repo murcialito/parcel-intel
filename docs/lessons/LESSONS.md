@@ -978,3 +978,13 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: en un clon superficial (el CI de `main` clona con profundidad 1) el último commit es la raíz del clon, y `git log --name-only` sobre una raíz lista **el árbol entero**. Un test que busca los commits «Historia #N: …» con `git log --grep … --name-only` pasa en la PR (la cabeza es un merge que no casa y se salta) y falla en `main` justo después de fusionar, cuando la cabeza es el propio commit de la historia. Se sacan los ficheros con `git diff-tree --no-commit-id --name-only -r <commit>` commit a commit: sin `--root` no lista nada en una raíz y el test se salta.
   - **Causa**: el CA10 de #294 dejó en rojo el CI de `main` tras fusionar la PR #312 (2026-11-28); el CA8 de #287 tenía el mismo patrón.
   - **Aplica a**: implementación y revisión (tests que inspeccionan el historial de git).
+
+## [2026-11-28] Historia #315 — Tabla de convergencia en los tramos a verificar
+
+- **Lección**: cuando un comando gana opciones con valor por defecto bajo `data/` o `curated/` (aquí `--capas data/derived`, `--curated-historico curated/historico`), los tests que lo invocan por la CLI siguen en verde sin tocarlos si esos directorios no existen en el clon: pasan por accidente, y en el portátil de alguien con datos reales leerían otra cosa. Se buscan con `grep` todos los ayudantes que llaman al comando (aquí `_publicar` de #170 y #172 y `generar_idem.py` de #208) y se les pasan directorios de la fixture o inexistentes en `tmp_path`, de forma explícita.
+  - **Aplica a**: implementación (comandos con lectores nuevos) | revisión (un test de otra historia que «no hubo que tocar» puede depender del estado del disco).
+- **Lección**: «no se lee ninguna capa si falla una comprobación previa» no se cumple con solo ordenar los `except`: si el cálculo caro (la tabla) va antes de la función de dominio que hace las comprobaciones por elemento, ya ha leído. Se separan las comprobaciones en su propia función (`check_approved_publishable`), se llaman primero y la construcción las repite (son baratas y deterministas); un test con un lector que falla si se llama lo fija.
+  - **Aplica a**: arquitecto e implementación (criterios de orden de fallos con lecturas caras).
+- **Lección**: `dump_compact` ordena las claves, así que una lista blanca publicada se compara como conjunto (`set(tabla) == set(CLAVES)`); el orden del ADR solo se puede afirmar sobre el diccionario antes de serializar.
+  - **Aplica a**: implementación (tests de listas blancas sobre ficheros publicados).
+
