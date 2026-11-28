@@ -910,3 +910,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: el PDF de una disposición del BOE se saca del enlace «PDF» de la ficha `doc.php?id=<BOE-A-…>` (patrón `/boe/dias/AAAA/MM/DD/pdfs/A<página inicial>-<final>.pdf`) y es la página entera del boletín, con otras disposiciones sin relación. El texto extraído confunde cifras («6,E9» por 6,69): una cifra se da por buena solo contra la imagen que devuelve `Read`. Si `Read` con `pages` falla por falta de `pdftoppm`, leerlo sin `pages`.
   - **Aplica a**: implementación (fixtures de disposiciones: grabar el PDF íntegro, pero no copiar a texto los nombres de personas que cite la página).
 
+## [2026-11-28] Historia #250 — Servidumbre aproximada de cauces
+
+- **Lección**: `Watercourse` no conserva el `id` de la feature de IDEE, así que la capa derivada no tiene identificador estable de origen: los `id` de salida son `<ine>-<k>` tras ordenar por (nombre, geometría, anchura), deterministas pero cambian si entra un cauce nuevo. Y el buffer de una línea puede traer huecos que `Geometry` no modela: el adapter conserva solo el contorno exterior (la franja solo se amplía) porque el recorte posterior lanza `ClippedGeometryHasHolesError` ante huecos.
+  - **Aplica a**: implementación (#251 al publicar: no prometer ids estables) | revisión.
+

@@ -76,6 +76,13 @@ uv run python -m parcel_intel.cli.main vias-pecuarias-municipios --sin-red   # s
 # (Colmenar de Oreja) sale «sin montes» y no es fallo. Sin --municipio ni --ambito, el ámbito. Todo o nada: sale con 1 si falta algo en la caché o un límite.
 uv run python -m parcel_intel.cli.main montes-utilidad-publica-municipios [--municipio 28013 ...] [--ambito] [--sin-red] [--cache data/raw] [--salida data/derived/montes_utilidad_publica]
 
+# Zona de servidumbre aproximada de los cauces por municipio (historia #250): colección `watercourse` de IDEE (descarga paginada y cacheada de #257), franja
+# «eje + semianchura + 5 m» (semianchura de `ancho_max`, o `ancho_min`, o 0; se anota en `anchura_usada`), recortada con el límite del IGN, en
+# data/derived/servidumbre_cauces/<ine>.geojson con procedencia (licencia CC BY 4.0, marca «Obra derivada de», método «no es deslinde»). Capa de contexto, no indicio;
+# NO se publica hasta #251. Propiedades: solo `nombre`, `anchura_usada`, `ancho_m`. Un municipio sin cauces sale «sin cauces» (sin fichero, no es fallo). Todo o nada: sale con 1
+# y no escribe si falta la caché, un límite o la licencia de los cauces. Sin --municipio ni --ambito, el ámbito.
+uv run python -m parcel_intel.cli.main servidumbre-cauces-municipios [--municipio 28013 ...] [--ambito] [--sin-red] [--cache data/raw] [--salida data/derived/servidumbre_cauces]
+
 # Capa de camino actual (red del IGN sin asfaltar) por municipio, en data/derived/camino_actual/<ine>.geojson (historia #27), y red
 # asfaltada en data/derived/camino_asfaltado/<ine>.geojson (historia #183, ADR 0050; solo contraparte de `discrepancias`, NUNCA se publica).
 # Dos consultas por municipio (unpaved y paved); todo o nada por municipio: si falla una, no escribe ninguno de sus dos ficheros, informa
