@@ -1056,7 +1056,7 @@ Ejecutado en local el 2026-11-27 (paso 11 del diseño; antes `pendiente-local`):
 
 **Colmenar sube de 19 a 32 por Catastro, no por esta historia.** Los 19 indicios publicados antes se generaron sin la capa interna de Catastro. Con ella, se publican por primera vez indicios con Catastro como **contraparte** (ADR 0041 y 0044: sin geometría ni referencias de Catastro, con su atribución y aviso de no fehaciencia), y se omiten 348 con Catastro en el lado A. Para aislar el efecto de #183 se repitió Colmenar **sin** Catastro: siguen siendo 19 indicios, pero 9 ids cambian. Son `228d09f82d066f2e` y `b1f47704c7f34945` (CA8) y otros 7 `SOLAPE` cuya zona se reduce a la parte sin contraparte asfaltada, lo que cambia el id público. `415956c18feed794` se mantiene.
 
-**Candidatos de Colmenar.** Siguen siendo los mismos 40, con la misma geometría, pero en 36 cambia la evidencia `longitud_base_m` (por ejemplo, 1174,706 → 1161,1 m): la discrepancia base se reduce por el tramo asfaltado, que ahora es solo contraparte. Su huella cambia y **36 de las 40 aprobaciones caducan**. Ningún agente toca `curated/candidatos/` (ADR 0047): las tiene que revisar el fundador. `site/datos/candidatos/` no se republica en esta PR (hoy no hay ninguno publicado).
+**Candidatos de Colmenar.** Siguen siendo los mismos 40, con la misma geometría, pero en 36 cambia la evidencia `longitud_base_m` (por ejemplo, 1174,706 → 1161,1 m): la discrepancia base se reduce por el tramo asfaltado, que ahora es solo contraparte. Su huella cambia y **36 de las 40 aprobaciones caducaron** (medido el 2026-11-27: 4 vigentes, 36 caducadas, 0 huérfanas). El fundador las volvió a aprobar con la huella nueva en la PR #300 (2026-11-28, fusionada por él; ADR 0047), así que la tabla recoge el estado tras #300: 40 vigentes, 0 caducadas, 0 huérfanas. Siguen siendo aprobaciones provisionales de prueba (#181). `site/datos/candidatos/` no se republica en esta PR (hoy no hay ninguno publicado).
 
 | INE | Municipio | Indicios publicados antes | Después |
 | --- | --- | ---: | ---: |
@@ -1071,8 +1071,8 @@ Ejecutado en local el 2026-11-27 (paso 11 del diseño; antes `pendiente-local`):
 | Medida | Antes | Después |
 | --- | ---: | ---: |
 | candidatos de 28043 | 40 | 40 |
-| aprobaciones vigentes | 40 | 4 |
-| aprobaciones caducadas | 0 | 36 |
+| aprobaciones vigentes | 40 | 40 |
+| aprobaciones caducadas | 0 | 0 |
 | revisiones huérfanas | 0 | 0 |
 
 ---
