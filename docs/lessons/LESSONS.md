@@ -942,6 +942,11 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
 - **Lección**: al cambiar la URL absoluta del sitio, buscar con Grep también los tests de otras historias que fijan una lista blanca de dominios en `index.html` (el de #166 CA8 admitía `murcialito` pero no el dominio nuevo). Se actualizan añadiendo el dominio nuevo, sin relajar el resto de la regla. Y un test `red` que comprueba el sitio en vivo falla hasta que se despliega la PR (el dominio sirve aún la versión anterior): se anota en la PR, no es un fallo.
   - **Aplica a**: implementación (cambios de dominio o de URL base).
 
+## [2026-11-28] Tubería — límite de turnos del revisor
+
+- **Lección**: `claude-code-action` marca el paso como fallido si el agente termina con más turnos que `--max-turns`, aunque acabe bien y haya publicado su veredicto. Entonces no se ejecuta «Aplicar veredicto», el check `revision` queda en `failure` y Fusionar no fusiona. El barrido de `revisiones_pendientes.sh` solo relanza revisiones en `skipped` o `cancelled`, así que la PR se queda parada. El límite del revisor sube de 40 a 60, como el de Actualizar rama. Si vuelve a pasar, se relanza la revisión a mano (`gh run rerun <id>`).
+  - **Causa**: la revisión de la PR #310 (#240, `talla:l`) publicó «APROBADO» en 41 turnos y el check quedó en `failure` (2026-11-28).
+  - **Aplica a**: tubería (límites de turnos de los workflows de agente).
 ## [2026-11-28] Historia #240 — Tabla de convergencia de fuentes
 
 - **Lección**: cuando el fundador pide que un umbral de producto sea «configurable», un parámetro con valor por defecto no basta: el resultado debe anotar el valor que usó (aquí `ConvergenceTable.appears_min_fraction`). Si no, dos tablas con el mismo `CONVERGENCE_METHOD` pueden salir de umbrales distintos sin que nada lo delate, y se pierde «cada hallazgo rastreable hasta su regla». El campo nuevo entra en la lista blanca de la entidad y en el ADR, y la PR lo dice como desviación del diseño.
@@ -955,3 +960,9 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: implementación y revisión (criterios con condiciones previas que cambian mientras la historia espera en la cola).
 - **Lección**: si un hecho que corrige una historia de documentación también aparece en comentarios de workflows o scripts que su `Toca:` (o un CA de «solo documentación») no deja tocar, no se editan: se listan en las Consecuencias del ADR con fichero y línea, para que los corrija el fundador o una historia de tubería.
   - **Aplica a**: implementación (historias de solo documentación).
+## [2026-11-28] Historia #314 — Manifiesto de imágenes de los indicios
+
+- **Lección**: hoy todas las fuentes de `SourceKind` son contraparte publicable (las cuatro redistribuibles más `catastro_vt`), así que la rama «contraparte fuera de `PUBLISHABLE_COUNTERPART_SOURCES`» de `is_publishable_indicio` no se alcanza con datos reales. Para probarla, un test recorta la constante con `monkeypatch.setattr(published_discrepancy, ...)`: vale porque la función lee la global del módulo en cada llamada, no una copia importada.
+  - **Aplica a**: implementación (reglas de licencia con ramas que ningún dato actual dispara) | revisión (exigir el test aunque la rama parezca muerta).
+- **Lección**: `uv run ruff format src` reformatea el árbol entero y toca ficheros ajenos a la historia. Formatear solo los ficheros propios (`ruff format <ruta>`) y mirar `git status` antes de commitear.
+  - **Aplica a**: implementación.

@@ -167,6 +167,16 @@ uv run python -m parcel_intel.cli.main imagenes-comparacion --municipio 28043 --
 # así los tramos[].id del manifiesto son los candidate_id.
 uv run python -m parcel_intel.cli.main imagenes-comparacion --municipio 28043 --tramos data/derived/candidatos/interno/28043.geojson
 
+# Imágenes de comparación de los INDICIOS de discrepancia (historia #314, ADR 0055): lo mismo que `imagenes-comparacion`, pero con los indicios publicables del
+# informe INTERNO (`data/derived/discrepancias/interno/<ine>.geojson`, con las zonas de Catastro; NUNCA se publica). Un tramo por indicio publicable
+# (`is_publishable_indicio`), de id `record_id` y con el trazo `image_axis(zona)` (la multilínea tal cual o el pseudo-eje de una franja). Escribe el manifiesto
+# INTERNO data/derived/comparacion_indicios/<ine>.json sin tocar el de los candidatos; nada va a site/. Misma caché (--cache), mismo enrutado IGN/IDEM y misma pausa.
+# Un indicio demasiado largo queda como `tramo_demasiado_largo` (no es fallo); un municipio sin indicios publicables escribe un manifiesto con cero tramos. Por
+# municipio, todo o nada: más de 400 ventanas, un informe publicable (redactado) en --entrada, una franja con fallo o --sin-red con un hueco en la caché no escriben
+# nada de ese municipio; el fallo de uno no frena los demás y el comando sale con 1. Sin --municipio ni --ambito sale con 2. Una línea por municipio: `<ine>: N indicios -> <ruta>`.
+uv run python -m parcel_intel.cli.main imagenes-comparacion-indicios --municipio 28043 [--municipio ...] [--entrada data/derived/discrepancias/interno] [--salida data/derived/comparacion_indicios] [--cache data/raw] [--sin-red]
+uv run python -m parcel_intel.cli.main imagenes-comparacion-indicios --ambito
+
 # Revisión humana de los candidatos a corte (historia #168, ADR 0047): lista, por candidate_id, el estado (propuesto, aprobado, rechazado,
 # caducado), la huella actual (la que se copia en candidate_sha256 al aprobar) y la disponibilidad de imágenes; luego las huérfanas y un resumen.
 # Lee el fichero interno de candidatos, curated/candidatos/<ine>/revision.json (entrada humana en git, bajo la guardia de curated/**: se revisa
