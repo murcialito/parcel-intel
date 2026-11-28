@@ -1601,3 +1601,7 @@ Licencia de un conjunto de Extremadura: **no se encontró** (no se halló conjun
 ### Conclusión (CA4)
 
 **Solo hay trazados.** El catálogo de Cáceres (CC BY 4.0, IDE Cáceres) da 274 caminos públicos aprobados que **deberían existir**, sin ningún dato de pérdida de traza, cancela ni obra de acceso, ni en el GeoJSON ni en la muestra de fichas. No es verdad conocida de cortes. Sirve, como mucho, de **control de recall de la capa de trazados**, no del método de cortes. En Extremadura no se encontró un conjunto descargable de pérdidas de traza, pero quedaron sin leer el visor IDEEX, CICTEX y la ficha de la Junta. Usarlo fuera de Madrid exigiría: la red del IGN y Catastro VT, que son nacionales; y un sustituto de las vías pecuarias de IDEM, que no tiene equivalente registrado en Extremadura (no se buscó, coste sin estimar). Además, pedir el WFS en EPSG:25829, no en 4326.
+
+## Capa derivada de servidumbre de cauces (historia #250)
+
+Fuente: colección `watercourse` de IDEE (IGN, CC BY 4.0, ver #247 y #257). La capa derivada `data/derived/servidumbre_cauces/<ine>.geojson` es **una aproximación** (eje + semianchura + 5 m), no deslinde ni zona de policía, y de uso interno hasta #251. Lleva la marca «Obra derivada de»; la cadena exacta de atribución con la tabla de `scne.es` queda para #251. La semianchura sale de `ancho_max`, o de `ancho_min` si falta, o es 0 (anotado en `anchura_usada`).

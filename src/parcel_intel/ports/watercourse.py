@@ -14,3 +14,13 @@ class WatercoursePort(Protocol):
         de IDEM: aquí "sin cauce cercano" es el caso normal de la mayoría
         de parcelas, confirmado real con Colmenar de Oreja)."""
         ...
+
+
+class WatercourseBboxPort(Protocol):
+    """Capacidad: todos los cauces de un bbox, de todas las páginas (historia #257)."""
+
+    def get_watercourses_in_bbox(
+        self, bbox: tuple[float, float, float, float], srid: int
+    ) -> list[Watercourse]:
+        """Todo o nada: ante una descarga incompleta lanza `WatercourseDownloadError`."""
+        ...

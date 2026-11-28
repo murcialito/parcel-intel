@@ -44,6 +44,8 @@ from parcel_intel.adapters.evidence import (
     default_png_http_get,
 )
 from parcel_intel.adapters.evidence.pnoa_png import NotPngResponseError
+from parcel_intel.adapters.hydrography import client as hydrography_client
+from parcel_intel.adapters.hydrography.adapter import HydrographyAdapter
 from parcel_intel.adapters.ign_admin_units import IgnAdministrativeUnitsAdapter
 from parcel_intel.adapters.ign_admin_units import client as ign_client
 from parcel_intel.adapters.ign_historic import HttpGet as HistoricHttpGet
@@ -87,9 +89,20 @@ from parcel_intel.adapters.road_layer_files import (
 from parcel_intel.adapters.road_layer_files.public_utility_forest_writer import (
     layer_to_geojson_text as forest_layer_to_geojson_text,
 )
+from parcel_intel.adapters.road_layer_files.watercourse_easement_writer import (
+    GeoJsonWatercourseEasementLayerWriter,
+    WatercourseEasementFileError,
+)
+from parcel_intel.adapters.road_layer_files.watercourse_easement_writer import (
+    layer_to_geojson_text as easement_layer_to_geojson_text,
+)
 from parcel_intel.adapters.road_network import client as roadlink_client
 from parcel_intel.adapters.road_network.adapter import RoadNetworkAdapter
-from parcel_intel.adapters.shapely_geometry import ShapelyLineClipper, ShapelyPolygonClipper
+from parcel_intel.adapters.shapely_geometry import (
+    ShapelyLineBuffer,
+    ShapelyLineClipper,
+    ShapelyPolygonClipper,
+)
 from parcel_intel.adapters.trail_layers import (
     GeoJsonCadastralRoadWriter,
     GeoJsonTrailLayerReader,
@@ -118,6 +131,9 @@ from parcel_intel.application.build_municipal_public_utility_forest_layers impor
     BuildMunicipalPublicUtilityForestLayersUseCase,
 )
 from parcel_intel.application.build_municipal_road_layers import BuildMunicipalRoadLayersUseCase
+from parcel_intel.application.build_municipal_watercourse_easement_layers import (
+    BuildMunicipalWatercourseEasementLayersUseCase,
+)
 from parcel_intel.application.build_trail_evidence import BuildTrailEvidenceUseCase
 from parcel_intel.application.cut_signals import CadastralParcelSignalProvider
 from parcel_intel.application.detect_cut_candidates import DetectCutCandidatesUseCase
@@ -172,6 +188,7 @@ from parcel_intel.domain.published_discrepancy import OmittedByLicense
 from parcel_intel.domain.published_layers import PUBLISHED_LAYERS, PublishedLayerId
 from parcel_intel.domain.road_segment import ROAD_SURFACES, RoadSurface
 from parcel_intel.domain.rule import Rule, WithinDistanceCondition
+from parcel_intel.domain.watercourse_easement import MunicipalWatercourseEasementLayer
 from parcel_intel.domain.width_signal import MunicipalWidthReport
 from parcel_intel.ports.errors import (
     AreaQueryLimitExceededError,
@@ -188,6 +205,8 @@ from parcel_intel.ports.errors import (
     RawImageMismatchError,
     RuleProposalNotFoundError,
     TruncatedAreaQueryError,
+    WatercourseDownloadError,
+    WatercourseLicenseMissingError,
     WorkingImageUnavailableError,
 )
 from parcel_intel.ports.georeference_repository import GeoreferenceRepositoryPort
@@ -486,6 +505,95 @@ def _montes_utilidad_publica_municipios(args: argparse.Namespace) -> int:
             failed = True
             continue
         print(_format_forest_layer(layer))
+        print(f"  fichero: {path}")
+    return 1 if failed else 0
+
+
+def _format_easement_layer(layer: MunicipalWatercourseEasementLayer) -> str:
+    municipality = layer.municipality
+    lines = [
+        f"{municipality.ine_code} {municipality.name}",
+        f"  aviso: {layer.notice}",
+        f"  método: {layer.method}",
+        f"  límite: {_format_provenance(municipality.provenance)}",
+    ]
+    if not layer.strips:
+        lines.append("  sin cauces")
+        return "\n".join(lines)
+    lines.append(f"  franjas: {len(layer.strips)}")
+    lines.append(f"  procedencia: {_format_provenance(layer.strips[0].provenance)}")
+    return "\n".join(lines)
+
+
+def build_municipal_easement_layers(
+    cache_dir: Path,
+    offline: bool,
+    ine_codes: Sequence[str] = AMBITO_HITO_INE,
+    ign_http_get: HttpGet = ign_client.default_http_getter,
+    hydrography_http_get: HttpGet = hydrography_client.default_http_getter,
+    today: Callable[[], date] = _today,
+    sleep: Callable[[float], None] = time.sleep,
+) -> tuple[MunicipalWatercourseEasementLayer, ...]:
+    """Composition root de la capa de servidumbre aproximada de cauces (historia #250).
+
+    Misma caché cruda inmutable que las demás capas. Con `offline=True` nada llama a la red."""
+    ign_fetcher = CachedRawFetcher(ign_http_get, cache_dir, today, sleep=sleep, offline=offline)
+    water_fetcher = CachedRawFetcher(
+        hydrography_http_get, cache_dir, today, sleep=sleep, offline=offline
+    )
+    use_case = BuildMunicipalWatercourseEasementLayersUseCase(
+        boundaries=IgnAdministrativeUnitsAdapter(
+            AMBITO_HITO_BBOX_ETRS89, fetcher=ign_fetcher, today=today
+        ),
+        watercourses=HydrographyAdapter(fetcher=water_fetcher, today=today),
+        buffering=ShapelyLineBuffer(),
+        clipper=ShapelyPolygonClipper(),
+    )
+    return use_case.execute(ine_codes)
+
+
+def _servidumbre_cauces_municipios(args: argparse.Namespace) -> int:
+    codes: list[str] = list(AMBITO_HITO_INE) if args.ambito else []
+    codes.extend(code for code in args.municipio if code not in codes)
+    if not codes:
+        codes = list(AMBITO_HITO_INE)
+    try:
+        layers = build_municipal_easement_layers(args.cache, args.sin_red, codes)
+        # Todo o nada: se serializan todas las capas con cauces antes de escribir ninguna.
+        for layer in layers:
+            if layer.strips:
+                easement_layer_to_geojson_text(layer)
+    except (
+        MunicipalBoundaryNotFoundError,
+        MunicipalBoundaryUnusableError,
+        IncompleteWfsResponseError,
+        ClippedGeometryHasHolesError,
+        RawCacheMissError,
+        RawCacheCorruptError,
+        WatercourseDownloadError,
+        WatercourseLicenseMissingError,
+        WatercourseEasementFileError,
+    ) as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    except requests.RequestException as error:
+        print(f"Error de red: {error}", file=sys.stderr)
+        return 1
+    writer = GeoJsonWatercourseEasementLayerWriter(args.salida)
+    failed = False
+    for layer in layers:
+        print(_format_easement_layer(layer))
+        if not layer.strips:
+            continue
+        try:
+            path = writer.write(layer)
+        except OSError as error:
+            print(
+                f"FALLO {layer.municipality.ine_code} {layer.municipality.name}: {error}",
+                file=sys.stderr,
+            )
+            failed = True
+            continue
         print(f"  fichero: {path}")
     return 1 if failed else 0
 
@@ -1853,6 +1961,34 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Directorio de los ficheros <codigo_ine>.geojson",
     )
     montes_parser.set_defaults(func=_montes_utilidad_publica_municipios)
+
+    servidumbre_parser = subparsers.add_parser(
+        "servidumbre-cauces-municipios",
+        help="Capa derivada de la zona de servidumbre aproximada de los cauces, por municipio",
+    )
+    servidumbre_parser.add_argument(
+        "--municipio",
+        type=_municipality_code,
+        action="append",
+        default=[],
+        help="Código INE de 5 dígitos (repetible)",
+    )
+    servidumbre_parser.add_argument(
+        "--ambito", action="store_true", help="Los 7 municipios del primer hito (por defecto)"
+    )
+    servidumbre_parser.add_argument(
+        "--sin-red", action="store_true", help="Solo la caché cruda; falla si falta algo"
+    )
+    servidumbre_parser.add_argument(
+        "--cache", type=Path, default=Path("data/raw"), help="Directorio de la caché cruda"
+    )
+    servidumbre_parser.add_argument(
+        "--salida",
+        type=Path,
+        default=Path("data/derived/servidumbre_cauces"),
+        help="Directorio de los ficheros <codigo_ine>.geojson",
+    )
+    servidumbre_parser.set_defaults(func=_servidumbre_cauces_municipios)
 
     camino_parser = subparsers.add_parser(
         "camino-actual-municipios",
