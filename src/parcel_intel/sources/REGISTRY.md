@@ -1199,6 +1199,7 @@ El WMS de la IDEM publica las mismas tres capas, con el **mismo identificador** 
 
 - **Consecuencia para #207**: hay ventana directa por `GetMap` en EPSG:25830 con 0,5 m por píxel, igual que el WMS del IGN de #122/#124; **no hace falta mosaico y recorte de teselas**. Las teselas WMTS (solo KVP, `EPSG3857` o `VGCM:epsg:25830`) quedan como alternativa. Hay que aplicar a cada respuesta la comprobación de varianza, porque fuera de cobertura el servicio responde 200 con una imagen blanca. No se ha probado el límite de tamaño de ventana de este WMS.
 - **COG**: la ficha de 1956 lista «ortofotos en formato tiff, ecw, cog» pero «Vuelo no disponible para descarga»; no se ha probado ni se usa. Las de 1975 y 1991 solo listan «mosaico en formato ecw».
+- **Uso en #208** (ADR 0052): 1975 (`CM_1975`) y 1991 (`CM_1991`) entran en la serie de imágenes de comparación como franjas propias y se enlazan en las fichas de tramos a verificar con la atribución literal precedida de «Obra derivada de» y el aviso de carácter informativo. 1956 (`CM_1956`) queda fuera de la serie hasta confirmar la licencia del CECAF (decisión del fundador en #208). Medidas de `GetMap` del arquitecto, 2026-11-27: 1024 × 1024 px en `CM_1975` → 200 `image/png`, 1.488.555 bytes, idénticos en dos peticiones; `CM_1991` en la ventana `463638,4437138,463862,4437362` (448 px) → 200 `image/png`, 218.049 bytes, imagen real. Esa ventana es la del test de integración de #208 (CA10, marcador `red`).
 
 ### Fecha y cobertura de cada vuelo (CA6)
 
