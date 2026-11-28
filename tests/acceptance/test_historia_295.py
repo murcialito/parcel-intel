@@ -654,13 +654,13 @@ def test_ca11_guarda_de_entorno(
     assert not datos.exists()
 
 
-
 def test_ca11_claudecode_ya_no_bloquea() -> None:
     """CA11, enmienda del ADR 0055 §5 (2026-11-28): en local, Claude Code puede lanzar la
     sincronización si el fundador se lo pide, así que `CLAUDECODE` no está en la guarda. CI y
     Actions siguen bloqueados."""
     assert main.PRIVATE_DATA_ENV_GUARD == ("CI", "GITHUB_ACTIONS")
     assert "CLAUDECODE" not in main.PRIVATE_DATA_ENV_GUARD
+
 
 # --- CA13 --------------------------------------------------------------------------------
 

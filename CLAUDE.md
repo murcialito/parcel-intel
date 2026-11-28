@@ -232,8 +232,8 @@ uv run python -m parcel_intel.cli.main historico cargar 280075-w1 --curated test
 # aceptable o tiene aprobaciones caducadas. La imagen de trabajo sale de --cache y PNOA de --cache-pnoa; --sin-red: solo desde las cachés.
 uv run python -m parcel_intel.cli.main historico evidencia <unit_id> [--curated curated/historico] [--cache data/raw/ign_planimetrias] [--cache-pnoa data/raw/pnoa_ma] [--sin-red]
 
-# Sincronización de bajada de los datos privados (historia #295, ADR 0055 y 0059). SOLO la lanza el fundador desde su terminal: ningún agente (ni en
-# Actions ni en local) y ningún workflow la ejecuta. Lee con el `gh` del usuario (>= 2.28, sesión de `gh auth login`; el comando no lee ni pasa credenciales)
+# Sincronización de bajada de los datos privados (historia #295, ADR 0055 y 0059). La lanza el fundador desde su terminal o, en local, Claude Code solo
+# si el fundador se lo pide en esa sesión; ningún workflow ni agente autónomo (ni en Actions ni por iniciativa propia) la ejecuta. Lee con el `gh` del usuario (>= 2.28, sesión de `gh auth login`; el comando no lee ni pasa credenciales)
 # todos los catálogos del repo privado, los valida enteros antes de descargar nada (lista blanca de claves, rutas bajo raw/ o derived/, sin titularidad ni
 # referencias catastrales; los mensajes nombran fichero, posición y campo, nunca el valor) y baja cada fichero a data/<destino>, comprobando tamaño y sha256 en
 # una zona de preparación (data/privados/.preparacion, se borra siempre) antes de colocarlo. Nunca sobrescribe: no sobrescribe un fichero ni un registro
