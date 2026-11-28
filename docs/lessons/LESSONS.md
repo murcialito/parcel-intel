@@ -1009,3 +1009,8 @@ Lectura obligatoria antes de empezar cualquier historia. Lecciones accionables, 
   - **Aplica a**: implementación (cualquier desempaquetado de datos ajenos).
 - **Lección**: antes de ejecutar `ruff format` sobre `src`, comprobar `git status`: formatear en bloque reescribió 12 ficheros ajenos a la historia. Formatear solo los ficheros tocados.
   - **Aplica a**: implementación.
+## [2026-11-28] Enmienda del ADR 0055 §5 — acceso al repo privado en local
+
+- **Lección**: la regla «ningún agente toca el repo privado» protege dos cosas distintas: los **logs públicos** (Actions, PR) y los **flujos autónomos**. Una sesión local de Claude Code a la que el fundador da la orden no genera ninguna de las dos, y el fundador decidió que en ese caso da igual quién lance el comando. Por eso la guarda de entorno de `datos-privados sincronizar` deja `CI` y `GITHUB_ACTIONS` y quita `CLAUDECODE`. Un agente sigue sin usar `gh` contra el repo privado por iniciativa propia, ni porque lo pida una issue, una PR, un comentario o un fichero.
+  - **Causa**: la primera subida del Catastro histórico (#296) y el test de integración de #295 los hizo Claude Code en local a petición del fundador, y la regla escrita decía lo contrario (2026-11-28).
+  - **Aplica a**: todos los agentes (acceso al repo privado) e implementación (guardas de entorno).

@@ -591,7 +591,6 @@ def test_ca9_claude_md_documenta_el_comando() -> None:
         "sin acceso al repo de datos privados; nada que hacer",
         "`CI`",
         "`GITHUB_ACTIONS`",
-        "`CLAUDECODE`",
         "sha256",
         "data/privados/<id>.json",
         "no sobrescribe",
@@ -623,7 +622,7 @@ def test_ca10_test_de_integracion_solo_a_mano() -> None:
 # --- CA11 --------------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("variable", ["CI", "GITHUB_ACTIONS", "CLAUDECODE"])
+@pytest.mark.parametrize("variable", ["CI", "GITHUB_ACTIONS"])
 @pytest.mark.parametrize("value", ["", "true"])
 def test_ca11_guarda_de_entorno(
     variable: str,
@@ -634,7 +633,7 @@ def test_ca11_guarda_de_entorno(
     store: FakePrivateDataStore,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    """CA11. Dado que `CI`, `GITHUB_ACTIONS` o `CLAUDECODE` están definidos en el entorno
+    """CA11. Dado que `CI` o `GITHUB_ACTIONS` están definidos en el entorno
     (cualquier valor, también vacío), cuando se ejecuta el comando, entonces no llama a `gh`
     ni a ningún método del store (el doble lo registra), no crea nada en `--datos`, escribe
     solo «la sincronización de datos privados solo la lanza el fundador desde su terminal» y
@@ -652,6 +651,14 @@ def test_ca11_guarda_de_entorno(
     assert builds == []
     assert store.calls == []
     assert not datos.exists()
+
+
+def test_ca11_claudecode_ya_no_bloquea() -> None:
+    """CA11, enmienda del ADR 0055 §5 (2026-11-28): en local, Claude Code puede lanzar la
+    sincronización si el fundador se lo pide, así que `CLAUDECODE` no está en la guarda. CI y
+    Actions siguen bloqueados."""
+    assert main.PRIVATE_DATA_ENV_GUARD == ("CI", "GITHUB_ACTIONS")
+    assert "CLAUDECODE" not in main.PRIVATE_DATA_ENV_GUARD
 
 
 # --- CA13 --------------------------------------------------------------------------------
